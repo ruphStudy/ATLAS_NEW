@@ -1,0 +1,119 @@
+version: '3.9'
+
+name: atlas
+
+services:
+  # ──────────────────────────────────────────────
+  # PostgreSQL 17
+  # ──────────────────────────────────────────────
+  postgres:
+    image: postgres:17-alpine
+    container_name: atlas_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-atlas_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-atlas_password}
+      POSTGRES_DB: ${POSTGRES_DB:-atlas_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/00_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-atlas_user} -d ${POSTGRES_DB:-atlas_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - atlas_network
+
+  # ──────────────────────────────────────────────
+  # Redis 7
+  # ──────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: atlas_redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-atlas_redis_password}
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-atlas_redis_password}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - atlas_network
+
+  # ──────────────────────────────────────────────
+  # NestJS Backend
+  # ──────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/backend/Dockerfile
+      target: development
+    container_name: atlas_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - atlas_network
+
+  # ──────────────────────────────────────────────
+  # Next.js Frontend
+  # ──────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile
+      target: development
+    container_name: atlas_frontend
+    restart: unless-stopped
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - atlas_network
+
+# ──────────────────────────────────────────────
+# Volumes
+# ──────────────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# ──────────────────────────────────────────────
+# Networks
+# ──────────────────────────────────────────────
+networks:
+  atlas_network:
+    driver: bridge

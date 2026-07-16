@@ -1,0 +1,18 @@
+# CODEOWNERS
+# These owners are automatically requested for review on PRs.
+
+# Global ownership
+* @atlas-team
+
+# Backend
+/backend/src/config/       @atlas-backend-lead
+/backend/src/database/     @atlas-backend-lead
+/backend/prisma/           @atlas-backend-lead
+
+# Frontend
+/frontend/src/lib/         @atlas-frontend-lead
+
+# Infrastructure
+/docker/                   @atlas-devops
+/docker-compose.yml        @atlas-devops
+/.github/                  @atlas-devops

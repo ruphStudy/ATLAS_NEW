@@ -1,0 +1,507 @@
+// =============================================================
+// ATLAS – AI Commerce Operating System
+// Prisma Schema
+// =============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================
+// ENUMS
+// =============================================================
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MANAGER
+  ANALYST
+  VIEWER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum WorkspaceStatus {
+  ACTIVE
+  SUSPENDED
+  TRIAL
+  CANCELLED
+}
+
+enum WorkspacePlan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum OpportunityStatus {
+  DISCOVERED
+  ANALYZING
+  VALIDATED
+  IN_PROGRESS
+  REJECTED
+  ARCHIVED
+}
+
+enum DiscoverySessionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum SupplierStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_REVIEW
+  BLACKLISTED
+}
+
+enum SupplierTier {
+  GOLD
+  SILVER
+  BRONZE
+  UNVERIFIED
+}
+
+enum SupplierSourceProvider {
+  INDIAMART
+  TRADEINDIA
+  ALIBABA
+  MANUAL
+}
+
+enum SupplierDiscoverySessionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum VerificationStatus {
+  PENDING
+  IN_PROGRESS
+  VERIFIED
+  REJECTED
+  REVIEW_REQUIRED
+}
+
+enum VerificationCheckStatus {
+  PASSED
+  FAILED
+  SKIPPED
+  MANUAL_OVERRIDE
+}
+
+enum AnalysisStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+// =============================================================
+// MODELS
+// =============================================================
+
+// Every business record belongs to a Workspace (DB-002)
+model Workspace {
+  id          String          @id @default(uuid())
+  name        String
+  slug        String          @unique
+  description String?
+  logoUrl     String?         @map("logo_url")
+  ownerId     String?         @map("owner_id")
+  status      WorkspaceStatus @default(ACTIVE)
+  plan        WorkspacePlan   @default(FREE)
+
+  // Flexible configuration (no schema migrations for settings changes)
+  settings Json @default("{}")
+  metadata Json @default("{}")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  users              User[]
+  opportunities      Opportunity[]
+  discoverySessions  DiscoverySession[]
+  suppliers                 Supplier[]
+  supplierDiscoverySessions SupplierDiscoverySession[]
+  productAnalyses           ProductAnalysis[]
+
+  @@index([slug])
+  @@index([ownerId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("workspaces")
+}
+
+model User {
+  id          String     @id @default(uuid())
+  workspaceId String     @map("workspace_id")
+  email       String     @unique
+  firstName   String     @map("first_name")
+  lastName    String     @map("last_name")
+  passwordHash String    @map("password_hash")
+  role        UserRole   @default(VIEWER)
+  status      UserStatus @default(PENDING_VERIFICATION)
+
+  // Profile
+  avatarUrl String? @map("avatar_url")
+  phone     String?
+  timezone  String  @default("UTC")
+  locale    String  @default("en-US")
+
+  // Auth tracking
+  lastLoginAt       DateTime? @map("last_login_at")
+  emailVerifiedAt   DateTime? @map("email_verified_at")
+  refreshTokenHash  String?   @map("refresh_token_hash")
+
+  // Flexible metadata (DB-006 – avoid schema bloat)
+  metadata Json @default("{}")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+  @@index([email])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Opportunity {
+  id          String @id @default(uuid())
+  workspaceId String @map("workspace_id")
+  keyword     String
+  marketplace String
+  country     String @default("US")
+  category    String?
+
+  // AI-generated scores (0–100, nullable until AI processes the record)
+  demandScore      Float? @map("demand_score")
+  competitionScore Float? @map("competition_score")
+  supplierScore    Float? @map("supplier_score")
+  profitScore      Float? @map("profit_score")
+  aiScore          Float? @map("ai_score")
+  finalScore       Float? @map("final_score")
+
+  recommendation String?
+  status         OpportunityStatus @default(DISCOVERED)
+  notes          String?
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+  @@index([status])
+  @@index([marketplace])
+  @@index([finalScore])
+  @@index([deletedAt])
+  @@map("opportunities")
+}
+
+model DiscoverySession {
+  id                String                 @id @default(uuid())
+  workspaceId       String                 @map("workspace_id")
+  marketplace       String
+  country           String                 @default("US")
+  categories        Json                   @default("[]")
+  keywords          Json                   @default("[]")
+  status            DiscoverySessionStatus @default(PENDING)
+  totalDiscovered   Int                    @default(0) @map("total_discovered")
+  newOpportunities  Int                    @default(0) @map("new_opportunities")
+  duplicatesSkipped Int                    @default(0) @map("duplicates_skipped")
+  errorMessage      String?                @map("error_message")
+  startedAt         DateTime?              @map("started_at")
+  completedAt       DateTime?              @map("completed_at")
+
+  // Audit fields (DB-004)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  workspace Workspace        @relation(fields: [workspaceId], references: [id])
+  results   DiscoveryResult[]
+
+  @@index([workspaceId])
+  @@index([status])
+  @@index([marketplace])
+  @@index([createdAt])
+  @@map("discovery_sessions")
+}
+
+model DiscoveryResult {
+  id            String   @id @default(uuid())
+  sessionId     String   @map("session_id")
+  opportunityId String?  @map("opportunity_id")
+  keyword       String
+  marketplace   String
+  country       String   @default("US")
+  category      String?
+  isDuplicate   Boolean  @default(false) @map("is_duplicate")
+  rank          Int?
+  rawData       Json     @default("{}") @map("raw_data")
+
+  // Audit fields (DB-004)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  session DiscoverySession @relation(fields: [sessionId], references: [id])
+
+  @@index([sessionId])
+  @@index([keyword])
+  @@index([isDuplicate])
+  @@index([marketplace])
+  @@map("discovery_results")
+}
+
+// =============================================================
+// SUPPLIER DISCOVERY ENGINE
+// =============================================================
+
+model Supplier {
+  id                 String                 @id @default(uuid())
+  workspaceId        String                 @map("workspace_id")
+  name               String
+  provider           SupplierSourceProvider @default(MANUAL)
+  providerSupplierId String?                @map("provider_supplier_id")
+  country            String                 @default("IN")
+  city               String?
+  website            String?
+  contactEmail       String?                @map("contact_email")
+  contactPhone       String?                @map("contact_phone")
+  tier               SupplierTier           @default(UNVERIFIED)
+  status             SupplierStatus         @default(PENDING_REVIEW)
+  categories         Json                   @default("[]")
+  minOrderQuantity   Int?                   @map("min_order_quantity")
+  avgLeadTimeDays    Int?                   @map("avg_lead_time_days")
+  overallRating      Float?                 @map("overall_rating")
+  notes              String?
+  rawData            Json                   @default("{}") @map("raw_data")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace        Workspace                 @relation(fields: [workspaceId], references: [id])
+  opportunityLinks OpportunitySupplier[]
+  discoveryResults SupplierDiscoveryResult[]
+  verifications    SupplierVerification[]
+
+  @@unique([workspaceId, provider, providerSupplierId])
+  @@index([workspaceId])
+  @@index([provider])
+  @@index([status])
+  @@index([tier])
+  @@index([country])
+  @@index([deletedAt])
+  @@map("suppliers")
+}
+
+model OpportunitySupplier {
+  id            String   @id @default(uuid())
+  opportunityId String   @map("opportunity_id")
+  supplierId    String   @map("supplier_id")
+  workspaceId   String   @map("workspace_id")
+  rank          Int      @default(0)
+  notes         String?
+
+  // Audit fields (DB-004)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@unique([opportunityId, supplierId])
+  @@index([opportunityId])
+  @@index([supplierId])
+  @@index([workspaceId])
+  @@map("opportunity_suppliers")
+}
+
+model SupplierDiscoverySession {
+  id                String                        @id @default(uuid())
+  workspaceId       String                        @map("workspace_id")
+  provider          SupplierSourceProvider
+  keyword           String
+  country           String                        @default("IN")
+  category          String?
+  status            SupplierDiscoverySessionStatus @default(PENDING)
+  totalDiscovered   Int                           @default(0) @map("total_discovered")
+  newSuppliers      Int                           @default(0) @map("new_suppliers")
+  duplicatesSkipped Int                           @default(0) @map("duplicates_skipped")
+  errorMessage      String?                       @map("error_message")
+  startedAt         DateTime?                     @map("started_at")
+  completedAt       DateTime?                     @map("completed_at")
+
+  // Audit fields (DB-004)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  workspace Workspace                @relation(fields: [workspaceId], references: [id])
+  results   SupplierDiscoveryResult[]
+
+  @@index([workspaceId])
+  @@index([provider])
+  @@index([status])
+  @@index([createdAt])
+  @@map("supplier_discovery_sessions")
+}
+
+model SupplierDiscoveryResult {
+  id          String   @id @default(uuid())
+  sessionId   String   @map("session_id")
+  supplierId  String?  @map("supplier_id")
+  isDuplicate Boolean  @default(false) @map("is_duplicate")
+  rawData     Json     @default("{}") @map("raw_data")
+
+  // Audit fields (DB-004)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  session  SupplierDiscoverySession @relation(fields: [sessionId], references: [id])
+  supplier Supplier?                @relation(fields: [supplierId], references: [id])
+
+  @@index([sessionId])
+  @@index([supplierId])
+  @@index([isDuplicate])
+  @@map("supplier_discovery_results")
+}
+
+// =============================================================
+// SUPPLIER VERIFICATION ENGINE
+// =============================================================
+
+model SupplierVerification {
+  id             String             @id @default(uuid())
+  workspaceId    String             @map("workspace_id")
+  supplierId     String             @map("supplier_id")
+  status         VerificationStatus @default(PENDING)
+  score          Float?
+  scoreThreshold Float              @default(70) @map("score_threshold")
+  isLatest       Boolean            @default(true) @map("is_latest")
+  overrideNotes  String?            @map("override_notes")
+  overriddenBy   String?            @map("overridden_by")
+  overriddenAt   DateTime?          @map("overridden_at")
+  completedAt    DateTime?          @map("completed_at")
+  rulesSnapshot  Json               @default("{}") @map("rules_snapshot")
+
+  // Audit fields (DB-004)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  supplier     Supplier                  @relation(fields: [supplierId], references: [id])
+  checkResults VerificationCheckResult[]
+
+  @@index([workspaceId])
+  @@index([supplierId])
+  @@index([status])
+  @@index([isLatest])
+  @@map("supplier_verifications")
+}
+
+model VerificationCheckResult {
+  id             String                  @id @default(uuid())
+  verificationId String                  @map("verification_id")
+  checkName      String                  @map("check_name")
+  status         VerificationCheckStatus @default(SKIPPED)
+  weight         Float                   @default(10)
+  score          Float                   @default(0)
+  message        String?
+  details        Json                    @default("{}")
+  executedAt     DateTime?               @map("executed_at")
+
+  // Audit fields (DB-004)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  verification SupplierVerification @relation(fields: [verificationId], references: [id])
+
+  @@index([verificationId])
+  @@index([checkName])
+  @@map("verification_check_results")
+}
+
+model VerificationRuleConfig {
+  id             String   @id @default(uuid())
+  workspaceId    String   @unique @map("workspace_id")
+  rules          Json     @default("{}")
+  scoreThreshold Float    @default(70) @map("score_threshold")
+
+  // Audit fields (DB-004)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("verification_rule_configs")
+}
+model ProductAnalysis {
+  id            String         @id @default(uuid())
+  workspaceId   String         @map("workspace_id")
+  opportunityId String         @map("opportunity_id")
+  version       Int            @default(1)
+  status        AnalysisStatus @default(PENDING)
+
+  // Analysis results
+  demandAnalysis      Json?  @map("demand_analysis")
+  competitionAnalysis Json?  @map("competition_analysis")
+  profitCalculation   Json?  @map("profit_calculation")
+  supplierAnalysis    Json?  @map("supplier_analysis")
+
+  // Aggregated scores (0-100)
+  demandScore      Float? @map("demand_score")
+  competitionScore Float? @map("competition_score")
+  profitScore      Float? @map("profit_score")
+  supplierScore    Float? @map("supplier_score")
+  finalScore       Float? @map("final_score")
+
+  // Execution tracking
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  errorMessage String?  @map("error_message")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+  @@index([opportunityId])
+  @@index([status])
+  @@index([version])
+  @@index([deletedAt])
+  @@map("product_analyses")
+}
