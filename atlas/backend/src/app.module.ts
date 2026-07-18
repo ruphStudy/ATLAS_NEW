@@ -38,6 +38,27 @@ import { DiscoveryModule } from '@modules/discovery/discovery.module';
 import { SupplierDiscoveryModule } from '@modules/supplier-discovery/supplier-discovery.module';
 import { SupplierVerificationModule } from '@modules/supplier-verification/supplier-verification.module';
 import { ProductAnalysisModule } from '@modules/product-analysis/product-analysis.module';
+import { CompetitionAnalysisModule } from '@modules/competition-analysis/competition-analysis.module';
+import { ProfitCalculatorModule } from '@modules/profit-calculator/profit-calculator.module';
+import { ProductScoringModule } from '@modules/product-scoring/product-scoring.module';
+import { RfqModule } from '@modules/rfq/rfq.module';
+import { QuotationComparisonModule } from '@modules/quotation-comparison/quotation-comparison.module';
+import { ProductCostModule } from '@modules/product-cost/product-cost.module';
+import { ProcurementModule } from '@modules/procurement/procurement.module';
+import { PurchaseOrderModule } from '@modules/purchase-order/purchase-order.module';
+import { ShipmentTrackingModule } from '@modules/shipment-tracking/shipment-tracking.module';
+import { QualityInspectionModule } from '@modules/quality-inspection/quality-inspection.module';
+import { ProductCatalogModule } from '@modules/product-catalog/product-catalog.module';
+import { AiDescriptionModule } from '@modules/ai-description/ai-description.module';
+import { AiImageModule } from '@modules/ai-image/ai-image.module';
+import { AiSeoModule } from '@modules/ai-seo/ai-seo.module';
+import { ListingApprovalModule } from '@modules/listing-approval/listing-approval.module';
+import { ListingPublisherModule } from '@modules/listing-publisher/listing-publisher.module';
+import { SupplierProviderModule } from '@modules/supplier-provider/supplier-provider.module';
+import { IndiaMartModule } from '@modules/supplier-provider/adapters/providers/indiamart.module';
+import { AlibabaModule } from '@modules/supplier-provider/adapters/providers/alibaba.module';
+import { TradeIndiaModule } from '@modules/supplier-provider/adapters/providers/tradeindia.module';
+import { MarketplaceListingMappingModule } from '@modules/marketplace-listing-mapping/marketplace-listing-mapping.module';
 
 // Infrastructure Modules
 import { QueuesModule } from './queues/queues.module';
@@ -108,6 +129,27 @@ import { AiModule } from './ai/ai.module';
     SupplierDiscoveryModule,
     SupplierVerificationModule,
     ProductAnalysisModule,
+    CompetitionAnalysisModule,
+    ProfitCalculatorModule,
+    ProductScoringModule,
+    RfqModule,
+    QuotationComparisonModule,
+    ProductCostModule,
+    ProcurementModule,
+    PurchaseOrderModule,
+    ShipmentTrackingModule,
+    QualityInspectionModule,
+    ProductCatalogModule,
+    AiDescriptionModule,
+    AiImageModule,
+    AiSeoModule,
+    ListingApprovalModule,
+    ListingPublisherModule,
+    SupplierProviderModule,
+    IndiaMartModule,
+    AlibabaModule,
+    TradeIndiaModule,
+    MarketplaceListingMappingModule,
 
     QueuesModule,
     WorkersModule,

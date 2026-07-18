@@ -1,0 +1,36 @@
+export const PROFIT_CONSTANTS = {
+  DEFAULT_VERSION: 1,
+  SCORE_MIN: 0,
+  SCORE_MAX: 100,
+
+  // Margin thresholds for scoring
+  EXCELLENT_MARGIN: 40,
+  GOOD_MARGIN: 25,
+  ACCEPTABLE_MARGIN: 15,
+  POOR_MARGIN: 5,
+
+  // ROI thresholds
+  EXCELLENT_ROI: 100,
+  GOOD_ROI: 50,
+  ACCEPTABLE_ROI: 25,
+
+  // Default fee rates (used when provider not configured)
+  DEFAULT_AMAZON_REFERRAL_FEE_RATE: 0.15,
+  DEFAULT_FBA_FULFILLMENT_FEE: 3.22,
+  DEFAULT_FBA_STORAGE_FEE_MONTHLY: 0.75,
+  DEFAULT_TAX_RATE: 0.0,
+} as const;
+
+export const PROFIT_QUEUE_CONFIG = {
+  CONCURRENCY: 5,
+  ATTEMPTS: 3,
+  BACKOFF_DELAY_MS: 5000,
+  REMOVE_ON_COMPLETE_COUNT: 100,
+  REMOVE_ON_FAIL_COUNT: 50,
+} as const;
+
+export const PROFIT_PROVIDER_NAMES = {
+  AMAZON_FBA: 'AMAZON_FBA',
+  AMAZON_FBM: 'AMAZON_FBM',
+  MANUAL: 'MANUAL',
+} as const;

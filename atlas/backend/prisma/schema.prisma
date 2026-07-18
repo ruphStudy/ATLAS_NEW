@@ -69,6 +69,32 @@ enum SupplierStatus {
   BLACKLISTED
 }
 
+enum SupplierManagementStatus {
+  PROSPECT
+  ACTIVE
+  PREFERRED
+  SUSPENDED
+  REJECTED
+  ARCHIVED
+}
+
+enum RfqStatus {
+  DRAFT
+  SENT
+  PARTIALLY_RESPONDED
+  RESPONDED
+  EXPIRED
+  CANCELLED
+  CLOSED
+}
+
+enum RfqSupplierResponseStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COUNTER_OFFERED
+}
+
 enum SupplierTier {
   GOLD
   SILVER
@@ -113,6 +139,16 @@ enum AnalysisStatus {
   FAILED
 }
 
+enum CompetitionProvider {
+  AMAZON_SEARCH
+}
+
+enum ProfitProvider {
+  AMAZON_FBA
+  AMAZON_FBM
+  MANUAL
+}
+
 // =============================================================
 // MODELS
 // =============================================================
@@ -144,6 +180,32 @@ model Workspace {
   suppliers                 Supplier[]
   supplierDiscoverySessions SupplierDiscoverySession[]
   productAnalyses           ProductAnalysis[]
+  competitionAnalyses       CompetitionAnalysis[]
+  profitCalculations        ProfitCalculation[]
+  productScores             ProductScore[]
+  rfqs                      Rfq[]
+  quotationComparisons      QuotationComparison[]
+  productCostCalculations   ProductCostCalculation[]
+  procurements              Procurement[]
+  purchaseOrders            PurchaseOrder[]
+  shipments                 Shipment[]
+  qualityInspections        QualityInspection[]
+  catalogProducts           CatalogProduct[]
+  aiDescriptions            AiDescription[]
+  aiImageSets               AiImageSet[]
+  aiSeoOptimizations        AiSeoOptimization[]
+  listings                  Listing[]
+  listingApprovals          ListingApproval[]
+  listingPublications       ListingPublication[]
+  supplierProviderConfigs   WorkspaceSupplierProviderConfig[]
+  marketplaceMappingConfigs MarketplaceMappingConfig[]
+  marketplaceTransformJobs  MarketplaceTransformationJob[]
+  universalListings         UniversalListing[]
+  marketplaceListings       MarketplaceListing[]
+  pricingRecords            PricingRecord[]
+  pricingConfigs            PricingConfig[]
+  marketplaceProviderConfigs  WorkspaceMarketplaceProviderConfig[]
+  marketplaceProviderAccounts MarketplaceProviderAccount[]
 
   @@index([slug])
   @@index([ownerId])
@@ -299,6 +361,27 @@ model Supplier {
   contactPhone       String?                @map("contact_phone")
   tier               SupplierTier           @default(UNVERIFIED)
   status             SupplierStatus         @default(PENDING_REVIEW)
+
+  // ── Management fields ─────────────────────────────────────────
+  legalName            String?                  @map("legal_name")
+  managementStatus     SupplierManagementStatus @default(PROSPECT) @map("management_status")
+
+  // Rich profile stored as JSON (avoids schema migrations for new fields)
+  addresses            Json?  @default("[]")
+  contactPersons       Json?  @default("[]") @map("contact_persons")
+  businessRegistration Json?  @map("business_registration")
+  taxIdentifiers       Json?  @default("[]") @map("tax_identifiers")
+  paymentTerms         Json?  @map("payment_terms")
+  shippingTerms        Json?  @map("shipping_terms")
+  certifications       Json?  @default("[]")
+  tags                 Json?  @default("[]")
+
+  // Scores
+  verificationScore  Float?  @map("verification_score")
+  verificationStatus String? @map("verification_status")
+  riskScore          Float?  @map("risk_score")
+  performanceScore   Float?  @map("performance_score")
+
   categories         Json                   @default("[]")
   minOrderQuantity   Int?                   @map("min_order_quantity")
   avgLeadTimeDays    Int?                   @map("avg_lead_time_days")
@@ -316,15 +399,76 @@ model Supplier {
   opportunityLinks OpportunitySupplier[]
   discoveryResults SupplierDiscoveryResult[]
   verifications    SupplierVerification[]
+  statusHistory    SupplierStatusHistory[]
+  profileHistory   SupplierProfileHistory[]
+  providerIdentities SupplierProviderIdentity[]
 
   @@unique([workspaceId, provider, providerSupplierId])
   @@index([workspaceId])
   @@index([provider])
   @@index([status])
+  @@index([managementStatus])
   @@index([tier])
   @@index([country])
   @@index([deletedAt])
   @@map("suppliers")
+}
+
+model SupplierStatusHistory {
+  id             String  @id @default(uuid())
+  supplierId     String  @map("supplier_id")
+  workspaceId    String  @map("workspace_id")
+  previousStatus String? @map("previous_status")
+  newStatus      String  @map("new_status")
+  reason         String?
+  changedBy      String? @map("changed_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@index([supplierId])
+  @@index([workspaceId])
+  @@index([createdAt])
+  @@map("supplier_status_history")
+}
+
+model SupplierProfileHistory {
+  id          String  @id @default(uuid())
+  supplierId  String  @map("supplier_id")
+  workspaceId String  @map("workspace_id")
+  snapshot    Json    @default("{}")
+  changedBy   String? @map("changed_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@index([supplierId])
+  @@index([workspaceId])
+  @@map("supplier_profile_history")
+}
+
+model SupplierProviderIdentity {
+  id                 String    @id @default(cuid())
+  supplierId         String    @map("supplier_id")
+  workspaceId        String    @map("workspace_id")
+  providerCode       String    @map("provider_code")
+  providerSupplierId String    @map("provider_supplier_id")
+  providerUrl        String?   @map("provider_url")
+  syncedAt           DateTime? @map("synced_at")
+  rawData            Json      @default("{}") @map("raw_data")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@unique([supplierId, providerCode])
+  @@unique([workspaceId, providerCode, providerSupplierId])
+  @@index([supplierId])
+  @@index([workspaceId])
+  @@index([providerCode])
+  @@map("supplier_provider_identities")
 }
 
 model OpportunitySupplier {
@@ -504,4 +648,2316 @@ model ProductAnalysis {
   @@index([version])
   @@index([deletedAt])
   @@map("product_analyses")
+}
+
+// =============================================================
+// COMPETITION ANALYSIS ENGINE
+// =============================================================
+
+model CompetitionAnalysis {
+  id            String              @id @default(uuid())
+  workspaceId   String              @map("workspace_id")
+  opportunityId String              @map("opportunity_id")
+  version       Int                 @default(1)
+  provider      CompetitionProvider @default(AMAZON_SEARCH)
+  status        AnalysisStatus      @default(PENDING)
+
+  // Core competition metrics
+  competitorCount     Int?   @map("competitor_count")
+  averagePrice        Float? @map("average_price")
+  minPrice            Float? @map("min_price")
+  maxPrice            Float? @map("max_price")
+  priceRange          Float? @map("price_range")
+
+  // Rich distribution / quality data stored as JSON
+  ratingDistribution  Json? @map("rating_distribution")
+  reviewDistribution  Json? @map("review_distribution")
+  brandDominance      Json? @map("brand_dominance")
+  sellerTypeBreakdown Json? @map("seller_type_breakdown")
+  listingQuality      Json? @map("listing_quality")
+  keywordCompetition  Json? @map("keyword_competition")
+
+  // Aggregated score (0–100; higher = more competitive market)
+  competitionScore Float? @map("competition_score")
+
+  // Raw provider payload
+  rawData Json @default("{}") @map("raw_data")
+
+  // Execution tracking
+  startedAt    DateTime? @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  errorMessage String?   @map("error_message")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace Workspace                      @relation(fields: [workspaceId], references: [id])
+  snapshots CompetitionAnalysisSnapshot[]
+
+  @@index([workspaceId])
+  @@index([opportunityId])
+  @@index([status])
+  @@index([provider])
+  @@index([version])
+  @@index([deletedAt])
+  @@map("competition_analyses")
+}
+
+model CompetitionAnalysisSnapshot {
+  id         String @id @default(uuid())
+  analysisId String @map("analysis_id")
+  version    Int
+
+  // Full result snapshot stored as JSON for historical reference
+  data Json @default("{}")
+
+  // Audit
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  analysis CompetitionAnalysis @relation(fields: [analysisId], references: [id])
+
+  @@index([analysisId])
+  @@map("competition_analysis_snapshots")
+}
+
+// =============================================================
+// PROFIT CALCULATOR ENGINE
+// =============================================================
+
+model ProfitCalculation {
+  id            String         @id @default(uuid())
+  workspaceId   String         @map("workspace_id")
+  opportunityId String         @map("opportunity_id")
+  version       Int            @default(1)
+  provider      ProfitProvider @default(AMAZON_FBA)
+  status        AnalysisStatus @default(PENDING)
+
+  // Caller-supplied overrides (stored so worker can replay with same inputs)
+  productCostOverride   Float? @map("product_cost_override")
+  shippingCostOverride  Float? @map("shipping_cost_override")
+  packagingCostOverride Float? @map("packaging_cost_override")
+  advertisingCostOverride Float? @map("advertising_cost_override")
+  taxRateOverride       Float? @map("tax_rate_override")
+  sellingPriceOverride  Float? @map("selling_price_override")
+
+  // Calculated cost breakdown
+  productCost     Float? @map("product_cost")
+  shippingCost    Float? @map("shipping_cost")
+  packagingCost   Float? @map("packaging_cost")
+  advertisingCost Float? @map("advertising_cost")
+  tax             Float?
+  marketplaceFees Float? @map("marketplace_fees")
+  fbaFees         Float? @map("fba_fees")
+  totalLandedCost Float? @map("total_landed_cost")
+
+  // Revenue & profit
+  sellingPrice  Float? @map("selling_price")
+  grossProfit   Float? @map("gross_profit")
+  netProfit     Float? @map("net_profit")
+  profitMargin  Float? @map("profit_margin")
+  roi           Float?
+  breakEvenPrice Float? @map("break_even_price")
+
+  // Score (0–100)
+  profitScore Float? @map("profit_score")
+
+  // Raw provider payload
+  rawData Json @default("{}") @map("raw_data")
+
+  // Execution tracking
+  startedAt    DateTime? @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  errorMessage String?   @map("error_message")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace Workspace                  @relation(fields: [workspaceId], references: [id])
+  snapshots ProfitCalculationSnapshot[]
+
+  @@index([workspaceId])
+  @@index([opportunityId])
+  @@index([status])
+  @@index([provider])
+  @@index([version])
+  @@index([deletedAt])
+  @@map("profit_calculations")
+}
+
+model ProfitCalculationSnapshot {
+  id            String @id @default(uuid())
+  calculationId String @map("calculation_id")
+  version       Int
+
+  data Json @default("{}")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  calculation ProfitCalculation @relation(fields: [calculationId], references: [id])
+
+  @@index([calculationId])
+  @@map("profit_calculation_snapshots")
+}
+
+// =============================================================
+// PRODUCT SCORING ENGINE
+// =============================================================
+
+enum Recommendation {
+  BUY
+  REVIEW
+  REJECT
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ConfidenceLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model ProductScore {
+  id            String         @id @default(uuid())
+  workspaceId   String         @map("workspace_id")
+  opportunityId String         @map("opportunity_id")
+  version       Int            @default(1)
+  status        AnalysisStatus @default(PENDING)
+
+  // Input sub-scores
+  demandScore      Float? @map("demand_score")
+  competitionScore Float? @map("competition_score")
+  profitScore      Float? @map("profit_score")
+  supplierScore    Float? @map("supplier_score")
+
+  // Weights used for this scoring run
+  weights Json? @default("null")
+
+  // Output
+  finalScore       Float?          @map("final_score")
+  recommendation   Recommendation?
+  confidenceLevel  ConfidenceLevel? @map("confidence_level")
+  confidenceScore  Float?          @map("confidence_score")
+  strengths        Json?           @default("[]")
+  weaknesses       Json?           @default("[]")
+  riskLevel        RiskLevel?      @map("risk_level")
+
+  // Execution tracking
+  startedAt    DateTime? @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  errorMessage String?   @map("error_message")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace Workspace             @relation(fields: [workspaceId], references: [id])
+  snapshots ProductScoreSnapshot[]
+
+  @@index([workspaceId])
+  @@index([opportunityId])
+  @@index([status])
+  @@index([recommendation])
+  @@index([riskLevel])
+  @@index([version])
+  @@index([deletedAt])
+  @@map("product_scores")
+}
+
+model ProductScoreSnapshot {
+  id      String @id @default(uuid())
+  scoreId String @map("score_id")
+  version Int
+
+  data Json @default("{}")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  score ProductScore @relation(fields: [scoreId], references: [id])
+
+  @@index([scoreId])
+  @@map("product_score_snapshots")
+}
+
+// =============================================================
+// RFQ MANAGEMENT
+// =============================================================
+
+model Rfq {
+  id            String    @id @default(uuid())
+  workspaceId   String    @map("workspace_id")
+  rfqNumber     String    @unique @map("rfq_number")
+  rfqSequence   Int       @map("rfq_sequence")
+  title         String
+  description   String?
+  productId     String?   @map("product_id")
+  opportunityId String?   @map("opportunity_id")
+  status        RfqStatus @default(DRAFT)
+
+  // Procurement fields
+  quantity              Int
+  moq                   Int?
+  targetPrice           Float?    @map("target_price")
+  currency              String    @default("USD")
+  requiredDeliveryDate  DateTime? @map("required_delivery_date")
+  expiresAt             DateTime? @map("expires_at")
+  paymentTerms          String?   @map("payment_terms")
+  shippingTerms         String?   @map("shipping_terms")
+  notes                 String?
+  attachments           Json      @default("[]") 
+
+  // Lifecycle metadata
+  cancelReason  String? @map("cancel_reason")
+  closeReason   String? @map("close_reason")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace         Workspace    @relation(fields: [workspaceId], references: [id])
+  supplierResponses RfqSupplier[]
+
+  @@index([workspaceId])
+  @@index([status])
+  @@index([productId])
+  @@index([opportunityId])
+  @@index([expiresAt])
+  @@index([deletedAt])
+  @@map("rfqs")
+}
+
+model RfqSupplier {
+  id          String                  @id @default(uuid())
+  rfqId       String                  @map("rfq_id")
+  supplierId  String                  @map("supplier_id")
+  workspaceId String                  @map("workspace_id")
+  status      RfqSupplierResponseStatus @default(PENDING)
+
+  // Timestamps
+  sentAt      DateTime? @map("sent_at")
+  respondedAt DateTime? @map("responded_at")
+
+  // Supplier quote
+  quotedPrice        Float?  @map("quoted_price")
+  quotedLeadTimeDays Int?    @map("quoted_lead_time_days")
+  quotedMoq          Int?    @map("quoted_moq")
+  supplierNotes      String? @map("supplier_notes")
+  counterOfferDetails Json?  @map("counter_offer_details")
+
+  // Provider integration
+  providerCode         String? @map("provider_code")
+  providerQuotationRef String? @map("provider_quotation_ref")
+  dispatchedViaProvider Boolean @default(false) @map("dispatched_via_provider")
+
+  // Audit fields
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  rfq Rfq @relation(fields: [rfqId], references: [id])
+
+  @@unique([rfqId, supplierId])
+  @@index([rfqId])
+  @@index([supplierId])
+  @@index([workspaceId])
+  @@index([status])
+  @@map("rfq_suppliers")
+}
+
+// =============================================================
+// QUOTATION COMPARISON
+// =============================================================
+
+enum ComparisonStatus {
+  PENDING
+  COMPLETED
+  REVISED
+  ARCHIVED
+}
+
+model QuotationComparison {
+  id          String           @id @default(uuid())
+  workspaceId String           @map("workspace_id")
+  rfqId       String           @map("rfq_id")
+  version     Int              @default(1)
+  status      ComparisonStatus @default(PENDING)
+
+  // Serialised engine inputs/outputs
+  weights            Json  // ComparisonWeights object
+  supplierBreakdowns Json  @default("[]") @map("supplier_breakdowns") // SupplierScoreBreakdown[]
+
+  // Recommendation (auto)
+  recommendedSupplierId String? @map("recommended_supplier_id")
+
+  // Manual selection
+  selectedSupplierId String?   @map("selected_supplier_id")
+  selectionReason    String?   @map("selection_reason")
+  selectionBy        String?   @map("selection_by")
+  selectionAt        DateTime? @map("selection_at")
+
+  notes String?
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, rfqId, version])
+  @@index([workspaceId])
+  @@index([rfqId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("quotation_comparisons")
+}
+
+// =============================================================
+// PRODUCT COST CALCULATOR
+// =============================================================
+
+model ProductCostCalculation {
+  id          String @id @default(uuid())
+  workspaceId String @map("workspace_id")
+
+  // Optional context links
+  productId     String? @map("product_id")
+  opportunityId String? @map("opportunity_id")
+  rfqId         String? @map("rfq_id")
+  rfqSupplierId String? @map("rfq_supplier_id")
+  supplierId    String? @map("supplier_id")
+
+  // Versioning
+  version Int @default(1)
+
+  // Serialised engine data
+  inputs    Json // CostComponents
+  breakdown Json // CostBreakdown
+
+  // Indexed scalars for fast querying
+  totalLandedCost Float  @map("total_landed_cost")
+  costPerUnit     Float  @map("cost_per_unit")
+  targetCurrency  String @default("USD") @map("target_currency")
+
+  notes String?
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+  @@index([productId])
+  @@index([opportunityId])
+  @@index([rfqId])
+  @@index([supplierId])
+  @@index([targetCurrency])
+  @@index([deletedAt])
+  @@map("product_cost_calculations")
+}
+
+// =============================================================
+// PROCUREMENT MANAGEMENT
+// =============================================================
+
+enum ProcurementStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ORDERED
+  IN_PROGRESS
+  PARTIALLY_RECEIVED
+  COMPLETED
+  CANCELLED
+}
+
+model Procurement {
+  id                  String            @id @default(uuid())
+  workspaceId         String            @map("workspace_id")
+  procurementNumber   String            @map("procurement_number")
+  procurementSequence Int               @map("procurement_sequence")
+  status              ProcurementStatus @default(DRAFT)
+
+  // Context links
+  productId             String? @map("product_id")
+  supplierId            String? @map("supplier_id")
+  rfqId                 String? @map("rfq_id")
+  quotationComparisonId String? @map("quotation_comparison_id")
+
+  // Financials
+  quantity       Int
+  agreedUnitCost Float  @map("agreed_unit_cost")
+  totalCost      Float  @map("total_cost")
+  currency       String @default("USD")
+
+  // Terms
+  paymentTerms  String? @map("payment_terms")
+  deliveryTerms String? @map("delivery_terms")
+
+  // Scheduling
+  expectedDeliveryDate DateTime? @map("expected_delivery_date")
+
+  // Ownership
+  procurementOwner String? @map("procurement_owner")
+
+  // Metadata
+  notes       String?
+  attachments Json    @default("[]") 
+
+  // Approval tracking
+  approvedBy String?   @map("approved_by")
+  approvedAt DateTime? @map("approved_at")
+  orderedAt  DateTime? @map("ordered_at")
+
+  // Cancellation
+  cancelReason String? @map("cancel_reason")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace Workspace           @relation(fields: [workspaceId], references: [id])
+  history   ProcurementHistory[]
+
+  @@unique([workspaceId, procurementNumber])
+  @@index([workspaceId])
+  @@index([status])
+  @@index([productId])
+  @@index([supplierId])
+  @@index([rfqId])
+  @@index([procurementOwner])
+  @@index([deletedAt])
+  @@map("procurements")
+}
+
+model ProcurementHistory {
+  id            String            @id @default(uuid())
+  procurementId String            @map("procurement_id")
+  workspaceId   String            @map("workspace_id")
+  fromStatus    ProcurementStatus @map("from_status")
+  toStatus      ProcurementStatus @map("to_status")
+  changedBy     String            @map("changed_by")
+  reason        String?
+  createdAt     DateTime          @default(now()) @map("created_at")
+
+  procurement Procurement @relation(fields: [procurementId], references: [id])
+
+  @@index([procurementId])
+  @@index([workspaceId])
+  @@map("procurement_history")
+}
+
+// =============================================================
+// PURCHASE ORDER
+// =============================================================
+
+enum PurchaseOrderStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ISSUED
+  ACKNOWLEDGED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  CLOSED
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id          String              @id @default(uuid())
+  workspaceId String              @map("workspace_id")
+  poNumber    String              @map("po_number")
+  poSequence  Int                 @map("po_sequence")
+  version     Int                 @default(1)
+  status      PurchaseOrderStatus @default(DRAFT)
+
+  // Context links
+  procurementId String? @map("procurement_id")
+  supplierId    String? @map("supplier_id")
+
+  // Provider integration
+  providerCode  String? @map("provider_code")
+  providerPoRef String? @map("provider_po_ref")
+
+  // Line items and totals
+  lineItems   Json   @default("[]") @map("line_items") // POLineItem[]
+  totalAmount Float  @map("total_amount")
+  currency    String @default("USD")
+
+  // Terms
+  paymentTerms  String? @map("payment_terms")
+  shippingTerms String? @map("shipping_terms")
+  incoterms     String?
+
+  // Scheduling
+  expectedDispatchDate DateTime? @map("expected_dispatch_date")
+  expectedDeliveryDate DateTime? @map("expected_delivery_date")
+
+  // Addresses
+  billingAddress  Json? @map("billing_address")  // POAddress
+  shippingAddress Json? @map("shipping_address") // POAddress
+
+  // Metadata
+  notes       String?
+  attachments Json    @default("[]") // POAttachment[]
+
+  // Approval / issuance
+  approvedBy    String?   @map("approved_by")
+  approvedAt    DateTime? @map("approved_at")
+  issuedAt      DateTime? @map("issued_at")
+  acknowledgedAt DateTime? @map("acknowledged_at")
+
+  // Cancellation
+  cancelReason String? @map("cancel_reason")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace Workspace            @relation(fields: [workspaceId], references: [id])
+  history   PurchaseOrderHistory[]
+
+  @@unique([workspaceId, poNumber])
+  @@index([workspaceId])
+  @@index([status])
+  @@index([procurementId])
+  @@index([supplierId])
+  @@index([deletedAt])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderHistory {
+  id              String              @id @default(uuid())
+  purchaseOrderId String              @map("purchase_order_id")
+  workspaceId     String              @map("workspace_id")
+  fromStatus      PurchaseOrderStatus @map("from_status")
+  toStatus        PurchaseOrderStatus @map("to_status")
+  version         Int
+  changedBy       String              @map("changed_by")
+  reason          String?
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+
+  @@index([purchaseOrderId])
+  @@index([workspaceId])
+  @@map("purchase_order_history")
+}
+
+// =============================================================
+// SHIPMENT TRACKING
+// =============================================================
+
+enum ShipmentStatus {
+  PENDING
+  READY
+  DISPATCHED
+  IN_TRANSIT
+  CUSTOMS_CLEARANCE
+  OUT_FOR_DELIVERY
+  DELIVERED
+  DELAYED
+  LOST
+  CANCELLED
+}
+
+model Shipment {
+  id               String         @id @default(uuid())
+  workspaceId      String         @map("workspace_id")
+  shipmentNumber   String         @map("shipment_number")
+  shipmentSequence Int            @map("shipment_sequence")
+  status           ShipmentStatus @default(PENDING)
+  isPartial        Boolean        @default(false) @map("is_partial")
+
+  // Context links
+  purchaseOrderId String? @map("purchase_order_id")
+  supplierId      String? @map("supplier_id")
+
+  // Carrier
+  carrier         String?
+  trackingNumber  String? @map("tracking_number")
+  shipmentMethod  String? @map("shipment_method")
+
+  // Addresses (JSON)
+  origin      Json? // ShipmentAddress
+  destination Json? // ShipmentAddress
+
+  // Scheduling
+  dispatchDate          DateTime? @map("dispatch_date")
+  estimatedDeliveryDate DateTime? @map("estimated_delivery_date")
+  actualDeliveryDate    DateTime? @map("actual_delivery_date")
+
+  // Logistics
+  shippingCost Float?  @map("shipping_cost")
+  currency     String?
+  totalWeight  Float?  @map("total_weight")
+  weightUnit   String? @map("weight_unit")
+  packages     Json    @default("[]") // ShipmentPackage[]
+
+  // Metadata
+  notes       String?
+  attachments Json    @default("[]") // ShipmentAttachment[]
+
+  // Tracking
+  lastTrackedAt DateTime? @map("last_tracked_at")
+
+  // Cancellation
+  cancelReason String? @map("cancel_reason")
+
+  // Audit fields (DB-004)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  workspace       Workspace                @relation(fields: [workspaceId], references: [id])
+  trackingHistory ShipmentTrackingHistory[]
+
+  @@unique([workspaceId, shipmentNumber])
+  @@index([workspaceId])
+  @@index([status])
+  @@index([purchaseOrderId])
+  @@index([supplierId])
+  @@index([trackingNumber])
+  @@index([deletedAt])
+  @@map("shipments")
+}
+
+model ShipmentTrackingHistory {
+  id         String         @id @default(uuid())
+  shipmentId String         @map("shipment_id")
+  workspaceId String        @map("workspace_id")
+  fromStatus ShipmentStatus @map("from_status")
+  toStatus   ShipmentStatus @map("to_status")
+  location   String?
+  description String
+  source     String         @default("MANUAL")
+  changedBy  String?        @map("changed_by")
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id])
+
+  @@index([shipmentId])
+  @@index([workspaceId])
+  @@map("shipment_tracking_history")
+}
+
+// =============================================================
+// QUALITY INSPECTION
+// =============================================================
+
+enum QualityInspectionStatus {
+  PENDING
+  SCHEDULED
+  IN_PROGRESS
+  PASSED
+  FAILED
+  CONDITIONAL_APPROVAL
+  REJECTED
+  CLOSED
+}
+
+enum DefectSeverity {
+  CRITICAL
+  MAJOR
+  MINOR
+  COSMETIC
+}
+
+enum InspectionType {
+  PRE_PRODUCTION
+  DURING_PRODUCTION
+  PRE_SHIPMENT
+  CONTAINER_LOADING
+  RECEIVING
+  IN_HOUSE
+  RE_INSPECTION
+}
+
+enum SamplingMethod {
+  AQL_1_0
+  AQL_1_5
+  AQL_2_5
+  AQL_4_0
+  FULL
+  RANDOM
+  CUSTOM
+}
+
+enum InspectionRecommendation {
+  APPROVE
+  CONDITIONALLY_APPROVE
+  REJECT
+  RE_INSPECT
+}
+
+model QualityInspection {
+  id                  String                   @id @default(uuid())
+  workspaceId         String                   @map("workspace_id")
+  inspectionNumber    String                   @map("inspection_number")
+  inspectionSequence  Int                      @map("inspection_sequence")
+  status              QualityInspectionStatus  @default(PENDING)
+  inspectionType      InspectionType           @map("inspection_type")
+  samplingMethod      SamplingMethod           @map("sampling_method")
+
+  // Context links
+  shipmentId          String?                  @map("shipment_id")
+  purchaseOrderId     String?                  @map("purchase_order_id")
+  supplierId          String?                  @map("supplier_id")
+  parentInspectionId  String?                  @map("parent_inspection_id")
+
+  // Products (JSON array of { productId, productName, sku })
+  products            Json                     @default("[]")
+
+  // Personnel
+  inspector           String?
+  inspectorName       String?                  @map("inspector_name")
+
+  // Scheduling
+  scheduledDate       DateTime?                @map("scheduled_date")
+  inspectionDate      DateTime?                @map("inspection_date")
+  completedAt         DateTime?                @map("completed_at")
+
+  // Quantities
+  quantityOrdered     Int                      @default(0) @map("quantity_ordered")
+  quantityInspected   Int                      @default(0) @map("quantity_inspected")
+  quantityPassed      Int                      @default(0) @map("quantity_passed")
+  quantityFailed      Int                      @default(0) @map("quantity_failed")
+
+  // Quality data (JSON)
+  defects             Json                     @default("[]")   // DefectDetail[]
+  checklist           Json                     @default("[]")   // ChecklistItem[]
+  qualityScore        Float?                   @map("quality_score")
+  recommendation      InspectionRecommendation?
+
+  // Media
+  images              Json                     @default("[]")   // string[]
+  attachments         Json                     @default("[]")   // InspectionAttachment[]
+
+  // Notes
+  notes               String?
+  internalNotes       String?                  @map("internal_notes")
+  conditionsForApproval String?                @map("conditions_for_approval")
+  rejectionReason     String?                  @map("rejection_reason")
+
+  // Audit fields (DB-004)
+  createdAt           DateTime                 @default(now()) @map("created_at")
+  updatedAt           DateTime                 @updatedAt @map("updated_at")
+  deletedAt           DateTime?                @map("deleted_at")
+
+  // Relations
+  workspace           Workspace                @relation(fields: [workspaceId], references: [id])
+  history             QualityInspectionHistory[]
+
+  @@unique([workspaceId, inspectionNumber])
+  @@index([workspaceId])
+  @@index([status])
+  @@index([shipmentId])
+  @@index([purchaseOrderId])
+  @@index([supplierId])
+  @@index([parentInspectionId])
+  @@index([deletedAt])
+  @@map("quality_inspections")
+}
+
+model QualityInspectionHistory {
+  id            String                  @id @default(uuid())
+  inspectionId  String                  @map("inspection_id")
+  workspaceId   String                  @map("workspace_id")
+  fromStatus    QualityInspectionStatus @map("from_status")
+  toStatus      QualityInspectionStatus @map("to_status")
+  reason        String?
+  changedBy     String?                 @map("changed_by")
+  metadata      Json?
+  createdAt     DateTime                @default(now()) @map("created_at")
+
+  inspection    QualityInspection       @relation(fields: [inspectionId], references: [id])
+
+  @@index([inspectionId])
+  @@index([workspaceId])
+  @@map("quality_inspection_history")
+}
+
+// =============================================================
+// PRODUCT CATALOG
+// =============================================================
+
+enum CatalogStatus {
+  DRAFT
+  READY_FOR_AI
+  AI_GENERATED
+  READY_FOR_APPROVAL
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CatalogProductType {
+  PHYSICAL
+  DIGITAL
+  BUNDLE
+  SUBSCRIPTION
+}
+
+model CatalogProduct {
+  id                    String             @id @default(uuid())
+  workspaceId           String             @map("workspace_id")
+  catalogSku            String             @map("catalog_sku")
+  skuSequence           Int                @map("sku_sequence")
+  version               Int                @default(1)
+  status                CatalogStatus      @default(DRAFT)
+
+  // Identity
+  productName           String             @map("product_name")
+  brand                 String?
+  categoryId            String?            @map("category_id")
+  productType           CatalogProductType @map("product_type")
+  description           String?            @db.Text
+  shortDescription      String?            @map("short_description")
+
+  // Source references
+  procurementId         String?            @map("procurement_id")
+  qualityInspectionId   String?            @map("quality_inspection_id")
+  supplierId            String?            @map("supplier_id")
+
+  // Classification
+  countryOfOrigin       String?            @map("country_of_origin")
+  hsCode                String?            @map("hs_code")
+
+  // Structured data (JSON)
+  specifications        Json               @default("[]")
+  attributes            Json               @default("[]")
+  variants              Json               @default("[]")
+
+  // Media
+  images                Json               @default("[]")
+  documents             Json               @default("[]")
+
+  // Pricing
+  purchaseCost          Float?             @map("purchase_cost")
+  landedCost            Float?             @map("landed_cost")
+  suggestedSellingPrice Float?             @map("suggested_selling_price")
+  currency              String?
+
+  // Physical
+  dimensions            Json?              // ProductDimensions
+  weight                Json?              // ProductWeight
+  packagingDetails      Json?              @map("packaging_details")
+
+  // Duplicate detection
+  isDuplicate           Boolean            @default(false) @map("is_duplicate")
+  duplicateOfId         String?            @map("duplicate_of_id")
+
+  // Audit fields (DB-004)
+  createdAt             DateTime           @default(now()) @map("created_at")
+  updatedAt             DateTime           @updatedAt @map("updated_at")
+  deletedAt             DateTime?          @map("deleted_at")
+
+  // Relations
+  workspace             Workspace          @relation(fields: [workspaceId], references: [id])
+  history               CatalogHistory[]
+
+  @@unique([workspaceId, catalogSku])
+  @@index([workspaceId])
+  @@index([status])
+  @@index([productName])
+  @@index([supplierId])
+  @@index([procurementId])
+  @@index([qualityInspectionId])
+  @@index([categoryId])
+  @@index([isDuplicate])
+  @@index([deletedAt])
+  @@map("catalog_products")
+}
+
+model CatalogHistory {
+  id          String        @id @default(uuid())
+  catalogId   String        @map("catalog_id")
+  workspaceId String        @map("workspace_id")
+  fromStatus  CatalogStatus @map("from_status")
+  toStatus    CatalogStatus @map("to_status")
+  version     Int
+  reason      String?
+  changedBy   String?       @map("changed_by")
+  snapshot    Json?
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  catalog     CatalogProduct @relation(fields: [catalogId], references: [id])
+
+  @@index([catalogId])
+  @@index([workspaceId])
+  @@map("catalog_history")
+}
+
+// =============================================================
+// AI DESCRIPTION GENERATOR
+// =============================================================
+
+enum AiDescriptionStatus {
+  PENDING
+  GENERATING
+  GENERATED
+  MANUALLY_EDITED
+  APPROVED
+  FAILED
+}
+
+enum GenerationTone {
+  PROFESSIONAL
+  PREMIUM
+  TECHNICAL
+  MARKETING
+  LUXURY
+}
+
+enum AiProvider {
+  OPENAI
+  ANTHROPIC
+  GOOGLE
+  CUSTOM
+}
+
+enum DescriptionSection {
+  PRODUCT_TITLE
+  SHORT_DESCRIPTION
+  LONG_DESCRIPTION
+  BULLET_POINTS
+  KEY_FEATURES
+  KEY_BENEFITS
+  TECHNICAL_SPECIFICATIONS
+  PACKAGE_CONTENTS
+  USAGE_INSTRUCTIONS
+  CARE_INSTRUCTIONS
+  WARRANTY_INFORMATION
+  FAQS
+  SEARCH_KEYWORDS
+  BACKEND_SEARCH_TERMS
+}
+
+model AiDescription {
+  id                    String              @id @default(uuid())
+  workspaceId           String              @map("workspace_id")
+  catalogProductId      String              @map("catalog_product_id")
+  status                AiDescriptionStatus @default(PENDING)
+  version               Int                 @default(1)
+
+  // Configuration
+  provider              AiProvider
+  model                 String?
+  tone                  GenerationTone
+  language              String              @default("en")
+  promptTemplateId      String?             @map("prompt_template_id")
+
+  // Generated content (JSON – GeneratedContent)
+  content               Json                @default("{}")
+
+  // Quality
+  aiQualityScore        Float?              @map("ai_quality_score")
+
+  // Usage tracking
+  tokensUsed            Int?                @map("tokens_used")
+  generationCostUsd     Float?              @map("generation_cost_usd")
+
+  // Error
+  errorMessage          String?             @map("error_message")
+  failedAt              DateTime?           @map("failed_at")
+
+  // Timing
+  generationStartedAt   DateTime?           @map("generation_started_at")
+  generationCompletedAt DateTime?           @map("generation_completed_at")
+
+  // Audit fields (DB-004)
+  createdAt             DateTime            @default(now()) @map("created_at")
+  updatedAt             DateTime            @updatedAt @map("updated_at")
+  deletedAt             DateTime?           @map("deleted_at")
+
+  // Relations
+  workspace             Workspace           @relation(fields: [workspaceId], references: [id])
+  history               AiDescriptionHistory[]
+
+  @@index([workspaceId])
+  @@index([catalogProductId])
+  @@index([status])
+  @@index([provider])
+  @@index([deletedAt])
+  @@map("ai_descriptions")
+}
+
+model AiDescriptionHistory {
+  id                   String              @id @default(uuid())
+  descriptionId        String              @map("description_id")
+  workspaceId          String              @map("workspace_id")
+  fromStatus           AiDescriptionStatus @map("from_status")
+  toStatus             AiDescriptionStatus @map("to_status")
+  version              Int
+  sectionsRegenerated  DescriptionSection[] @map("sections_regenerated")
+  reason               String?
+  changedBy            String?             @map("changed_by")
+  snapshotContent      Json?               @map("snapshot_content")
+  createdAt            DateTime            @default(now()) @map("created_at")
+
+  description          AiDescription       @relation(fields: [descriptionId], references: [id])
+
+  @@index([descriptionId])
+  @@index([workspaceId])
+  @@map("ai_description_history")
+}
+
+// =============================================================
+// AI IMAGE GENERATOR
+// =============================================================
+
+enum AiImageStatus {
+  PENDING
+  GENERATING
+  GENERATED
+  MANUALLY_UPLOADED
+  APPROVED
+  FAILED
+}
+
+enum ImageType {
+  MAIN_PRODUCT
+  WHITE_BACKGROUND
+  LIFESTYLE
+  INFOGRAPHIC
+  FEATURE_HIGHLIGHT
+  DIMENSION
+  PACKAGING
+  VARIANT
+  BRAND
+  PROMOTIONAL
+}
+
+enum ImageStyle {
+  PHOTOREALISTIC
+  STUDIO
+  LIFESTYLE
+  FLAT_LAY
+  MINIMALIST
+  LUXURY
+  VIBRANT
+  TECHNICAL
+}
+
+enum AspectRatio {
+  SQUARE_1_1
+  LANDSCAPE_16_9
+  PORTRAIT_4_5
+  PORTRAIT_9_16
+  LANDSCAPE_4_3
+  BANNER_3_1
+}
+
+enum ImageResolution {
+  SD_512
+  HD_1024
+  FHD_2048
+  UHD_4096
+}
+
+enum AiImageProvider {
+  OPENAI_DALLE
+  STABILITY_AI
+  MIDJOURNEY
+  GOOGLE_IMAGEN
+  CUSTOM
+}
+
+model AiImageSet {
+  id                    String         @id @default(uuid())
+  workspaceId           String         @map("workspace_id")
+  catalogProductId      String         @map("catalog_product_id")
+  status                AiImageStatus  @default(PENDING)
+  version               Int            @default(1)
+
+  // Configuration
+  provider              AiImageProvider
+  model                 String?
+  promptTemplateId      String?        @map("prompt_template_id")
+  basePrompt            String?        @map("base_prompt") @db.Text
+  negativePrompt        String?        @map("negative_prompt") @db.Text
+
+  // Generated images (JSON array of GeneratedImage)
+  images                Json           @default("[]")
+
+  // Quality
+  imageQualityScore     Float?         @map("image_quality_score")
+
+  // Usage tracking
+  imagesGenerated       Int?           @map("images_generated")
+  generationCostUsd     Float?         @map("generation_cost_usd")
+
+  // Error
+  errorMessage          String?        @map("error_message")
+  failedAt              DateTime?      @map("failed_at")
+
+  // Timing
+  generationStartedAt   DateTime?      @map("generation_started_at")
+  generationCompletedAt DateTime?      @map("generation_completed_at")
+
+  // Audit fields (DB-004)
+  createdAt             DateTime       @default(now()) @map("created_at")
+  updatedAt             DateTime       @updatedAt @map("updated_at")
+  deletedAt             DateTime?      @map("deleted_at")
+
+  // Relations
+  workspace             Workspace      @relation(fields: [workspaceId], references: [id])
+  history               AiImageHistory[]
+
+  @@index([workspaceId])
+  @@index([catalogProductId])
+  @@index([status])
+  @@index([provider])
+  @@index([deletedAt])
+  @@map("ai_image_sets")
+}
+
+model AiImageHistory {
+  id                    String         @id @default(uuid())
+  imageSetId            String         @map("image_set_id")
+  workspaceId           String         @map("workspace_id")
+  fromStatus            AiImageStatus  @map("from_status")
+  toStatus              AiImageStatus  @map("to_status")
+  version               Int
+  imageTypesRegenerated ImageType[]    @map("image_types_regenerated")
+  reason                String?
+  changedBy             String?        @map("changed_by")
+  snapshotImageUrls     Json?          @map("snapshot_image_urls")
+  createdAt             DateTime       @default(now()) @map("created_at")
+
+  imageSet              AiImageSet     @relation(fields: [imageSetId], references: [id])
+
+  @@index([imageSetId])
+  @@index([workspaceId])
+  @@map("ai_image_history")
+}
+
+// ─── AI SEO Optimizer ─────────────────────────────────────────────────────────
+
+enum SeoStatus {
+  PENDING
+  ANALYZING
+  OPTIMIZED
+  MANUALLY_EDITED
+  APPROVED
+  FAILED
+}
+
+enum SeoProvider {
+  OPENAI
+  ANTHROPIC
+  GOOGLE
+  CUSTOM
+}
+
+enum SeoSection {
+  PRODUCT_TITLE
+  BULLET_POINTS
+  DESCRIPTION
+  BACKEND_SEARCH_TERMS
+  SEARCH_KEYWORDS
+  BRAND_KEYWORDS
+  CATEGORY_KEYWORDS
+  LONG_TAIL_KEYWORDS
+  IMAGE_ALT_TEXT
+}
+
+model AiSeoOptimization {
+  id                       String       @id @default(cuid())
+  workspaceId              String       @map("workspace_id")
+  catalogProductId         String       @map("catalog_product_id")
+  status                   SeoStatus    @default(PENDING)
+  version                  Int          @default(1)
+  provider                 SeoProvider
+  model                    String
+  marketplace              String?      @map("marketplace")
+  targetKeywords           Json         @default("[]") @map("target_keywords")
+  promptTemplateId         String?      @map("prompt_template_id")
+  originalContent          Json?        @map("original_content")
+  optimizedContent         Json?        @map("optimized_content")
+  analysis                 Json?        @map("analysis")
+  seoScore                 Int?         @map("seo_score")
+  tokensUsed               Int?         @map("tokens_used")
+  optimizationCostUsd      Float?       @map("optimization_cost_usd")
+  errorMessage             String?      @map("error_message")
+  failedAt                 DateTime?    @map("failed_at")
+  optimizationStartedAt    DateTime?    @map("optimization_started_at")
+  optimizationCompletedAt  DateTime?    @map("optimization_completed_at")
+  createdAt                DateTime     @default(now()) @map("created_at")
+  updatedAt                DateTime     @updatedAt @map("updated_at")
+  deletedAt                DateTime?    @map("deleted_at")
+
+  workspace                Workspace    @relation(fields: [workspaceId], references: [id])
+  history                  AiSeoHistory[]
+
+  @@index([workspaceId])
+  @@index([catalogProductId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("ai_seo_optimizations")
+}
+
+model AiSeoHistory {
+  id                  String       @id @default(cuid())
+  seoId               String       @map("seo_id")
+  workspaceId         String       @map("workspace_id")
+  fromStatus          SeoStatus    @map("from_status")
+  toStatus            SeoStatus    @map("to_status")
+  version             Int
+  sectionsOptimized   SeoSection[] @map("sections_optimized")
+  reason              String?
+  changedBy           String?      @map("changed_by")
+  snapshotContent     Json?        @map("snapshot_content")
+  createdAt           DateTime     @default(now()) @map("created_at")
+
+  seoOptimization     AiSeoOptimization @relation(fields: [seoId], references: [id])
+
+  @@index([seoId])
+  @@index([workspaceId])
+  @@map("ai_seo_history")
+}
+
+// ─── Listing Engine ───────────────────────────────────────────────────────────
+
+enum ListingStatus {
+  DRAFT
+  GENERATING
+  GENERATED
+  MANUALLY_EDITED
+  READY_FOR_APPROVAL
+  APPROVED
+  PUBLISHED
+  FAILED
+  ARCHIVED
+}
+
+enum ListingMarketplace {
+  AMAZON
+  EBAY
+  SHOPIFY
+  WALMART
+  ETSY
+  CUSTOM
+}
+
+enum ListingSection {
+  TITLE
+  BRAND
+  CATEGORY
+  DESCRIPTION
+  BULLET_POINTS
+  IMAGES
+  VARIANTS
+  ATTRIBUTES
+  SPECIFICATIONS
+  SEARCH_TERMS
+  PRICING
+}
+
+model Listing {
+  id                      String             @id @default(cuid())
+  workspaceId             String             @map("workspace_id")
+  catalogProductId        String             @map("catalog_product_id")
+  marketplace             ListingMarketplace
+  status                  ListingStatus      @default(DRAFT)
+  version                 Int                @default(1)
+
+  // Source references
+  aiDescriptionId         String?            @map("ai_description_id")
+  aiImageSetId            String?            @map("ai_image_set_id")
+  aiSeoId                 String?            @map("ai_seo_id")
+  templateId              String?            @map("template_id")
+  externalListingId       String?            @map("external_listing_id")
+
+  // Generated content & validation
+  content                 Json               @default("{}")
+  qualityScore            Int?               @map("quality_score")
+  validationResult        Json?              @map("validation_result")
+
+  // Error
+  errorMessage            String?            @map("error_message")
+  failedAt                DateTime?          @map("failed_at")
+  generationStartedAt     DateTime?          @map("generation_started_at")
+  generationCompletedAt   DateTime?          @map("generation_completed_at")
+
+  // Audit
+  createdAt               DateTime           @default(now()) @map("created_at")
+  updatedAt               DateTime           @updatedAt @map("updated_at")
+  deletedAt               DateTime?          @map("deleted_at")
+
+  workspace               Workspace          @relation(fields: [workspaceId], references: [id])
+  history                 ListingHistory[]
+
+  @@index([workspaceId])
+  @@index([catalogProductId])
+  @@index([marketplace])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("listings")
+}
+
+model ListingHistory {
+  id               String           @id @default(cuid())
+  listingId        String           @map("listing_id")
+  workspaceId      String           @map("workspace_id")
+  fromStatus       ListingStatus    @map("from_status")
+  toStatus         ListingStatus    @map("to_status")
+  version          Int
+  sectionsUpdated  ListingSection[] @map("sections_updated")
+  reason           String?
+  changedBy        String?          @map("changed_by")
+  snapshotContent  Json?            @map("snapshot_content")
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  listing          Listing          @relation(fields: [listingId], references: [id])
+
+  @@index([listingId])
+  @@index([workspaceId])
+  @@map("listing_history")
+}
+
+// ─── Listing Approval ─────────────────────────────────────────────────────────
+
+enum ApprovalStatus {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  REVISION_REQUIRED
+  READY_TO_PUBLISH
+}
+
+enum ApprovalCheckArea {
+  PRODUCT_INFORMATION
+  IMAGES
+  AI_DESCRIPTION
+  SEO
+  PRICING
+  CATEGORY
+  ATTRIBUTES
+  VARIANTS
+  MARKETPLACE_REQUIREMENTS
+}
+
+model ListingApproval {
+  id                  String           @id @default(cuid())
+  workspaceId         String           @map("workspace_id")
+  listingId           String           @map("listing_id")
+  catalogProductId    String           @map("catalog_product_id")
+  status              ApprovalStatus   @default(PENDING_APPROVAL)
+  version             Int              @default(1)
+
+  // Review
+  reviewedBy          String?          @map("reviewed_by")
+  reviewedAt          DateTime?        @map("reviewed_at")
+  approvalComment     String?          @map("approval_comment")
+  rejectionReason     String?          @map("rejection_reason")
+  revisionNotes       String?          @map("revision_notes")
+
+  // Validation
+  checkResults        Json?            @map("check_results")
+  validationSummary   Json?            @map("validation_summary")
+  approvalRules       Json?            @map("approval_rules")
+
+  // Audit
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+  deletedAt           DateTime?        @map("deleted_at")
+
+  workspace           Workspace        @relation(fields: [workspaceId], references: [id])
+  history             ListingApprovalHistory[]
+
+  @@index([workspaceId])
+  @@index([listingId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("listing_approvals")
+}
+
+model ListingApprovalHistory {
+  id           String           @id @default(cuid())
+  approvalId   String           @map("approval_id")
+  workspaceId  String           @map("workspace_id")
+  fromStatus   ApprovalStatus   @map("from_status")
+  toStatus     ApprovalStatus   @map("to_status")
+  version      Int
+  reason       String?
+  changedBy    String?          @map("changed_by")
+  checkResults Json?            @map("check_results")
+  createdAt    DateTime         @default(now()) @map("created_at")
+
+  approval     ListingApproval  @relation(fields: [approvalId], references: [id])
+
+  @@index([approvalId])
+  @@index([workspaceId])
+  @@map("listing_approval_history")
+}
+
+// ─── Listing Publisher ────────────────────────────────────────────────────────
+
+enum PublicationStatus {
+  PENDING
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  UNPUBLISHED
+  ARCHIVED
+}
+
+enum PublicationMarketplace {
+  AMAZON
+  EBAY
+  SHOPIFY
+  WALMART
+  ETSY
+  CUSTOM
+}
+
+enum SyncStatus {
+  IN_SYNC
+  OUT_OF_SYNC
+  SYNC_FAILED
+  UNKNOWN
+}
+
+enum PublishTrigger {
+  MANUAL
+  SCHEDULED
+  BULK
+  REPUBLISH
+  RETRY
+}
+
+model ListingPublication {
+  id                     String                  @id @default(cuid())
+  workspaceId            String                  @map("workspace_id")
+  listingId              String                  @map("listing_id")
+  catalogProductId       String                  @map("catalog_product_id")
+  marketplace            PublicationMarketplace
+  status                 PublicationStatus       @default(PENDING)
+  publicationVersion     Int                     @default(1)              @map("publication_version")
+
+  // Marketplace tracking
+  marketplaceListingId   String?                 @map("marketplace_listing_id")
+  marketplaceUrl         String?                 @map("marketplace_url")
+  marketplaceResponse    Json?                   @map("marketplace_response")
+
+  // Scheduling & timing
+  trigger                PublishTrigger
+  scheduledAt            DateTime?               @map("scheduled_at")
+  publishedAt            DateTime?               @map("published_at")
+  unpublishedAt          DateTime?               @map("unpublished_at")
+
+  // Sync
+  syncStatus             SyncStatus              @default(UNKNOWN)        @map("sync_status")
+  lastSyncedAt           DateTime?               @map("last_synced_at")
+
+  // Error
+  errorCode              String?                 @map("error_code")
+  errorMessage           String?                 @map("error_message")
+  failedAt               DateTime?               @map("failed_at")
+  retryCount             Int                     @default(0)              @map("retry_count")
+
+  // Audit
+  createdAt              DateTime                @default(now())          @map("created_at")
+  updatedAt              DateTime                @updatedAt               @map("updated_at")
+  deletedAt              DateTime?               @map("deleted_at")
+
+  workspace              Workspace               @relation(fields: [workspaceId], references: [id])
+  history                ListingPublicationHistory[]
+
+  @@index([workspaceId])
+  @@index([listingId])
+  @@index([marketplace])
+  @@index([status])
+  @@index([marketplaceListingId])
+  @@index([deletedAt])
+  @@map("listing_publications")
+}
+
+model ListingPublicationHistory {
+  id                   String                 @id @default(cuid())
+  publicationId        String                 @map("publication_id")
+  workspaceId          String                 @map("workspace_id")
+  fromStatus           PublicationStatus      @map("from_status")
+  toStatus             PublicationStatus      @map("to_status")
+  publicationVersion   Int                    @map("publication_version")
+  trigger              PublishTrigger
+  reason               String?
+  changedBy            String?                @map("changed_by")
+  marketplaceListingId String?                @map("marketplace_listing_id")
+  errorMessage         String?                @map("error_message")
+  createdAt            DateTime               @default(now())            @map("created_at")
+
+  publication          ListingPublication     @relation(fields: [publicationId], references: [id])
+
+  @@index([publicationId])
+  @@index([workspaceId])
+  @@map("listing_publication_history")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Supplier Provider Foundation
+// ─────────────────────────────────────────────────────────────────────────────
+
+model WorkspaceSupplierProviderConfig {
+  id               String    @id @default(cuid())
+  workspaceId      String    @map("workspace_id")
+  providerCode     String    @map("provider_code")
+  isEnabled        Boolean   @default(true) @map("is_enabled")
+  priority         Int       @default(10)
+  timeoutMs        Int?      @map("timeout_ms")
+  retryPolicy      Json?     @map("retry_policy")
+  rateLimitConfig  Json?     @map("rate_limit_config")
+  encryptedCreds   String?   @map("encrypted_creds")
+  credIv           String?   @map("cred_iv")
+  credAuthTag      String?   @map("cred_auth_tag")
+  customSettings   Json?     @map("custom_settings")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt       @map("updated_at")
+  deletedAt        DateTime?                  @map("deleted_at")
+
+  workspace        Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, providerCode])
+  @@index([workspaceId])
+  @@index([providerCode])
+  @@index([deletedAt])
+  @@map("workspace_supplier_provider_configs")
+}
+
+model SupplierProviderHealthLog {
+  id           String    @id @default(cuid())
+  workspaceId  String?   @map("workspace_id")
+  providerCode String    @map("provider_code")
+  status       String
+  latencyMs    Int?      @map("latency_ms")
+  message      String?
+  details      Json?
+  checkedAt    DateTime  @map("checked_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@index([providerCode])
+  @@index([workspaceId])
+  @@index([checkedAt])
+  @@map("supplier_provider_health_logs")
+}
+
+// =============================================================
+// Marketplace Listing Mapping Foundation
+// =============================================================
+
+enum MappingStatus {
+  DRAFT
+  PUBLISHED
+  DEPRECATED
+  ARCHIVED
+}
+
+enum CategoryMappingStatus {
+  AUTO_MAPPED
+  MANUALLY_MAPPED
+  UNMAPPED
+  INVALID
+}
+
+enum TransformationJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  PARTIAL
+}
+
+model MarketplaceSchemaConfig {
+  id                  String        @id @default(cuid())
+  workspaceId         String?       @map("workspace_id")
+  marketplaceKey      String        @map("marketplace_key")
+  country             String        @default("GLOBAL")
+  region              String?
+  locale              String        @default("en-US")
+  currency            String        @default("USD")
+  category            String?
+  schemaVersion       String        @map("schema_version")
+  status              MappingStatus @default(DRAFT)
+  isDefault           Boolean       @default(false) @map("is_default")
+
+  requiredFields      Json          @default("[]") @map("required_fields")
+  optionalFields      Json          @default("[]") @map("optional_fields")
+  mediaRequirements   Json          @default("{}") @map("media_requirements")
+  variantRules        Json          @default("{}") @map("variant_rules")
+  contentRules        Json          @default("{}") @map("content_rules")
+  pricingRequirements Json          @default("{}") @map("pricing_requirements")
+
+  effectiveFrom       DateTime?     @map("effective_from")
+  effectiveTo         DateTime?     @map("effective_to")
+
+  createdBy           String?       @map("created_by")
+  approvedBy          String?       @map("approved_by")
+
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt      @map("updated_at")
+  deletedAt           DateTime?     @map("deleted_at")
+
+  categoryMappings    MarketplaceCategoryMapping[]
+  attributeMappings   MarketplaceAttributeMapping[]
+
+  @@index([marketplaceKey])
+  @@index([country])
+  @@index([workspaceId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("marketplace_schema_configs")
+}
+
+model MarketplaceCategoryMapping {
+  id                    String                @id @default(cuid())
+  workspaceId           String?               @map("workspace_id")
+  schemaId              String?               @map("schema_id")
+  universalCategory     String                @map("universal_category")
+  marketplaceKey        String                @map("marketplace_key")
+  country               String                @default("GLOBAL")
+  marketplaceCategory   String                @map("marketplace_category")
+  marketplaceCategoryId String?               @map("marketplace_category_id")
+  categoryPath          String?               @map("category_path")
+  confidence            Int                   @default(0)
+  status                CategoryMappingStatus @default(UNMAPPED)
+  isManualOverride      Boolean               @default(false) @map("is_manual_override")
+  version               Int                   @default(1)
+
+  createdBy             String?               @map("created_by")
+  updatedBy             String?               @map("updated_by")
+
+  createdAt             DateTime              @default(now()) @map("created_at")
+  updatedAt             DateTime              @updatedAt     @map("updated_at")
+
+  schema                MarketplaceSchemaConfig? @relation(fields: [schemaId], references: [id])
+
+  @@index([universalCategory])
+  @@index([marketplaceKey])
+  @@index([country])
+  @@index([workspaceId])
+  @@map("marketplace_category_mappings")
+}
+
+model MarketplaceAttributeMapping {
+  id                   String        @id @default(cuid())
+  workspaceId          String?       @map("workspace_id")
+  schemaId             String?       @map("schema_id")
+  marketplaceKey       String        @map("marketplace_key")
+  country              String        @default("GLOBAL")
+  universalAttribute   String        @map("universal_attribute")
+  marketplaceAttribute String        @map("marketplace_attribute")
+  transformType        String        @map("transform_type")
+  valueMapping         Json?         @map("value_mapping")
+  unitConversion       Json?         @map("unit_conversion")
+  defaultValue         Json?         @map("default_value")
+  isRequired           Boolean       @default(false) @map("is_required")
+  isManualOverride     Boolean       @default(false) @map("is_manual_override")
+  conditions           Json?
+  derivedExpression    String?       @map("derived_expression")
+  version              Int           @default(1)
+  status               MappingStatus @default(PUBLISHED)
+
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt     @map("updated_at")
+
+  schema               MarketplaceSchemaConfig? @relation(fields: [schemaId], references: [id])
+
+  @@index([marketplaceKey])
+  @@index([universalAttribute])
+  @@index([workspaceId])
+  @@map("marketplace_attribute_mappings")
+}
+
+model MarketplaceMappingConfig {
+  id             String        @id @default(cuid())
+  workspaceId    String        @map("workspace_id")
+  marketplaceKey String        @map("marketplace_key")
+  country        String        @default("GLOBAL")
+  category       String?
+  schemaVersion  String        @map("schema_version")
+  status         MappingStatus @default(DRAFT)
+  mappingVersion Int           @default(1) @map("mapping_version")
+  isDefault      Boolean       @default(false) @map("is_default")
+  overrides      Json?
+
+  effectiveFrom  DateTime?     @map("effective_from")
+  effectiveTo    DateTime?     @map("effective_to")
+  publishedAt    DateTime?     @map("published_at")
+  publishedBy    String?       @map("published_by")
+  approvedBy     String?       @map("approved_by")
+  createdBy      String?       @map("created_by")
+
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt     @map("updated_at")
+  deletedAt      DateTime?     @map("deleted_at")
+
+  workspace      Workspace     @relation(fields: [workspaceId], references: [id])
+  versionHistory MarketplaceMappingVersionHistory[]
+
+  @@index([workspaceId])
+  @@index([marketplaceKey])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("marketplace_mapping_configs")
+}
+
+model MarketplaceMappingVersionHistory {
+  id             String                   @id @default(cuid())
+  configId       String                   @map("config_id")
+  workspaceId    String                   @map("workspace_id")
+  mappingVersion Int                      @map("mapping_version")
+  schemaVersion  String                   @map("schema_version")
+  status         MappingStatus
+  overrides      Json?
+  changeNote     String?                  @map("change_note")
+  createdBy      String?                  @map("created_by")
+  approvedBy     String?                  @map("approved_by")
+  effectiveFrom  DateTime?                @map("effective_from")
+
+  createdAt      DateTime                 @default(now()) @map("created_at")
+
+  config         MarketplaceMappingConfig @relation(fields: [configId], references: [id])
+
+  @@index([configId])
+  @@index([workspaceId])
+  @@map("marketplace_mapping_version_history")
+}
+
+model MarketplaceTransformationJob {
+  id               String                  @id @default(cuid())
+  workspaceId      String                  @map("workspace_id")
+  listingId        String                  @map("listing_id")
+  catalogProductId String                  @map("catalog_product_id")
+  marketplaceKey   String                  @map("marketplace_key")
+  country          String                  @default("GLOBAL")
+  schemaVersion    String                  @map("schema_version")
+  status           TransformationJobStatus @default(PENDING)
+  isDryRun         Boolean                 @default(false) @map("is_dry_run")
+
+  payload          Json?
+  fieldTrace       Json?                   @map("field_trace")
+  warnings         Json?
+  errors           Json?
+
+  startedAt        DateTime?               @map("started_at")
+  completedAt      DateTime?               @map("completed_at")
+  failedAt         DateTime?               @map("failed_at")
+  errorMessage     String?                 @map("error_message")
+  retryCount       Int                     @default(0) @map("retry_count")
+
+  triggeredBy      String?                 @map("triggered_by")
+
+  createdAt        DateTime                @default(now()) @map("created_at")
+  updatedAt        DateTime                @updatedAt     @map("updated_at")
+
+  workspace        Workspace               @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+  @@index([listingId])
+  @@index([marketplaceKey])
+  @@index([status])
+  @@map("marketplace_transformation_jobs")
+}
+// =============================================================
+// PRICING ENGINE – ENUMS
+// =============================================================
+
+enum PricingStrategy {
+  FIXED
+  MARGIN_BASED
+  ROI_BASED
+  COMPETITIVE
+  RULE_BASED
+  COST_PLUS
+  MARKETPLACE_SPECIFIC
+  REGIONAL
+}
+
+enum PricingStatus {
+  DRAFT
+  CALCULATING
+  CALCULATED
+  APPROVED
+  ACTIVE
+  ARCHIVED
+  FAILED
+}
+
+enum MarketplaceListingStatus {
+  PENDING_TRANSFORMATION
+  TRANSFORMING
+  TRANSFORMED
+  VALIDATED
+  VALIDATION_FAILED
+  READY
+  PUBLISHED
+  FAILED
+  ARCHIVED
+}
+
+// =============================================================
+// PRICING ENGINE – MODELS
+// =============================================================
+
+model PricingConfig {
+  id              String          @id @default(cuid())
+  workspaceId     String          @map("workspace_id")
+  marketplaceKey  String          @map("marketplace_key")
+  country         String          @default("GLOBAL")
+  currency        String          @default("USD")
+  strategy        PricingStrategy @default(MARGIN_BASED)
+  isDefault       Boolean         @default(false) @map("is_default")
+  isActive        Boolean         @default(true) @map("is_active")
+
+  // Fee components (percentages unless noted)
+  commissionPct         Float?  @map("commission_pct")
+  fulfilmentFeeFlat     Float?  @map("fulfilment_fee_flat")
+  shippingFeeFlat       Float?  @map("shipping_fee_flat")
+  paymentProcessingPct  Float?  @map("payment_processing_pct")
+  packagingCostFlat     Float?  @map("packaging_cost_flat")
+  advertisingCostPct    Float?  @map("advertising_cost_pct")
+  taxPct                Float?  @map("tax_pct")
+
+  // Target thresholds
+  targetMarginPct       Float?  @map("target_margin_pct")
+  targetRoi             Float?  @map("target_roi")
+  minProfitFlat         Float?  @map("min_profit_flat")
+  minMarginPct          Float?  @map("min_margin_pct")
+
+  // Price adjustments
+  marketplacePriceAdjustmentPct Float?  @map("marketplace_price_adjustment_pct")
+  regionalPriceAdjustmentPct    Float?  @map("regional_price_adjustment_pct")
+  currencyConversionRate        Float?  @map("currency_conversion_rate")
+
+  // Flexible rule config
+  rules   Json?
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt     @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id])
+  pricingRecords PricingRecord[]
+
+  @@index([workspaceId])
+  @@index([marketplaceKey])
+  @@index([country])
+  @@index([isActive])
+  @@index([deletedAt])
+  @@map("pricing_configs")
+}
+
+model PricingRecord {
+  id               String          @id @default(cuid())
+  workspaceId      String          @map("workspace_id")
+  catalogProductId String          @map("catalog_product_id")
+  configId         String?         @map("config_id")
+  marketplaceKey   String          @map("marketplace_key")
+  country          String          @default("GLOBAL")
+  currency         String          @default("USD")
+  strategy         PricingStrategy
+  status           PricingStatus   @default(DRAFT)
+  version          Int             @default(1)
+
+  // Input costs
+  baseCost         Float?  @map("base_cost")
+  landedCost       Float?  @map("landed_cost")
+  procurementCost  Float?  @map("procurement_cost")
+
+  // Calculated fee components
+  commissionAmount        Float?  @map("commission_amount")
+  fulfilmentFeeAmount     Float?  @map("fulfilment_fee_amount")
+  shippingFeeAmount       Float?  @map("shipping_fee_amount")
+  paymentProcessingAmount Float?  @map("payment_processing_amount")
+  packagingCostAmount     Float?  @map("packaging_cost_amount")
+  advertisingCostAmount   Float?  @map("advertising_cost_amount")
+  taxAmount               Float?  @map("tax_amount")
+  promotionalDiscount     Float?  @map("promotional_discount")
+
+  // Pricing outputs
+  totalCost              Float?  @map("total_cost")
+  suggestedSellingPrice  Float?  @map("suggested_selling_price")
+  marketplaceSellingPrice Float? @map("marketplace_selling_price")
+  compareAtPrice         Float?  @map("compare_at_price")
+  estimatedProfit        Float?  @map("estimated_profit")
+  estimatedMarginPct     Float?  @map("estimated_margin_pct")
+  estimatedRoi           Float?  @map("estimated_roi")
+
+  // Manual override
+  manualOverridePrice Float?    @map("manual_override_price")
+  manualOverrideBy    String?   @map("manual_override_by")
+  manualOverrideAt    DateTime? @map("manual_override_at")
+
+  // Scheduled price change
+  scheduledPrice     Float?    @map("scheduled_price")
+  scheduledAt        DateTime? @map("scheduled_at")
+
+  // Validation
+  isValid            Boolean   @default(false) @map("is_valid")
+  validationErrors   Json?     @map("validation_errors")
+
+  // Metadata
+  calculationMeta  Json?     @map("calculation_meta")
+  calculationSource String?  @map("calculation_source")
+
+  errorMessage  String?   @map("error_message")
+  failedAt      DateTime? @map("failed_at")
+  approvedBy    String?   @map("approved_by")
+  approvedAt    DateTime? @map("approved_at")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt     @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  workspace  Workspace      @relation(fields: [workspaceId], references: [id])
+  config     PricingConfig? @relation(fields: [configId], references: [id])
+  history    PricingHistory[]
+
+  @@index([workspaceId])
+  @@index([catalogProductId])
+  @@index([marketplaceKey])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("pricing_records")
+}
+
+model PricingHistory {
+  id              String        @id @default(cuid())
+  pricingRecordId String        @map("pricing_record_id")
+  workspaceId     String        @map("workspace_id")
+  version         Int
+  strategy        PricingStrategy
+  status          PricingStatus
+  snapshotData    Json          @map("snapshot_data")
+  changedBy       String?       @map("changed_by")
+  changeNote      String?       @map("change_note")
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  pricingRecord PricingRecord @relation(fields: [pricingRecordId], references: [id])
+
+  @@index([pricingRecordId])
+  @@index([workspaceId])
+  @@map("pricing_history")
+}
+
+// =============================================================
+// UNIVERSAL LISTING + MARKETPLACE LISTING
+// =============================================================
+
+model UniversalListing {
+  id               String   @id @default(cuid())
+  workspaceId      String   @map("workspace_id")
+  catalogProductId String   @map("catalog_product_id")
+  version          Int      @default(1)
+  status           String   @default("DRAFT")
+
+  // AI source references
+  aiDescriptionId String? @map("ai_description_id")
+  aiImageSetId    String? @map("ai_image_set_id")
+  aiSeoId         String? @map("ai_seo_id")
+  templateId      String? @map("template_id")
+
+  // Universal content (marketplace-agnostic)
+  content         Json     @default("{}")
+  qualityScore    Int?     @map("quality_score")
+  validationResult Json?   @map("validation_result")
+
+  // Error
+  errorMessage           String?   @map("error_message")
+  failedAt               DateTime? @map("failed_at")
+  generationStartedAt    DateTime? @map("generation_started_at")
+  generationCompletedAt  DateTime? @map("generation_completed_at")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt     @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  workspace          Workspace               @relation(fields: [workspaceId], references: [id])
+  history            UniversalListingHistory[]
+  marketplaceListings MarketplaceListing[]
+
+  @@index([workspaceId])
+  @@index([catalogProductId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("universal_listings")
+}
+
+model UniversalListingHistory {
+  id               String   @id @default(cuid())
+  universalListingId String @map("universal_listing_id")
+  workspaceId      String   @map("workspace_id")
+  fromStatus       String   @map("from_status")
+  toStatus         String   @map("to_status")
+  version          Int
+  sectionsUpdated  Json?    @map("sections_updated")
+  reason           String?
+  changedBy        String?  @map("changed_by")
+  snapshotContent  Json?    @map("snapshot_content")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  universalListing UniversalListing @relation(fields: [universalListingId], references: [id])
+
+  @@index([universalListingId])
+  @@index([workspaceId])
+  @@map("universal_listing_history")
+}
+
+model MarketplaceListing {
+  id                 String                   @id @default(cuid())
+  workspaceId        String                   @map("workspace_id")
+  universalListingId String                   @map("universal_listing_id")
+  catalogProductId   String                   @map("catalog_product_id")
+  marketplaceKey     String                   @map("marketplace_key")
+  country            String                   @default("GLOBAL")
+  status             MarketplaceListingStatus @default(PENDING_TRANSFORMATION)
+  version            Int                      @default(1)
+
+  // Schema reference
+  schemaId      String?  @map("schema_id")
+  schemaVersion String?  @map("schema_version")
+
+  // Transformed payload
+  transformedPayload Json?    @map("transformed_payload")
+  fieldTrace         Json?    @map("field_trace")
+  warnings           Json?
+  errors             Json?
+
+  // Validation
+  readinessScore  Int?    @map("readiness_score")
+  readinessStatus String? @map("readiness_status")
+  validationResult Json?  @map("validation_result")
+
+  // Transformation metadata
+  isDryRun           Boolean   @default(false) @map("is_dry_run")
+  transformStartedAt DateTime? @map("transform_started_at")
+  transformCompletedAt DateTime? @map("transform_completed_at")
+  failedAt           DateTime? @map("failed_at")
+  errorMessage       String?   @map("error_message")
+
+  // Publishing
+  externalListingId String?   @map("external_listing_id")
+  publishedAt       DateTime? @map("published_at")
+
+  triggeredBy String?   @map("triggered_by")
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt     @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  workspace        Workspace           @relation(fields: [workspaceId], references: [id])
+  universalListing UniversalListing    @relation(fields: [universalListingId], references: [id])
+  history          MarketplaceListingHistory[]
+
+  @@index([workspaceId])
+  @@index([universalListingId])
+  @@index([marketplaceKey])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("marketplace_listings")
+}
+
+model MarketplaceListingHistory {
+  id                   String   @id @default(cuid())
+  marketplaceListingId String   @map("marketplace_listing_id")
+  workspaceId          String   @map("workspace_id")
+  fromStatus           String   @map("from_status")
+  toStatus             String   @map("to_status")
+  version              Int
+  reason               String?
+  changedBy            String?  @map("changed_by")
+  snapshotPayload      Json?    @map("snapshot_payload")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  marketplaceListing MarketplaceListing @relation(fields: [marketplaceListingId], references: [id])
+
+  @@index([marketplaceListingId])
+  @@index([workspaceId])
+  @@map("marketplace_listing_history")
+}
+
+// =============================================================
+// Marketplace Provider Foundation
+// =============================================================
+
+model WorkspaceMarketplaceProviderConfig {
+  id                     String    @id @default(cuid())
+  workspaceId            String    @map("workspace_id")
+  providerKey            String    @map("provider_key")
+  accountId              String?   @default("") @map("account_id")
+  isEnabled              Boolean   @default(true) @map("is_enabled")
+  priority               Int       @default(50)
+  configuration          Json      @default("{}") @map("configuration")
+  encryptedCredentials   String?   @map("encrypted_credentials")
+  credentialIv           String?   @map("credential_iv")
+  credentialAuthTag      String?   @map("credential_auth_tag")
+  credentialType         String?   @map("credential_type")
+  credentialExpiresAt    DateTime? @map("credential_expires_at")
+  credentialValidatedAt  DateTime? @map("credential_validated_at")
+  createdBy              String?   @map("created_by")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt       @map("updated_at")
+  deletedAt              DateTime?                  @map("deleted_at")
+
+  workspace              Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, providerKey, accountId])
+  @@index([workspaceId])
+  @@index([providerKey])
+  @@index([isEnabled])
+  @@index([deletedAt])
+  @@map("workspace_marketplace_provider_configs")
+}
+
+model MarketplaceProviderAccount {
+  id            String    @id @default(cuid())
+  workspaceId   String    @map("workspace_id")
+  providerKey   String    @map("provider_key")
+  accountHandle String    @map("account_handle")
+  displayName   String?   @map("display_name")
+  country       String?
+  region        String?
+  currency      String?
+  status        String    @default("PENDING_VERIFICATION")
+  isDefault     Boolean   @default(false) @map("is_default")
+  createdBy     String?   @map("created_by")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt       @map("updated_at")
+  deletedAt     DateTime?                  @map("deleted_at")
+
+  workspace     Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, providerKey, accountHandle])
+  @@index([workspaceId])
+  @@index([providerKey])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("marketplace_provider_accounts")
+}
+
+model MarketplaceProviderHealthLog {
+  id          String    @id @default(cuid())
+  workspaceId String?   @map("workspace_id")
+  providerKey String    @map("provider_key")
+  accountId   String?   @map("account_id")
+  status      String
+  latencyMs   Int?      @map("latency_ms")
+  message     String?
+  details     Json?
+  checkedAt   DateTime  @map("checked_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([providerKey])
+  @@index([workspaceId])
+  @@index([checkedAt])
+  @@map("marketplace_provider_health_logs")
+}
+
+model MarketplaceProviderAuditLog {
+  id            String    @id @default(cuid())
+  workspaceId   String    @map("workspace_id")
+  providerKey   String    @map("provider_key")
+  accountId     String?   @map("account_id")
+  action        String
+  capability    String?
+  correlationId String    @map("correlation_id")
+  success       Boolean
+  durationMs    Int       @map("duration_ms")
+  errorCode     String?   @map("error_code")
+  performedBy   String?   @map("performed_by")
+  details       Json?
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([workspaceId])
+  @@index([providerKey])
+  @@index([correlationId])
+  @@index([createdAt])
+  @@map("marketplace_provider_audit_logs")
+}
+
+// =============================================================
+// Marketplace Provider Configuration
+// =============================================================
+
+model MarketplaceProviderConfigRecord {
+  id               String    @id @default(cuid())
+  workspaceId      String?   @map("workspace_id")
+  scope            String    @default("WORKSPACE")
+  providerKey      String    @map("provider_key")
+  accountId        String?   @map("account_id")
+  name             String
+  description      String?
+  status           String    @default("DRAFT")
+  version          Int       @default(1)
+  publishedVersion Int?      @map("published_version")
+  effectiveFrom    DateTime? @map("effective_from")
+  effectiveTo      DateTime? @map("effective_to")
+  payload          Json      @default("{}")
+  createdBy        String?   @map("created_by")
+  updatedBy        String?   @map("updated_by")
+  approvedBy       String?   @map("approved_by")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt       @map("updated_at")
+  deletedAt        DateTime?                  @map("deleted_at")
+
+  history          MarketplaceProviderConfigHistory[]
+
+  @@index([providerKey])
+  @@index([workspaceId])
+  @@index([status])
+  @@index([scope])
+  @@index([deletedAt])
+  @@map("marketplace_provider_config_records")
+}
+
+model MarketplaceProviderConfigHistory {
+  id          String    @id @default(cuid())
+  configId    String    @map("config_id")
+  workspaceId String?   @map("workspace_id")
+  providerKey String    @map("provider_key")
+  version     Int
+  status      String
+  payload     Json      @default("{}")
+  changeReason String?  @map("change_reason")
+  changedBy   String?   @map("changed_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  config      MarketplaceProviderConfigRecord @relation(fields: [configId], references: [id])
+
+  @@index([configId])
+  @@index([providerKey])
+  @@index([workspaceId])
+  @@map("marketplace_provider_config_history")
 }
