@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/ankitsaraf/Project Code/ATLAS_NEW/**)",
+      "Bash(awk '/export const QUEUE_NAMES/,/^};/' common/constants/index.ts)",
+      "Bash(awk '{print $3}')",
+      "Bash(awk '/^export const QUEUE_NAMES/{flag=1} flag{print NR\": \"$0} /^} as const;/{if\\(flag\\){exit}}' common/constants/index.ts)",
+      "Bash(awk 'NR==187,/^  \\\\],/' app.module.ts)",
+      "Bash(awk -F: '{print}')",
+      "Bash(python3 -)",
+      "Bash(awk '/export const QUEUE_NAMES/,/^};/' \"/Users/ankitsaraf/Project Code/ATLAS_NEW/ATLAS_NEW/atlas/backend/src/common/constants/index.ts\")",
+      "Bash(awk '/^export const QUEUE_NAMES/,/^} as const;/' \"/Users/ankitsaraf/Project Code/ATLAS_NEW/ATLAS_NEW/atlas/backend/src/common/constants/index.ts\")",
+      "Read(//Users/ankitsaraf/Project Code/ATLAS_NEW/prisma/**)",
+      "Bash(cd \"/Users/ankitsaraf/Project Code/ATLAS_NEW/ATLAS_NEW/atlas/backend/src/modules\" && grep -rn \"AnalyticsCacheModule\\\\|AnalyticsCacheService\" --include=*.ts .. -l 2>/dev/null | grep -v \"/modules/analytics-cache/\")",
+      "Bash(awk '/imports: \\\\[/,/^\\\\]/' src/app.module.ts)",
+      "Bash(awk '/export const QUEUE_NAMES/,/^} as const;|^};/' src/common/constants/index.ts)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}

@@ -1,0 +1,310 @@
+import { SettingValueType, SettingScope } from '@modules/settings/interfaces';
+import type { CreateSettingDefinitionDto } from '@modules/settings/dto';
+
+/** The `module` tag every Organization Settings definition is registered under in the shared Settings Framework catalog. */
+export const ORGANIZATION_SETTINGS_MODULE = 'organization-settings';
+
+export enum OrganizationSettingsCategory {
+  PROFILE = 'PROFILE',
+  REGIONAL = 'REGIONAL',
+  OPERATIONAL = 'OPERATIONAL',
+  POLICY = 'POLICY',
+}
+
+/**
+ * The catalog this module owns. Registered into the shared Settings
+ * Framework on startup (idempotent — see `OrganizationSettingsService.onModuleInit`).
+ * Definitions, validation, versioning, precedence and caching all live in
+ * the framework; this list is only the domain-specific schema. Keys are
+ * lowercase/dot/hyphen only, matching `CreateSettingDefinitionDto.key`'s
+ * own validation pattern.
+ */
+export const ORGANIZATION_SETTINGS_DEFINITIONS: CreateSettingDefinitionDto[] = [
+  // ── Profile ──────────────────────────────────────────────────────
+  {
+    key: 'organization.profile.name',
+    category: OrganizationSettingsCategory.PROFILE,
+    label: 'Organization name',
+    valueType: SettingValueType.STRING,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.profile.legal-name',
+    category: OrganizationSettingsCategory.PROFILE,
+    label: 'Legal name',
+    valueType: SettingValueType.STRING,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.profile.logo-url',
+    category: OrganizationSettingsCategory.PROFILE,
+    label: 'Logo URL',
+    valueType: SettingValueType.STRING,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.profile.contact-email',
+    category: OrganizationSettingsCategory.PROFILE,
+    label: 'Primary contact email',
+    valueType: SettingValueType.STRING,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+    validationRules: { pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$' },
+  },
+  {
+    key: 'organization.profile.contact-phone',
+    category: OrganizationSettingsCategory.PROFILE,
+    label: 'Primary contact phone',
+    valueType: SettingValueType.STRING,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.profile.addresses',
+    category: OrganizationSettingsCategory.PROFILE,
+    label: 'Registered addresses',
+    valueType: SettingValueType.LIST,
+    defaultValue: [],
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.profile.tax-identifiers',
+    category: OrganizationSettingsCategory.PROFILE,
+    label: 'Tax identifiers',
+    valueType: SettingValueType.JSON,
+    defaultValue: {},
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+
+  // ── Regional ─────────────────────────────────────────────────────
+  {
+    key: 'organization.regional.timezone',
+    category: OrganizationSettingsCategory.REGIONAL,
+    label: 'Timezone',
+    valueType: SettingValueType.STRING,
+    defaultValue: 'UTC',
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.regional.locale',
+    category: OrganizationSettingsCategory.REGIONAL,
+    label: 'Locale',
+    valueType: SettingValueType.STRING,
+    defaultValue: 'en-US',
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.regional.currency',
+    category: OrganizationSettingsCategory.REGIONAL,
+    label: 'Currency',
+    valueType: SettingValueType.STRING,
+    defaultValue: 'USD',
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+    validationRules: { pattern: '^[A-Z]{3}$' },
+  },
+  {
+    key: 'organization.regional.date-format',
+    category: OrganizationSettingsCategory.REGIONAL,
+    label: 'Date format',
+    valueType: SettingValueType.STRING,
+    defaultValue: 'YYYY-MM-DD',
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+
+  // ── Operational defaults / preferences ───────────────────────────
+  {
+    key: 'organization.operational.default-workspace-id',
+    category: OrganizationSettingsCategory.OPERATIONAL,
+    label: 'Default workspace',
+    valueType: SettingValueType.STRING,
+    allowedScopes: [SettingScope.ORGANIZATION],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.operational.default-marketplace',
+    category: OrganizationSettingsCategory.OPERATIONAL,
+    label: 'Default marketplace',
+    valueType: SettingValueType.STRING,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.operational.default-warehouse-id',
+    category: OrganizationSettingsCategory.OPERATIONAL,
+    label: 'Default warehouse',
+    valueType: SettingValueType.STRING,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.operational.default-supplier-id',
+    category: OrganizationSettingsCategory.OPERATIONAL,
+    label: 'Default supplier',
+    valueType: SettingValueType.STRING,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.operational.ai-preferences',
+    category: OrganizationSettingsCategory.OPERATIONAL,
+    label: 'AI preferences',
+    valueType: SettingValueType.JSON,
+    defaultValue: {},
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.operational.notification-preferences',
+    category: OrganizationSettingsCategory.OPERATIONAL,
+    label: 'Notification preferences',
+    valueType: SettingValueType.JSON,
+    defaultValue: {},
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+
+  // ── Policies ─────────────────────────────────────────────────────
+  {
+    key: 'organization.policy.approval.require-approval-above',
+    category: OrganizationSettingsCategory.POLICY,
+    label: 'Require approval above amount',
+    valueType: SettingValueType.NUMBER,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+    validationRules: { min: 0 },
+  },
+  {
+    key: 'organization.policy.approval.approver-roles',
+    category: OrganizationSettingsCategory.POLICY,
+    label: 'Approver roles',
+    valueType: SettingValueType.LIST,
+    defaultValue: ['OWNER', 'ADMIN'],
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.policy.procurement.auto-reorder-enabled',
+    category: OrganizationSettingsCategory.POLICY,
+    label: 'Auto-reorder enabled',
+    valueType: SettingValueType.BOOLEAN,
+    defaultValue: false,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.policy.inventory.low-stock-threshold-percent',
+    category: OrganizationSettingsCategory.POLICY,
+    label: 'Low stock threshold (%)',
+    valueType: SettingValueType.NUMBER,
+    defaultValue: 20,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+    validationRules: { min: 0, max: 100 },
+  },
+  {
+    key: 'organization.policy.listing.auto-publish-enabled',
+    category: OrganizationSettingsCategory.POLICY,
+    label: 'Auto-publish listings enabled',
+    valueType: SettingValueType.BOOLEAN,
+    defaultValue: false,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.policy.pricing.min-margin-percent',
+    category: OrganizationSettingsCategory.POLICY,
+    label: 'Minimum margin (%)',
+    valueType: SettingValueType.NUMBER,
+    defaultValue: 10,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+    validationRules: { min: 0, max: 100 },
+  },
+  {
+    key: 'organization.policy.security.mfa-required',
+    category: OrganizationSettingsCategory.POLICY,
+    label: 'MFA required',
+    valueType: SettingValueType.BOOLEAN,
+    defaultValue: false,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.policy.security.session-timeout-minutes',
+    category: OrganizationSettingsCategory.POLICY,
+    label: 'Session timeout (minutes)',
+    valueType: SettingValueType.NUMBER,
+    defaultValue: 60,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+    validationRules: { min: 5 },
+  },
+  {
+    key: 'organization.policy.retention.audit-log-retention-days',
+    category: OrganizationSettingsCategory.POLICY,
+    label: 'Audit log retention (days)',
+    valueType: SettingValueType.NUMBER,
+    defaultValue: 365,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+    validationRules: { min: 1 },
+  },
+  {
+    key: 'organization.policy.retention.file-retention-days',
+    category: OrganizationSettingsCategory.POLICY,
+    label: 'File retention (days)',
+    valueType: SettingValueType.NUMBER,
+    defaultValue: 730,
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+    validationRules: { min: 1 },
+  },
+];
+
+/** Maps the friendly field names accepted by this module's update DTOs to their underlying Settings Framework definition keys. */
+export const ORGANIZATION_SETTINGS_FIELD_KEY_MAP: Record<OrganizationSettingsCategory, Record<string, string>> = {
+  [OrganizationSettingsCategory.PROFILE]: {
+    name: 'organization.profile.name',
+    legalName: 'organization.profile.legal-name',
+    logoUrl: 'organization.profile.logo-url',
+    contactEmail: 'organization.profile.contact-email',
+    contactPhone: 'organization.profile.contact-phone',
+    addresses: 'organization.profile.addresses',
+    taxIdentifiers: 'organization.profile.tax-identifiers',
+  },
+  [OrganizationSettingsCategory.REGIONAL]: {
+    timezone: 'organization.regional.timezone',
+    locale: 'organization.regional.locale',
+    currency: 'organization.regional.currency',
+    dateFormat: 'organization.regional.date-format',
+  },
+  [OrganizationSettingsCategory.OPERATIONAL]: {
+    defaultWorkspaceId: 'organization.operational.default-workspace-id',
+    defaultMarketplace: 'organization.operational.default-marketplace',
+    defaultWarehouseId: 'organization.operational.default-warehouse-id',
+    defaultSupplierId: 'organization.operational.default-supplier-id',
+    aiPreferences: 'organization.operational.ai-preferences',
+    notificationPreferences: 'organization.operational.notification-preferences',
+  },
+  [OrganizationSettingsCategory.POLICY]: {
+    approvalThreshold: 'organization.policy.approval.require-approval-above',
+    approverRoles: 'organization.policy.approval.approver-roles',
+    autoReorderEnabled: 'organization.policy.procurement.auto-reorder-enabled',
+    lowStockThresholdPercent: 'organization.policy.inventory.low-stock-threshold-percent',
+    autoPublishEnabled: 'organization.policy.listing.auto-publish-enabled',
+    minMarginPercent: 'organization.policy.pricing.min-margin-percent',
+    mfaRequired: 'organization.policy.security.mfa-required',
+    sessionTimeoutMinutes: 'organization.policy.security.session-timeout-minutes',
+    auditLogRetentionDays: 'organization.policy.retention.audit-log-retention-days',
+    fileRetentionDays: 'organization.policy.retention.file-retention-days',
+  },
+};

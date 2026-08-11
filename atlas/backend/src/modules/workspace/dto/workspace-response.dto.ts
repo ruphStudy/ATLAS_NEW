@@ -26,6 +26,21 @@ export class WorkspaceResponseDto {
   @ApiProperty({ enum: WorkspacePlan, example: WorkspacePlan.FREE })
   plan: WorkspacePlan = WorkspacePlan.FREE;
 
+  @ApiPropertyOptional({ example: null, nullable: true, description: 'Forward-compatible reference only — no Organization module implemented yet' })
+  organizationId: string | null = null;
+
+  @ApiPropertyOptional({ example: 'NOT_STARTED' })
+  onboardingStatus?: string;
+
+  @ApiPropertyOptional({ example: null, nullable: true })
+  archivedAt: string | null = null;
+
+  @ApiPropertyOptional({ example: null, nullable: true })
+  suspendedAt: string | null = null;
+
+  @ApiPropertyOptional({ example: null, nullable: true })
+  suspendedReason: string | null = null;
+
   @ApiProperty({ example: '2026-07-14T10:00:00.000Z' })
   createdAt: string = '';
 

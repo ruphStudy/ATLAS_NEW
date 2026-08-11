@@ -107,16 +107,32 @@ export class AuthenticationService {
     return { ...tokens, user: this.sanitizeUser(user) };
   }
 
+  /**
+   * Re-issues tokens scoped to a different workspace than the user's home
+   * `user.workspaceId` — the "workspace switching" primitive Workspace
+   * Management builds on. The caller (`WorkspaceMembershipService`) is
+   * responsible for verifying the user actually has access to
+   * `workspaceId` before calling this; Authentication only mints the token.
+   * The `role` claim intentionally stays the user's legacy global role —
+   * per-workspace membership roles are enforced separately by Workspace
+   * Management, not by this claim.
+   */
+  async issueTokensForWorkspace(user: User, workspaceId: string): Promise<AuthResponseDto> {
+    const tokens = await this.generateTokens(user, workspaceId);
+    await this.storeRefreshToken(user.id, tokens.refreshToken);
+    return { ...tokens, user: this.sanitizeUser(user) };
+  }
+
   // ── Private Helpers ───────────────────────────────────────────
 
-  private async generateTokens(user: User): Promise<IAuthTokens> {
+  private async generateTokens(user: User, workspaceIdOverride?: string): Promise<IAuthTokens> {
     const { secret, expiresIn, refreshSecret, refreshExpiresIn } =
       this.configService.getJwtConfig();
 
     const basePayload = {
       sub: user.id,
       email: user.email,
-      workspaceId: user.workspaceId,
+      workspaceId: workspaceIdOverride ?? user.workspaceId,
       role: user.role,
     };
 

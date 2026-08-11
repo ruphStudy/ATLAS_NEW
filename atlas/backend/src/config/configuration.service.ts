@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { CONFIG_NAMESPACES } from './constants';
 import { NodeEnvironment } from './enums';
 import type {
+  IAiCredentialConfig,
+  IAiProviderFoundationConfig,
   IAppConfig,
   IDatabaseConfig,
   IJwtConfig,
@@ -10,6 +12,7 @@ import type {
   IQueueConfig,
   IRedisConfig,
   ISwaggerConfig,
+  IStorageFoundationConfig,
 } from './interfaces';
 
 /**
@@ -112,6 +115,41 @@ export class ConfigurationService {
    */
   getLoggerConfig(): ILoggerConfig {
     return this.getOrThrow<ILoggerConfig>(CONFIG_NAMESPACES.LOGGER, 'Logger config not found');
+  }
+
+  /**
+   * Returns the AI provider foundation configuration block.
+   * Contains: defaultProviderKey, requestTimeoutMs, maxRetryAttempts,
+   * retryBackoffMs, maxRequestsPerMinute, useCaseProviderMap.
+   */
+  getAiProviderConfig(): IAiProviderFoundationConfig {
+    return this.getOrThrow<IAiProviderFoundationConfig>(
+      CONFIG_NAMESPACES.AI_PROVIDER,
+      'AI provider config not found',
+    );
+  }
+
+  /**
+   * Returns the AI provider credential encryption configuration block.
+   * Contains: encryptionKeyPassphrase, keyLength, ivLength, authTagLength.
+   */
+  getAiCredentialConfig(): IAiCredentialConfig {
+    return this.getOrThrow<IAiCredentialConfig>(
+      CONFIG_NAMESPACES.AI_CREDENTIAL,
+      'AI credential config not found',
+    );
+  }
+
+  /**
+   * Returns the File Management storage foundation configuration block.
+   * Contains: basePath, maxFileSizeBytes, defaultWorkspaceQuotaBytes,
+   * accessTokenDefaultTtlMs.
+   */
+  getStorageConfig(): IStorageFoundationConfig {
+    return this.getOrThrow<IStorageFoundationConfig>(
+      CONFIG_NAMESPACES.STORAGE,
+      'Storage config not found',
+    );
   }
 
   // ── Private Helpers ────────────────────────────────────────────

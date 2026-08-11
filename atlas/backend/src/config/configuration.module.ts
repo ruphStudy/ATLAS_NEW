@@ -9,6 +9,9 @@ import { jwtConfig } from './jwt.config';
 import { swaggerConfig } from './swagger.config';
 import { queueConfig } from './queue.config';
 import { loggerConfig } from './logger.config';
+import { aiProviderConfig } from './ai-provider.config';
+import { aiCredentialConfig } from './ai-credential.config';
+import { storageConfig } from './storage.config';
 import { ConfigurationService } from './configuration.service';
 
 /**
@@ -47,6 +50,9 @@ import { ConfigurationService } from './configuration.service';
         swaggerConfig,
         queueConfig,
         loggerConfig,
+        aiProviderConfig,
+        aiCredentialConfig,
+        storageConfig,
       ],
       validate,
       validationOptions: {

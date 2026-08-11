@@ -135,6 +135,44 @@ export class EnvironmentVariables {
   @IsString()
   @IsOptional()
   SWAGGER_PATH: string = 'api/docs';
+
+  // ── AI Provider ──────────────────────────────────────────────
+  @IsString()
+  @IsOptional()
+  AI_PROVIDER_DEFAULT_PROVIDER_KEY?: string;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  AI_PROVIDER_REQUEST_TIMEOUT_MS: number = 30000;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  AI_PROVIDER_MAX_RETRY_ATTEMPTS: number = 2;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  AI_PROVIDER_RETRY_BACKOFF_MS: number = 500;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  AI_PROVIDER_MAX_REQUESTS_PER_MINUTE: number = 60;
+
+  @IsString()
+  @IsOptional()
+  AI_PROVIDER_USE_CASE_MAP: string = '{}';
+
+  // ── AI Credential Encryption ──────────────────────────────────
+  @IsString()
+  @IsOptional()
+  ATLAS_CREDENTIAL_KEY?: string;
 }
 
 /**

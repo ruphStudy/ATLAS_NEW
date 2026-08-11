@@ -4,18 +4,28 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, WorkspaceStatus } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { slugify } from '@common/utils';
 import { PaginationDto } from '@common/dto/pagination.dto';
+import { OrganizationSettingsService } from '@modules/organization-settings/organization-settings.service';
+import { AuditLogsService } from '@modules/audit-logs/audit-logs.service';
+import { ActivityActorType, ActivityOutcome, AuditActionCategory } from '@modules/audit-logs/interfaces';
+import { ActivityCenterService } from '@modules/activity-center/activity-center.service';
 import { WorkspaceRepository } from './workspace.repository';
-import { WORKSPACE_CONSTANTS } from './constants';
+import { WorkspaceMembershipService } from './workspace-membership.service';
+import { WorkspaceManagementEventQueue } from './jobs';
+import { WORKSPACE_CONSTANTS, WORKSPACE_MANAGEMENT_MODULE, WORKSPACE_STATUS_ALLOWED_TRANSITIONS } from './constants';
+import { WorkspaceManagementEvent } from './interfaces';
 import type { IWorkspace, IWorkspaceListResult } from './interfaces';
 import type {
   CreateWorkspaceDto,
   UpdateWorkspaceDto,
   WorkspaceResponseDto,
+  SuspendWorkspaceDto,
+  WorkspaceProfileResponseDto,
 } from './dto';
+import { WorkspaceInvalidStateTransitionException } from './exceptions/workspace.exceptions';
 
 /**
  * WorkspaceService
@@ -30,7 +40,14 @@ import type {
 export class WorkspaceService {
   private readonly logger = new Logger(WorkspaceService.name);
 
-  constructor(private readonly workspaceRepository: WorkspaceRepository) {}
+  constructor(
+    private readonly workspaceRepository: WorkspaceRepository,
+    private readonly membershipService: WorkspaceMembershipService,
+    private readonly organizationSettingsService: OrganizationSettingsService,
+    private readonly auditLogsService: AuditLogsService,
+    private readonly activityCenterService: ActivityCenterService,
+    private readonly eventQueue: WorkspaceManagementEventQueue,
+  ) {}
 
   // ── Public Methods ───────────────────────────────────────────
 
@@ -90,14 +107,131 @@ export class WorkspaceService {
     return this.toResponseDto(updated);
   }
 
-  async remove(id: string, userId: string): Promise<void> {
+  async remove(id: string, userId: string, actingAsPlatformAdmin = false): Promise<void> {
     const workspace = await this.getOrThrow(id);
-    await this.assertRole(workspace, userId, ['OWNER']);
+    if (!actingAsPlatformAdmin) {
+      await this.assertRole(workspace, userId, ['OWNER']);
+    }
     await this.workspaceRepository.softDelete(id);
-    this.logger.log(`Workspace soft-deleted: ${id} by user ${userId}`);
+    this.logger.log(`Workspace soft-deleted: ${id} by user ${userId}${actingAsPlatformAdmin ? ' (platform admin)' : ''}`);
+  }
+
+  // ── Lifecycle ────────────────────────────────────────────────
+
+  async activate(id: string, userId: string, actingAsPlatformAdmin = false): Promise<WorkspaceResponseDto> {
+    return this.transition(id, userId, WorkspaceStatus.ACTIVE, WorkspaceManagementEvent.WORKSPACE_ACTIVATED, 'Activated', {
+      suspendedAt: null,
+      suspendedReason: null,
+    }, actingAsPlatformAdmin);
+  }
+
+  async suspend(id: string, userId: string, dto: SuspendWorkspaceDto, actingAsPlatformAdmin = false): Promise<WorkspaceResponseDto> {
+    return this.transition(id, userId, WorkspaceStatus.SUSPENDED, WorkspaceManagementEvent.WORKSPACE_SUSPENDED, 'Suspended', {
+      suspendedAt: new Date(),
+      suspendedReason: dto.reason ?? null,
+    }, actingAsPlatformAdmin);
+  }
+
+  async archive(id: string, userId: string, actingAsPlatformAdmin = false): Promise<WorkspaceResponseDto> {
+    return this.transition(id, userId, WorkspaceStatus.ARCHIVED, WorkspaceManagementEvent.WORKSPACE_ARCHIVED, 'Archived', {
+      archivedAt: new Date(),
+    }, actingAsPlatformAdmin);
+  }
+
+  async restore(id: string, userId: string, actingAsPlatformAdmin = false): Promise<WorkspaceResponseDto> {
+    return this.transition(id, userId, WorkspaceStatus.ACTIVE, WorkspaceManagementEvent.WORKSPACE_RESTORED, 'Restored', {
+      archivedAt: null,
+    }, actingAsPlatformAdmin);
+  }
+
+  /**
+   * Composes the base workspace record with its resolved regional/contact
+   * settings — reused directly from the already-built Organization Settings
+   * catalog (`organization.regional.*` / `organization.profile.*`), never
+   * duplicated as new Workspace columns.
+   */
+  async getProfile(id: string, userId: string): Promise<WorkspaceProfileResponseDto> {
+    const workspace = await this.getOrThrow(id);
+    await this.membershipService.assertMember(workspace, userId);
+
+    const [timezone, locale, currency, contactEmail, contactPhone] = await Promise.all([
+      this.organizationSettingsService.resolveKey(id, userId, 'organization.regional.timezone'),
+      this.organizationSettingsService.resolveKey(id, userId, 'organization.regional.locale'),
+      this.organizationSettingsService.resolveKey(id, userId, 'organization.regional.currency'),
+      this.organizationSettingsService.resolveKey(id, userId, 'organization.profile.contact-email').catch(() => null),
+      this.organizationSettingsService.resolveKey(id, userId, 'organization.profile.contact-phone').catch(() => null),
+    ]);
+
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      description: workspace.description,
+      logoUrl: workspace.logoUrl,
+      status: workspace.status,
+      plan: workspace.plan,
+      organizationId: workspace.organizationId,
+      onboardingStatus: workspace.onboardingStatus,
+      timezone: (timezone.value as string) ?? 'UTC',
+      locale: (locale.value as string) ?? 'en-US',
+      currency: (currency.value as string) ?? 'USD',
+      contactEmail: (contactEmail?.value as string) ?? null,
+      contactPhone: (contactPhone?.value as string) ?? null,
+    };
   }
 
   // ── Private Helpers ───────────────────────────────────────────
+
+  private async transition(
+    id: string,
+    userId: string,
+    to: WorkspaceStatus,
+    event: WorkspaceManagementEvent,
+    reason: string,
+    extraFields: Record<string, unknown>,
+    actingAsPlatformAdmin = false,
+  ): Promise<WorkspaceResponseDto> {
+    const workspace = await this.getOrThrow(id);
+    // Platform admins act on tenants they are not a member of — callers must have already passed
+    // through `PlatformAdminGuard`/`AllowPlatformAdmin()` before reaching here; this only skips the
+    // membership check, never the transition/audit/event machinery below.
+    if (!actingAsPlatformAdmin) {
+      await this.membershipService.assertAdmin(workspace, userId);
+    }
+
+    if (!WORKSPACE_STATUS_ALLOWED_TRANSITIONS[workspace.status]?.includes(to)) {
+      throw new WorkspaceInvalidStateTransitionException(workspace.status, to);
+    }
+
+    const updated = await this.workspaceRepository.update(id, { status: to, ...extraFields });
+
+    await this.auditLogsService.record({
+      workspaceId: id,
+      actorType: ActivityActorType.USER,
+      actorId: userId,
+      action: `workspace-management.workspace.${reason.toLowerCase()}`,
+      actionCategory: AuditActionCategory.UPDATE,
+      module: WORKSPACE_MANAGEMENT_MODULE,
+      entityType: 'Workspace',
+      entityId: id,
+      outcome: ActivityOutcome.SUCCESS,
+    });
+    await this.activityCenterService.record({
+      workspaceId: id,
+      actorType: ActivityActorType.USER,
+      actorId: userId,
+      action: `workspace-management.workspace_${reason.toLowerCase()}`,
+      sourceModule: WORKSPACE_MANAGEMENT_MODULE,
+      entityType: 'Workspace',
+      entityId: id,
+      title: `Workspace ${reason.toLowerCase()}`,
+      timelineId: id,
+    });
+    await this.eventQueue.publish({ event, workspaceId: id, actorId: userId });
+
+    this.logger.log(`Workspace ${reason.toLowerCase()}: ${id} by ${userId}`);
+    return this.toResponseDto(updated);
+  }
 
   private async generateUniqueSlug(name: string): Promise<string> {
     const base = slugify(name);
@@ -143,6 +277,11 @@ export class WorkspaceService {
       ownerId: workspace.ownerId,
       status: workspace.status,
       plan: workspace.plan,
+      organizationId: workspace.organizationId,
+      onboardingStatus: workspace.onboardingStatus,
+      archivedAt: workspace.archivedAt ? workspace.archivedAt.toISOString() : null,
+      suspendedAt: workspace.suspendedAt ? workspace.suspendedAt.toISOString() : null,
+      suspendedReason: workspace.suspendedReason,
       createdAt: workspace.createdAt.toISOString(),
       updatedAt: workspace.updatedAt.toISOString(),
     };
