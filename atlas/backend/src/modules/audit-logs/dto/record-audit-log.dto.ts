@@ -41,6 +41,11 @@ export class RecordAuditLogDto {
   @IsOptional()
   entityId?: string;
 
+  /** Optional Multi-Business dimensional tag — soft reference to `Business.id`. */
+  @IsString()
+  @IsOptional()
+  businessId?: string;
+
   @IsEnum(ActivityOutcome)
   @IsOptional()
   outcome?: ActivityOutcome;
@@ -82,6 +87,10 @@ export class RecordAuditLogDto {
   @IsString()
   @IsOptional()
   sessionId?: string;
+
+  @IsString()
+  @IsOptional()
+  traceId?: string;
 
   @IsString()
   @IsOptional()

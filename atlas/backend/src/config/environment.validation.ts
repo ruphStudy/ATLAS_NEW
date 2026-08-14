@@ -169,10 +169,10 @@ export class EnvironmentVariables {
   @IsOptional()
   AI_PROVIDER_USE_CASE_MAP: string = '{}';
 
-  // ── AI Credential Encryption ──────────────────────────────────
+  // ── Credential Encryption ───────────────────────────────────
   @IsString()
-  @IsOptional()
-  ATLAS_CREDENTIAL_KEY?: string;
+  @MinLength(32, { message: 'ATLAS_CREDENTIAL_KEY must be at least 32 characters' })
+  ATLAS_CREDENTIAL_KEY!: string;
 }
 
 /**

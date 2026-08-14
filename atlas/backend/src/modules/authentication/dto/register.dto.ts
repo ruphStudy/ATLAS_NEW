@@ -31,16 +31,16 @@ export class RegisterDto {
   email: string;
 
   @ApiProperty({
-    example: 'Str0ng!Pass',
+    example: 'Str0ng!Passw0rd',
     description:
-      'Password (8–128 chars, must include uppercase, lowercase, digit, and special character)',
-    minLength: 8,
+      'Password (12–128 chars, must include uppercase, lowercase, digit, and special character)',
+    minLength: 12,
     maxLength: 128,
   })
   @IsString()
-  @MinLength(8, { message: 'password must be at least 8 characters' })
+  @MinLength(12, { message: 'password must be at least 12 characters' })
   @MaxLength(128, { message: 'password must not exceed 128 characters' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]/, {
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{12,}$/, {
     message:
       'password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
   })

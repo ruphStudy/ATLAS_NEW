@@ -126,6 +126,20 @@ export class CapabilityFilterDto {
   sortOrder?: 'asc' | 'desc';
 }
 
+// ── Capability Matrix ─────────────────────────────────────────
+
+export class CapabilityMatrixQueryDto {
+  workspaceId!: string;
+  providerKey?: string;
+  marketplaceKey?: string;
+  accountId?: string;
+  country?: string;
+  region?: string;
+  category?: CapabilityCategory;
+  apiVersion?: string;
+  providerVersion?: string;
+}
+
 // ── Response DTOs ─────────────────────────────────────────────
 
 export class CapabilityResponseDto {

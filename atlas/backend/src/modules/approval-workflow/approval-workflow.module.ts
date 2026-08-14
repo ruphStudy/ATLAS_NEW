@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { DatabaseModule } from '@database/database.module';
 import { QUEUE_NAMES } from '@common/constants';
 import { RolesPermissionsModule } from '@modules/roles-permissions/roles-permissions.module';
 import { NotificationsModule } from '@modules/notifications/notifications.module';
 import { AuditLogsModule } from '@modules/audit-logs/audit-logs.module';
+import { EnterpriseWorkflowEngineModule } from '@modules/enterprise-workflow-engine/enterprise-workflow-engine.module';
 import { ApprovalWorkflowController } from './approval-workflow.controller';
 import { ApprovalWorkflowService } from './approval-workflow.service';
 import { ApprovalEngineService } from './approval-engine.service';
@@ -30,6 +31,7 @@ import { ApprovalWorkflowEventQueue, ApprovalWorkflowEventWorker } from './jobs'
     RolesPermissionsModule,
     NotificationsModule,
     AuditLogsModule,
+    forwardRef(() => EnterpriseWorkflowEngineModule),
     BullModule.registerQueue({
       name: QUEUE_NAMES.APPROVAL_WORKFLOW_EVENTS,
     }),

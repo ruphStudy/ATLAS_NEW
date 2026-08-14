@@ -84,8 +84,12 @@ export class MarketplaceCredentialEncryptor {
   // ── Internals ────────────────────────────────────────────────
 
   deriveKey(workspaceId: string, providerKey: string): Buffer {
-    const passphrase =
-      process.env['ATLAS_CREDENTIAL_KEY'] ?? 'atlas-default-secret-change-me';
+    const passphrase = process.env['ATLAS_CREDENTIAL_KEY'];
+    if (!passphrase) {
+      throw new Error(
+        'ATLAS_CREDENTIAL_KEY is not set — refusing to derive a credential encryption key without it',
+      );
+    }
     const salt = `${MP_CREDENTIAL_CONSTANTS.SALT_PREFIX}-${providerKey.toUpperCase()}-${workspaceId}`;
     return scryptSync(
       passphrase,

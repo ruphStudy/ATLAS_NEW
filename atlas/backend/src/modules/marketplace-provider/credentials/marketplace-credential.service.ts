@@ -157,7 +157,12 @@ export class MarketplaceCredentialService {
   private deriveKey(workspaceId: string, providerKey: string): Buffer {
     // Deterministic per-workspace-per-provider key derivation.
     // In production: call KMS.getDataKey() instead.
-    const passphrase = process.env['ATLAS_CREDENTIAL_KEY'] ?? 'atlas-default-secret-change-me';
+    const passphrase = process.env['ATLAS_CREDENTIAL_KEY'];
+    if (!passphrase) {
+      throw new Error(
+        'ATLAS_CREDENTIAL_KEY is not set — refusing to derive a credential encryption key without it',
+      );
+    }
     const salt = `${SALT_PREFIX}-${providerKey.toUpperCase()}-${workspaceId}`;
     return scryptSync(passphrase, salt, KEY_LENGTH) as Buffer;
   }

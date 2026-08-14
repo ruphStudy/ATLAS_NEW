@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsArray } from 'class-validator';
 
 export class UpdateDisplayPreferencesDto {
   @IsString()
@@ -20,6 +20,15 @@ export class UpdateDisplayPreferencesDto {
   @IsString()
   @IsOptional()
   currency?: string;
+
+  @IsString()
+  @IsOptional()
+  measurementSystem?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  preferredLanguages?: string[];
 
   @IsString()
   @IsOptional()

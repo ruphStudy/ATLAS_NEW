@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { sanitizeErrorForLog } from '@common/utils';
 import { AdapterHttpClient } from '../../../client/http.client';
 import { AmazonAuthService } from '../auth/amazon-auth.service';
 import {
@@ -70,7 +71,7 @@ export class AmazonSpApiClient {
         enableTracing,
       );
     } catch (error) {
-      this.logger.error(`Amazon SP-API request failed: ${path}`, error);
+      this.logger.error(`Amazon SP-API request failed: ${path}`, sanitizeErrorForLog(error));
       throw error;
     }
   }

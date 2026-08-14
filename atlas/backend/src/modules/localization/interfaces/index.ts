@@ -8,16 +8,38 @@ export enum TranslationStatus {
   PUBLISHED = 'PUBLISHED',
 }
 
+export enum MeasurementSystem {
+  METRIC = 'METRIC',
+  IMPERIAL = 'IMPERIAL',
+}
+
+export enum TranslationIssueType {
+  MISSING = 'MISSING',
+  OUTDATED = 'OUTDATED',
+  CONFLICTING = 'CONFLICTING',
+}
+
+export enum LocaleStatus {
+  ACTIVE = 'ACTIVE',
+  DISABLED = 'DISABLED',
+  ARCHIVED = 'ARCHIVED',
+}
+
 export enum LocalizationEvent {
   LOCALE_CREATED = 'localization.locale_created',
   LOCALE_UPDATED = 'localization.locale_updated',
+  LOCALE_ENABLED = 'localization.locale_enabled',
+  LOCALE_DISABLED = 'localization.locale_disabled',
   LOCALE_ARCHIVED = 'localization.locale_archived',
+  LOCALE_RESTORED = 'localization.locale_restored',
   DEFAULT_LOCALE_CHANGED = 'localization.default_locale_changed',
+  LOCALE_AVAILABILITY_SET = 'localization.locale_availability_set',
   NAMESPACE_CREATED = 'localization.namespace_created',
   KEY_CREATED = 'localization.key_created',
   KEY_DELETED = 'localization.key_deleted',
   TRANSLATION_UPDATED = 'localization.translation_updated',
   TRANSLATIONS_IMPORTED = 'localization.translations_imported',
+  PROVIDER_REQUIREMENT_SET = 'localization.provider_requirement_set',
 }
 
 export interface INumberFormatConfig {
@@ -31,6 +53,7 @@ export interface ILocaleDefinition {
   code: string;
   language: string;
   country?: string | null;
+  script?: string | null;
   nativeName: string;
   displayName: string;
   direction: LocaleDirection;
@@ -38,10 +61,104 @@ export interface ILocaleDefinition {
   timeFormat: string;
   numberFormat: INumberFormatConfig;
   currencyCode: string;
+  timezone: string;
+  measurementSystem: MeasurementSystem;
+  fallbackLocaleCode?: string | null;
+  status: LocaleStatus;
+  version: number;
   isActive: boolean;
   isDefault: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ILocaleDefinitionHistory {
+  id: string;
+  localeId: string;
+  version: number;
+  status: LocaleStatus;
+  snapshot: Record<string, unknown>;
+  changeReason?: string | null;
+  changedBy?: string | null;
+  createdAt: Date;
+}
+
+export interface ILocaleAvailability {
+  id: string;
+  localeCode: string;
+  workspaceId?: string | null;
+  countryCode?: string | null;
+  marketplaceKey?: string | null;
+  isEnabled: boolean;
+  isDefault: boolean;
+  isPreferred: boolean;
+  metadata: Record<string, unknown>;
+  createdBy?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date | null;
+}
+
+export interface ITranslationCompleteness {
+  namespaceKey: string;
+  localeCode: string;
+  totalKeys: number;
+  translatedKeys: number;
+  missingKeys: number;
+  completenessPercent: number;
+}
+
+export interface LocaleFilterOptions {
+  search?: string | null;
+  status?: LocaleStatus | null;
+  direction?: LocaleDirection | null;
+  language?: string | null;
+  country?: string | null;
+  script?: string | null;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}
+
+export interface ILocaleProviderRequirement {
+  id: string;
+  workspaceId?: string | null;
+  marketplaceKey: string;
+  countryCode?: string | null;
+  requiredLocaleCode: string;
+  requiredCurrencyCode?: string | null;
+  requiredTimezone?: string | null;
+  requiredMeasurementSystem?: MeasurementSystem | null;
+  metadata: Record<string, unknown>;
+  createdBy?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date | null;
+}
+
+export interface ITranslationIssue {
+  type: TranslationIssueType;
+  namespaceKey: string;
+  key: string;
+  localeCode: string;
+  message: string;
+}
+
+/** All localization dimensions resolved together through the same global→organization→workspace→user precedence. */
+export interface IEffectiveRegionalSettings {
+  localeCode: string;
+  localeSource: string;
+  timezone: string;
+  timezoneSource: string;
+  currencyCode: string;
+  currencySource: string;
+  dateFormat: string;
+  dateFormatSource: string;
+  numberFormat: string;
+  numberFormatSource: string;
+  measurementSystem: MeasurementSystem;
+  measurementSystemSource: string;
 }
 
 export interface ITranslationNamespace {
@@ -90,6 +207,8 @@ export interface ILocalizationEventPayload {
   localeCode?: string;
   namespaceKey?: string;
   key?: string;
+  workspaceId?: string | null;
+  marketplaceKey?: string;
   actorId?: string;
   metadata?: Record<string, unknown>;
 }

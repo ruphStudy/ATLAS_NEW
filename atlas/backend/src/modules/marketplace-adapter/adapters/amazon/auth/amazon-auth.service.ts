@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
+import { sanitizeErrorForLog } from '@common/utils';
 import {
   IAmazonCredentials,
   IAmazonTokenResponse,
@@ -57,8 +58,8 @@ export class AmazonAuthService {
         expiresAt: new Date(Date.now() + data.expires_in * 1000),
       };
     } catch (error) {
-      this.logger.error('Failed to refresh Amazon access token', error);
-      throw new Error('Amazon token refresh failed: ' + error.message);
+      this.logger.error('Failed to refresh Amazon access token', sanitizeErrorForLog(error));
+      throw new Error('Amazon token refresh failed: ' + (error as Error).message);
     }
   }
 

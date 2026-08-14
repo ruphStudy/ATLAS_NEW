@@ -1,10 +1,10 @@
 import { IsString, IsNotEmpty, IsOptional, IsEnum, IsArray, IsInt, Min, IsIn, ValidateNested, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApproverType } from '../interfaces';
+import { ApproverType, ApprovalStrategy } from '../interfaces';
 
 export class ApprovalConditionDto {
-  @IsIn(['amount', 'riskLevel', 'entityType'])
-  field: 'amount' | 'riskLevel' | 'entityType';
+  @IsIn(['amount', 'riskLevel', 'entityType', 'countryCode', 'marketplaceKey'])
+  field: 'amount' | 'riskLevel' | 'entityType' | 'countryCode' | 'marketplaceKey';
 
   @IsIn(['eq', 'neq', 'gte', 'lte', 'in'])
   operator: 'eq' | 'neq' | 'gte' | 'lte' | 'in';
@@ -33,6 +33,10 @@ export class ApprovalStepConfigDto {
   @Min(1)
   @IsOptional()
   requiredApprovals?: number;
+
+  @IsEnum(ApprovalStrategy)
+  @IsOptional()
+  strategy?: ApprovalStrategy;
 
   @ValidateNested()
   @Type(() => ApprovalConditionDto)
@@ -63,6 +67,21 @@ export class ApprovalMatchCriteriaDto {
   @IsString({ each: true })
   @IsOptional()
   riskLevels?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  countryCodes?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  marketplaceKeys?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  businessUnitIds?: string[];
 }
 
 export class ApprovalEscalationConfigDto {

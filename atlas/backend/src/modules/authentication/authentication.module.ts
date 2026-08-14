@@ -3,9 +3,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigurationService } from '@config/configuration.service';
 import { UsersModule } from '@modules/users/users.module';
+import { AuditLogsModule } from '@modules/audit-logs/audit-logs.module';
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
 import { AuthenticationRepository } from './authentication.repository';
+import { FailedLoginTracker } from './failed-login.tracker';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 
@@ -20,11 +22,13 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
       },
     }),
     UsersModule,
+    AuditLogsModule,
   ],
   controllers: [AuthenticationController],
   providers: [
     AuthenticationService,
     AuthenticationRepository,
+    FailedLoginTracker,
     JwtStrategy,
     JwtRefreshStrategy,
   ],

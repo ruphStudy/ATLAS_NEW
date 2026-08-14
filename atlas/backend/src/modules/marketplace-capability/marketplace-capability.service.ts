@@ -18,6 +18,8 @@ import {
   CapabilityValidationResult,
   IMarketplaceCapabilityDefinition,
   IMarketplaceProviderCapabilityDeclaration,
+  MarketplaceCapabilityMatrix,
+  MarketplaceCapabilityMatrixRequest,
 } from '../interfaces';
 import { MarketplaceCapabilityRepository } from '../repository/marketplace-capability.repository';
 import { MarketplaceCapabilityRegistry } from '../registry/marketplace-capability.registry';
@@ -26,6 +28,7 @@ import { MarketplaceCapabilityValidator } from '../validator/marketplace-capabil
 import { MarketplaceCapabilityResolver } from '../resolver/marketplace-capability.resolver';
 import { MarketplaceCapabilityVersionManager } from '../version/marketplace-capability-version.manager';
 import { MarketplaceCapabilityCompatibilityManager } from '../compatibility/marketplace-capability-compatibility.manager';
+import { MarketplaceCapabilityMatrixBuilder } from '../matrix/marketplace-capability-matrix.builder';
 import { MarketplaceCapabilityAudit } from '../audit/marketplace-capability.audit';
 import { MarketplaceCapabilityEventQueue } from '../events/marketplace-capability-events.queue';
 import { MarketplaceCapabilityMetrics } from '../metrics/marketplace-capability.metrics';
@@ -53,6 +56,7 @@ export class MarketplaceCapabilityService implements OnModuleInit {
     private readonly resolver: MarketplaceCapabilityResolver,
     private readonly versionManager: MarketplaceCapabilityVersionManager,
     private readonly compatibilityManager: MarketplaceCapabilityCompatibilityManager,
+    private readonly matrixBuilder: MarketplaceCapabilityMatrixBuilder,
     private readonly audit: MarketplaceCapabilityAudit,
     private readonly eventQueue: MarketplaceCapabilityEventQueue,
     private readonly metrics: MarketplaceCapabilityMetrics,
@@ -445,6 +449,7 @@ export class MarketplaceCapabilityService implements OnModuleInit {
     }
     if (workspaceId) {
       this.cache.invalidateResolutionsByWorkspace(workspaceId);
+      this.cache.invalidateMatricesByWorkspace(workspaceId);
     }
 
     await this.publishEvent(
@@ -455,6 +460,44 @@ export class MarketplaceCapabilityService implements OnModuleInit {
       undefined,
       { workspaceId },
     );
+
+    if (workspaceId) {
+      await this.publishEvent(CapabilityEvent.MATRIX_INVALIDATED, 'MATRIX', null, null, undefined, {
+        workspaceId,
+      });
+    }
+  }
+
+  // ── Capability Matrix ─────────────────────────────────────
+
+  /**
+   * Resolves the full capability grid (every active capability x every
+   * requested/registered provider) for a workspace scope. Cached and
+   * invalidated automatically whenever the underlying definitions,
+   * declarations, or overrides change (see `MarketplaceCapabilityCache`).
+   */
+  async getMatrix(request: MarketplaceCapabilityMatrixRequest): Promise<MarketplaceCapabilityMatrix> {
+    const cacheKey = MarketplaceCapabilityCache.buildMatrixKey(request);
+    const cached = this.cache.getMatrix(cacheKey);
+    if (cached) return cached;
+
+    const matrix = await this.matrixBuilder.build(request);
+    this.cache.setMatrix(cacheKey, matrix);
+
+    this.audit.logEvent(CapabilityEvent.MATRIX_RESOLVED, 'MATRIX', {
+      workspaceId: request.workspaceId,
+      providerKey: request.providerKey ?? null,
+      entryCount: matrix.entries.length,
+      gapCount: matrix.gaps.length,
+    });
+
+    await this.publishEvent(CapabilityEvent.MATRIX_RESOLVED, 'MATRIX', request.providerKey ?? null, null, undefined, {
+      workspaceId: request.workspaceId,
+      entryCount: matrix.entries.length,
+      gapCount: matrix.gaps.length,
+    });
+
+    return matrix;
   }
 
   // ── Metrics ───────────────────────────────────────────────

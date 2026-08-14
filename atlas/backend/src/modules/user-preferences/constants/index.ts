@@ -69,6 +69,24 @@ export const USER_PREFERENCES_DEFINITIONS: CreateSettingDefinitionDto[] = [
     module: USER_PREFERENCES_MODULE,
     validationRules: { pattern: '^[A-Z]{3}$' },
   },
+  {
+    key: 'user.display.measurement-system',
+    category: UserPreferencesCategory.DISPLAY,
+    label: 'Measurement system',
+    valueType: SettingValueType.STRING,
+    defaultValue: 'METRIC',
+    allowedScopes: [SettingScope.USER],
+    module: USER_PREFERENCES_MODULE,
+  },
+  {
+    key: 'user.display.preferred-languages',
+    category: UserPreferencesCategory.DISPLAY,
+    label: 'Preferred languages',
+    valueType: SettingValueType.JSON,
+    defaultValue: [],
+    allowedScopes: [SettingScope.USER],
+    module: USER_PREFERENCES_MODULE,
+  },
 
   // ── Notifications ────────────────────────────────────────────────
   {
@@ -279,6 +297,8 @@ export const USER_PREFERENCES_FIELD_KEY_MAP: Record<UserPreferencesCategory, Rec
     dateFormat: 'user.display.date-format',
     numberFormat: 'user.display.number-format',
     currency: 'user.display.currency',
+    measurementSystem: 'user.display.measurement-system',
+    preferredLanguages: 'user.display.preferred-languages',
   },
   [UserPreferencesCategory.NOTIFICATIONS]: {
     channels: 'user.notifications.channels',

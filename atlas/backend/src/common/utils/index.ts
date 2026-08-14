@@ -45,6 +45,32 @@ export function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+// ── Error Logging ─────────────────────────────────────────────────
+
+/**
+ * Reduces an unknown error (in particular, an Axios error) to a small,
+ * safe-to-log shape: message, HTTP status, and error code only. Never
+ * includes `error.config`/`error.request`/`error.response` — those carry
+ * the outgoing request's headers and body, which for third-party API
+ * clients (Amazon SP-API, OAuth token endpoints, etc.) can contain access
+ * tokens, refresh tokens, client secrets, or other authorization headers.
+ */
+export function sanitizeErrorForLog(error: unknown): Record<string, unknown> {
+  if (!isObject(error)) {
+    return { message: String(error) };
+  }
+
+  const status =
+    (isObject(error['response']) && error['response']['status']) ?? error['status'] ?? undefined;
+
+  return {
+    message: typeof error['message'] === 'string' ? error['message'] : 'Unknown error',
+    name: typeof error['name'] === 'string' ? error['name'] : undefined,
+    code: typeof error['code'] === 'string' ? error['code'] : undefined,
+    status,
+  };
+}
+
 // ── UUID ──────────────────────────────────────────────────────────
 
 const UUID_REGEX =

@@ -110,3 +110,53 @@ export class ApprovalAssignmentNotFoundException extends AtlasException {
     });
   }
 }
+
+export class CircularDelegationException extends AtlasException {
+  constructor(toUserId: string) {
+    super({
+      message: `Cannot delegate to '${toUserId}' — this would create a circular delegation chain back to an existing approver on this step`,
+      errorCode: ErrorCode.APPROVAL_CIRCULAR_DELEGATION,
+      statusCode: HttpStatus.CONFLICT,
+    });
+  }
+}
+
+export class PrivilegeEscalationDeniedException extends AtlasException {
+  constructor() {
+    super({
+      message: 'You cannot delegate, reassign or override an approval to a user with a higher effective permission level than your own',
+      errorCode: ErrorCode.APPROVAL_PRIVILEGE_ESCALATION_DENIED,
+      statusCode: HttpStatus.FORBIDDEN,
+    });
+  }
+}
+
+export class ManualOverrideDeniedException extends AtlasException {
+  constructor() {
+    super({
+      message: 'Manual override requires explicit override permission and a reason',
+      errorCode: ErrorCode.APPROVAL_OVERRIDE_DENIED,
+      statusCode: HttpStatus.FORBIDDEN,
+    });
+  }
+}
+
+export class ApprovalSubstituteNotFoundException extends AtlasException {
+  constructor(id: string) {
+    super({
+      message: `Approval substitute '${id}' not found`,
+      errorCode: ErrorCode.APPROVAL_SUBSTITUTE_NOT_FOUND,
+      statusCode: HttpStatus.NOT_FOUND,
+    });
+  }
+}
+
+export class ApprovalTemplateNotFoundException extends AtlasException {
+  constructor(key: string) {
+    super({
+      message: `Approval workflow template '${key}' not found`,
+      errorCode: ErrorCode.APPROVAL_TEMPLATE_NOT_FOUND,
+      statusCode: HttpStatus.NOT_FOUND,
+    });
+  }
+}

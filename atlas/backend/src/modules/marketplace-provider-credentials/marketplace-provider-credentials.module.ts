@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '@database/database.module';
+import { AuditLogsModule } from '@modules/audit-logs/audit-logs.module';
 import { MarketplaceProviderCredentialsRepository } from './marketplace-provider-credentials.repository';
 import { MarketplaceCredentialEncryptor } from './encryptor/marketplace-credential.encryptor';
 import { MarketplaceCredentialDecryptor } from './decryptor/marketplace-credential.decryptor';
@@ -13,7 +14,7 @@ import { MarketplaceProviderCredentialsManager } from './marketplace-provider-cr
 import { MarketplaceProviderCredentialsController } from './marketplace-provider-credentials.controller';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, AuditLogsModule],
   controllers: [MarketplaceProviderCredentialsController],
   providers: [
     MarketplaceProviderCredentialsRepository,

@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsObject } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsObject, IsNumber } from 'class-validator';
 
 export class SetTranslationDto {
   @IsString()
@@ -13,6 +13,15 @@ export class ImportTranslationsDto {
 }
 
 export class TranslateDto {
+  @IsObject()
+  @IsOptional()
+  params?: Record<string, string | number>;
+}
+
+export class TranslatePluralDto {
+  @IsNumber()
+  count: number;
+
   @IsObject()
   @IsOptional()
   params?: Record<string, string | number>;

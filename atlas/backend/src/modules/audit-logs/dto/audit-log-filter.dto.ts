@@ -31,6 +31,10 @@ export class AuditLogFilterDto {
   @IsOptional()
   entityId?: string;
 
+  @IsString()
+  @IsOptional()
+  businessId?: string;
+
   @IsEnum(ActivityOutcome)
   @IsOptional()
   outcome?: ActivityOutcome;

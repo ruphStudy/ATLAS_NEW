@@ -14,9 +14,13 @@ export interface IAuditPlatformWideFilter {
   actorId?: string;
   entityType?: string;
   entityId?: string;
+  businessId?: string;
+  traceId?: string;
   outcome?: ActivityOutcome;
   riskLevel?: AuditRiskLevel;
   flagged?: boolean;
+  /** Entries whose caller-supplied `metadata.policyViolation` is `true` — used only by the policy-violation detection sweep, never a general search filter. */
+  policyViolation?: boolean;
   search?: string;
   startDate?: string;
   endDate?: string;
@@ -108,9 +112,14 @@ export class AuditLogsRepository extends BaseRepository {
     if (filter.actorId) where.actorId = filter.actorId;
     if (filter.entityType) where.entityType = filter.entityType;
     if (filter.entityId) where.entityId = filter.entityId;
+    if (filter.businessId) where.businessId = filter.businessId;
+    if (filter.traceId) where.traceId = filter.traceId;
     if (filter.outcome) where.outcome = filter.outcome;
     if (filter.riskLevel) where.riskLevel = filter.riskLevel;
     if (filter.flagged !== undefined) where.flagged = filter.flagged;
+    if (filter.policyViolation !== undefined) {
+      where.metadata = { path: ['policyViolation'], equals: filter.policyViolation };
+    }
 
     if (filter.startDate || filter.endDate) {
       const createdAt: Record<string, Date> = {};
@@ -178,6 +187,7 @@ export class AuditLogsRepository extends BaseRepository {
     if (filter.actorId) where.actorId = filter.actorId;
     if (filter.entityType) where.entityType = filter.entityType;
     if (filter.entityId) where.entityId = filter.entityId;
+    if (filter.businessId) where.businessId = filter.businessId;
     if (filter.outcome) where.outcome = filter.outcome;
     if (filter.riskLevel) where.riskLevel = filter.riskLevel;
     if (filter.flagged !== undefined) where.flagged = filter.flagged;
@@ -197,6 +207,16 @@ export class AuditLogsRepository extends BaseRepository {
     }
 
     return where;
+  }
+
+  /** Tail of the per-workspace tamper-evidence hash chain — `null` for a workspace's first-ever entry. */
+  async findLatestHashForWorkspace(workspaceId: string): Promise<string | null> {
+    const latest = await this.prisma.auditLogEntry.findFirst({
+      where: { workspaceId },
+      orderBy: { createdAt: 'desc' },
+      select: { integrityHash: true },
+    });
+    return latest?.integrityHash ?? null;
   }
 
   private async query(

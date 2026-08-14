@@ -23,6 +23,10 @@ export class SaasIncidentFilterDto {
 
   @IsString()
   @IsOptional()
+  organizationId?: string;
+
+  @IsString()
+  @IsOptional()
   actorId?: string;
 
   @IsIn(SAAS_AUDIT_INCIDENT_SORT_FIELDS)

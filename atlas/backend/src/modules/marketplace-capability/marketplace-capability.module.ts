@@ -14,6 +14,7 @@ import { MarketplaceCapabilityEventQueue } from './events/marketplace-capability
 import { MarketplaceCapabilityVersionManager } from './version/marketplace-capability-version.manager';
 import { MarketplaceCapabilityCompatibilityManager } from './compatibility/marketplace-capability-compatibility.manager';
 import { MarketplaceCapabilityResolver } from './resolver/marketplace-capability.resolver';
+import { MarketplaceCapabilityMatrixBuilder } from './matrix/marketplace-capability-matrix.builder';
 import { MarketplaceCapabilityService } from './marketplace-capability.service';
 import { MarketplaceCapabilityManager } from './manager/marketplace-capability.manager';
 import { MarketplaceCapabilityController } from './marketplace-capability.controller';
@@ -40,6 +41,7 @@ import { MarketplaceCapabilityController } from './marketplace-capability.contro
     MarketplaceCapabilityVersionManager,
     MarketplaceCapabilityCompatibilityManager,
     MarketplaceCapabilityResolver,
+    MarketplaceCapabilityMatrixBuilder,
 
     // Public facades
     MarketplaceCapabilityService,

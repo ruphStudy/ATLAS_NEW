@@ -1,14 +1,14 @@
 // Zustand stores barrel
-// Stores will be added here as features are implemented.
 //
 // Convention:
 //   - One store per domain slice
-//   - Use Zustand's create() with devtools middleware in development
-//   - Persist auth store to localStorage
+//   - Persist auth/workspace/UI-preference slices to localStorage
 //
-// Expected stores:
-//   - useAuthStore    → authenticated user, tokens
-//   - useWorkspaceStore → active workspace, settings
-//   - useUIStore      → sidebar state, theme, toasts
+// Stores:
+//   - useAuthStore      → authenticated user, session lifecycle
+//   - useWorkspaceStore → active workspace/business/brand/channel context
+//   - useUIStore        → sidebar state, toasts, confirm dialog, command palette
 
-export {};
+export * from './auth-store';
+export * from './workspace-store';
+export * from './ui-store';

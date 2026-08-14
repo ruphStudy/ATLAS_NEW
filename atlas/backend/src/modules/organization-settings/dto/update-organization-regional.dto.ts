@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsArray } from 'class-validator';
 
 export class UpdateOrganizationRegionalDto {
   @IsString()
@@ -16,6 +16,19 @@ export class UpdateOrganizationRegionalDto {
   @IsString()
   @IsOptional()
   dateFormat?: string;
+
+  @IsString()
+  @IsOptional()
+  numberFormat?: string;
+
+  @IsString()
+  @IsOptional()
+  measurementSystem?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  enabledLanguages?: string[];
 
   @IsString()
   @IsOptional()

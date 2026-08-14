@@ -9,6 +9,7 @@ import {
   IsInt,
   Min,
   Matches,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApprovalWorkflowMode } from '../interfaces';
@@ -61,4 +62,41 @@ export class CreateWorkflowDefinitionDto {
   @Type(() => ApprovalEscalationConfigDto)
   @IsOptional()
   escalation?: ApprovalEscalationConfigDto;
+
+  @IsString()
+  @IsOptional()
+  organizationId?: string;
+
+  @IsString()
+  @IsOptional()
+  businessId?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isTemplate?: boolean;
+
+  @IsString()
+  @IsOptional()
+  templateKey?: string;
+}
+
+export class CreateFromTemplateDto {
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
+    message: 'key must be a lowercase, hyphen-separated identifier (e.g. "purchase-order-approval")',
+  })
+  key: string;
+
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  organizationId?: string;
+
+  @IsString()
+  @IsOptional()
+  businessId?: string;
 }

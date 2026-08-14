@@ -58,6 +58,13 @@ import { GlobalSearchModule } from '@modules/global-search/global-search.module'
 import { LocalizationModule } from '@modules/localization/localization.module';
 import { ThemeManagementModule } from '@modules/theme-management/theme-management.module';
 import { BusinessRulesEngineModule } from '@modules/business-rules-engine/business-rules-engine.module';
+import { EnterpriseWorkflowEngineModule } from '@modules/enterprise-workflow-engine/enterprise-workflow-engine.module';
+import { BackupProviderModule } from '@modules/backup-provider/backup-provider.module';
+import { DisasterRecoveryModule } from '@modules/disaster-recovery/disaster-recovery.module';
+import { BackupManagementModule } from '@modules/backup-management/backup-management.module';
+import { MonitoringFrameworkModule } from '@modules/monitoring-framework/monitoring-framework.module';
+import { EnterpriseAuditModule } from '@modules/enterprise-audit/enterprise-audit.module';
+import { EnterpriseHealthModule } from '@modules/enterprise-health/enterprise-health.module';
 import { OperationsHealthModule } from '@modules/operations-health/operations-health.module';
 import { TenantIsolationModule } from '@modules/tenant-isolation/tenant-isolation.module';
 import { SubscriptionManagementModule } from '@modules/subscription-management/subscription-management.module';
@@ -119,6 +126,19 @@ import { MarketplaceProviderModule } from '@modules/marketplace-provider/marketp
 import { MarketplaceProviderFactoryModule } from '@modules/marketplace-provider-factory/marketplace-provider-factory.module';
 import { MarketplaceAccountModule } from '@modules/marketplace-account/marketplace-account.module';
 import { MarketplaceCapabilityModule } from '@modules/marketplace-capability/marketplace-capability.module';
+import { CountryModule } from '@modules/country/country.module';
+import { CurrencyModule } from '@modules/currency/currency.module';
+import { TaxModule } from '@modules/tax/tax.module';
+import { GstVatModule } from '@modules/gst-vat/gst-vat.module';
+import { ComplianceFrameworkModule } from '@modules/compliance-framework/compliance-framework.module';
+import { RegionalSettingsModule } from '@modules/regional-settings/regional-settings.module';
+import { MultiBrandModule } from '@modules/multi-brand/multi-brand.module';
+import { MultiBusinessModule } from '@modules/multi-business/multi-business.module';
+import { MultiChannelModule } from '@modules/multi-channel/multi-channel.module';
+import { MarketplaceExpansionModule } from '@modules/marketplace-expansion/marketplace-expansion.module';
+import { SupplierProviderExpansionModule } from '@modules/supplier-provider-expansion/supplier-provider-expansion.module';
+import { ShippingProviderModule } from '@modules/shipping-provider/shipping-provider.module';
+import { ShippingProviderExpansionModule } from '@modules/shipping-provider-expansion/shipping-provider-expansion.module';
 
 // Infrastructure Modules
 import { QueuesModule } from './queues/queues.module';
@@ -127,6 +147,7 @@ import { AiModule } from './ai/ai.module';
 import { AiProviderConfigurationModule } from '@modules/ai-provider-configuration/ai-provider-configuration.module';
 import { AiProviderCredentialModule } from '@modules/ai-provider-credentials/ai-provider-credential.module';
 import { AiProviderRegistryModule } from '@modules/ai-provider-registry/ai-provider-registry.module';
+import { AiProviderExpansionModule } from '@modules/ai-provider-expansion/ai-provider-expansion.module';
 import { AiProviderFactoryModule } from '@modules/ai-provider-factory/ai-provider-factory.module';
 import { AiCapabilityModule } from '@modules/ai-capability-management/ai-capability.module';
 import { AiModelManagementModule } from '@modules/ai-model-management/ai-model-management.module';
@@ -215,7 +236,21 @@ import { SaasHealthModule } from '@modules/saas-health/saas-health.module';
                   },
                 }
               : undefined,
-            redact: ['req.headers.authorization', 'req.headers.cookie'],
+            redact: [
+              'req.headers.authorization',
+              'req.headers.cookie',
+              'req.headers["x-amz-access-token"]',
+              'req.body.password',
+              'req.body.accessToken',
+              'req.body.refreshToken',
+              'req.body.access_token',
+              'req.body.refresh_token',
+              'req.body.clientSecret',
+              'req.body.client_secret',
+              'req.body.awsSecretAccessKey',
+              'req.body.aws_secret_access_key',
+              'req.body.fields',
+            ],
             customLogLevel: (_req: unknown, res: { statusCode: number }) => {
               if (res.statusCode >= 500) return 'error';
               if (res.statusCode >= 400) return 'warn';
@@ -277,6 +312,13 @@ import { SaasHealthModule } from '@modules/saas-health/saas-health.module';
     LocalizationModule,
     ThemeManagementModule,
     BusinessRulesEngineModule,
+    EnterpriseWorkflowEngineModule,
+    BackupProviderModule,
+    DisasterRecoveryModule,
+    BackupManagementModule,
+    MonitoringFrameworkModule,
+    EnterpriseAuditModule,
+    EnterpriseHealthModule,
     OperationsHealthModule,
     TenantIsolationModule,
     SubscriptionManagementModule,
@@ -338,6 +380,19 @@ import { SaasHealthModule } from '@modules/saas-health/saas-health.module';
     MarketplaceProviderFactoryModule,
     MarketplaceAccountModule,
     MarketplaceCapabilityModule,
+    CountryModule,
+    CurrencyModule,
+    TaxModule,
+    GstVatModule,
+    ComplianceFrameworkModule,
+    RegionalSettingsModule,
+    MultiBrandModule,
+    MultiBusinessModule,
+    MultiChannelModule,
+    MarketplaceExpansionModule,
+    SupplierProviderExpansionModule,
+    ShippingProviderModule,
+    ShippingProviderExpansionModule,
 
     QueuesModule,
     WorkersModule,
@@ -345,6 +400,7 @@ import { SaasHealthModule } from '@modules/saas-health/saas-health.module';
     AiProviderConfigurationModule,
     AiProviderCredentialModule,
     AiProviderRegistryModule,
+    AiProviderExpansionModule,
     AiProviderFactoryModule,
     AiCapabilityModule,
     AiModelManagementModule,

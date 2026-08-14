@@ -20,6 +20,7 @@ enum UserRole {
   OWNER
   ADMIN
   MANAGER
+  OPERATOR
   ANALYST
   VIEWER
 }
@@ -3455,6 +3456,652 @@ model MarketplaceCapabilityOverride {
   @@index([workspaceId])
   @@index([providerKey])
   @@map("marketplace_capability_overrides")
+}
+
+// =============================================================
+// Multi-Country Framework
+// =============================================================
+
+model Country {
+  id                 String    @id @default(cuid())
+  code               String    @map("code") // ISO 3166-1 alpha-2, e.g. "US", "IN"
+  name               String
+  region             String?   // e.g. "NA", "EU", "APAC" — free-form grouping / hierarchy tag
+  timezone           String
+  locale             String    // default locale code (references the localization module's locale registry — not duplicated here)
+  currency           String    // default ISO 4217 currency code
+  language           String    // default ISO 639-1 language code
+  supportedLocales   Json      @default("[]") @map("supported_locales") // additional locale codes usable in this country
+  supportedCurrencies Json     @default("[]") @map("supported_currencies") // additional currency codes usable in this country
+  supportedLanguages Json      @default("[]") @map("supported_languages") // additional language codes usable in this country
+  taxRegime          String?   @map("tax_regime") // reference/label only — no tax calculation logic lives here
+  complianceRefs     Json      @default("[]") @map("compliance_refs") // reference list only (external policy/doc ids)
+  businessRules      Json      @default("{}") @map("business_rules") // reference/config only — no business-rule engine logic lives here
+  status             String    @default("DRAFT")
+  version            Int       @default(1)
+  effectiveFrom      DateTime? @map("effective_from")
+  effectiveTo        DateTime? @map("effective_to")
+  metadata           Json      @default("{}")
+  createdBy          String?   @map("created_by")
+  updatedBy          String?   @map("updated_by")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  history CountryHistory[]
+
+  @@unique([code])
+  @@index([status])
+  @@index([region])
+  @@index([deletedAt])
+  @@map("countries")
+}
+
+model CountryHistory {
+  id           String   @id @default(cuid())
+  countryId    String   @map("country_id")
+  code         String
+  version      Int
+  status       String
+  snapshot     Json     @default("{}")
+  changeReason String?  @map("change_reason")
+  changedBy    String?  @map("changed_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  country Country @relation(fields: [countryId], references: [id])
+
+  @@index([countryId])
+  @@index([code])
+  @@map("country_history")
+}
+
+model WorkspaceCountryConfig {
+  id                  String    @id @default(cuid())
+  workspaceId         String    @map("workspace_id")
+  organizationId      String?   @map("organization_id")
+  countryCode         String    @map("country_code")
+  isEnabled           Boolean   @default(true) @map("is_enabled")
+  isDefault           Boolean   @default(false) @map("is_default")
+  isPreferred         Boolean   @default(false) @map("is_preferred")
+  priority            Int       @default(50)
+  fallbackCountryCode String?   @map("fallback_country_code")
+  configuration       Json      @default("{}") // workspace-scoped business-rule/pricing/tax/localization references for this country
+  effectiveFrom       DateTime? @map("effective_from")
+  effectiveTo         DateTime? @map("effective_to")
+  createdBy           String?   @map("created_by")
+  updatedBy           String?   @map("updated_by")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  deletedAt           DateTime? @map("deleted_at")
+
+  @@unique([workspaceId, countryCode])
+  @@index([workspaceId])
+  @@index([organizationId])
+  @@index([countryCode])
+  @@index([deletedAt])
+  @@map("workspace_country_configs")
+}
+
+model CountryProviderAvailability {
+  id          String    @id @default(cuid())
+  countryCode String    @map("country_code")
+  domain      String    @map("domain") // MARKETPLACE | SUPPLIER | WAREHOUSE | FULFILLMENT | PAYMENT | AI_PROVIDER
+  providerKey String    @map("provider_key") // references the domain's own provider registry key — never validated/hardcoded here
+  workspaceId String?   @map("workspace_id") // null = global/default availability; set = workspace-scoped override
+  isAvailable Boolean   @default(true) @map("is_available")
+  status      String    @default("ACTIVE")
+  metadata    Json      @default("{}")
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([countryCode, domain, providerKey, workspaceId])
+  @@index([countryCode])
+  @@index([domain])
+  @@index([workspaceId])
+  @@index([deletedAt])
+  @@map("country_provider_availability")
+}
+
+model CountryOverride {
+  id             String    @id @default(cuid())
+  workspaceId    String?   @map("workspace_id")
+  organizationId String?   @map("organization_id")
+  countryCode    String    @map("country_code")
+  overrideType   String    @map("override_type") // GLOBAL | ORGANIZATION | WORKSPACE
+  overrideValue  Json      @default("{}") @map("override_value")
+  priority       Int       @default(0)
+  reason         String?
+  createdBy      String?   @map("created_by")
+  updatedBy      String?   @map("updated_by")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  @@index([countryCode])
+  @@index([workspaceId])
+  @@index([organizationId])
+  @@map("country_overrides")
+}
+
+// =============================================================
+// Currency Engine
+// =============================================================
+
+model Currency {
+  id           String    @id @default(cuid())
+  code         String    @map("code") // ISO 4217, e.g. "USD"
+  name         String
+  symbol       String
+  decimals     Int       @default(2)
+  roundingMode String    @default("HALF_UP") @map("rounding_mode")
+  status       String    @default("DRAFT")
+  version      Int       @default(1)
+  metadata     Json      @default("{}")
+  createdBy    String?   @map("created_by")
+  updatedBy    String?   @map("updated_by")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  history CurrencyHistory[]
+
+  @@unique([code])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("currencies")
+}
+
+model CurrencyHistory {
+  id           String   @id @default(cuid())
+  currencyId   String   @map("currency_id")
+  code         String
+  version      Int
+  status       String
+  snapshot     Json     @default("{}")
+  changeReason String?  @map("change_reason")
+  changedBy    String?  @map("changed_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  currency Currency @relation(fields: [currencyId], references: [id])
+
+  @@index([currencyId])
+  @@index([code])
+  @@map("currency_history")
+}
+
+model WorkspaceCurrencyConfig {
+  id                    String    @id @default(cuid())
+  workspaceId           String    @map("workspace_id")
+  baseCurrency          String    @map("base_currency")
+  reportingCurrency     String?   @map("reporting_currency")
+  staleToleranceMinutes Int       @default(1440) @map("stale_tolerance_minutes") // default 24h
+  configuration         Json      @default("{}")
+  createdBy             String?   @map("created_by")
+  updatedBy             String?   @map("updated_by")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  deletedAt             DateTime? @map("deleted_at")
+
+  @@unique([workspaceId])
+  @@index([workspaceId])
+  @@map("workspace_currency_configs")
+}
+
+model ExchangeRate {
+  id            String    @id @default(cuid())
+  baseCurrency  String    @map("base_currency")
+  quoteCurrency String    @map("quote_currency")
+  rate          Float // matches the existing Float convention used for money/rate fields (e.g. PricingConfig.currencyConversionRate) — never hardcoded, always ingested
+  rateType      String    @default("SPOT") @map("rate_type") // SPOT | HISTORICAL | DAILY_CLOSE | CUSTOM
+  source        String    // MANUAL | SCHEDULED | a registered provider key
+  providerKey   String?   @map("provider_key")
+  effectiveAt   DateTime  @map("effective_at")
+  fetchedAt     DateTime  @default(now()) @map("fetched_at")
+  status        String    @default("PUBLISHED") // DRAFT | PENDING_APPROVAL | APPROVED | PUBLISHED | REJECTED | ARCHIVED
+  approvedBy    String?   @map("approved_by")
+  approvedAt    DateTime? @map("approved_at")
+  publishedAt   DateTime? @map("published_at")
+  isAbnormal    Boolean   @default(false) @map("is_abnormal")
+  /// Points to the prior version this row supersedes — set only by `updateRate`. The superseded row is never mutated or deleted, preserving any finalized transaction that referenced it.
+  supersedesId  String?   @map("supersedes_id")
+  version       Int       @default(1)
+  workspaceId   String?   @map("workspace_id") // null = global rate; set = workspace-scoped override rate
+  metadata      Json      @default("{}")
+  createdBy     String?   @map("created_by")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  @@unique([baseCurrency, quoteCurrency, effectiveAt, workspaceId, source])
+  @@index([baseCurrency, quoteCurrency])
+  @@index([effectiveAt])
+  @@index([workspaceId])
+  @@index([status])
+  @@index([supersedesId])
+  @@index([deletedAt])
+  @@map("exchange_rates")
+}
+
+model ExchangeRateProviderConfig {
+  id          String    @id @default(cuid())
+  workspaceId String?   @map("workspace_id") // null = global default priority/fallback order
+  providerKey String    @map("provider_key")
+  isEnabled   Boolean   @default(true) @map("is_enabled")
+  priority    Int       @default(50) // lower = tried first, mirrors WorkspaceMarketplaceProviderConfig.priority
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([workspaceId, providerKey])
+  @@index([workspaceId])
+  @@map("exchange_rate_provider_configs")
+}
+
+// =============================================================
+// Tax Engine
+// =============================================================
+
+model TaxJurisdiction {
+  id          String    @id @default(cuid())
+  code        String    @map("code") // e.g. "US-CA", "IN-KA", "GLOBAL"
+  name        String
+  countryCode String    @map("country_code")
+  region      String?   // state/province code, if applicable
+  level       String    @default("COUNTRY") // COUNTRY | STATE | REGION | CITY
+  parentId    String?   @map("parent_id")
+  status      String    @default("ACTIVE")
+  metadata    Json      @default("{}")
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([code])
+  @@index([countryCode])
+  @@index([parentId])
+  @@index([status])
+  @@map("tax_jurisdictions")
+}
+
+model TaxRule {
+  id                 String    @id @default(cuid())
+  ruleKey            String    @map("rule_key") // stable identifier shared across versions of the same rule
+  name               String
+  taxType            String    @map("tax_type") // SALES_TAX | GST | VAT | SERVICE_TAX | WITHHOLDING | CUSTOM
+  jurisdictionCode   String    @map("jurisdiction_code")
+  rate               Float // percentage, e.g. 18 for 18% — never hardcoded, always configured
+  calculationMode    String    @default("EXCLUSIVE") @map("calculation_mode") // INCLUSIVE | EXCLUSIVE
+  isCompound         Boolean   @default(false) @map("is_compound")
+  compoundOnRuleKeys Json      @default("[]") @map("compound_on_rule_keys") // rule keys this rate compounds on top of
+  reverseCharge      Boolean   @default(false) @map("reverse_charge")
+  priority           Int       @default(50) // lower = applied first, mirrors the priority convention used across the provider frameworks
+  applicability      Json      @default("{}") // configuration-driven matchers: marketplaceKeys, productCategories, customerTypes, transactionTypes, etc.
+  exemptions         Json      @default("[]") // exemption codes this rule does not apply to
+  thresholds         Json      @default("{}") // e.g. { minAmount, maxAmount, currency }
+  workspaceId        String?   @map("workspace_id") // null = global rule
+  status             String    @default("DRAFT") // DRAFT | PENDING_APPROVAL | APPROVED | PUBLISHED | ARCHIVED
+  version            Int       @default(1)
+  /// Points to the prior version this row supersedes — the superseded row is never mutated, preserving any finalized transaction snapshot that referenced it.
+  supersedesId       String?   @map("supersedes_id")
+  effectiveFrom      DateTime  @map("effective_from")
+  effectiveTo        DateTime? @map("effective_to")
+  approvedBy         String?   @map("approved_by")
+  approvedAt         DateTime? @map("approved_at")
+  publishedAt        DateTime? @map("published_at")
+  metadata           Json      @default("{}")
+  createdBy          String?   @map("created_by")
+  updatedBy          String?   @map("updated_by")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  history TaxRuleHistory[]
+
+  @@index([ruleKey])
+  @@index([jurisdictionCode])
+  @@index([taxType])
+  @@index([status])
+  @@index([workspaceId])
+  @@index([effectiveFrom])
+  @@index([supersedesId])
+  @@index([deletedAt])
+  @@map("tax_rules")
+}
+
+model TaxRuleHistory {
+  id           String   @id @default(cuid())
+  ruleId       String   @map("rule_id")
+  ruleKey      String   @map("rule_key")
+  version      Int
+  status       String
+  snapshot     Json     @default("{}")
+  changeReason String?  @map("change_reason")
+  changedBy    String?  @map("changed_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  rule TaxRule @relation(fields: [ruleId], references: [id])
+
+  @@index([ruleId])
+  @@index([ruleKey])
+  @@map("tax_rule_history")
+}
+
+model TaxOverride {
+  id               String    @id @default(cuid())
+  workspaceId      String?   @map("workspace_id")
+  organizationId   String?   @map("organization_id")
+  ruleKey          String?   @map("rule_key") // null = matches broadly by jurisdiction/taxType instead of one specific rule
+  jurisdictionCode String?   @map("jurisdiction_code")
+  taxType          String?   @map("tax_type")
+  overrideType     String    @map("override_type") // GLOBAL | ORGANIZATION | WORKSPACE
+  overrideValue    Json      @default("{}") // e.g. { rate: X } or { exempt: true }
+  /// Overrides must be authorized — this is never optional, per "tax overrides only through authorized/configured policies".
+  authorizedBy     String    @map("authorized_by")
+  priority         Int       @default(0)
+  reason           String?
+  effectiveFrom    DateTime? @map("effective_from")
+  effectiveTo      DateTime? @map("effective_to")
+  createdBy        String?   @map("created_by")
+  updatedBy        String?   @map("updated_by")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@index([ruleKey])
+  @@index([jurisdictionCode])
+  @@index([workspaceId])
+  @@map("tax_overrides")
+}
+
+model TaxCalculationRecord {
+  id               String   @id @default(cuid())
+  workspaceId      String   @map("workspace_id")
+  transactionType  String   @map("transaction_type") // PROCUREMENT | PRICING | ORDER | INVOICE | REFUND | SETTLEMENT | SAAS_BILLING
+  transactionRef   String   @map("transaction_ref") // caller-supplied external id (order id, invoice id, ...)
+  taxableBase      Float    @map("taxable_base")
+  currency         String
+  jurisdictionCode String   @map("jurisdiction_code")
+  taxType          String   @map("tax_type")
+  rate             Float
+  taxAmount        Float    @map("tax_amount")
+  calculationMode  String   @map("calculation_mode")
+  ruleId           String?  @map("rule_id")
+  ruleKey          String?  @map("rule_key")
+  ruleVersion      Int?     @map("rule_version")
+  isReverseCharge  Boolean  @default(false) @map("is_reverse_charge")
+  isExempt         Boolean  @default(false) @map("is_exempt")
+  breakdown        Json     @default("[]") // per-component breakdown for compound tax
+  /// Immutable, append-only — a finalized transaction's tax snapshot is preserved here even if the rule it used is later changed or archived.
+  calculatedAt     DateTime @default(now()) @map("calculated_at")
+  effectiveDate    DateTime @map("effective_date") // the as-of date used to resolve the rule (historical calculation support)
+  metadata         Json     @default("{}")
+  createdBy        String?  @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([workspaceId])
+  @@index([transactionType, transactionRef])
+  @@index([jurisdictionCode])
+  @@index([calculatedAt])
+  @@map("tax_calculation_records")
+}
+
+// =============================================================
+// GST/VAT Framework (built on Tax Engine — no rate/rule storage here)
+// =============================================================
+
+model GstVatRegistration {
+  id                 String    @id @default(cuid())
+  workspaceId        String    @map("workspace_id")
+  jurisdictionCode   String    @map("jurisdiction_code")
+  taxType            String    @map("tax_type") // GST | VAT
+  registrationNumber String    @map("registration_number")
+  registrationType   String?   @map("registration_type") // e.g. REGULAR | COMPOSITION | NON_RESIDENT — country-specific label, configuration only
+  status             String    @default("ACTIVE") // ACTIVE | SUSPENDED | CANCELLED
+  effectiveFrom      DateTime  @map("effective_from")
+  effectiveTo        DateTime? @map("effective_to")
+  metadata           Json      @default("{}")
+  createdBy          String?   @map("created_by")
+  updatedBy          String?   @map("updated_by")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  history GstVatRegistrationHistory[]
+
+  @@unique([workspaceId, jurisdictionCode, taxType])
+  @@index([workspaceId])
+  @@index([jurisdictionCode])
+  @@index([status])
+  @@map("gst_vat_registrations")
+}
+
+model GstVatRegistrationHistory {
+  id             String   @id @default(cuid())
+  registrationId String   @map("registration_id")
+  workspaceId    String   @map("workspace_id")
+  status         String
+  snapshot       Json     @default("{}")
+  changeReason   String?  @map("change_reason")
+  changedBy      String?  @map("changed_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  registration GstVatRegistration @relation(fields: [registrationId], references: [id])
+
+  @@index([registrationId])
+  @@map("gst_vat_registration_history")
+}
+
+model GstVatTaxCode {
+  id               String    @id @default(cuid())
+  code             String // e.g. an HSN/SAC code or any jurisdiction-specific classification code — never hardcoded, always configured
+  description      String
+  category         String? // GOODS | SERVICE
+  taxType          String    @map("tax_type") // GST | VAT
+  jurisdictionCode String?   @map("jurisdiction_code")
+  ruleKey          String?   @map("rule_key") // links to a Tax Engine TaxRule.ruleKey for the default rate — this table never stores a rate itself
+  isZeroRated      Boolean   @default(false) @map("is_zero_rated")
+  status           String    @default("ACTIVE")
+  workspaceId      String?   @map("workspace_id") // null = global code
+  metadata         Json      @default("{}")
+  createdBy        String?   @map("created_by")
+  updatedBy        String?   @map("updated_by")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([code, jurisdictionCode, workspaceId])
+  @@index([taxType])
+  @@index([jurisdictionCode])
+  @@index([workspaceId])
+  @@map("gst_vat_tax_codes")
+}
+
+model GstVatTransaction {
+  id                          String    @id @default(cuid())
+  workspaceId                 String    @map("workspace_id")
+  /// References the Tax Engine's own immutable `TaxCalculationRecord` — the actual rate/amount/rule snapshot lives there and is never duplicated here.
+  taxCalculationRecordId      String    @map("tax_calculation_record_id")
+  direction                   String // INPUT | OUTPUT
+  treatment                   String // STANDARD | INTRA_REGION | INTER_REGION | REVERSE_CHARGE | ZERO_RATED | EXEMPT
+  registrationId              String?   @map("registration_id")
+  taxCodeId                   String?   @map("tax_code_id")
+  originJurisdictionCode      String?   @map("origin_jurisdiction_code")
+  destinationJurisdictionCode String    @map("destination_jurisdiction_code")
+  isItcEligible                Boolean  @default(false) @map("is_itc_eligible")
+  itcAmount                    Float?   @map("itc_amount")
+  transactionType              String   @map("transaction_type") // mirrors Tax Engine's TaxTransactionType
+  transactionRef                String  @map("transaction_ref")
+  status                       String   @default("RECORDED") // RECORDED | ADJUSTED | REVERSED
+  metadata                     Json     @default("{}")
+  createdBy                    String?  @map("created_by")
+  createdAt                    DateTime @default(now()) @map("created_at")
+
+  @@index([workspaceId])
+  @@index([taxCalculationRecordId])
+  @@index([transactionType, transactionRef])
+  @@index([direction])
+  @@index([status])
+  @@map("gst_vat_transactions")
+}
+
+model GstVatAdjustment {
+  id                     String   @id @default(cuid())
+  workspaceId            String   @map("workspace_id")
+  /// The original `GstVatTransaction` this adjusts — never mutated, only referenced, so the original tax snapshot stays intact.
+  originalTransactionId  String   @map("original_transaction_id")
+  adjustmentType         String   @map("adjustment_type") // CREDIT_NOTE | DEBIT_NOTE | REVERSAL
+  reason                 String?
+  taxCalculationRecordId String?  @map("tax_calculation_record_id") // set when the adjustment amount was computed via the Tax Engine
+  amount                 Float
+  currency               String
+  status                 String   @default("RECORDED")
+  metadata               Json     @default("{}")
+  createdBy              String?  @map("created_by")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  @@index([workspaceId])
+  @@index([originalTransactionId])
+  @@map("gst_vat_adjustments")
+}
+
+// =============================================================
+// Compliance Framework
+// (central, configuration-driven requirement tracking — no
+// country/marketplace regulation is ever hardcoded here; every rule
+// is data, scoped optionally by country, region, marketplace,
+// product category, supplier, warehouse and business type)
+// =============================================================
+
+model ComplianceRequirementRule {
+  id          String  @id @default(cuid())
+  workspaceId String? @map("workspace_id") // null = global default rule
+  organizationId String? @map("organization_id")
+  key         String // stable business key shared across versions, e.g. "FDA_FOOD_LICENSE"
+  name        String
+  description String?
+
+  requirementType String // REGISTRATION | LICENSE | CERTIFICATION | DECLARATION | DOCUMENT | POLICY
+  actions         String[] @default([]) @map("actions") // SUPPLIER_APPROVAL | PROCUREMENT | LISTING | MARKETPLACE_PUBLISHING | WAREHOUSE_OPERATION | OTHER
+
+  // Scope — all optional; null means "wildcard" for that dimension.
+  countryCode      String? @map("country_code")
+  region           String?
+  marketplaceKey   String? @map("marketplace_key")
+  productCategory  String? @map("product_category")
+  supplierId       String? @map("supplier_id")
+  warehouseId      String? @map("warehouse_id")
+  businessType     String? @map("business_type")
+
+  mandatory  Boolean @default(true)
+  thresholds Json    @default("{}")
+  exemptionCodes String[] @default([]) @map("exemption_codes")
+
+  renewalPeriodDays        Int? @map("renewal_period_days")
+  reminderDaysBeforeExpiry Int? @map("reminder_days_before_expiry")
+
+  priority Int @default(0) // tie-break when more than one rule of equal specificity matches the same key
+
+  status        String    @default("DRAFT") // DRAFT | ACTIVE | ARCHIVED
+  version       Int       @default(1)
+  supersedesId  String?   @map("supersedes_id") // set when this row is a new draft version of a previously ACTIVE rule
+  effectiveFrom DateTime  @map("effective_from")
+  effectiveTo   DateTime? @map("effective_to")
+
+  metadata  Json      @default("{}")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  history ComplianceRequirementRuleHistory[]
+
+  @@index([workspaceId])
+  @@index([key])
+  @@index([countryCode])
+  @@index([marketplaceKey])
+  @@index([status])
+  @@map("compliance_requirement_rules")
+}
+
+model ComplianceRequirementRuleHistory {
+  id           String   @id @default(cuid())
+  ruleId       String   @map("rule_id")
+  workspaceId  String?  @map("workspace_id")
+  status       String
+  version      Int
+  snapshot     Json     @default("{}")
+  changeReason String?  @map("change_reason")
+  changedBy    String?  @map("changed_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  rule ComplianceRequirementRule @relation(fields: [ruleId], references: [id])
+
+  @@index([ruleId])
+  @@map("compliance_requirement_rule_history")
+}
+
+model ComplianceRecord {
+  id             String  @id @default(cuid())
+  workspaceId    String  @map("workspace_id")
+  organizationId String? @map("organization_id")
+
+  ruleId      String @map("rule_id")
+  ruleKey     String @map("rule_key") // denormalized for lookup/reporting convenience
+  ruleVersion Int    @map("rule_version") // the rule version this record was last evaluated against
+
+  subjectType String @map("subject_type") // SUPPLIER | WAREHOUSE | MARKETPLACE_LISTING | PRODUCT | ORGANIZATION | PROCUREMENT_ORDER | OTHER
+  subjectId   String @map("subject_id")
+
+  status String @default("REQUIRED") // REQUIRED | PENDING | COMPLIANT | EXPIRING | EXPIRED | REJECTED | WAIVED | NON_APPLICABLE
+
+  referenceNumber String? @map("reference_number") // the registration/license/certificate number itself
+  issuedAt        DateTime? @map("issued_at")
+  expiresAt       DateTime? @map("expires_at")
+
+  /// Points at an existing Document Management `Document.id` — the evidence file itself is never duplicated here.
+  evidenceDocumentId String? @map("evidence_document_id")
+
+  /// Immutable snapshot of the rule + context used at the last evaluation — preserved even if the rule later changes.
+  evaluationSnapshot Json      @default("{}") @map("evaluation_snapshot")
+  lastCheckedAt      DateTime? @map("last_checked_at")
+
+  reviewedBy     String?  @map("reviewed_by")
+  reviewedAt     DateTime? @map("reviewed_at")
+  decisionReason String?  @map("decision_reason")
+  isOverride     Boolean  @default(false) @map("is_override")
+
+  metadata  Json      @default("{}")
+  createdBy String?   @map("created_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@unique([workspaceId, ruleId, subjectType, subjectId])
+  @@index([workspaceId, subjectType, subjectId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("compliance_records")
+}
+
+model ComplianceRecordHistory {
+  id          String   @id @default(cuid())
+  recordId    String   @map("record_id")
+  workspaceId String   @map("workspace_id")
+  fromStatus  String?  @map("from_status")
+  toStatus    String   @map("to_status")
+  reason      String?
+  changedBy   String?  @map("changed_by")
+  snapshot    Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([recordId])
+  @@map("compliance_record_history")
 }
 
 // =============================================================
@@ -11831,6 +12478,8 @@ enum ActivityActorType {
   PLATFORM_ADMIN
   ORGANIZATION_ADMIN
   SERVICE_ACCOUNT
+  /** A third-party or first-party plugin/app-store extension acting under its own installed identity — distinct from a `PROVIDER` (marketplace/supplier/shipping integration) or `SERVICE_ACCOUNT` (tenant-issued API credential). */
+  PLUGIN
 }
 
 enum ActivityOutcome {
@@ -11933,6 +12582,8 @@ enum AuditActionCategory {
   LOGIN
   PERMISSION
   CONFIGURATION
+  /** An explicit override of a policy/rule/approval decision (Enterprise Approval Engine's OVERRIDE decision action, Business Rules Engine policy bypass) — distinct from an ordinary APPROVE/REJECT so Enterprise Audit's policy-violation detection can target it precisely. */
+  OVERRIDE
   OTHER
 }
 
@@ -11958,6 +12609,9 @@ model AuditLogEntry {
   entityType     String?             @map("entity_type")
   entityId       String?             @map("entity_id")
 
+  /** Optional Multi-Business dimensional tag (soft reference to `Business.id`, plain string per the established organizationId/businessId convention — see `IBusiness`) — lets Enterprise Audit filter/aggregate a single immutable entry by business unit without a second audit table. */
+  businessId     String?             @map("business_id")
+
   outcome        ActivityOutcome     @default(SUCCESS)
   reason         String?             @db.Text
 
@@ -11970,6 +12624,8 @@ model AuditLogEntry {
   jobId          String?             @map("job_id")
   workflowId     String?             @map("workflow_id")
   sessionId      String?             @map("session_id")
+  /** Distributed-tracing span/trace id, distinct from `correlationId` (business-level correlation) and `requestId` (single HTTP request). */
+  traceId        String?             @map("trace_id")
   externalRef    String?             @map("external_ref")
 
   riskLevel      AuditRiskLevel      @default(NORMAL) @map("risk_level")
@@ -11977,6 +12633,20 @@ model AuditLogEntry {
   flagReason     String?             @map("flag_reason")
 
   dedupeKey      String?             @map("dedupe_key")
+
+  /**
+   * Tamper-evidence hash chain (Enterprise Audit): `integrityHash` is a
+   * SHA-256 digest of this entry's canonical fields plus `previousHash`,
+   * computed once in `AuditLogsService.record()` — the single write path
+   * every module already calls — so a deleted or altered historical row
+   * breaks the chain for every entry after it within the same workspace.
+   * Best-effort under concurrent writes to the same workspace (no
+   * distributed lock is introduced for this): two records created at the
+   * same instant may link to the same `previousHash`, which is a detection
+   * gap, not a false-tamper report.
+   */
+  integrityHash  String?             @map("integrity_hash")
+  previousHash   String?             @map("previous_hash")
 
   metadata       Json                @default("{}")
 
@@ -11988,6 +12658,7 @@ model AuditLogEntry {
   @@index([action])
   @@index([actionCategory])
   @@index([entityType, entityId])
+  @@index([businessId])
   @@index([actorType])
   @@index([actorId])
   @@index([outcome])
@@ -11998,6 +12669,7 @@ model AuditLogEntry {
   @@index([jobId])
   @@index([workflowId])
   @@index([sessionId])
+  @@index([traceId])
   @@index([createdAt])
   @@map("audit_log_entries")
 }
@@ -12676,6 +13348,17 @@ enum ApprovalWorkflowMode {
   SEQUENTIAL
   PARALLEL
   CONDITIONAL
+  MATRIX
+}
+
+/// How many of a step's PENDING assignments must approve before the step is satisfied.
+/// QUORUM uses `requiredApprovals` verbatim (the pre-existing N-of-M behavior); ANY_ONE,
+/// MAJORITY and UNANIMOUS are computed dynamically off the step's total assignment count.
+enum ApprovalStrategy {
+  QUORUM
+  ANY_ONE
+  MAJORITY
+  UNANIMOUS
 }
 
 enum ApprovalWorkflowStatus {
@@ -12689,6 +13372,7 @@ enum ApproverType {
   USER
   ROLE
   TEAM
+  BUSINESS_UNIT
 }
 
 enum ApprovalRequestStatus {
@@ -12725,18 +13409,22 @@ enum ApprovalDecisionAction {
   APPROVE
   REJECT
   REQUEST_CHANGES
+  DEFER
   DELEGATE
   REASSIGN
   CANCEL
   RECALL
+  OVERRIDE
 }
 
 /// A reusable, versioned workflow template that owning modules invoke by key. `steps` and `matchCriteria`
 /// are intentionally Json — the generic engine only interprets their shape at runtime; it never encodes
 /// any owning module's business rules here.
 model ApprovalWorkflowDefinition {
-  id          String                 @id @default(uuid())
-  workspaceId String                 @map("workspace_id")
+  id             String                 @id @default(uuid())
+  workspaceId    String                 @map("workspace_id")
+  organizationId String?                @map("organization_id")
+  businessId     String?                @map("business_id") // soft reference into Multi-Business Management — no FK relation, matches its established forward-compatible pattern
 
   key         String
   name        String
@@ -12751,6 +13439,9 @@ model ApprovalWorkflowDefinition {
 
   slaHours    Int?                   @map("sla_hours")
   escalation  Json?
+
+  isTemplate  Boolean                @default(false) @map("is_template")
+  templateKey String?                @map("template_key") // when cloned from a template, the originating template's key
 
   version     Int                    @default(1)
   status      ApprovalWorkflowStatus @default(DRAFT)
@@ -12769,6 +13460,8 @@ model ApprovalWorkflowDefinition {
   @@index([workspaceId])
   @@index([module])
   @@index([status])
+  @@index([businessId])
+  @@index([isTemplate])
   @@index([deletedAt])
   @@map("approval_workflow_definitions")
 }
@@ -12799,6 +13492,8 @@ model ApprovalWorkflowDefinitionHistory {
 model ApprovalRequest {
   id                String                @id @default(uuid())
   workspaceId       String                @map("workspace_id")
+  organizationId    String?               @map("organization_id")
+  businessId        String?               @map("business_id")
 
   definitionId      String                @map("definition_id")
   definitionVersion Int                   @map("definition_version")
@@ -12811,9 +13506,16 @@ model ApprovalRequest {
   title             String
   amount            Float?
   riskLevel         String?               @map("risk_level")
+  countryCode       String?               @map("country_code")
+  marketplaceKey    String?               @map("marketplace_key")
 
   currentStepIndex  Int                   @default(0) @map("current_step_index")
   status            ApprovalRequestStatus @default(PENDING)
+
+  /// When started as a step of an Enterprise Workflow Engine execution (see `ApprovalStepExecutor`) — the owning
+  /// execution/step-execution ids, used to resume or terminate that workflow after this request's final decision.
+  sourceWorkflowExecutionId     String? @map("source_workflow_execution_id")
+  sourceWorkflowStepExecutionId String? @map("source_workflow_step_execution_id")
 
   metadata          Json                  @default("{}")
 
@@ -12835,6 +13537,7 @@ model ApprovalRequest {
   @@index([status])
   @@index([requestedBy])
   @@index([slaDueAt])
+  @@index([sourceWorkflowStepExecutionId])
   @@index([deletedAt])
   @@map("approval_requests")
 }
@@ -12848,6 +13551,7 @@ model ApprovalStepInstance {
   name              String
 
   status            ApprovalStepStatus @default(PENDING)
+  strategy          ApprovalStrategy   @default(QUORUM)
   requiredApprovals Int                @default(1) @map("required_approvals")
   receivedApprovals Int                @default(0) @map("received_approvals")
 
@@ -12909,6 +13613,13 @@ model ApprovalDecision {
   delegatedToUserId  String?                @map("delegated_to_user_id")
   reassignedToUserId String?                @map("reassigned_to_user_id")
 
+  /// Supporting attachments/links for this decision (e.g. document refs, screenshots) — free-form, interpreted only by the requesting UI.
+  evidence           Json?
+  /// Generic pointer back to whatever record justified this decision (e.g. a business rule evaluation, a workflow variable snapshot) — never a hardcoded shape.
+  sourceReference    Json?                  @map("source_reference")
+  /// Client-supplied idempotency key — a repeat decide/override with the same key on the same step returns the existing decision instead of double-processing.
+  idempotencyKey     String?                @map("idempotency_key")
+
   metadata           Json?
 
   createdAt          DateTime               @default(now()) @map("created_at")
@@ -12916,11 +13627,38 @@ model ApprovalDecision {
   request      ApprovalRequest       @relation(fields: [requestId], references: [id], onDelete: Cascade)
   stepInstance ApprovalStepInstance? @relation(fields: [stepInstanceId], references: [id])
 
+  @@unique([stepInstanceId, decidedBy, idempotencyKey])
   @@index([requestId])
   @@index([stepInstanceId])
   @@index([workspaceId])
   @@index([decidedBy])
   @@map("approval_decisions")
+}
+
+/// A standing substitute-approver mapping (e.g. "while I'm out, route my approvals to X") — distinct from an
+/// ad-hoc per-decision `DELEGATE` action. Consulted when materializing/resolving assignments so a still-PENDING
+/// assignment for `approverRef` is treated as decidable by `substituteUserId` too, within the effective window.
+model ApprovalSubstitute {
+  id             String    @id @default(uuid())
+  workspaceId    String    @map("workspace_id")
+
+  approverType   ApproverType @map("approver_type") // USER or ROLE — the primary approver reference being substituted
+  approverRef    String    @map("approver_ref")
+  substituteUserId String  @map("substitute_user_id")
+
+  effectiveFrom  DateTime? @map("effective_from")
+  effectiveTo    DateTime? @map("effective_to")
+  reason         String?   @db.Text
+
+  isActive       Boolean   @default(true) @map("is_active")
+
+  createdBy      String?   @map("created_by")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@index([workspaceId, approverType, approverRef])
+  @@index([substituteUserId])
+  @@map("approval_substitutes")
 }
 
 // =============================================================
@@ -13506,15 +14244,28 @@ enum TranslationStatus {
   PUBLISHED
 }
 
+enum MeasurementSystem {
+  METRIC
+  IMPERIAL
+}
+
+enum LocaleStatus {
+  ACTIVE
+  DISABLED
+  ARCHIVED
+}
+
 /// The central registry of supported locales. Global catalog — not workspace-scoped, since the same
 /// locale (e.g. "fr-FR") means the same thing everywhere; only which locale a given context should use
 /// is workspace/user-specific, and that stays entirely in Organization Settings / User Preferences.
+/// Availability by country/marketplace/tenant is a separate scoped dimension — see `LocaleAvailability`.
 model LocaleDefinition {
   id          String          @id @default(uuid())
   code        String          @unique
 
   language    String
   country     String?
+  script      String? // ISO 15924 script code (e.g. "Latn", "Arab", "Hans") — configuration only, never hardcoded per-language in business modules
   nativeName  String          @map("native_name")
   displayName String          @map("display_name")
   direction   LocaleDirection @default(LTR)
@@ -13524,14 +14275,99 @@ model LocaleDefinition {
   numberFormat Json    @map("number_format")
   currencyCode String  @default("USD") @map("currency_code")
 
+  /// IANA timezone this locale defaults to (e.g. "America/New_York") — a per-org/workspace/user override still wins via Organization Settings / User Preferences.
+  timezone          String            @default("UTC") @map("timezone")
+  measurementSystem MeasurementSystem @default(METRIC) @map("measurement_system")
+  /// Explicit fallback locale code for translation resolution, beyond the automatic language-neutral and system-default steps. Configuration only — never a hardcoded chain in code.
+  fallbackLocaleCode String? @map("fallback_locale_code")
+
+  status  LocaleStatus @default(ACTIVE)
+  version Int          @default(1)
+  /// Kept in sync with `status === ACTIVE` for every existing caller (formatting, translation resolution) that already reads this boolean.
   isActive  Boolean @default(true) @map("is_active")
   isDefault Boolean @default(false) @map("is_default")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  history LocaleDefinitionHistory[]
+
   @@index([isActive])
+  @@index([status])
   @@map("locale_definitions")
+}
+
+/// Append-only version history for locale definition changes — never mutated or deleted afterward.
+model LocaleDefinitionHistory {
+  id     String       @id @default(uuid())
+  localeId String     @map("locale_id")
+  version  Int
+  status   LocaleStatus
+  snapshot Json        @default("{}")
+
+  changeReason String? @map("change_reason")
+  changedBy    String? @map("changed_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  locale LocaleDefinition @relation(fields: [localeId], references: [id], onDelete: Cascade)
+
+  @@index([localeId])
+  @@map("locale_definition_history")
+}
+
+/// Language activation by country, marketplace and tenant — a scoped on/off toggle distinct from the
+/// org/workspace/user *preference* precedence (which stays entirely in Organization Settings / User
+/// Preferences). All scope fields are optional wildcards; the most specific match wins.
+model LocaleAvailability {
+  id          String  @id @default(uuid())
+  localeCode  String  @map("locale_code")
+  workspaceId String? @map("workspace_id") // null = global
+  countryCode String? @map("country_code") // null = any country
+  marketplaceKey String? @map("marketplace_key") // null = any marketplace
+
+  isEnabled   Boolean @default(true) @map("is_enabled")
+  isDefault   Boolean @default(false) @map("is_default")
+  isPreferred Boolean @default(false) @map("is_preferred")
+
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@unique([localeCode, workspaceId, countryCode, marketplaceKey])
+  @@index([localeCode])
+  @@index([workspaceId])
+  @@index([countryCode])
+  @@index([marketplaceKey])
+  @@map("locale_availabilities")
+}
+
+/// Marketplace/provider-specific locale, currency, timezone and measurement requirements — pure
+/// configuration, resolved by the marketplace adapters that need it rather than hardcoded per-provider.
+model LocaleProviderRequirement {
+  id          String  @id @default(uuid())
+  workspaceId String? @map("workspace_id") // null = global default requirement
+  marketplaceKey String @map("marketplace_key")
+  countryCode    String? @map("country_code")
+
+  requiredLocaleCode      String             @map("required_locale_code")
+  requiredCurrencyCode    String?            @map("required_currency_code")
+  requiredTimezone        String?            @map("required_timezone")
+  requiredMeasurementSystem MeasurementSystem? @map("required_measurement_system")
+
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@unique([workspaceId, marketplaceKey, countryCode])
+  @@index([marketplaceKey])
+  @@index([workspaceId])
+  @@map("locale_provider_requirements")
 }
 
 /// Groups translation keys logically (e.g. "common", "notifications", per-module namespaces).
@@ -13608,6 +14444,1919 @@ model TranslationHistory {
 
   @@index([translationId])
   @@map("translation_history")
+}
+
+// =============================================================
+// REGIONAL SETTINGS
+//
+// Composes the Multi-Country Framework, Localization/Language Management,
+// Currency Engine, Tax Engine, Organization Settings and User Preferences
+// into one versioned, effective-dated profile per scope. Every reference
+// (country/locale/language/currency/tax-jurisdiction/marketplace/supplier/
+// warehouse/fulfillment/payment) is a plain code/id string resolved by the
+// owning module at read time — no rate, rule, translation, or currency
+// value is ever duplicated or stored here.
+// =============================================================
+
+model RegionalSettingsProfile {
+  id             String  @id @default(uuid())
+  key            String // stable business key shared across versions, e.g. "US-CA", "DEFAULT"
+  workspaceId    String? @map("workspace_id")
+  organizationId String? @map("organization_id")
+
+  scopeType   String // GLOBAL | COUNTRY | REGION | ORGANIZATION | WORKSPACE
+  countryCode String? @map("country_code") // references Country.code — never duplicated here
+  regionCode  String? @map("region_code") // state/province or business-region code, configuration only
+
+  localeCode        String? @map("locale_code") // references LocaleDefinition.code
+  languageCode      String? @map("language_code") // references LocaleDefinition.language
+  currencyCode      String? @map("currency_code") // references the Currency Engine's registered code
+  timezone          String?
+  dateFormat        String? @map("date_format")
+  timeFormat        String? @map("time_format")
+  numberFormat      Json?   @map("number_format")
+  measurementSystem String? @map("measurement_system")
+  addressFormat     Json?   @map("address_format")
+
+  taxJurisdictionCode  String? @map("tax_jurisdiction_code") // references TaxJurisdiction.code
+  complianceProfileKey String? @map("compliance_profile_key") // references a Compliance Framework rule key
+
+  marketplaceKeys          String[] @default([]) @map("marketplace_keys")
+  supplierIds               String[] @default([]) @map("supplier_ids")
+  warehouseIds               String[] @default([]) @map("warehouse_ids")
+  fulfillmentProviderKeys     String[] @default([]) @map("fulfillment_provider_keys")
+  paymentProviderKeys           String[] @default([]) @map("payment_provider_keys")
+
+  workingDays  Json @default("[]") @map("working_days") // e.g. [1,2,3,4,5] (0=Sunday)
+  businessHours Json @default("{}") @map("business_hours")
+  holidays      Json @default("[]") // [{ date, name }]
+
+  pricingPreferences      Json @default("{}") @map("pricing_preferences")
+  shippingPreferences     Json @default("{}") @map("shipping_preferences")
+  fulfillmentPreferences  Json @default("{}") @map("fulfillment_preferences")
+  availabilityPreferences Json @default("{}") @map("availability_preferences")
+
+  priority Int @default(0) // tie-break when more than one profile of equal specificity matches
+
+  status  String @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
+  version Int    @default(1)
+  supersedesId String? @map("supersedes_id")
+
+  effectiveFrom DateTime  @map("effective_from")
+  effectiveTo   DateTime? @map("effective_to")
+
+  metadata  Json      @default("{}")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@index([workspaceId])
+  @@index([key])
+  @@index([countryCode])
+  @@index([regionCode])
+  @@index([status])
+  @@map("regional_settings_profiles")
+}
+
+model RegionalSettingsProfileHistory {
+  id           String   @id @default(uuid())
+  profileId    String   @map("profile_id")
+  key          String
+  version      Int
+  status       String
+  snapshot     Json     @default("{}")
+  changeReason String?  @map("change_reason")
+  changedBy    String?  @map("changed_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([profileId])
+  @@map("regional_settings_profile_history")
+}
+
+// =============================================================
+// MULTI-BRAND MANAGEMENT
+//
+// One workspace/organization can own several brands. A brand carries its
+// own identity, marketplace/country/currency/locale scope and operational
+// preferences, but never duplicates Product Catalog, Marketplace, Pricing,
+// Localization or Regional Settings logic — every cross-module value here
+// is a plain code/id reference (or, for products/categories/listings/media,
+// a generic entity link — see `BrandEntityLink`, mirroring the existing
+// `DocumentEntityLink` pattern) resolved by its owning module.
+// =============================================================
+
+enum BrandStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+model Brand {
+  id             String  @id @default(uuid())
+  workspaceId    String  @map("workspace_id")
+  organizationId String? @map("organization_id")
+
+  code        String
+  name        String
+  legalOwner  String? @map("legal_owner")
+  logoUrl     String? @map("logo_url")
+  domains     String[] @default([])
+  description String?  @db.Text
+
+  status  BrandStatus @default(DRAFT)
+  version Int         @default(1)
+
+  isDefault Boolean @default(false) @map("is_default")
+  priority  Int     @default(0)
+
+  countryCodes           String[] @default([]) @map("country_codes")
+  regionCodes            String[] @default([]) @map("region_codes")
+  currencyCodes          String[] @default([]) @map("currency_codes")
+  marketplaceAccountIds  String[] @default([]) @map("marketplace_account_ids")
+
+  localeCode                 String? @map("locale_code") // references LocaleDefinition.code
+  regionalSettingsProfileKey String? @map("regional_settings_profile_key") // references RegionalSettingsProfile.key
+  taxJurisdictionCode        String? @map("tax_jurisdiction_code") // references TaxJurisdiction.code
+  complianceProfileKey       String? @map("compliance_profile_key") // references a Compliance Framework rule key
+
+  fulfillmentPreferences Json @default("{}") @map("fulfillment_preferences")
+  seoDefaults            Json @default("{}") @map("seo_defaults")
+  settings               Json @default("{}") // brand-level settings — same free-form convention as `Workspace.settings`
+
+  metadata  Json      @default("{}")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  history BrandHistory[]
+  links   BrandEntityLink[]
+
+  @@unique([workspaceId, code])
+  @@index([workspaceId])
+  @@index([status])
+  @@map("brands")
+}
+
+/// Append-only version/ownership-change history — never mutated or deleted afterward.
+model BrandHistory {
+  id           String   @id @default(uuid())
+  brandId      String   @map("brand_id")
+  version      Int
+  status       BrandStatus
+  snapshot     Json     @default("{}")
+  changeReason String?  @map("change_reason")
+  changedBy    String?  @map("changed_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId])
+  @@map("brand_history")
+}
+
+/// Generic brand↔entity association (products, categories, listings, media, ...) —
+/// mirrors `DocumentEntityLink` exactly, so no product/catalog schema is touched here.
+model BrandEntityLink {
+  id          String  @id @default(uuid())
+  brandId     String  @map("brand_id")
+  workspaceId String  @map("workspace_id")
+  entityType  String  @map("entity_type") // PRODUCT | CATEGORY | LISTING | MARKETPLACE_ACCOUNT | MEDIA | ...
+  entityId    String  @map("entity_id")
+
+  isShared  Boolean @default(false) @map("is_shared") // true = this entity is intentionally shared across multiple brands
+  isPrimary Boolean @default(true) @map("is_primary")
+
+  linkedBy  String?  @map("linked_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@unique([brandId, entityType, entityId])
+  @@index([workspaceId])
+  @@index([entityType, entityId])
+  @@map("brand_entity_links")
+}
+
+// =============================================================
+// MULTI-BUSINESS MANAGEMENT
+//
+// One organization can operate several legal/business units, each with
+// its own workspaces, brands, warehouses, marketplace accounts, suppliers
+// and financial settings. Every cross-module value here is a plain code/id
+// reference resolved by its owning service (Workspace, Multi-Brand,
+// Warehouse, Suppliers, Country, Currency Engine, Regional Settings, Tax
+// Engine, Roles & Permissions, Billing Engine) — never recomputed or
+// duplicated. Parent-child hierarchy lives on `Business` itself; shared
+// resources and any association not already covered by a reference array
+// use the generic `BusinessEntityLink`, mirroring `BrandEntityLink`/
+// `DocumentEntityLink`.
+// =============================================================
+
+enum BusinessStatus {
+  DRAFT
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+model Business {
+  id             String  @id @default(uuid())
+  organizationId String? @map("organization_id")
+  workspaceId    String  @map("workspace_id") // the business's home/primary workspace
+
+  parentBusinessId String? @map("parent_business_id")
+
+  code             String
+  name             String
+  legalName        String? @map("legal_name")
+  businessType     String? @map("business_type") // e.g. "LLC" | "CORPORATION" | "SOLE_PROPRIETORSHIP" | "BRANCH" — configuration-driven, never hardcoded
+  registrationNumber String? @map("registration_number")
+  taxIdentifier      String? @map("tax_identifier")
+
+  countryCode String? @map("country_code")
+  regionCode  String? @map("region_code")
+  currencyCode String? @map("currency_code")
+  timezone    String?
+  contacts    Json    @default("[]") // [{ name, email, phone, role }]
+
+  status  BusinessStatus @default(DRAFT)
+  version Int            @default(1)
+
+  isDefault Boolean @default(false) @map("is_default")
+  priority  Int     @default(0)
+
+  /// ORGANIZATION = visible to every business in the organization; BUSINESS = this business + its own hierarchy only; PRIVATE = this business only.
+  visibilityScope String @default("BUSINESS") @map("visibility_scope")
+
+  workspaceIds          String[] @default([]) @map("workspace_ids") // associated workspaces beyond the home one
+  brandIds              String[] @default([]) @map("brand_ids")
+  warehouseIds          String[] @default([]) @map("warehouse_ids")
+  marketplaceAccountIds String[] @default([]) @map("marketplace_account_ids")
+  supplierIds           String[] @default([]) @map("supplier_ids")
+
+  regionalSettingsProfileKey String? @map("regional_settings_profile_key")
+  taxJurisdictionCode        String? @map("tax_jurisdiction_code")
+  complianceProfileKey       String? @map("compliance_profile_key")
+  billingAccountRef          String? @map("billing_account_ref") // references a Billing Engine account/customer id
+
+  settings Json @default("{}")
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  parentBusiness Business?  @relation("BusinessHierarchy", fields: [parentBusinessId], references: [id])
+  childBusinesses Business[] @relation("BusinessHierarchy")
+  history        BusinessHistory[]
+  links          BusinessEntityLink[]
+
+  @@unique([workspaceId, code])
+  @@index([workspaceId])
+  @@index([organizationId])
+  @@index([parentBusinessId])
+  @@index([status])
+  @@map("businesses")
+}
+
+/// Append-only version/ownership/lifecycle history — never mutated or deleted afterward.
+model BusinessHistory {
+  id           String         @id @default(uuid())
+  businessId   String         @map("business_id")
+  version      Int
+  status       BusinessStatus
+  snapshot     Json           @default("{}")
+  changeReason String?        @map("change_reason")
+  changedBy    String?        @map("changed_by")
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@map("business_history")
+}
+
+/// Generic business↔entity association (reports, analytics refs, shared resources, ...) —
+/// mirrors `BrandEntityLink`/`DocumentEntityLink` exactly, so no other module's schema is touched here.
+model BusinessEntityLink {
+  id          String @id @default(uuid())
+  businessId  String @map("business_id")
+  workspaceId String @map("workspace_id")
+  entityType  String @map("entity_type") // WORKSPACE | BRAND | WAREHOUSE | MARKETPLACE_ACCOUNT | SUPPLIER | REPORT | ...
+  entityId    String @map("entity_id")
+
+  isShared  Boolean @default(false) @map("is_shared") // true = this resource is intentionally shared across multiple businesses
+  isPrimary Boolean @default(true) @map("is_primary")
+
+  linkedBy  String?  @map("linked_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, entityType, entityId])
+  @@index([workspaceId])
+  @@index([entityType, entityId])
+  @@map("business_entity_links")
+}
+
+// =============================================================
+// MULTI-CHANNEL FRAMEWORK
+//
+// A thin registration/routing layer over the existing Multi-Marketplace
+// Framework (`marketplace-provider`, `marketplace-provider-factory`,
+// `marketplace-account`, `marketplace-capability`) generalized to cover
+// non-marketplace sales channels (D2C stores, B2B portals, retail/POS,
+// social commerce). A MARKETPLACE-type channel references an existing
+// `MarketplaceAccount` and routes through the existing provider registry/
+// factory unchanged; other channel types plug into this module's own
+// lightweight, equally provider-independent adapter registry. No
+// marketplace/provider infrastructure is duplicated here — only
+// referenced.
+// =============================================================
+
+enum ChannelStatus {
+  REGISTERED
+  ACTIVE
+  DISABLED
+  ARCHIVED
+}
+
+model Channel {
+  id             String  @id @default(uuid())
+  workspaceId    String  @map("workspace_id")
+  organizationId String? @map("organization_id")
+  businessId     String? @map("business_id") // references Business.id
+  brandId        String? @map("brand_id") // references Brand.id
+
+  channelType String @map("channel_type") // MARKETPLACE | D2C_STORE | B2B_PORTAL | RETAIL_POS | SOCIAL_COMMERCE | CUSTOM — configuration, never hardcoded per-channel logic
+  channelKey  String @map("channel_key") // stable business key, e.g. "amazon-us-1", "shopify-store-1"
+
+  /// For channelType=MARKETPLACE, a `MarketplaceKey`/providerKey already registered in the Multi-Marketplace Framework's own provider registry.
+  /// For other channel types, a providerKey registered in this module's own `ChannelProviderRegistry`.
+  providerKey String? @map("provider_key")
+  /// References an existing `MarketplaceAccount.id` — only set when channelType=MARKETPLACE. Never duplicated here.
+  marketplaceAccountId String? @map("marketplace_account_id")
+  /// Generic store/account identifier for non-marketplace channel types (e.g. a POS terminal id, a B2B portal tenant id).
+  externalAccountRef String? @map("external_account_ref")
+
+  name    String
+  status  ChannelStatus @default(REGISTERED)
+  version Int           @default(1)
+
+  isDefault Boolean @default(false) @map("is_default")
+  priority  Int     @default(0)
+
+  /// Declared capability keys this channel instance supports — reuses the Multi-Marketplace Framework's own `MarketplaceCapability` vocabulary (PUBLISH_LISTING, SYNC_INVENTORY, SYNC_ORDERS, ...) so capability semantics are never redefined per channel type.
+  capabilities String[] @default([])
+
+  routingRules    Json  @default("{}") @map("routing_rules")
+  rateLimitConfig Json? @map("rate_limit_config")
+  retryConfig     Json? @map("retry_config")
+
+  regionalSettingsProfileKey String? @map("regional_settings_profile_key")
+  taxJurisdictionCode        String? @map("tax_jurisdiction_code")
+  complianceProfileKey       String? @map("compliance_profile_key")
+
+  settings Json @default("{}")
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  history         ChannelHistory[]
+  productMappings ChannelProductMapping[]
+  operationLogs   ChannelOperationLog[]
+
+  @@unique([workspaceId, channelKey])
+  @@index([workspaceId])
+  @@index([businessId])
+  @@index([brandId])
+  @@index([channelType])
+  @@index([status])
+  @@map("channels")
+}
+
+/// Append-only version/lifecycle history — never mutated or deleted afterward.
+model ChannelHistory {
+  id           String        @id @default(uuid())
+  channelId    String        @map("channel_id")
+  version      Int
+  status       ChannelStatus
+  snapshot     Json          @default("{}")
+  changeReason String?       @map("change_reason")
+  changedBy    String?       @map("changed_by")
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@index([channelId])
+  @@map("channel_history")
+}
+
+/// Channel-specific product/SKU mapping and external references — generic across every channel type, so no catalog schema is touched here.
+model ChannelProductMapping {
+  id               String  @id @default(uuid())
+  channelId        String  @map("channel_id")
+  workspaceId      String  @map("workspace_id")
+  internalProductId String @map("internal_product_id") // references CatalogProduct.id
+  externalSku      String? @map("external_sku")
+  externalProductId String? @map("external_product_id")
+  externalUrl      String? @map("external_url")
+
+  syncStatus String @default("PENDING") @map("sync_status") // PENDING | SYNCED | FAILED
+
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, internalProductId])
+  @@index([workspaceId])
+  @@index([externalSku])
+  @@map("channel_product_mappings")
+}
+
+/// Idempotency ledger — prevents duplicate channel operations from being executed twice for the same key.
+model ChannelOperationLog {
+  id            String  @id @default(uuid())
+  channelId     String  @map("channel_id")
+  workspaceId   String  @map("workspace_id")
+  operationType String  @map("operation_type")
+  idempotencyKey String @map("idempotency_key")
+
+  status         String    @default("PENDING") // PENDING | COMPLETED | FAILED
+  resultSnapshot Json?     @map("result_snapshot")
+  errorSnapshot  Json?     @map("error_snapshot")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  completedAt DateTime? @map("completed_at")
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, operationType, idempotencyKey])
+  @@index([workspaceId])
+  @@map("channel_operation_logs")
+}
+
+// =============================================================
+// MARKETPLACE EXPANSION FRAMEWORK
+//
+// Tracks onboarding/rollout/compatibility/eligibility for marketplaces
+// registered in the existing Multi-Marketplace Framework
+// (`MarketplaceProviderRegistry`/`MarketplaceProviderFactoryService`/
+// `MarketplaceCapabilityService`/`MarketplaceHealthMonitor`/
+// `MarketplaceVersionManager`) — this framework never re-implements any
+// of that; `providerKey` is always a plain reference into it. Adding a
+// new marketplace never touches this schema or core business modules —
+// only a new adapter registration plus a `MarketplaceExpansion` row.
+// =============================================================
+
+enum MarketplaceRolloutState {
+  DRAFT
+  BETA
+  ACTIVE
+  DEPRECATED
+  DISABLED
+}
+
+model MarketplaceExpansion {
+  id             String  @id @default(uuid())
+  providerKey    String  @map("provider_key") // references a provider key in the Multi-Marketplace Framework's own registry — never duplicated here
+  workspaceId    String? @map("workspace_id") // null = platform-wide expansion record; set = workspace-specific eligibility/rollout override
+  organizationId String? @map("organization_id")
+
+  rolloutState   MarketplaceRolloutState @default(DRAFT) @map("rollout_state")
+  version        Int                     @default(1)
+  apiVersionLabel String?                @map("api_version_label") // denormalized display label — authoritative version tracking stays in `MarketplaceVersionManager`
+
+  countryCodes  String[] @default([]) @map("country_codes")
+  regionCodes   String[] @default([]) @map("region_codes")
+  currencyCodes String[] @default([]) @map("currency_codes")
+  localeCodes   String[] @default([]) @map("locale_codes")
+
+  eligibilityScope    String   @default("ALL") @map("eligibility_scope") // ALL | ALLOWLIST
+  eligibleWorkspaceIds String[] @default([]) @map("eligible_workspace_ids")
+
+  adapterCompatibilityStatus String @default("UNVALIDATED") @map("adapter_compatibility_status") // COMPATIBLE | INCOMPATIBLE | UNVALIDATED
+  compatibilityIssues        Json   @default("[]") @map("compatibility_issues")
+
+  backwardCompatibleApiVersions String[] @default([]) @map("backward_compatible_api_versions")
+  fallbackProviderKey            String?  @map("fallback_provider_key")
+
+  featureFlags Json @default("{}") @map("feature_flags")
+
+  onboardedAt DateTime? @map("onboarded_at")
+  betaAt      DateTime? @map("beta_at")
+  activatedAt DateTime? @map("activated_at")
+  deprecatedAt DateTime? @map("deprecated_at")
+  disabledAt  DateTime? @map("disabled_at")
+
+  settings Json @default("{}")
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  history MarketplaceExpansionHistory[]
+
+  @@unique([providerKey, workspaceId])
+  @@index([workspaceId])
+  @@index([providerKey])
+  @@index([rolloutState])
+  @@map("marketplace_expansions")
+}
+
+/// Append-only onboarding/activation/version/migration history — never mutated or deleted afterward.
+model MarketplaceExpansionHistory {
+  id           String                  @id @default(uuid())
+  expansionId  String                  @map("expansion_id")
+  version      Int
+  rolloutState MarketplaceRolloutState @map("rollout_state")
+  snapshot     Json                    @default("{}")
+  changeReason String?                 @map("change_reason")
+  changedBy    String?                 @map("changed_by")
+  createdAt    DateTime                @default(now()) @map("created_at")
+
+  expansion MarketplaceExpansion @relation(fields: [expansionId], references: [id], onDelete: Cascade)
+
+  @@index([expansionId])
+  @@map("marketplace_expansion_history")
+}
+
+// =============================================================
+// SUPPLIER PROVIDER EXPANSION FRAMEWORK
+//
+// Tracks onboarding/rollout/compatibility/eligibility for supplier
+// providers registered in the existing Supplier Provider Foundation
+// (`SupplierProviderRegistry`/`SupplierAdapterRegistry`/
+// `SupplierProviderFactory`/`SupplierProviderHealthMonitor`/
+// `ProviderErrorNormalizer`) — this framework never re-implements any
+// of that; `providerCode` is always a plain reference into those
+// registries. Adding a new supplier provider never touches this schema
+// or core sourcing/procurement modules — only a new adapter
+// registration plus a `SupplierProviderExpansion` row.
+// =============================================================
+
+enum SupplierProviderRolloutState {
+  DRAFT
+  BETA
+  ACTIVE
+  DEPRECATED
+  DISABLED
+}
+
+model SupplierProviderExpansion {
+  id             String  @id @default(uuid())
+  providerCode   String  @map("provider_code") // references a SupplierProviderCode in the Supplier Provider Foundation's own registry — never duplicated here
+  workspaceId    String? @map("workspace_id") // null = platform-wide expansion record; set = workspace-specific eligibility/rollout override
+  organizationId String? @map("organization_id")
+
+  rolloutState   SupplierProviderRolloutState @default(DRAFT) @map("rollout_state")
+  version        Int                          @default(1)
+  apiVersionLabel String?                     @map("api_version_label") // denormalized display label — authoritative adapter version stays on `AdapterMetadata.version`
+
+  countryCodes  String[] @default([]) @map("country_codes")
+  regionCodes   String[] @default([]) @map("region_codes")
+  currencyCodes String[] @default([]) @map("currency_codes")
+
+  integrationStrategies String[] @default([]) @map("integration_strategies") // enabled subset of the adapter's supported strategies for this onboarding
+
+  eligibilityScope     String   @default("ALL") @map("eligibility_scope") // ALL | ALLOWLIST
+  eligibleWorkspaceIds String[] @default([]) @map("eligible_workspace_ids")
+
+  adapterCompatibilityStatus String @default("UNVALIDATED") @map("adapter_compatibility_status") // COMPATIBLE | INCOMPATIBLE | UNVALIDATED
+  compatibilityIssues        Json   @default("[]") @map("compatibility_issues")
+
+  backwardCompatibleApiVersions String[] @default([]) @map("backward_compatible_api_versions")
+  fallbackProviderCode           String?  @map("fallback_provider_code")
+
+  endpointConfig  Json @default("{}") @map("endpoint_config") // provider-specific endpoint overrides, consumed by the adapter — never hardcoded here
+  rateLimitConfig Json @default("{}") @map("rate_limit_config") // per-onboarding rate-limit overrides layered on top of `AdapterMetadata.rateLimitPerMinute`
+  featureFlags    Json @default("{}") @map("feature_flags")
+
+  onboardedAt  DateTime? @map("onboarded_at")
+  betaAt       DateTime? @map("beta_at")
+  activatedAt  DateTime? @map("activated_at")
+  deprecatedAt DateTime? @map("deprecated_at")
+  disabledAt   DateTime? @map("disabled_at")
+
+  settings Json @default("{}")
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  history SupplierProviderExpansionHistory[]
+
+  @@unique([providerCode, workspaceId])
+  @@index([workspaceId])
+  @@index([providerCode])
+  @@index([rolloutState])
+  @@map("supplier_provider_expansions")
+}
+
+/// Append-only onboarding/activation/version/migration history — never mutated or deleted afterward.
+model SupplierProviderExpansionHistory {
+  id           String                        @id @default(uuid())
+  expansionId  String                        @map("expansion_id")
+  version      Int
+  rolloutState SupplierProviderRolloutState @map("rollout_state")
+  snapshot     Json                          @default("{}")
+  changeReason String?                       @map("change_reason")
+  changedBy    String?                       @map("changed_by")
+  createdAt    DateTime                      @default(now()) @map("created_at")
+
+  expansion SupplierProviderExpansion @relation(fields: [expansionId], references: [id], onDelete: Cascade)
+
+  @@index([expansionId])
+  @@map("supplier_provider_expansion_history")
+}
+
+// =============================================================
+// SHIPPING PROVIDER EXPANSION FRAMEWORK
+//
+// Tracks onboarding/rollout/compatibility/eligibility for shipping/
+// courier providers registered in the Shipping Provider Foundation
+// (`ShippingProviderRegistry`/`ShippingProviderFactory`/
+// `ShippingProviderHealthMonitor`/`ShippingProviderErrorNormalizer`) —
+// this framework never re-implements any of that; `providerKey` is
+// always a plain reference into that registry. Adding a new courier
+// never touches this schema or core fulfillment modules (Dispatch,
+// Shipment Tracking) — only a new adapter registration plus a
+// `ShippingProviderExpansion` row.
+// =============================================================
+
+enum ShippingProviderRolloutState {
+  DRAFT
+  BETA
+  ACTIVE
+  DEPRECATED
+  DISABLED
+}
+
+model ShippingProviderExpansion {
+  id             String  @id @default(uuid())
+  providerKey    String  @map("provider_key") // references a provider key in the Shipping Provider Foundation's own registry — never duplicated here
+  workspaceId    String? @map("workspace_id") // null = platform-wide expansion record; set = workspace-specific eligibility/rollout override
+  organizationId String? @map("organization_id")
+
+  rolloutState   ShippingProviderRolloutState @default(DRAFT) @map("rollout_state")
+  version        Int                          @default(1)
+  apiVersionLabel String?                     @map("api_version_label") // denormalized display label — authoritative adapter version stays on `ShippingProviderMetadata.version`
+
+  countryCodes  String[] @default([]) @map("country_codes")
+  regionCodes   String[] @default([]) @map("region_codes")
+  serviceLevels String[] @default([]) @map("service_levels") // enabled subset of the adapter's declared service levels for this onboarding
+
+  eligibilityScope     String   @default("ALL") @map("eligibility_scope") // ALL | ALLOWLIST
+  eligibleWorkspaceIds String[] @default([]) @map("eligible_workspace_ids")
+
+  adapterCompatibilityStatus String @default("UNVALIDATED") @map("adapter_compatibility_status") // COMPATIBLE | INCOMPATIBLE | UNVALIDATED
+  compatibilityIssues        Json   @default("[]") @map("compatibility_issues")
+
+  backwardCompatibleApiVersions String[] @default([]) @map("backward_compatible_api_versions")
+  fallbackProviderKey            String?  @map("fallback_provider_key")
+
+  pickupRules     Json @default("{}") @map("pickup_rules") // provider-specific pickup-window/cutoff overrides, consumed by the adapter — never hardcoded here
+  rateLimitConfig Json @default("{}") @map("rate_limit_config") // per-onboarding rate-limit overrides layered on top of `ShippingProviderMetadata.rateLimitPerMinute`
+  featureFlags    Json @default("{}") @map("feature_flags")
+
+  onboardedAt  DateTime? @map("onboarded_at")
+  betaAt       DateTime? @map("beta_at")
+  activatedAt  DateTime? @map("activated_at")
+  deprecatedAt DateTime? @map("deprecated_at")
+  disabledAt   DateTime? @map("disabled_at")
+
+  settings Json @default("{}")
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  history ShippingProviderExpansionHistory[]
+
+  @@unique([providerKey, workspaceId])
+  @@index([workspaceId])
+  @@index([providerKey])
+  @@index([rolloutState])
+  @@map("shipping_provider_expansions")
+}
+
+/// Append-only onboarding/activation/version/migration history — never mutated or deleted afterward.
+model ShippingProviderExpansionHistory {
+  id           String                        @id @default(uuid())
+  expansionId  String                        @map("expansion_id")
+  version      Int
+  rolloutState ShippingProviderRolloutState @map("rollout_state")
+  snapshot     Json                          @default("{}")
+  changeReason String?                       @map("change_reason")
+  changedBy    String?                       @map("changed_by")
+  createdAt    DateTime                      @default(now()) @map("created_at")
+
+  expansion ShippingProviderExpansion @relation(fields: [expansionId], references: [id], onDelete: Cascade)
+
+  @@index([expansionId])
+  @@map("shipping_provider_expansion_history")
+}
+
+// =============================================================
+// AI PROVIDER EXPANSION FRAMEWORK
+//
+// Tracks rollout maturity (draft/beta/active/deprecated/disabled),
+// versioning/backward-compatibility, adapter compatibility and tenant
+// eligibility for a provider already known to the AI Provider Foundation
+// (in-memory `AiProviderRegistry`) and/or the persisted
+// `AiProviderRegistryModule` catalog (capabilities/models/regions/
+// priority/fallback ordering) — `providerKey` is always a plain
+// reference into those; neither is duplicated here. Adding a new AI
+// provider never touches this schema or core business modules — only a
+// new adapter registration plus an `AiProviderExpansion` row.
+// =============================================================
+
+enum AiProviderRolloutState {
+  DRAFT
+  BETA
+  ACTIVE
+  DEPRECATED
+  DISABLED
+}
+
+model AiProviderExpansion {
+  id             String  @id @default(uuid())
+  providerKey    String  @map("provider_key") // references a provider key in the AI Provider Foundation's own registry — never duplicated here
+  workspaceId    String? @map("workspace_id") // null = platform-wide expansion record; set = workspace-specific eligibility/rollout override
+  organizationId String? @map("organization_id")
+
+  rolloutState AiProviderRolloutState @default(DRAFT) @map("rollout_state")
+  version      Int                    @default(1)
+  apiVersionLabel String?             @map("api_version_label") // denormalized display label — authoritative adapter version stays on `IAiProviderMetadata.version`
+
+  backwardCompatibleApiVersions String[] @default([]) @map("backward_compatible_api_versions")
+
+  eligibilityScope     String   @default("ALL") @map("eligibility_scope") // ALL | ALLOWLIST
+  eligibleWorkspaceIds String[] @default([]) @map("eligible_workspace_ids")
+
+  adapterCompatibilityStatus String @default("UNVALIDATED") @map("adapter_compatibility_status") // COMPATIBLE | INCOMPATIBLE | UNVALIDATED
+  compatibilityIssues        Json   @default("[]") @map("compatibility_issues")
+
+  featureFlags Json @default("{}") @map("feature_flags")
+
+  onboardedAt  DateTime? @map("onboarded_at")
+  betaAt       DateTime? @map("beta_at")
+  activatedAt  DateTime? @map("activated_at")
+  deprecatedAt DateTime? @map("deprecated_at")
+  disabledAt   DateTime? @map("disabled_at")
+
+  settings Json @default("{}")
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  history AiProviderExpansionHistory[]
+
+  @@unique([providerKey, workspaceId])
+  @@index([workspaceId])
+  @@index([providerKey])
+  @@index([rolloutState])
+  @@map("ai_provider_expansions")
+}
+
+/// Append-only onboarding/activation/version/migration history — never mutated or deleted afterward.
+model AiProviderExpansionHistory {
+  id           String                 @id @default(uuid())
+  expansionId  String                 @map("expansion_id")
+  version      Int
+  rolloutState AiProviderRolloutState @map("rollout_state")
+  snapshot     Json                   @default("{}")
+  changeReason String?                @map("change_reason")
+  changedBy    String?                @map("changed_by")
+  createdAt    DateTime               @default(now()) @map("created_at")
+
+  expansion AiProviderExpansion @relation(fields: [expansionId], references: [id], onDelete: Cascade)
+
+  @@index([expansionId])
+  @@map("ai_provider_expansion_history")
+}
+
+// =============================================================
+// ENTERPRISE WORKFLOW ENGINE
+//
+// Generic, configuration-driven workflow engine reusable across every
+// ATLAS module. Stage/step definitions are plain JSON — the engine never
+// embeds business logic. Steps that map onto an already-generic module
+// (Task Management, Approval Workflow, Notification Center, Business
+// Rules Engine, AI Workflow Engine) execute through a built-in step
+// executor; anything module-specific is registered by the owning module
+// via `WorkflowStepExecutorRegistry`, mirroring
+// `RuleActionRegistryService` in Business Rules Engine. This framework
+// never duplicates the AI Workflow Engine — AI-specific steps delegate
+// to `AiWorkflowService.executeWorkflow()`.
+// =============================================================
+
+enum WorkflowDefinitionStatus {
+  DRAFT
+  PUBLISHED
+  PAUSED
+  DEPRECATED
+  ARCHIVED
+}
+
+enum WorkflowKind {
+  SEQUENTIAL
+  PARALLEL
+  CONDITIONAL
+  EVENT_DRIVEN
+  HUMAN_IN_THE_LOOP
+}
+
+enum WorkflowTriggerType {
+  API
+  EVENT
+  SCHEDULE
+  APPROVAL
+  RULE
+  AI_DECISION
+  MANUAL
+}
+
+enum WorkflowExecutionStatus {
+  PENDING
+  RUNNING
+  WAITING
+  PAUSED
+  COMPENSATING
+  COMPLETED
+  FAILED
+  CANCELLED
+  TIMEOUT
+}
+
+enum WorkflowStepStatus {
+  PENDING
+  RUNNING
+  WAITING
+  COMPLETED
+  FAILED
+  SKIPPED
+  COMPENSATED
+  CANCELLED
+}
+
+model WorkflowDefinition {
+  id             String  @id @default(uuid())
+  workspaceId    String? @map("workspace_id") // null = organization/global-scoped definition
+  organizationId String? @map("organization_id")
+  businessId     String? @map("business_id") // soft reference into Multi-Business Management — no FK relation, matches its established forward-compatible pattern
+
+  key         String
+  name        String
+  description String?
+  version     Int                      @default(1)
+  status      WorkflowDefinitionStatus @default(DRAFT) @map("status")
+  workflowKind WorkflowKind            @default(SEQUENTIAL) @map("workflow_kind")
+
+  triggerType   WorkflowTriggerType @default(MANUAL) @map("trigger_type")
+  triggerConfig Json                @default("{}") @map("trigger_config")
+
+  /// Array of `IWorkflowStageDefinition` — each stage holds an ordered/parallel set of `IWorkflowStepDefinition`.
+  stages    Json @default("[]")
+  variables Json @default("{}")
+
+  slaMs            Int?    @map("sla_ms")
+  escalationConfig Json?   @map("escalation_config")
+  maxRetries       Int     @default(3) @map("max_retries")
+  timeoutMs        Int?    @map("timeout_ms")
+
+  isTemplate   Boolean @default(false) @map("is_template")
+  templateKey  String? @map("template_key")
+  supersedesId String? @map("supersedes_id") // links a new version row back to the version it replaced
+
+  tags     String[] @default([])
+  metadata Json     @default("{}")
+
+  publishedAt DateTime? @map("published_at")
+  publishedBy String?   @map("published_by")
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  history    WorkflowDefinitionHistory[]
+  executions WorkflowExecution[]
+
+  @@unique([workspaceId, key, version])
+  @@index([workspaceId, key])
+  @@index([status])
+  @@index([businessId])
+  @@map("workflow_definitions")
+}
+
+/// Append-only version/publish history — never mutated or deleted afterward.
+model WorkflowDefinitionHistory {
+  id           String                   @id @default(uuid())
+  definitionId String                   @map("definition_id")
+  version      Int
+  status       WorkflowDefinitionStatus
+  snapshot     Json                     @default("{}")
+  changeReason String?                  @map("change_reason")
+  changedBy    String?                  @map("changed_by")
+  createdAt    DateTime                 @default(now()) @map("created_at")
+
+  definition WorkflowDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+
+  @@index([definitionId])
+  @@map("workflow_definition_history")
+}
+
+model WorkflowExecution {
+  id             String  @id @default(uuid())
+  workspaceId    String  @map("workspace_id")
+  organizationId String? @map("organization_id")
+  businessId     String? @map("business_id")
+
+  definitionId      String @map("definition_id")
+  definitionVersion Int    @map("definition_version")
+
+  status         WorkflowExecutionStatus @default(PENDING)
+  triggerType    WorkflowTriggerType     @default(MANUAL) @map("trigger_type")
+  triggeredBy    String?                 @map("triggered_by")
+  idempotencyKey String?                 @map("idempotency_key")
+
+  input  Json?
+  output Json?
+
+  variables Json @default("{}")
+  context   Json @default("{}")
+
+  currentStageIndex Int?    @map("current_stage_index")
+  currentStepId     String? @map("current_step_id")
+
+  startTime     DateTime  @default(now()) @map("start_time")
+  endTime       DateTime? @map("end_time")
+  attemptNumber Int       @default(1) @map("attempt_number")
+
+  errorCode            String?  @map("error_code")
+  errorMessage         String?  @map("error_message")
+  compensationExecuted Boolean  @default(false) @map("compensation_executed")
+
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  definition     WorkflowDefinition      @relation(fields: [definitionId], references: [id])
+  stepExecutions WorkflowStepExecution[]
+  checkpoints    WorkflowCheckpoint[]
+
+  @@unique([workspaceId, definitionId, idempotencyKey])
+  @@index([workspaceId, definitionId])
+  @@index([status])
+  @@map("workflow_executions")
+}
+
+model WorkflowStepExecution {
+  id          String @id @default(uuid())
+  executionId String @map("execution_id")
+  workspaceId String @map("workspace_id")
+
+  stageId   String @map("stage_id")
+  stepId    String @map("step_id")
+  stepIndex Int    @map("step_index")
+  stepType  String @map("step_type")
+
+  status WorkflowStepStatus @default(PENDING)
+
+  input  Json?
+  output Json?
+
+  startTime     DateTime  @default(now()) @map("start_time")
+  endTime       DateTime? @map("end_time")
+  attemptNumber Int       @default(1) @map("attempt_number")
+
+  dueAt       DateTime? @map("due_at")
+  escalatedAt DateTime? @map("escalated_at")
+  assignedTo  String?   @map("assigned_to")
+  externalRef String?   @map("external_ref") // id of the downstream Task/ApprovalRequest/AiWorkflowExecution this step is waiting on
+
+  errorCode    String? @map("error_code")
+  errorMessage String? @map("error_message")
+
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  execution WorkflowExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@index([executionId])
+  @@index([workspaceId, status])
+  @@index([externalRef])
+  @@map("workflow_step_executions")
+}
+
+/// Recovery point captured after each successfully completed step — enables rollback/compensation to replay execution state.
+model WorkflowCheckpoint {
+  id          String @id @default(uuid())
+  executionId String @map("execution_id")
+  workspaceId String @map("workspace_id")
+  stepId      String @map("step_id")
+  sequence    Int
+
+  variables Json @default("{}")
+  context   Json @default("{}")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  execution WorkflowExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@index([executionId])
+  @@map("workflow_checkpoints")
+}
+
+// =============================================================
+// DISASTER RECOVERY
+//
+// Policy/plan/execution layer over the existing Enterprise Workflow
+// Engine (a recovery plan's runbook IS a `WorkflowDefinition`, executed
+// via `EnterpriseWorkflowEngineService` — never a second execution
+// engine), Enterprise Approval Engine (a plan requiring approval simply
+// starts with an APPROVAL step, reusing the engine's built-in
+// `ApprovalStepExecutor`), and a new generic `BackupProviderRegistry`
+// foundation (no concrete backup provider ships here — "Do not hardcode
+// infrastructure/provider-specific recovery logic"). This module only
+// owns: DR policy/RPO-RTO definitions, recovery-plan metadata, execution
+// tracking, discovered-backup catalog, checkpoints, and a concurrency
+// lock — nothing here re-implements workflow execution, approvals or
+// health checks.
+// =============================================================
+
+enum DrEnvironment {
+  PRODUCTION
+  STAGING
+  DEVELOPMENT
+}
+
+enum DrPolicyStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum DrRecoveryScope {
+  PARTIAL
+  TENANT
+  FULL_PLATFORM
+}
+
+enum DrPlanStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum DrExecutionStatus {
+  PENDING
+  AWAITING_APPROVAL
+  VALIDATING
+  RUNNING
+  PAUSED
+  ROLLING_BACK
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum DrExecutionTrigger {
+  MANUAL
+  DETECTED_DISASTER
+  SCHEDULED_DRILL
+}
+
+enum DrCheckpointStatus {
+  PENDING
+  IN_PROGRESS
+  VALIDATED
+  FAILED
+  ROLLED_BACK
+  SIMULATED
+}
+
+enum DrBackupIntegrityStatus {
+  UNVALIDATED
+  VALID
+  CORRUPT
+}
+
+enum DrBackupFreshnessStatus {
+  FRESH
+  STALE
+  EXPIRED
+}
+
+/// RPO/RTO targets and recovery priority for one critical service within one environment/org/workspace scope.
+/// `criticalService` and `coverageTargets` are plain strings/config — never hardcoded infra types.
+model DrPolicy {
+  id             String  @id @default(uuid())
+  workspaceId    String? @map("workspace_id") // null = organization/platform-wide policy
+  organizationId String? @map("organization_id")
+
+  environment     DrEnvironment
+  criticalService String        @map("critical_service")
+
+  rpoMinutes       Int @map("rpo_minutes")
+  rtoMinutes       Int @map("rto_minutes")
+  recoveryPriority Int @default(100) @map("recovery_priority") // lower = recovered first
+
+  /// Which backup target types this policy covers — DATABASE/CACHE/QUEUE/FILES/CONFIGURATION/SECRETS_REFERENCE/SEARCH_INDEX/METADATA, plain strings interpreted only by registered `IBackupProviderAdapter`s.
+  coverageTargets String[] @default([]) @map("coverage_targets")
+  /// Other `criticalService` keys this one depends on — recovery orchestration sequences accordingly.
+  dependencyOrder String[] @default([]) @map("dependency_order")
+
+  regionFailoverConfig Json? @map("region_failover_config")
+  autoTriggerOnDetection Boolean @default(false) @map("auto_trigger_on_detection")
+
+  version Int            @default(1)
+  status  DrPolicyStatus @default(DRAFT)
+
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  history DrPolicyHistory[]
+  plans   DrRecoveryPlan[]
+
+  @@index([workspaceId])
+  @@index([organizationId])
+  @@index([environment, criticalService])
+  @@index([status])
+  @@map("dr_policies")
+}
+
+/// Append-only version/status-change history — never mutated or deleted afterward.
+model DrPolicyHistory {
+  id           String         @id @default(uuid())
+  policyId     String         @map("policy_id")
+  version      Int
+  status       DrPolicyStatus
+  snapshot     Json           @default("{}")
+  changeReason String?        @map("change_reason")
+  changedBy    String?        @map("changed_by")
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  policy DrPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@index([policyId])
+  @@map("dr_policy_history")
+}
+
+/// A recovery runbook — `workflowDefinitionId` points at the `WorkflowDefinition` (Enterprise Workflow Engine)
+/// whose stages/steps ARE the executable runbook; this table never re-implements step execution.
+model DrRecoveryPlan {
+  id             String  @id @default(uuid())
+  workspaceId    String? @map("workspace_id")
+  organizationId String? @map("organization_id")
+  policyId       String? @map("policy_id")
+
+  key         String
+  name        String
+  description String? @db.Text
+
+  scope   DrRecoveryScope
+  targets String[]        @default([])
+
+  workflowDefinitionId String  @map("workflow_definition_id")
+  requiresApproval      Boolean @default(false) @map("requires_approval")
+  approvalDefinitionKey String? @map("approval_definition_key")
+
+  isTemplate    Boolean      @default(false) @map("is_template")
+  dryRunDefault Boolean      @default(true) @map("dry_run_default")
+
+  version Int          @default(1)
+  status  DrPlanStatus @default(DRAFT)
+
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  policy     DrPolicy?          @relation(fields: [policyId], references: [id])
+  history    DrRecoveryPlanHistory[]
+  executions DrRecoveryExecution[]
+
+  @@unique([workspaceId, key])
+  @@index([workspaceId])
+  @@index([policyId])
+  @@index([status])
+  @@map("dr_recovery_plans")
+}
+
+model DrRecoveryPlanHistory {
+  id           String       @id @default(uuid())
+  planId       String       @map("plan_id")
+  version      Int
+  status       DrPlanStatus
+  snapshot     Json         @default("{}")
+  changeReason String?      @map("change_reason")
+  changedBy    String?      @map("changed_by")
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  plan DrRecoveryPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+  @@map("dr_recovery_plan_history")
+}
+
+model DrRecoveryExecution {
+  id             String  @id @default(uuid())
+  workspaceId    String? @map("workspace_id") // null only for FULL_PLATFORM scope
+  organizationId String? @map("organization_id")
+
+  planId   String          @map("plan_id")
+  policyId String?         @map("policy_id")
+  scope    DrRecoveryScope
+
+  status     DrExecutionStatus  @default(PENDING)
+  isDryRun   Boolean            @default(false) @map("is_dry_run")
+  triggerType DrExecutionTrigger @default(MANUAL) @map("trigger_type")
+  triggeredBy String?            @map("triggered_by")
+
+  /// Strict tenant-isolation boundary for PARTIAL/TENANT scope — every workspace this execution is permitted to touch.
+  targetWorkspaceIds String[] @default([]) @map("target_workspace_ids")
+
+  approvalRequestId  String? @map("approval_request_id")
+  workflowExecutionId String? @map("workflow_execution_id")
+
+  idempotencyKey String? @map("idempotency_key")
+
+  currentCheckpointSequence Int @default(0) @map("current_checkpoint_sequence")
+
+  rpoActualMinutes Int? @map("rpo_actual_minutes")
+  rtoActualMinutes Int? @map("rto_actual_minutes")
+
+  errorCode    String? @map("error_code")
+  errorMessage String? @db.Text @map("error_message")
+
+  rollbackOfExecutionId String? @map("rollback_of_execution_id")
+
+  metadata  Json      @default("{}")
+  startedAt DateTime  @default(now()) @map("started_at")
+  endedAt   DateTime? @map("ended_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  plan        DrRecoveryPlan        @relation(fields: [planId], references: [id])
+  checkpoints DrRecoveryCheckpoint[]
+
+  @@unique([planId, idempotencyKey])
+  @@index([workspaceId])
+  @@index([planId])
+  @@index([status])
+  @@map("dr_recovery_executions")
+}
+
+/// Append-only progress markers — one per recovered target per attempt; never mutated once VALIDATED/FAILED/ROLLED_BACK.
+model DrRecoveryCheckpoint {
+  id          String @id @default(uuid())
+  executionId String @map("execution_id")
+  workspaceId String? @map("workspace_id")
+
+  sequence   Int
+  targetType String @map("target_type")
+
+  status DrCheckpointStatus @default(PENDING)
+
+  backupRecordId    String? @map("backup_record_id")
+  freshnessCheckedAt DateTime? @map("freshness_checked_at")
+  integrityCheckedAt DateTime? @map("integrity_checked_at")
+
+  notes String? @db.Text
+
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  execution DrRecoveryExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@index([executionId])
+  @@map("dr_recovery_checkpoints")
+}
+
+/// Catalog mirror of backups discovered via registered `IBackupProviderAdapter`s — never the backup payload itself, only metadata + a provider-specific external reference.
+model DrBackupRecord {
+  id          String  @id @default(uuid())
+  workspaceId String? @map("workspace_id") // null = platform-wide backup (e.g. full-platform database snapshot)
+
+  targetType  String @map("target_type")
+  providerKey String @map("provider_key")
+  externalRef String @map("external_ref")
+
+  capturedAt   DateTime @map("captured_at")
+  discoveredAt DateTime @default(now()) @map("discovered_at")
+
+  sizeBytes BigInt? @map("size_bytes")
+  checksum  String?
+
+  integrityStatus DrBackupIntegrityStatus @default(UNVALIDATED) @map("integrity_status")
+  freshnessStatus DrBackupFreshnessStatus @default(STALE) @map("freshness_status")
+  restoreEligible Boolean                 @default(false) @map("restore_eligible")
+
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([providerKey, externalRef])
+  @@index([workspaceId, targetType])
+  @@index([freshnessStatus, integrityStatus])
+  @@map("dr_backup_records")
+}
+
+/// Concurrency lock — prevents duplicate/overlapping recovery operations against the same scope (a workspace, a critical service, or the whole platform).
+model DrRecoveryLock {
+  id          String  @id @default(uuid())
+  scopeKey    String  @unique @map("scope_key")
+  executionId String  @map("execution_id")
+  acquiredAt  DateTime @default(now()) @map("acquired_at")
+  expiresAt   DateTime @map("expires_at")
+
+  @@map("dr_recovery_locks")
+}
+
+// =============================================================
+// BACKUP MANAGEMENT
+//
+// Owns backup CREATION and lifecycle (policies, jobs, retention/
+// rotation/expiration) — distinct from Disaster Recovery's
+// `DrBackupRecord`, which is a lightweight restore-eligibility cache
+// populated by discovery, not a creation ledger. The two interoperate
+// only through the shared `BackupProviderRegistry`/
+// `IBackupProviderAdapter` foundation: a backup created here becomes
+// discoverable by Disaster Recovery's next `discoverBackups()` call
+// automatically — no direct coupling between the two business modules.
+// Storage destinations for backup manifests/metadata reuse the existing
+// generic `STORAGE_PROVIDER` foundation (`atlas/backend/src/storage`);
+// encryption/compression are configuration passed to the adapter, never
+// implemented here.
+// =============================================================
+
+enum BackupPolicyStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum BackupScope {
+  TENANT
+  SERVICE
+  FULL_PLATFORM
+}
+
+enum BackupJobStatus {
+  PENDING
+  RUNNING
+  VALIDATING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum BackupTriggerType {
+  MANUAL
+  SCHEDULED
+  EVENT
+}
+
+enum BackupRecordStatus {
+  CREATING
+  AVAILABLE
+  VERIFYING
+  VERIFIED
+  CORRUPT
+  EXPIRED
+  DELETED
+}
+
+enum BackupIntegrityStatus {
+  UNVALIDATED
+  VALID
+  CORRUPT
+}
+
+model BackupPolicy {
+  id             String  @id @default(uuid())
+  workspaceId    String? @map("workspace_id") // null = organization/platform-wide policy
+  organizationId String? @map("organization_id")
+
+  environment String // plain string, config-driven — never hardcoded
+  service     String // the critical service/data owner this policy backs up
+  dataType    String @map("data_type") // BackupTargetType vocabulary (DATABASE/CACHE/QUEUE/FILES/CONFIGURATION/SECRETS_REFERENCE/SEARCH_INDEX/METADATA) — plain string, interpreted only by registered adapters
+
+  backupType String  @map("backup_type") // FULL | INCREMENTAL | DIFFERENTIAL | SNAPSHOT
+  scope      BackupScope @default(SERVICE)
+
+  frequencyMinutes Int?    @map("frequency_minutes") // null = manual/event-triggered only
+  cronExpression   String? @map("cron_expression") // optional finer-grained schedule, interpreted by the same external-scheduler contract used elsewhere in this codebase
+
+  retentionDays Int  @default(30) @map("retention_days")
+  maxVersions   Int? @map("max_versions")
+
+  encryptionEnabled   Boolean @default(true) @map("encryption_enabled")
+  encryptionAlgorithm String? @map("encryption_algorithm")
+  compressionEnabled  Boolean @default(true) @map("compression_enabled")
+  compressionAlgorithm String? @map("compression_algorithm")
+
+  preferredProviderKey String? @map("preferred_provider_key") // which registered IBackupProviderAdapter to prefer; null = first capable provider
+
+  version Int                @default(1)
+  status  BackupPolicyStatus @default(DRAFT)
+
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  history BackupPolicyHistory[]
+  jobs    BackupJob[]
+  records BackupRecord[]
+
+  @@index([workspaceId])
+  @@index([organizationId])
+  @@index([environment, service, dataType])
+  @@index([status])
+  @@map("backup_policies")
+}
+
+/// Append-only version/status-change history — never mutated or deleted afterward.
+model BackupPolicyHistory {
+  id           String             @id @default(uuid())
+  policyId     String             @map("policy_id")
+  version      Int
+  status       BackupPolicyStatus
+  snapshot     Json               @default("{}")
+  changeReason String?            @map("change_reason")
+  changedBy    String?            @map("changed_by")
+  createdAt    DateTime           @default(now()) @map("created_at")
+
+  policy BackupPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@index([policyId])
+  @@map("backup_policy_history")
+}
+
+model BackupJob {
+  id          String  @id @default(uuid())
+  policyId    String  @map("policy_id")
+  workspaceId String? @map("workspace_id")
+
+  triggerType BackupTriggerType @default(MANUAL) @map("trigger_type")
+  triggeredBy String?             @map("triggered_by")
+
+  scope      BackupScope
+  targetType String @map("target_type")
+  backupType String @map("backup_type")
+
+  status BackupJobStatus @default(PENDING)
+
+  idempotencyKey String? @map("idempotency_key")
+
+  retryCount Int @default(0) @map("retry_count")
+  maxRetries Int @default(3) @map("max_retries")
+
+  backupRecordId String? @map("backup_record_id")
+
+  errorCode    String? @map("error_code")
+  errorMessage String? @db.Text @map("error_message")
+
+  metadata  Json      @default("{}")
+  startedAt DateTime  @default(now()) @map("started_at")
+  endedAt   DateTime? @map("ended_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  policy BackupPolicy @relation(fields: [policyId], references: [id])
+
+  @@unique([policyId, idempotencyKey])
+  @@index([workspaceId])
+  @@index([policyId])
+  @@index([status])
+  @@map("backup_jobs")
+}
+
+/// The authoritative creation ledger for a backup this system produced — distinct from `DrBackupRecord` (Disaster Recovery's restore-eligibility cache, populated by discovery).
+model BackupRecord {
+  id          String  @id @default(uuid())
+  workspaceId String? @map("workspace_id")
+  policyId    String? @map("policy_id")
+  jobId       String? @map("job_id")
+
+  targetType String @map("target_type")
+  backupType String @map("backup_type")
+
+  providerKey String @map("provider_key")
+  externalRef String @map("external_ref")
+
+  storageProviderKey String? @map("storage_provider_key") // set when a manifest/metadata blob was also persisted via the generic STORAGE_PROVIDER foundation
+  storageReference    String? @map("storage_reference")
+
+  sizeBytes BigInt? @map("size_bytes")
+  checksum  String?
+  version   Int     @default(1)
+
+  status BackupRecordStatus @default(CREATING)
+
+  encryptionEnabled  Boolean @default(false) @map("encryption_enabled")
+  compressionEnabled Boolean @default(false) @map("compression_enabled")
+
+  integrityStatus BackupIntegrityStatus @default(UNVALIDATED) @map("integrity_status")
+  restorable      Boolean               @default(false)
+
+  capturedAt DateTime  @map("captured_at")
+  verifiedAt DateTime? @map("verified_at")
+  expiresAt  DateTime? @map("expires_at")
+
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  policy BackupPolicy? @relation(fields: [policyId], references: [id])
+
+  @@unique([providerKey, externalRef])
+  @@index([workspaceId, targetType])
+  @@index([policyId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("backup_records")
+}
+
+/// Concurrency lock — prevents duplicate/overlapping backup operations against the same policy/scope. Mirrors `DrRecoveryLock`.
+model BackupLock {
+  id         String   @id @default(uuid())
+  scopeKey   String   @unique @map("scope_key")
+  jobId      String   @map("job_id")
+  acquiredAt DateTime @default(now()) @map("acquired_at")
+  expiresAt  DateTime @map("expires_at")
+
+  @@map("backup_locks")
+}
+
+// =============================================================
+// MONITORING FRAMEWORK
+//
+// A central, normalizing aggregation layer over every existing health/
+// monitoring module (SaaS Monitoring, SaaS Health, Operations Health,
+// AI Monitoring Health, Analytics Health, Marketplace Health, Backup
+// Management, Disaster Recovery) — it never re-gathers the underlying
+// signals those modules already compute, only reads their already-
+// computed summaries through thin `IMonitoringSourceAdapter` wrappers
+// and normalizes each module's own status vocabulary into one common
+// `MonitoringHealthLevel`. What's genuinely new here — and owned only
+// here — is SLI/SLO/alert-rule configuration, cross-source incident
+// correlation, and a correlation-id event ledger for tracing requests/
+// jobs/events/failures across modules.
+// =============================================================
+
+enum MonitoringSloStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum MonitoringAlertSeverity {
+  WARNING
+  CRITICAL
+}
+
+enum MonitoringAlertRuleStatus {
+  ACTIVE
+  PAUSED
+}
+
+enum MonitoringIncidentStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum MonitoringCorrelationEventType {
+  REQUEST
+  JOB
+  EVENT
+  FAILURE
+}
+
+model MonitoringSlo {
+  id             String  @id @default(uuid())
+  workspaceId    String? @map("workspace_id") // null = organization/platform-wide SLO
+  organizationId String? @map("organization_id")
+
+  service   String // the monitored service/module name — plain string, never hardcoded
+  dimension String // AVAILABILITY | LATENCY | ERROR_RATE | THROUGHPUT | SATURATION | QUEUE_BACKLOG — plain string, interpreted only by alert evaluation
+
+  targetValue       Float
+  warningThreshold  Float @map("warning_threshold")
+  criticalThreshold Float @map("critical_threshold")
+  windowMinutes     Int   @default(60) @map("window_minutes")
+
+  version Int                 @default(1)
+  status  MonitoringSloStatus @default(DRAFT)
+
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  history    MonitoringSloHistory[]
+  alertRules MonitoringAlertRule[]
+
+  @@index([workspaceId])
+  @@index([organizationId])
+  @@index([service, dimension])
+  @@index([status])
+  @@map("monitoring_slos")
+}
+
+/// Append-only version/status-change history — never mutated or deleted afterward.
+model MonitoringSloHistory {
+  id           String              @id @default(uuid())
+  sloId        String              @map("slo_id")
+  version      Int
+  status       MonitoringSloStatus
+  snapshot     Json                @default("{}")
+  changeReason String?             @map("change_reason")
+  changedBy    String?             @map("changed_by")
+  createdAt    DateTime            @default(now()) @map("created_at")
+
+  slo MonitoringSlo @relation(fields: [sloId], references: [id], onDelete: Cascade)
+
+  @@index([sloId])
+  @@map("monitoring_slo_history")
+}
+
+/// A condition evaluated against one normalized `IMonitoringSignal` dimension — the condition shape (field/operator/value) mirrors Business Rules Engine's `IRuleCondition`, evaluated with the same generic `evaluateCondition` utility rather than a re-implemented DSL.
+model MonitoringAlertRule {
+  id          String  @id @default(uuid())
+  workspaceId String? @map("workspace_id")
+  sloId       String? @map("slo_id")
+
+  sourceKey String  @map("source_key") // which registered IMonitoringSourceAdapter this watches
+  service   String?
+  dimension String?
+
+  conditionField    String @map("condition_field")
+  conditionOperator String @map("condition_operator")
+  conditionValue    Json   @map("condition_value")
+
+  severity        MonitoringAlertSeverity
+  cooldownMinutes Int                     @default(15) @map("cooldown_minutes")
+
+  notifyTargetType String? @map("notify_target_type")
+  notifyTargetRef  String? @map("notify_target_ref")
+
+  status          MonitoringAlertRuleStatus @default(ACTIVE)
+  lastTriggeredAt DateTime?                 @map("last_triggered_at")
+
+  metadata Json @default("{}")
+
+  createdBy String?   @map("created_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  slo MonitoringSlo? @relation(fields: [sloId], references: [id])
+
+  @@index([workspaceId])
+  @@index([sourceKey])
+  @@index([status])
+  @@map("monitoring_alert_rules")
+}
+
+/// A cross-source correlated incident — may span multiple `sourceKeys` at once (cascading-failure detection), distinct from any single source module's own incident table.
+model MonitoringIncident {
+  id             String  @id @default(uuid())
+  workspaceId    String? @map("workspace_id")
+  organizationId String? @map("organization_id")
+
+  sourceKeys String[] @default([]) @map("source_keys")
+  service    String?
+  alertRuleId String? @map("alert_rule_id")
+
+  severity MonitoringAlertSeverity
+  status   MonitoringIncidentStatus @default(OPEN)
+
+  correlationId String? @map("correlation_id")
+
+  title       String
+  description String? @db.Text
+
+  openedAt       DateTime  @default(now()) @map("opened_at")
+  acknowledgedAt DateTime? @map("acknowledged_at")
+  acknowledgedBy String?   @map("acknowledged_by")
+  resolvedAt     DateTime? @map("resolved_at")
+  resolvedBy     String?   @map("resolved_by")
+  resolution     String?   @db.Text
+  durationMs     Int?      @map("duration_ms")
+
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  history MonitoringIncidentHistory[]
+
+  @@index([workspaceId])
+  @@index([status])
+  @@index([correlationId])
+  @@map("monitoring_incidents")
+}
+
+/// Append-only lifecycle history (opened/acknowledged/escalated/resolved) — the immutable incident audit trail.
+model MonitoringIncidentHistory {
+  id           String                   @id @default(uuid())
+  incidentId   String                   @map("incident_id")
+  status       MonitoringIncidentStatus
+  snapshot     Json                     @default("{}")
+  changeReason String?                  @map("change_reason")
+  changedBy    String?                  @map("changed_by")
+  createdAt    DateTime                 @default(now()) @map("created_at")
+
+  incident MonitoringIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId])
+  @@map("monitoring_incident_history")
+}
+
+/// A lightweight trace-linking ledger — correlates requests/jobs/events/failures across modules by a shared correlation id, without duplicating any module's own domain data.
+model MonitoringCorrelationEvent {
+  id            String  @id @default(uuid())
+  correlationId String  @map("correlation_id")
+  workspaceId   String? @map("workspace_id")
+
+  module    String
+  eventType MonitoringCorrelationEventType @map("event_type")
+  refId     String?                        @map("ref_id")
+
+  occurredAt DateTime @default(now()) @map("occurred_at")
+  metadata   Json     @default("{}")
+
+  @@index([correlationId])
+  @@index([workspaceId, module])
+  @@map("monitoring_correlation_events")
+}
+
+// =============================================================
+// ENTERPRISE HEALTH
+//
+// The organization-admin, cross-business/cross-workspace/cross-region/
+// cross-provider health surface — built entirely on top of Monitoring
+// Framework's already-collected `IMonitoringSignal`s (never re-gathered
+// here) plus Enterprise Audit's security-incident visibility and
+// Disaster Recovery/Backup Management's readiness signals (already
+// surfaced as monitoring sources). Two concerns are genuinely new and
+// owned only here: a computed composite enterprise health score
+// (availability/latency/failures/backlog/dependency/security/recovery
+// dimensions) tracked over time as `EnterpriseHealthSnapshot` rows, and
+// `EnterpriseHealthIncident` — a correlated incident spanning an
+// organization/business/region/provider rather than a single workspace
+// (distinct from, not a duplicate of, `MonitoringIncident`, which stays
+// the per-workspace cross-source incident ledger). `MonitoringHealthLevel`
+// mirrors the same-named TypeScript vocabulary in Monitoring Framework's
+// `interfaces/index.ts` (extended there with MAINTENANCE) — this is its
+// only persisted form, since `IMonitoringSignal` itself is never stored.
+// =============================================================
+
+enum MonitoringHealthLevel {
+  HEALTHY
+  DEGRADED
+  UNHEALTHY
+  OFFLINE
+  MAINTENANCE
+  UNKNOWN
+}
+
+enum EnterpriseHealthScope {
+  PLATFORM
+  ORGANIZATION
+  BUSINESS
+  WORKSPACE
+  REGION
+  PROVIDER
+}
+
+enum EnterpriseHealthIncidentStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+/// Append-only composite health score history for one organization/scope — never mutated after insert, so degradation/recovery/maintenance transitions can be reconstructed by reading consecutive rows.
+model EnterpriseHealthSnapshot {
+  id             String                @id @default(uuid())
+  organizationId String?                @map("organization_id")
+
+  scope    EnterpriseHealthScope
+  scopeRef String?               @map("scope_ref") // businessId | region | providerKey | workspaceId, per `scope` — null for PLATFORM/ORGANIZATION
+
+  level         MonitoringHealthLevel
+  previousLevel MonitoringHealthLevel? @map("previous_level")
+  score         Float // 0-100 composite score
+
+  availabilityScore Float? @map("availability_score")
+  latencyScore      Float? @map("latency_score")
+  failureScore      Float? @map("failure_score")
+  backlogScore      Float? @map("backlog_score")
+  dependencyScore   Float? @map("dependency_score")
+  securityScore     Float? @map("security_score")
+  recoveryScore     Float? @map("recovery_score")
+
+  /// Which aggregated source keys / regions / providers were unhealthy at this instant — satisfies "dependency history" without a separate table.
+  unhealthySourceKeys String[] @default([]) @map("unhealthy_source_keys")
+
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId])
+  @@index([scope, scopeRef])
+  @@index([level])
+  @@index([createdAt])
+  @@map("enterprise_health_snapshots")
+}
+
+/// A correlated incident spanning an organization/business/region/provider scope — cascading failures, regional impact, provider outages and critical dependency failures detected across Monitoring Framework's already-aggregated sources.
+model EnterpriseHealthIncident {
+  id             String @id @default(uuid())
+  organizationId String @map("organization_id")
+
+  scope    EnterpriseHealthScope
+  scopeRef String?               @map("scope_ref")
+
+  severity MonitoringAlertSeverity
+  status   EnterpriseHealthIncidentStatus @default(OPEN)
+
+  title       String
+  description String? @db.Text
+
+  affectedSourceKeys   String[] @default([]) @map("affected_source_keys")
+  affectedRegions      String[] @default([]) @map("affected_regions")
+  affectedProviders    String[] @default([]) @map("affected_providers")
+  affectedWorkspaceIds String[] @default([]) @map("affected_workspace_ids")
+
+  /// Set only when this incident's severity crossed the caller-configured threshold and an Enterprise Workflow execution was started for it — never a hardcoded workflow reference (see `EnterpriseHealthService.runDetectionSweep`).
+  triggeredWorkflowExecutionId String? @map("triggered_workflow_execution_id")
+
+  openedAt       DateTime  @default(now()) @map("opened_at")
+  acknowledgedAt DateTime? @map("acknowledged_at")
+  acknowledgedBy String?   @map("acknowledged_by")
+  resolvedAt     DateTime? @map("resolved_at")
+  resolvedBy     String?   @map("resolved_by")
+  resolution     String?   @db.Text
+
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([scope, scopeRef])
+  @@index([status])
+  @@index([severity])
+  @@index([openedAt])
+  @@map("enterprise_health_incidents")
 }
 
 // =============================================================
@@ -16478,6 +19227,8 @@ enum SaasIncidentType {
   DESTRUCTIVE_ACTION
   REPEATED_FAILURE
   SUSPICIOUS_CROSS_TENANT_ACCESS
+  /** Raised by Enterprise Audit's policy-violation sweep for entries the source module itself flagged via `metadata.policyViolation` or logged under `AuditActionCategory.OVERRIDE` — reuses this same incident workflow rather than a parallel one. */
+  POLICY_VIOLATION
 }
 
 enum SaasIncidentStatus {

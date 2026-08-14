@@ -8,9 +8,11 @@ import {
   IApprovalStepInstance,
   IApprovalAssignment,
   IApprovalDecision,
+  IApprovalSubstitute,
   ApprovalRequestStatus,
   ApprovalStepStatus,
   ApprovalAssignmentStatus,
+  ApproverType,
 } from './interfaces';
 import { WorkflowDefinitionFilterDto, RequestFilterDto } from './dto';
 import { APPROVAL_SLA_SCAN_LIMIT } from './constants';
@@ -38,6 +40,12 @@ export class ApprovalWorkflowRepository extends BaseRepository {
   async findDefinitionByKey(workspaceId: string, key: string): Promise<IApprovalWorkflowDefinition | null> {
     return this.prisma.approvalWorkflowDefinition.findFirst({
       where: { workspaceId, key, deletedAt: null },
+    }) as Promise<IApprovalWorkflowDefinition | null>;
+  }
+
+  async findTemplateByKey(workspaceId: string, templateKey: string): Promise<IApprovalWorkflowDefinition | null> {
+    return this.prisma.approvalWorkflowDefinition.findFirst({
+      where: { workspaceId, key: templateKey, isTemplate: true, deletedAt: null },
     }) as Promise<IApprovalWorkflowDefinition | null>;
   }
 
@@ -277,5 +285,58 @@ export class ApprovalWorkflowRepository extends BaseRepository {
       where: { requestId },
       orderBy: { createdAt: 'asc' },
     }) as Promise<IApprovalDecision[]>;
+  }
+
+  async findDecisionByIdempotencyKey(
+    stepInstanceId: string | null,
+    decidedBy: string,
+    idempotencyKey: string,
+  ): Promise<IApprovalDecision | null> {
+    return this.prisma.approvalDecision.findFirst({
+      where: { stepInstanceId, decidedBy, idempotencyKey },
+    }) as Promise<IApprovalDecision | null>;
+  }
+
+  // ── Substitute approvers ─────────────────────────────────────────
+
+  async createSubstitute(data: Partial<IApprovalSubstitute>): Promise<IApprovalSubstitute> {
+    return this.prisma.approvalSubstitute.create({ data: data as any }) as Promise<IApprovalSubstitute>;
+  }
+
+  async findSubstituteById(id: string): Promise<IApprovalSubstitute | null> {
+    return this.prisma.approvalSubstitute.findFirst({ where: { id } }) as Promise<IApprovalSubstitute | null>;
+  }
+
+  async listSubstitutes(workspaceId: string): Promise<IApprovalSubstitute[]> {
+    return this.prisma.approvalSubstitute.findMany({
+      where: { workspaceId },
+      orderBy: { createdAt: 'desc' },
+    }) as Promise<IApprovalSubstitute[]>;
+  }
+
+  /** The currently-effective substitute for a primary approver reference, if any. */
+  async findActiveSubstitute(
+    workspaceId: string,
+    approverType: ApproverType,
+    approverRef: string,
+    at: Date,
+  ): Promise<IApprovalSubstitute | null> {
+    return this.prisma.approvalSubstitute.findFirst({
+      where: {
+        workspaceId,
+        approverType,
+        approverRef,
+        isActive: true,
+        OR: [{ effectiveFrom: null }, { effectiveFrom: { lte: at } }],
+        AND: [{ OR: [{ effectiveTo: null }, { effectiveTo: { gte: at } }] }],
+      },
+    }) as Promise<IApprovalSubstitute | null>;
+  }
+
+  async deactivateSubstitute(id: string): Promise<IApprovalSubstitute> {
+    return this.prisma.approvalSubstitute.update({
+      where: { id },
+      data: { isActive: false },
+    }) as Promise<IApprovalSubstitute>;
   }
 }

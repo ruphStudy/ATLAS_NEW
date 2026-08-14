@@ -138,6 +138,16 @@ chore: upgrade prisma to 5.18
 
 ---
 
+## Security
+
+- [`SECURITY.md`](./SECURITY.md) – minimum production HTTPS/TLS and network
+  security requirements.
+- [`INCIDENT_RESPONSE.md`](./INCIDENT_RESPONSE.md) – security incident
+  response plan (roles, detect/contain/investigate/remediate/recover, Amazon
+  SP-API notification, review cadence).
+
+---
+
 ## License
 
 UNLICENSED – Proprietary

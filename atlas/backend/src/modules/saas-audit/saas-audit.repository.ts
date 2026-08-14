@@ -26,6 +26,7 @@ export class SaasAuditRepository extends BaseRepository {
     if (filter.status) where.status = filter.status;
     if (filter.severity) where.severity = filter.severity;
     if (filter.workspaceId) where.workspaceId = filter.workspaceId;
+    if (filter.organizationId) where.organizationId = filter.organizationId;
     if (filter.actorId) where.actorId = filter.actorId;
 
     const page = filter.page ?? 1;

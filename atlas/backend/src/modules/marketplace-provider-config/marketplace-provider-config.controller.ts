@@ -9,7 +9,11 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard, RolesGuard } from '@common/guards';
+import { Roles } from '@common/decorators';
 import { MarketplaceProviderConfigService } from './marketplace-provider-config.service';
 import {
   CloneMarketplaceProviderConfigDto,
@@ -21,6 +25,12 @@ import {
   UpdateMarketplaceProviderConfigDto,
 } from './dto';
 
+const WRITE_ROLES = ['ADMIN', 'OPERATOR'];
+const READ_ROLES = ['ADMIN', 'OPERATOR', 'VIEWER'];
+
+@ApiTags('Marketplace Provider Config')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('marketplace-provider-configs')
 export class MarketplaceProviderConfigController {
   constructor(private readonly service: MarketplaceProviderConfigService) {}
@@ -28,6 +38,7 @@ export class MarketplaceProviderConfigController {
   // ── CRUD ──────────────────────────────────────────────────
 
   @Post()
+  @Roles(...WRITE_ROLES)
   create(
     @Query('workspaceId') workspaceId: string,
     @Body() dto: CreateMarketplaceProviderConfigDto,
@@ -37,6 +48,7 @@ export class MarketplaceProviderConfigController {
   }
 
   @Get()
+  @Roles(...READ_ROLES)
   findAll(
     @Query('workspaceId') workspaceId: string,
     @Query() filter: ConfigFilterDto,
@@ -45,6 +57,7 @@ export class MarketplaceProviderConfigController {
   }
 
   @Get(':id')
+  @Roles(...READ_ROLES)
   findById(
     @Param('id') id: string,
     @Query('workspaceId') workspaceId: string,
@@ -53,6 +66,7 @@ export class MarketplaceProviderConfigController {
   }
 
   @Put(':id')
+  @Roles(...WRITE_ROLES)
   update(
     @Param('id') id: string,
     @Query('workspaceId') workspaceId: string,
@@ -63,6 +77,7 @@ export class MarketplaceProviderConfigController {
   }
 
   @Delete(':id')
+  @Roles('ADMIN')
   @HttpCode(HttpStatus.NO_CONTENT)
   delete(
     @Param('id') id: string,
@@ -74,6 +89,7 @@ export class MarketplaceProviderConfigController {
   // ── Status Transitions ────────────────────────────────────
 
   @Post(':id/publish')
+  @Roles(...WRITE_ROLES)
   publish(
     @Param('id') id: string,
     @Query('workspaceId') workspaceId: string,
@@ -84,6 +100,7 @@ export class MarketplaceProviderConfigController {
   }
 
   @Post(':id/enable')
+  @Roles(...WRITE_ROLES)
   @HttpCode(HttpStatus.NO_CONTENT)
   enable(
     @Param('id') id: string,
@@ -94,6 +111,7 @@ export class MarketplaceProviderConfigController {
   }
 
   @Post(':id/disable')
+  @Roles(...WRITE_ROLES)
   @HttpCode(HttpStatus.NO_CONTENT)
   disable(
     @Param('id') id: string,
@@ -104,6 +122,7 @@ export class MarketplaceProviderConfigController {
   }
 
   @Post(':id/archive')
+  @Roles('ADMIN')
   @HttpCode(HttpStatus.NO_CONTENT)
   archive(
     @Param('id') id: string,
@@ -116,6 +135,7 @@ export class MarketplaceProviderConfigController {
   // ── Versioning ────────────────────────────────────────────
 
   @Post(':id/rollback')
+  @Roles('ADMIN')
   rollback(
     @Param('id') id: string,
     @Query('workspaceId') workspaceId: string,
@@ -126,6 +146,7 @@ export class MarketplaceProviderConfigController {
   }
 
   @Get(':id/history')
+  @Roles(...READ_ROLES)
   getHistory(
     @Param('id') id: string,
     @Query('workspaceId') workspaceId: string,
@@ -136,6 +157,7 @@ export class MarketplaceProviderConfigController {
   // ── Clone / Duplicate ─────────────────────────────────────
 
   @Post(':id/clone')
+  @Roles(...WRITE_ROLES)
   clone(
     @Param('id') id: string,
     @Query('workspaceId') workspaceId: string,
@@ -148,6 +170,7 @@ export class MarketplaceProviderConfigController {
   // ── Import / Export ───────────────────────────────────────
 
   @Post('import')
+  @Roles(...WRITE_ROLES)
   import(
     @Query('workspaceId') workspaceId: string,
     @Body() dto: ConfigImportDto,
@@ -157,6 +180,7 @@ export class MarketplaceProviderConfigController {
   }
 
   @Get(':id/export')
+  @Roles(...READ_ROLES)
   async export(
     @Param('id') id: string,
     @Query('workspaceId') workspaceId: string,
@@ -168,6 +192,7 @@ export class MarketplaceProviderConfigController {
   // ── Cache ─────────────────────────────────────────────────
 
   @Post('cache/invalidate')
+  @Roles(...WRITE_ROLES)
   @HttpCode(HttpStatus.NO_CONTENT)
   invalidateCache(
     @Query('providerKey') providerKey?: string,

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Delete, Get, Post, Patch, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { WorkspaceId, UserId, UserRole } from '@common/decorators';
 import { ApprovalWorkflowService } from './approval-workflow.service';
 import {
@@ -9,6 +9,9 @@ import {
   DecideApprovalDto,
   DelegateApprovalDto,
   ReassignApprovalDto,
+  OverrideApprovalDto,
+  CreateApprovalSubstituteDto,
+  CreateFromTemplateDto,
   ApprovalActionReasonDto,
   RequestFilterDto,
   WorkflowDefinitionResponseDto,
@@ -19,6 +22,7 @@ import {
   ApprovalStepInstanceResponseDto,
   ApprovalAssignmentResponseDto,
   ApprovalDecisionResponseDto,
+  ApprovalSubstituteResponseDto,
 } from './dto';
 
 @Controller({ path: 'approval-workflow', version: '1' })
@@ -37,6 +41,22 @@ export class ApprovalWorkflowController {
     return (await this.approvalWorkflowService.createDefinition(
       workspaceId,
       userId,
+      dto,
+    )) as unknown as WorkflowDefinitionResponseDto;
+  }
+
+  @Post('definitions/from-template/:templateKey')
+  @HttpCode(HttpStatus.CREATED)
+  async createFromTemplate(
+    @Param('templateKey') templateKey: string,
+    @WorkspaceId() workspaceId: string,
+    @UserId() userId: string,
+    @Body() dto: CreateFromTemplateDto,
+  ): Promise<WorkflowDefinitionResponseDto> {
+    return (await this.approvalWorkflowService.createFromTemplate(
+      workspaceId,
+      userId,
+      templateKey,
       dto,
     )) as unknown as WorkflowDefinitionResponseDto;
   }
@@ -316,5 +336,52 @@ export class ApprovalWorkflowController {
       userId,
       dto,
     )) as unknown as ApprovalRequestResponseDto;
+  }
+
+  @Post('requests/:id/override')
+  async override(
+    @Param('id') id: string,
+    @WorkspaceId() workspaceId: string,
+    @UserId() userId: string,
+    @UserRole() userRole: string,
+    @Body() dto: OverrideApprovalDto,
+  ): Promise<ApprovalRequestResponseDto> {
+    return (await this.approvalWorkflowService.override(
+      id,
+      workspaceId,
+      userId,
+      userRole,
+      dto,
+    )) as unknown as ApprovalRequestResponseDto;
+  }
+
+  // ── Substitute approvers ─────────────────────────────────────────
+
+  @Post('substitutes')
+  @HttpCode(HttpStatus.CREATED)
+  async createSubstitute(
+    @WorkspaceId() workspaceId: string,
+    @UserId() userId: string,
+    @Body() dto: CreateApprovalSubstituteDto,
+  ): Promise<ApprovalSubstituteResponseDto> {
+    return (await this.approvalWorkflowService.createSubstitute(
+      workspaceId,
+      userId,
+      dto,
+    )) as unknown as ApprovalSubstituteResponseDto;
+  }
+
+  @Get('substitutes')
+  async listSubstitutes(@WorkspaceId() workspaceId: string): Promise<ApprovalSubstituteResponseDto[]> {
+    return (await this.approvalWorkflowService.listSubstitutes(workspaceId)) as unknown as ApprovalSubstituteResponseDto[];
+  }
+
+  @Delete('substitutes/:id')
+  async removeSubstitute(
+    @Param('id') id: string,
+    @WorkspaceId() workspaceId: string,
+    @UserId() userId: string,
+  ): Promise<void> {
+    return this.approvalWorkflowService.removeSubstitute(id, workspaceId, userId);
   }
 }

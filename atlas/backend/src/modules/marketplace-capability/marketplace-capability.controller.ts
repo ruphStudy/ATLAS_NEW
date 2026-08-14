@@ -12,6 +12,7 @@ import {
 import { MarketplaceCapabilityService } from './marketplace-capability.service';
 import {
   CapabilityFilterDto,
+  CapabilityMatrixQueryDto,
   CreateCapabilityDto,
   CreateCapabilityOverrideDto,
   DeclareProviderCapabilityDto,
@@ -22,6 +23,7 @@ import {
   CapabilityResolutionRequest,
   CapabilityValidationRequest,
   CompatibilityCheckRequest,
+  MarketplaceCapabilityMatrixRequest,
 } from './interfaces';
 import { MarketplaceCapabilityManager } from './manager/marketplace-capability.manager';
 
@@ -158,6 +160,13 @@ export class MarketplaceCapabilityController {
   @Get('discover/provider/:providerKey')
   discoverForProvider(@Param('providerKey') providerKey: string, @Query('workspaceId') workspaceId?: string) {
     return this.manager.discoverForProvider(providerKey, workspaceId);
+  }
+
+  // ── Matrix ────────────────────────────────────────────────
+
+  @Get('matrix')
+  getMatrix(@Query() query: CapabilityMatrixQueryDto) {
+    return this.manager.getMatrix(query as unknown as MarketplaceCapabilityMatrixRequest);
   }
 
   // ── Cache ─────────────────────────────────────────────────

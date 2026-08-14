@@ -4,6 +4,8 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { AuditLogsService } from '@modules/audit-logs/audit-logs.service';
+import { ActivityActorType, ActivityOutcome, AuditActionCategory } from '@modules/audit-logs/interfaces';
 import {
   MarketplaceAccountStatus,
   MarketplaceCapability,
@@ -33,6 +35,8 @@ import {
   UpsertMarketplaceProviderConfigDto,
 } from './dto';
 
+const MARKETPLACE_PROVIDER_MODULE = 'marketplace-provider';
+
 @Injectable()
 export class MarketplaceProviderService {
   private readonly logger = new Logger(MarketplaceProviderService.name);
@@ -47,6 +51,7 @@ export class MarketplaceProviderService {
     private readonly metricsRecorder: MarketplaceMetricsRecorder,
     private readonly repository: MarketplaceProviderRepository,
     private readonly eventQueue: MarketplaceProviderEventQueue,
+    private readonly auditLogsService: AuditLogsService,
   ) {}
 
   // ── Provider Metadata ─────────────────────────────────────────
@@ -100,6 +105,12 @@ export class MarketplaceProviderService {
       createdBy: userId,
     });
 
+    await this.recordAudit(workspaceId, 'marketplace_provider.config_upserted', dto.providerKey, userId, {
+      accountId: dto.accountId,
+      isEnabled: dto.isEnabled,
+      priority: dto.priority,
+    });
+
     return MarketplaceProviderConfigResponseDto.from(raw as Record<string, unknown>);
   }
 
@@ -116,14 +127,24 @@ export class MarketplaceProviderService {
 
   async enableProvider(providerKey: string, workspaceId: string, userId?: string): Promise<void> {
     await this.manager.enableProvider(providerKey, workspaceId);
+    await this.recordAudit(workspaceId, 'marketplace_provider.enabled', providerKey, userId);
   }
 
   async disableProvider(providerKey: string, workspaceId: string, userId?: string): Promise<void> {
     await this.manager.disableProvider(providerKey, workspaceId);
+    await this.recordAudit(workspaceId, 'marketplace_provider.disabled', providerKey, userId);
   }
 
-  async deleteConfig(id: string, workspaceId: string): Promise<void> {
+  async deleteConfig(id: string, workspaceId: string, userId?: string): Promise<void> {
+    const existing = await this.repository.findConfigById(id, workspaceId);
     await this.repository.softDeleteConfig(id, workspaceId);
+    await this.recordAudit(
+      workspaceId,
+      'marketplace_provider.config_deleted',
+      (existing?.['providerKey'] as string) ?? 'UNKNOWN',
+      userId,
+      { configId: id },
+    );
   }
 
   // ── Credentials ───────────────────────────────────────────────
@@ -158,6 +179,11 @@ export class MarketplaceProviderService {
     });
 
     this.logger.log(`Credentials stored for provider '${dto.providerKey}' workspace '${workspaceId}'`);
+
+    await this.recordAudit(workspaceId, 'marketplace_provider.credentials_authorized', dto.providerKey, userId, {
+      accountId: dto.accountId,
+      credentialType: dto.credentialType,
+    });
   }
 
   async validateCredentials(
@@ -330,5 +356,38 @@ export class MarketplaceProviderService {
   getMetrics(providerKey?: string) {
     if (providerKey) return this.metricsRecorder.get(providerKey);
     return this.metricsRecorder.getAll();
+  }
+
+  // ── Audit ────────────────────────────────────────────────────
+
+  /**
+   * Writes a lightweight entry to the central, cross-cutting audit ledger
+   * for Amazon (and other marketplace) provider registration/config/
+   * credential lifecycle actions. Never includes encrypted/plain-text
+   * credential values.
+   */
+  private async recordAudit(
+    workspaceId: string,
+    action: string,
+    providerKey: string,
+    performedBy?: string,
+    metadata?: Record<string, unknown>,
+  ): Promise<void> {
+    try {
+      await this.auditLogsService.record({
+        workspaceId,
+        actorType: ActivityActorType.USER,
+        actorId: performedBy,
+        action,
+        actionCategory: AuditActionCategory.CONFIGURATION,
+        module: MARKETPLACE_PROVIDER_MODULE,
+        entityType: 'MarketplaceProvider',
+        entityId: providerKey,
+        outcome: ActivityOutcome.SUCCESS,
+        metadata,
+      });
+    } catch (err) {
+      this.logger.warn(`Failed to record central audit entry for '${action}': ${(err as Error).message}`);
+    }
   }
 }

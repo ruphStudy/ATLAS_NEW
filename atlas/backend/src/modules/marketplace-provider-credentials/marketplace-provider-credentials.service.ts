@@ -4,6 +4,8 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { AuditLogsService } from '@modules/audit-logs/audit-logs.service';
+import { ActivityActorType, ActivityOutcome, AuditActionCategory } from '@modules/audit-logs/interfaces';
 import { MarketplaceProviderCredentialsRepository } from './marketplace-provider-credentials.repository';
 import { MarketplaceCredentialEncryptor } from './encryptor/marketplace-credential.encryptor';
 import { MarketplaceCredentialDecryptor } from './decryptor/marketplace-credential.decryptor';
@@ -32,6 +34,8 @@ import {
   UpdateCredentialDto,
 } from './dto';
 
+const MARKETPLACE_PROVIDER_CREDENTIALS_MODULE = 'marketplace-provider-credentials';
+
 @Injectable()
 export class MarketplaceProviderCredentialsService {
   private readonly logger = new Logger(MarketplaceProviderCredentialsService.name);
@@ -45,6 +49,7 @@ export class MarketplaceProviderCredentialsService {
     private readonly audit: MarketplaceCredentialAudit,
     private readonly rotation: MarketplaceCredentialRotation,
     private readonly eventQueue: MarketplaceCredentialEventQueue,
+    private readonly auditLogsService: AuditLogsService,
   ) {}
 
   // ── Create ────────────────────────────────────────────────
@@ -91,6 +96,7 @@ export class MarketplaceProviderCredentialsService {
 
     await this.audit.logChange(credential, 'Created', userId);
     await this.publishEvent(CredentialEvent.CREATED, credential, userId);
+    await this.recordAudit(credential, 'marketplace_provider_credentials.authorized', userId);
 
     return CredentialResponseDto.from(credential);
   }
@@ -163,6 +169,7 @@ export class MarketplaceProviderCredentialsService {
 
     const updated = await this.repository.update(id, workspaceId, { status: CredentialStatus.ACTIVE, updatedBy: userId });
     await this.publishEvent(CredentialEvent.ENABLED, updated, userId);
+    await this.recordAudit(updated, 'marketplace_provider_credentials.enabled', userId);
     this.cache.invalidateById(id);
     return CredentialResponseDto.from(updated);
   }
@@ -173,6 +180,7 @@ export class MarketplaceProviderCredentialsService {
 
     const updated = await this.repository.update(id, workspaceId, { status: CredentialStatus.DISABLED, updatedBy: userId });
     await this.publishEvent(CredentialEvent.DISABLED, updated, userId);
+    await this.recordAudit(updated, 'marketplace_provider_credentials.disabled', userId);
     this.cache.invalidateById(id);
     return CredentialResponseDto.from(updated);
   }
@@ -184,6 +192,7 @@ export class MarketplaceProviderCredentialsService {
     const updated = await this.repository.update(id, workspaceId, { status: CredentialStatus.REVOKED, updatedBy: userId });
     await this.audit.logChange(updated, 'Revoked', userId);
     await this.publishEvent(CredentialEvent.REVOKED, updated, userId);
+    await this.recordAudit(updated, 'marketplace_provider_credentials.revoked', userId);
     this.cache.invalidateById(id);
     return CredentialResponseDto.from(updated);
   }
@@ -197,10 +206,11 @@ export class MarketplaceProviderCredentialsService {
 
   // ── Deletion ──────────────────────────────────────────────
 
-  async delete(id: string, workspaceId: string): Promise<void> {
+  async delete(id: string, workspaceId: string, userId?: string): Promise<void> {
     const existing = await this.findOrFail(id, workspaceId);
     await this.repository.softDelete(id, workspaceId);
     await this.publishEvent(CredentialEvent.DELETED, existing, undefined);
+    await this.recordAudit(existing, 'marketplace_provider_credentials.deleted', userId);
     this.cache.invalidateById(id);
   }
 
@@ -223,6 +233,10 @@ export class MarketplaceProviderCredentialsService {
 
     const updated = await this.findOrFail(id, workspaceId);
     await this.publishEvent(CredentialEvent.ROTATED, updated, userId, {
+      previousVersion: result.previousVersion,
+      newVersion: result.newVersion,
+    });
+    await this.recordAudit(updated, 'marketplace_provider_credentials.rotated', userId, {
       previousVersion: result.previousVersion,
       newVersion: result.newVersion,
     });
@@ -356,6 +370,43 @@ export class MarketplaceProviderCredentialsService {
       });
     } catch (err) {
       this.logger.warn(`Failed to publish credential event '${event}'`, { error: (err as Error).message });
+    }
+  }
+
+  /**
+   * Writes a lightweight entry to the central, cross-cutting audit ledger
+   * for SP-API credential authorize/rotate/revoke lifecycle actions.
+   * Complements — does not replace — `MarketplaceCredentialAudit`'s own
+   * versioned history table. Never includes encrypted/plain-text field
+   * values.
+   */
+  private async recordAudit(
+    credential: IMarketplaceProviderCredential,
+    action: string,
+    performedBy?: string,
+    metadata?: Record<string, unknown>,
+  ): Promise<void> {
+    try {
+      await this.auditLogsService.record({
+        workspaceId: credential.workspaceId,
+        actorType: ActivityActorType.USER,
+        actorId: performedBy,
+        action,
+        actionCategory: AuditActionCategory.CONFIGURATION,
+        module: MARKETPLACE_PROVIDER_CREDENTIALS_MODULE,
+        entityType: 'MarketplaceProviderCredential',
+        entityId: credential.id,
+        outcome: ActivityOutcome.SUCCESS,
+        metadata: {
+          providerKey: credential.providerKey,
+          accountId: credential.accountId,
+          marketplaceKey: credential.marketplaceKey,
+          status: credential.status,
+          ...metadata,
+        },
+      });
+    } catch (err) {
+      this.logger.warn(`Failed to record central audit entry for '${action}': ${(err as Error).message}`);
     }
   }
 }

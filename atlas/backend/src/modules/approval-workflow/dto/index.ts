@@ -5,6 +5,8 @@ export * from './workflow-definition-filter.dto';
 export * from './start-approval-request.dto';
 export * from './decide-approval.dto';
 export * from './delegate-approval.dto';
+export * from './override-approval.dto';
+export * from './substitute.dto';
 export * from './approval-action-reason.dto';
 export * from './request-filter.dto';
 export * from './response.dto';

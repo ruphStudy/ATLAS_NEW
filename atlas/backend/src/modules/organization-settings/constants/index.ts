@@ -119,6 +119,33 @@ export const ORGANIZATION_SETTINGS_DEFINITIONS: CreateSettingDefinitionDto[] = [
     allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
     module: ORGANIZATION_SETTINGS_MODULE,
   },
+  {
+    key: 'organization.regional.number-format',
+    category: OrganizationSettingsCategory.REGIONAL,
+    label: 'Number format',
+    valueType: SettingValueType.STRING,
+    defaultValue: 'en-US',
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.regional.measurement-system',
+    category: OrganizationSettingsCategory.REGIONAL,
+    label: 'Measurement system',
+    valueType: SettingValueType.STRING,
+    defaultValue: 'METRIC',
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
+  {
+    key: 'organization.regional.enabled-languages',
+    category: OrganizationSettingsCategory.REGIONAL,
+    label: 'Enabled languages',
+    valueType: SettingValueType.JSON,
+    defaultValue: [],
+    allowedScopes: [SettingScope.ORGANIZATION, SettingScope.WORKSPACE],
+    module: ORGANIZATION_SETTINGS_MODULE,
+  },
 
   // ── Operational defaults / preferences ───────────────────────────
   {
@@ -286,6 +313,9 @@ export const ORGANIZATION_SETTINGS_FIELD_KEY_MAP: Record<OrganizationSettingsCat
     locale: 'organization.regional.locale',
     currency: 'organization.regional.currency',
     dateFormat: 'organization.regional.date-format',
+    numberFormat: 'organization.regional.number-format',
+    measurementSystem: 'organization.regional.measurement-system',
+    enabledLanguages: 'organization.regional.enabled-languages',
   },
   [OrganizationSettingsCategory.OPERATIONAL]: {
     defaultWorkspaceId: 'organization.operational.default-workspace-id',

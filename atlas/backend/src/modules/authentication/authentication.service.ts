@@ -12,10 +12,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { ConfigurationService } from '@config/configuration.service';
 import { slugify } from '@common/utils';
 import { UsersRepository } from '@modules/users/users.repository';
+import { AuditLogsService } from '@modules/audit-logs/audit-logs.service';
+import { ActivityActorType, ActivityOutcome, AuditActionCategory } from '@modules/audit-logs/interfaces';
 import { AUTH_CONSTANTS } from './constants';
 import { AuthenticationRepository } from './authentication.repository';
+import { FailedLoginTracker } from './failed-login.tracker';
 import type { RegisterDto, LoginDto, AuthResponseDto, AuthUserDto } from './dto';
 import type { IAuthTokens, IJwtPayload } from './interfaces';
+
+const AUTH_MODULE = 'authentication';
 
 @Injectable()
 export class AuthenticationService {
@@ -26,6 +31,8 @@ export class AuthenticationService {
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigurationService,
+    private readonly failedLoginTracker: FailedLoginTracker,
+    private readonly auditLogsService: AuditLogsService,
   ) {}
 
   // ── Register ─────────────────────────────────────────────────
@@ -62,6 +69,12 @@ export class AuthenticationService {
   // ── Login ────────────────────────────────────────────────────
 
   async login(dto: LoginDto): Promise<AuthResponseDto> {
+    if (this.failedLoginTracker.isLocked(dto.email)) {
+      throw new ForbiddenException(
+        'Too many failed login attempts. Please try again later.',
+      );
+    }
+
     const user = await this.usersRepository.findByEmail(dto.email);
 
     // Use constant-time comparison to prevent user enumeration timing attacks
@@ -69,16 +82,24 @@ export class AuthenticationService {
     const passwordValid = await bcrypt.compare(dto.password, passwordHash);
 
     if (!user || !passwordValid) {
+      this.failedLoginTracker.recordFailure(dto.email);
+      if (user) {
+        await this.recordLoginAudit(user, ActivityOutcome.FAILURE, 'Invalid password');
+      }
       throw new UnauthorizedException('Invalid credentials');
     }
 
     if (user.status === 'SUSPENDED') {
+      await this.recordLoginAudit(user, ActivityOutcome.FAILURE, 'Account suspended');
       throw new ForbiddenException('Your account has been suspended');
     }
 
     if (user.status === 'INACTIVE') {
+      await this.recordLoginAudit(user, ActivityOutcome.FAILURE, 'Account inactive');
       throw new ForbiddenException('Your account is inactive');
     }
+
+    this.failedLoginTracker.reset(dto.email);
 
     const tokens = await this.generateTokens(user);
 
@@ -86,6 +107,8 @@ export class AuthenticationService {
       this.storeRefreshToken(user.id, tokens.refreshToken),
       this.authRepository.updateLastLogin(user.id),
     ]);
+
+    await this.recordLoginAudit(user, ActivityOutcome.SUCCESS);
 
     this.logger.log(`User logged in: ${user.email}`);
 
@@ -153,6 +176,37 @@ export class AuthenticationService {
   private async storeRefreshToken(userId: string, refreshToken: string): Promise<void> {
     const hash = await bcrypt.hash(refreshToken, AUTH_CONSTANTS.BCRYPT_SALT_ROUNDS);
     await this.authRepository.updateRefreshToken(userId, hash);
+  }
+
+  /**
+   * Writes a lightweight entry to the central, cross-cutting audit ledger.
+   * Only called once a user record is resolved (the ledger is
+   * workspace-scoped) — unknown-email attempts are still rate-limited via
+   * `FailedLoginTracker` but aren't attributable to a workspace.
+   */
+  private async recordLoginAudit(
+    user: User,
+    outcome: ActivityOutcome,
+    reason?: string,
+  ): Promise<void> {
+    try {
+      await this.auditLogsService.record({
+        workspaceId: user.workspaceId,
+        actorType: ActivityActorType.USER,
+        actorId: user.id,
+        actorName: `${user.firstName} ${user.lastName}`.trim(),
+        actorRole: user.role,
+        action: 'auth.login',
+        actionCategory: AuditActionCategory.LOGIN,
+        module: AUTH_MODULE,
+        entityType: 'User',
+        entityId: user.id,
+        outcome,
+        reason,
+      });
+    } catch (err) {
+      this.logger.warn(`Failed to record login audit entry: ${(err as Error).message}`);
+    }
   }
 
   /**

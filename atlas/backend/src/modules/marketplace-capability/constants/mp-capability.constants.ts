@@ -9,6 +9,8 @@ export const MP_CAPABILITY_CONSTANTS = {
   CACHE_MAX_ENTRIES: 2_000,
   RESOLUTION_CACHE_MAX: 5_000,
   MAX_DEPENDENCY_DEPTH: 10,
+  MATRIX_CACHE_TTL_MS: 120_000, // 2 min — same lifetime as individual resolutions
+  MATRIX_CACHE_MAX_ENTRIES: 500,
 
   ALLOWED_TRANSITIONS: {
     [CapabilityStatus.DRAFT]: [

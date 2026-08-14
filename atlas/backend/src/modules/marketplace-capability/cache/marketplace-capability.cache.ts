@@ -3,25 +3,30 @@ import {
   CachedCapabilityDefinition,
   CachedCapabilityResolution,
   CachedProviderDeclaration,
+  CachedCapabilityMatrix,
   IMarketplaceCapabilityDefinition,
   IMarketplaceProviderCapabilityDeclaration,
   CapabilityResolutionResult,
+  MarketplaceCapabilityMatrix,
+  MarketplaceCapabilityMatrixRequest,
 } from '../interfaces';
 import { MP_CAPABILITY_CONSTANTS } from '../constants';
 
 /**
  * MarketplaceCapabilityCache
  *
- * Three partitioned in-memory caches:
+ * Four partitioned in-memory caches:
  *  1. Capability definitions (by capabilityKey)
  *  2. Provider declarations (by providerKey:capabilityKey[:workspaceId][:accountId])
  *  3. Resolution results (by composite resolution key)
+ *  4. Resolved capability matrices (by composite matrix scope key)
  */
 @Injectable()
 export class MarketplaceCapabilityCache {
   private readonly definitions = new Map<string, CachedCapabilityDefinition>();
   private readonly declarations = new Map<string, CachedProviderDeclaration>();
   private readonly resolutions = new Map<string, CachedCapabilityResolution>();
+  private readonly matrices = new Map<string, CachedCapabilityMatrix>();
 
   // ── Definition Cache ──────────────────────────────────────
 
@@ -52,6 +57,9 @@ export class MarketplaceCapabilityCache {
     for (const k of this.resolutions.keys()) {
       if (k.includes(capabilityKey.toUpperCase())) this.resolutions.delete(k);
     }
+    // a definition change can affect any resolved matrix — no cheap selective
+    // key, so flush the whole matrix partition (matrices are cheap to rebuild)
+    this.invalidateAllMatrices();
   }
 
   // ── Declaration Cache ─────────────────────────────────────
@@ -114,6 +122,7 @@ export class MarketplaceCapabilityCache {
       if (k.startsWith(prefix)) this.declarations.delete(k);
     }
     this.invalidateResolutionsByProvider(providerKey);
+    this.invalidateMatricesByProvider(providerKey);
   }
 
   invalidateDeclarationsByWorkspace(workspaceId: string): void {
@@ -121,6 +130,7 @@ export class MarketplaceCapabilityCache {
       if (v.declaration.workspaceId === workspaceId) this.declarations.delete(k);
     }
     this.invalidateResolutionsByWorkspace(workspaceId);
+    this.invalidateMatricesByWorkspace(workspaceId);
   }
 
   // ── Resolution Cache ──────────────────────────────────────
@@ -193,17 +203,69 @@ export class MarketplaceCapabilityCache {
     }
   }
 
+  // ── Matrix Cache ──────────────────────────────────────────
+
+  static buildMatrixKey(request: MarketplaceCapabilityMatrixRequest): string {
+    return [
+      'matrix',
+      request.workspaceId,
+      request.providerKey?.toUpperCase() ?? 'all',
+      request.marketplaceKey ?? 'any',
+      request.accountId ?? 'any',
+      request.country ?? 'any',
+      request.region ?? 'any',
+      request.category ?? 'any',
+    ].join(':');
+  }
+
+  setMatrix(key: string, matrix: MarketplaceCapabilityMatrix): void {
+    this.evictIfFull(this.matrices, MP_CAPABILITY_CONSTANTS.MATRIX_CACHE_MAX_ENTRIES);
+    this.matrices.set(key, { matrix, cachedAt: Date.now() });
+  }
+
+  getMatrix(key: string): MarketplaceCapabilityMatrix | null {
+    const entry = this.matrices.get(key);
+    if (!entry) return null;
+    if (Date.now() - entry.cachedAt > MP_CAPABILITY_CONSTANTS.MATRIX_CACHE_TTL_MS) {
+      this.matrices.delete(key);
+      return null;
+    }
+    return entry.matrix;
+  }
+
+  invalidateMatricesByWorkspace(workspaceId: string): void {
+    const prefix = `matrix:${workspaceId}:`;
+    for (const k of this.matrices.keys()) {
+      if (k.startsWith(prefix)) this.matrices.delete(k);
+    }
+  }
+
+  invalidateMatricesByProvider(providerKey: string): void {
+    // A provider-scoped matrix and an "all providers" matrix can both
+    // include this provider — invalidate both shapes.
+    const segment = `:${providerKey.toUpperCase()}:`;
+    for (const k of this.matrices.keys()) {
+      if (k.includes(segment) || k.includes(':all:')) this.matrices.delete(k);
+    }
+  }
+
+  invalidateAllMatrices(): void {
+    this.matrices.clear();
+  }
+
   // ── Bulk Operations ───────────────────────────────────────
 
   flush(): void {
     this.definitions.clear();
     this.declarations.clear();
     this.resolutions.clear();
+    this.matrices.clear();
   }
 
   get definitionSize(): number { return this.definitions.size; }
   get declarationSize(): number { return this.declarations.size; }
   get resolutionSize(): number { return this.resolutions.size; }
+  get matrixSize(): number { return this.matrices.size; }
 
   // ── LRU Eviction ─────────────────────────────────────────
 

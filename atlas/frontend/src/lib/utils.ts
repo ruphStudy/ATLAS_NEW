@@ -39,3 +39,25 @@ export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str;
   return `${str.slice(0, maxLength - 3)}...`;
 }
+
+/**
+ * Format a date as a short relative time string (e.g. "5m ago", "3d ago").
+ */
+export function formatDistanceToNow(date: string | Date): string {
+  const then = new Date(date).getTime();
+  const diffSeconds = Math.max(0, Math.floor((Date.now() - then) / 1000));
+
+  const units: Array<[string, number]> = [
+    ['y', 60 * 60 * 24 * 365],
+    ['mo', 60 * 60 * 24 * 30],
+    ['d', 60 * 60 * 24],
+    ['h', 60 * 60],
+    ['m', 60],
+  ];
+
+  for (const [label, seconds] of units) {
+    const value = Math.floor(diffSeconds / seconds);
+    if (value >= 1) return `${value}${label} ago`;
+  }
+  return 'just now';
+}

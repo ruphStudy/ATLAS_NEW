@@ -11,6 +11,8 @@ import {
 export class WorkflowDefinitionResponseDto {
   id: string;
   workspaceId: string;
+  organizationId?: string | null;
+  businessId?: string | null;
   key: string;
   name: string;
   description?: string | null;
@@ -21,6 +23,8 @@ export class WorkflowDefinitionResponseDto {
   matchCriteria?: unknown;
   slaHours?: number | null;
   escalation?: unknown;
+  isTemplate: boolean;
+  templateKey?: string | null;
   version: number;
   status: ApprovalWorkflowStatus;
   createdAt: Date;
@@ -62,15 +66,19 @@ export class ApprovalStepInstanceResponseDto {
   stepIndex: number;
   name: string;
   status: ApprovalStepStatus;
+  strategy: string;
   requiredApprovals: number;
   receivedApprovals: number;
   dueAt?: Date | null;
+  escalatedAt?: Date | null;
   assignments?: ApprovalAssignmentResponseDto[];
 }
 
 export class ApprovalRequestResponseDto {
   id: string;
   workspaceId: string;
+  organizationId?: string | null;
+  businessId?: string | null;
   definitionId: string;
   definitionVersion: number;
   module: string;
@@ -80,8 +88,12 @@ export class ApprovalRequestResponseDto {
   title: string;
   amount?: number | null;
   riskLevel?: string | null;
+  countryCode?: string | null;
+  marketplaceKey?: string | null;
   currentStepIndex: number;
   status: ApprovalRequestStatus;
+  sourceWorkflowExecutionId?: string | null;
+  sourceWorkflowStepExecutionId?: string | null;
   metadata: unknown;
   slaDueAt?: Date | null;
   createdAt: Date;
@@ -106,5 +118,7 @@ export class ApprovalDecisionResponseDto {
   comment?: string | null;
   delegatedToUserId?: string | null;
   reassignedToUserId?: string | null;
+  evidence?: unknown;
+  sourceReference?: unknown;
   createdAt: Date;
 }

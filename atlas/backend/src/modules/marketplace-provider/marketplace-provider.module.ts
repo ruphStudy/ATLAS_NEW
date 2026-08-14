@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '@database/database.module';
+import { AuditLogsModule } from '@modules/audit-logs/audit-logs.module';
 
 import { MarketplaceProviderRegistry } from './registry/marketplace-provider.registry';
 import { MarketplaceProviderFactory } from './registry/marketplace-provider.factory';
@@ -21,7 +22,7 @@ import {
 } from './jobs';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, AuditLogsModule],
   controllers: [MarketplaceProviderController],
   providers: [
     // Registry & Resolution
@@ -63,6 +64,7 @@ import {
     MarketplaceCapabilityValidator,
     MarketplaceVersionManager,
     MarketplaceMetricsRecorder,
+    MarketplaceProviderService,
   ],
 })
 export class MarketplaceProviderModule {}

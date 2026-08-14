@@ -165,6 +165,30 @@ export class SaasAuditService {
       incidentsCreated++;
     }
 
+    const [overrideEntries] = await this.auditLogsRepository.findAllPlatformWide(
+      { workspaceId, actionCategory: AuditActionCategory.OVERRIDE, startDate: since.toISOString() },
+      1,
+      DETECTION_SWEEP_ROW_LIMIT,
+    );
+    scanned += overrideEntries.length;
+    for (const entry of overrideEntries) {
+      if (await this.repository.existsIncidentForSourceEntry(entry.id)) continue;
+      await this.raiseIncidentFromEntry(SaasIncidentType.POLICY_VIOLATION, entry, `Policy/approval override '${entry.action}' in module '${entry.module}'`);
+      incidentsCreated++;
+    }
+
+    const [policyFlaggedEntries] = await this.auditLogsRepository.findAllPlatformWide(
+      { workspaceId, policyViolation: true, startDate: since.toISOString() },
+      1,
+      DETECTION_SWEEP_ROW_LIMIT,
+    );
+    scanned += policyFlaggedEntries.length;
+    for (const entry of policyFlaggedEntries) {
+      if (await this.repository.existsIncidentForSourceEntry(entry.id)) continue;
+      await this.raiseIncidentFromEntry(SaasIncidentType.POLICY_VIOLATION, entry, `Policy violation flagged by module '${entry.module}' for action '${entry.action}'`);
+      incidentsCreated++;
+    }
+
     if (!workspaceId) {
       incidentsCreated += await this.detectCrossTenantAccess();
     }

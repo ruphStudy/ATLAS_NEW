@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { AuditLogsRepository } from './audit-logs.repository';
 import { AuditRiskAnalyzer } from './audit-risk-analyzer';
 import { AuditLogEventQueue } from './jobs';
@@ -9,7 +10,7 @@ import {
   PaginatedAuditLogEntryResponseDto,
   AuditExportResponseDto,
 } from './dto';
-import { IAuditLogEntry, AuditEvent, ActivityOutcome } from './interfaces';
+import { IAuditLogEntry, AuditEvent, ActivityOutcome, AuditRiskLevel } from './interfaces';
 import {
   AuditLogEntryNotFoundException,
   AuditLogAccessDeniedException,
@@ -55,6 +56,9 @@ export class AuditLogsService {
 
     const assessment = await this.riskAnalyzer.assess(dto);
 
+    const previousHash = await this.repository.findLatestHashForWorkspace(dto.workspaceId);
+    const integrityHash = this.computeIntegrityHash(previousHash, dto, assessment);
+
     const entry = await this.repository.create({
       workspaceId: dto.workspaceId,
       actorType: dto.actorType,
@@ -66,6 +70,7 @@ export class AuditLogsService {
       module: dto.module,
       entityType: dto.entityType,
       entityId: dto.entityId,
+      businessId: dto.businessId,
       outcome: dto.outcome ?? ActivityOutcome.SUCCESS,
       reason: dto.reason,
       beforeState: dto.beforeState ?? null,
@@ -76,11 +81,14 @@ export class AuditLogsService {
       jobId: dto.jobId,
       workflowId: dto.workflowId,
       sessionId: dto.sessionId,
+      traceId: dto.traceId,
       externalRef: dto.externalRef,
       riskLevel: assessment.riskLevel,
       flagged: assessment.flagged,
       flagReason: assessment.flagReason,
       dedupeKey: dto.dedupeKey,
+      previousHash,
+      integrityHash,
       metadata: dto.metadata ?? {},
     });
 
@@ -188,6 +196,30 @@ export class AuditLogsService {
   }
 
   // ── Helpers ──────────────────────────────────────────────────────
+
+  /** Chains this entry to the workspace's prior tail hash (see `AuditLogEntry.integrityHash` doc comment) — a deleted or altered historical row breaks the chain for every entry after it. */
+  private computeIntegrityHash(
+    previousHash: string | null,
+    dto: RecordAuditLogDto,
+    assessment: { riskLevel: AuditRiskLevel; flagged: boolean; flagReason?: string },
+  ): string {
+    const canonical = JSON.stringify({
+      previousHash,
+      workspaceId: dto.workspaceId,
+      actorType: dto.actorType,
+      actorId: dto.actorId ?? null,
+      action: dto.action,
+      actionCategory: dto.actionCategory,
+      module: dto.module,
+      entityType: dto.entityType ?? null,
+      entityId: dto.entityId ?? null,
+      outcome: dto.outcome ?? ActivityOutcome.SUCCESS,
+      changedFields: dto.changedFields ?? [],
+      riskLevel: assessment.riskLevel,
+      flagged: assessment.flagged,
+    });
+    return createHash('sha256').update(canonical).digest('hex');
+  }
 
   private assertCanView(userRole: string): void {
     if (!AUDIT_LOG_VIEW_ROLES.includes(userRole)) {

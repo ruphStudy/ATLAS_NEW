@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsObject, IsBoolean, Matches } from 'class-validator';
-import { LocaleDirection } from '../interfaces';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsObject, IsBoolean, IsIn, IsArray, Matches } from 'class-validator';
+import { LocaleDirection, MeasurementSystem } from '../interfaces';
 
 export class CreateLocaleDto {
   @IsString()
@@ -14,6 +14,10 @@ export class CreateLocaleDto {
   @IsString()
   @IsOptional()
   country?: string;
+
+  @IsString()
+  @IsOptional()
+  script?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -42,6 +46,18 @@ export class CreateLocaleDto {
   @IsString()
   @IsOptional()
   currencyCode?: string;
+
+  @IsString()
+  @IsOptional()
+  timezone?: string;
+
+  @IsEnum(MeasurementSystem)
+  @IsOptional()
+  measurementSystem?: MeasurementSystem;
+
+  @IsString()
+  @IsOptional()
+  fallbackLocaleCode?: string;
 }
 
 export class UpdateLocaleDto {
@@ -52,6 +68,10 @@ export class UpdateLocaleDto {
   @IsString()
   @IsOptional()
   displayName?: string;
+
+  @IsString()
+  @IsOptional()
+  script?: string;
 
   @IsEnum(LocaleDirection)
   @IsOptional()
@@ -73,7 +93,56 @@ export class UpdateLocaleDto {
   @IsOptional()
   currencyCode?: string;
 
+  @IsString()
+  @IsOptional()
+  timezone?: string;
+
+  @IsEnum(MeasurementSystem)
+  @IsOptional()
+  measurementSystem?: MeasurementSystem;
+
+  @IsString()
+  @IsOptional()
+  fallbackLocaleCode?: string;
+
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @IsString()
+  @IsOptional()
+  changeReason?: string;
+}
+
+export class SwitchLocaleDto {
+  @IsString()
+  @IsNotEmpty()
+  localeCode: string;
+
+  @IsIn(['USER', 'WORKSPACE', 'ORGANIZATION'])
+  @IsOptional()
+  scope?: 'USER' | 'WORKSPACE' | 'ORGANIZATION';
+}
+
+/** Optional reason for a lifecycle transition (enable/disable/archive/restore) — recorded in the locale's history. */
+export class LocaleReasonDto {
+  @IsString()
+  @IsOptional()
+  reason?: string;
+}
+
+export class SetEnabledLanguagesDto {
+  @IsArray()
+  @IsString({ each: true })
+  localeCodes: string[];
+
+  @IsIn(['WORKSPACE', 'ORGANIZATION'])
+  @IsOptional()
+  scope?: 'WORKSPACE' | 'ORGANIZATION';
+}
+
+export class SetPreferredLanguagesDto {
+  @IsArray()
+  @IsString({ each: true })
+  localeCodes: string[];
 }

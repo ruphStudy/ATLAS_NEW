@@ -18,6 +18,7 @@ export enum AuditActionCategory {
   LOGIN = 'LOGIN',
   PERMISSION = 'PERMISSION',
   CONFIGURATION = 'CONFIGURATION',
+  OVERRIDE = 'OVERRIDE',
   OTHER = 'OTHER',
 }
 
@@ -44,6 +45,7 @@ export interface IAuditLogEntry {
   module: string;
   entityType?: string | null;
   entityId?: string | null;
+  businessId?: string | null;
   outcome: ActivityOutcome;
   reason?: string | null;
   beforeState?: unknown;
@@ -54,11 +56,14 @@ export interface IAuditLogEntry {
   jobId?: string | null;
   workflowId?: string | null;
   sessionId?: string | null;
+  traceId?: string | null;
   externalRef?: string | null;
   riskLevel: AuditRiskLevel;
   flagged: boolean;
   flagReason?: string | null;
   dedupeKey?: string | null;
+  integrityHash?: string | null;
+  previousHash?: string | null;
   metadata: unknown;
   createdAt: Date;
 }

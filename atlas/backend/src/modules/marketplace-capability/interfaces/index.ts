@@ -53,9 +53,12 @@ export enum CapabilityCategory {
   ORDER = 'ORDER',
   SHIPMENT = 'SHIPMENT',
   RETURN = 'RETURN',
+  REFUND = 'REFUND',
   PRICING = 'PRICING',
   CATALOG = 'CATALOG',
   REPORT = 'REPORT',
+  WEBHOOK = 'WEBHOOK',
+  FULFILLMENT = 'FULFILLMENT',
   INTEGRATION = 'INTEGRATION',
   COMMERCE = 'COMMERCE',
   IMPORT = 'IMPORT',
@@ -78,6 +81,8 @@ export enum CapabilityEvent {
   VALIDATION_FAILED = 'marketplace-capability-validation-failed',
   COMPATIBILITY_FAILED = 'marketplace-capability-compatibility-failed',
   CACHE_INVALIDATED = 'marketplace-capability-cache-invalidated',
+  MATRIX_RESOLVED = 'marketplace-capability-matrix-resolved',
+  MATRIX_INVALIDATED = 'marketplace-capability-matrix-invalidated',
 }
 
 // ── Override Type ─────────────────────────────────────────────
@@ -85,6 +90,7 @@ export enum CapabilityEvent {
 export enum CapabilityOverrideType {
   GLOBAL = 'GLOBAL',
   PROVIDER = 'PROVIDER',
+  MARKETPLACE = 'MARKETPLACE',
   WORKSPACE = 'WORKSPACE',
   ACCOUNT = 'ACCOUNT',
   COUNTRY = 'COUNTRY',
@@ -375,6 +381,91 @@ export interface DependencyResolutionResult {
   missing: string[];
   circular: string[][];
   valid: boolean;
+}
+
+// ── Capability Matrix ─────────────────────────────────────────
+
+export enum CapabilityMatrixGapType {
+  VERSION_MISMATCH = 'VERSION_MISMATCH',
+  UNAVAILABLE = 'UNAVAILABLE',
+  RESTRICTED = 'RESTRICTED',
+  MISSING_DEPENDENCY = 'MISSING_DEPENDENCY',
+  CONFIGURATION_REQUIRED = 'CONFIGURATION_REQUIRED',
+}
+
+export interface MarketplaceCapabilityMatrixRequest {
+  workspaceId: string;
+  providerKey?: string | null;
+  marketplaceKey?: MarketplaceKey | null;
+  accountId?: string | null;
+  country?: string | null;
+  region?: string | null;
+  category?: CapabilityCategory | null;
+  apiVersion?: string | null;
+  providerVersion?: string | null;
+  featureFlags?: Record<string, boolean>;
+}
+
+export interface MarketplaceCapabilityMatrixEntry {
+  capabilityKey: string;
+  category: CapabilityCategory;
+  providerKey: string;
+  status: CapabilityResolutionStatus;
+  supportLevel: CapabilitySupportLevel | null;
+  capabilityVersion: number;
+  declaredCapabilityVersion?: string | null;
+  requiredApiVersion?: string | null;
+  declaredApiVersion?: string | null;
+  countries: string[];
+  regions: string[];
+  limits: {
+    rateLimits: Record<string, unknown>;
+    batchLimits: Record<string, unknown>;
+  };
+  requiredConfiguration: Record<string, unknown>;
+  requiredCredentials: string[];
+  dependencies: CapabilityDependency[];
+  missingDependencies: string[];
+  restrictions: {
+    countries: string[];
+    regions: string[];
+    marketplaces: string[];
+  };
+  reasons: string[];
+}
+
+export interface MarketplaceCapabilityMatrixGap {
+  capabilityKey: string;
+  providerKey: string;
+  type: CapabilityMatrixGapType;
+  message: string;
+}
+
+export interface MarketplaceCapabilityMatrixSummary {
+  totalCapabilities: number;
+  totalEntries: number;
+  supportedCount: number;
+  partiallySupportedCount: number;
+  unsupportedCount: number;
+  gapCount: number;
+}
+
+export interface MarketplaceCapabilityMatrix {
+  workspaceId: string;
+  providerKey?: string | null;
+  marketplaceKey?: MarketplaceKey | null;
+  accountId?: string | null;
+  country?: string | null;
+  region?: string | null;
+  generatedAt: Date;
+  entries: MarketplaceCapabilityMatrixEntry[];
+  gaps: MarketplaceCapabilityMatrixGap[];
+  summary: MarketplaceCapabilityMatrixSummary;
+}
+
+export interface CachedCapabilityMatrix {
+  matrix: MarketplaceCapabilityMatrix;
+  cachedAt: number;
 }
 
 // ── Event Payload ─────────────────────────────────────────────

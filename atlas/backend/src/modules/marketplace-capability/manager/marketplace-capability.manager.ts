@@ -8,6 +8,8 @@ import {
   CompatibilityCheckResult,
   DependencyResolutionResult,
   IMarketplaceCapabilityDefinition,
+  MarketplaceCapabilityMatrix,
+  MarketplaceCapabilityMatrixRequest,
 } from '../interfaces';
 import { MarketplaceCapabilityService } from '../marketplace-capability.service';
 import { MarketplaceCapabilityRegistry } from '../registry/marketplace-capability.registry';
@@ -116,5 +118,14 @@ export class MarketplaceCapabilityManager {
    */
   invalidate(capabilityKey?: string, workspaceId?: string): Promise<void> {
     return this.service.invalidateCache(capabilityKey, workspaceId);
+  }
+
+  /**
+   * Resolves the full capability matrix for a workspace/provider/marketplace
+   * scope — the single entry point business modules and UI surfaces should
+   * use for capability discovery beyond a single capability check.
+   */
+  getMatrix(request: MarketplaceCapabilityMatrixRequest): Promise<MarketplaceCapabilityMatrix> {
+    return this.service.getMatrix(request);
   }
 }

@@ -12,6 +12,7 @@ export class AuditLogEntryResponseDto {
   module: string;
   entityType?: string | null;
   entityId?: string | null;
+  businessId?: string | null;
   outcome: ActivityOutcome;
   reason?: string | null;
   beforeState?: unknown;
@@ -22,10 +23,13 @@ export class AuditLogEntryResponseDto {
   jobId?: string | null;
   workflowId?: string | null;
   sessionId?: string | null;
+  traceId?: string | null;
   externalRef?: string | null;
   riskLevel: AuditRiskLevel;
   flagged: boolean;
   flagReason?: string | null;
+  integrityHash?: string | null;
+  previousHash?: string | null;
   createdAt: Date;
 }
 

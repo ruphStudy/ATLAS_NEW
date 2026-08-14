@@ -70,3 +70,33 @@ export class LocalizationAccessDeniedException extends AtlasException {
     });
   }
 }
+
+export class InvalidFallbackLocaleException extends AtlasException {
+  constructor(code: string) {
+    super({
+      message: `Fallback locale '${code}' is not a registered locale`,
+      errorCode: ErrorCode.LOCALE_INVALID_FALLBACK,
+      statusCode: HttpStatus.BAD_REQUEST,
+    });
+  }
+}
+
+export class FallbackLocaleCycleException extends AtlasException {
+  constructor(code: string, fallbackCode: string) {
+    super({
+      message: `Setting '${code}'s fallback to '${fallbackCode}' would create a fallback cycle`,
+      errorCode: ErrorCode.LOCALE_FALLBACK_CYCLE,
+      statusCode: HttpStatus.BAD_REQUEST,
+    });
+  }
+}
+
+export class LocaleInvalidStateTransitionException extends AtlasException {
+  constructor(from: string, to: string) {
+    super({
+      message: `Cannot transition locale from '${from}' to '${to}'`,
+      errorCode: ErrorCode.LOCALE_INVALID_STATE_TRANSITION,
+      statusCode: HttpStatus.BAD_REQUEST,
+    });
+  }
+}

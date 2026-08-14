@@ -1,10 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { RolesPermissionsService } from '@modules/roles-permissions/roles-permissions.service';
+import { PermissionResolverService } from '@modules/roles-permissions/permission-resolver.service';
+import { PermissionAction } from '@modules/roles-permissions/interfaces';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { CreateNotificationDto } from '@modules/notifications/dto';
 import { NotificationType, NotificationPriority, NotificationTargetType } from '@modules/notifications/interfaces';
 import { AuditLogsService } from '@modules/audit-logs/audit-logs.service';
 import { ActivityActorType, ActivityOutcome, AuditActionCategory } from '@modules/audit-logs/interfaces';
+import { EnterpriseWorkflowEngineService } from '@modules/enterprise-workflow-engine/enterprise-workflow-engine.service';
+import { WorkflowStepStatus } from '@modules/enterprise-workflow-engine/interfaces';
 import { ApprovalWorkflowRepository } from './approval-workflow.repository';
 import { ApprovalEngineService } from './approval-engine.service';
 import { ApprovalWorkflowEventQueue } from './jobs';
@@ -16,6 +20,8 @@ import {
   DecideApprovalDto,
   DelegateApprovalDto,
   ReassignApprovalDto,
+  OverrideApprovalDto,
+  CreateApprovalSubstituteDto,
   ApprovalActionReasonDto,
   RequestFilterDto,
   PaginatedWorkflowDefinitionResponseDto,
@@ -28,6 +34,7 @@ import {
   IApprovalStepInstance,
   IApprovalAssignment,
   IApprovalDecision,
+  IApprovalSubstitute,
   ApprovalWorkflowStatus,
   ApprovalRequestStatus,
   ApprovalStepStatus,
@@ -53,6 +60,11 @@ import {
   SelfApprovalNotAllowedException,
   UnauthorizedApproverException,
   ApprovalAssignmentNotFoundException,
+  CircularDelegationException,
+  PrivilegeEscalationDeniedException,
+  ManualOverrideDeniedException,
+  ApprovalSubstituteNotFoundException,
+  ApprovalTemplateNotFoundException,
 } from './exceptions/approval-workflow.exceptions';
 
 @Injectable()
@@ -63,8 +75,11 @@ export class ApprovalWorkflowService {
     private readonly repository: ApprovalWorkflowRepository,
     private readonly engine: ApprovalEngineService,
     private readonly rolesPermissionsService: RolesPermissionsService,
+    private readonly permissionResolver: PermissionResolverService,
     private readonly notificationsService: NotificationsService,
     private readonly auditLogsService: AuditLogsService,
+    @Inject(forwardRef(() => EnterpriseWorkflowEngineService))
+    private readonly workflowEngineService: EnterpriseWorkflowEngineService,
     private readonly eventQueue: ApprovalWorkflowEventQueue,
   ) {}
 
@@ -84,6 +99,8 @@ export class ApprovalWorkflowService {
 
     const definition = await this.repository.createDefinition({
       workspaceId,
+      organizationId: dto.organizationId ?? null,
+      businessId: dto.businessId ?? null,
       key: dto.key,
       name: dto.name,
       description: dto.description,
@@ -94,6 +111,8 @@ export class ApprovalWorkflowService {
       matchCriteria: (dto.matchCriteria as any) ?? null,
       slaHours: dto.slaHours,
       escalation: (dto.escalation as any) ?? null,
+      isTemplate: dto.isTemplate ?? false,
+      templateKey: dto.templateKey ?? null,
       version: 1,
       status: ApprovalWorkflowStatus.DRAFT,
       createdBy: userId,
@@ -111,6 +130,59 @@ export class ApprovalWorkflowService {
 
     await this.recordAudit(workspaceId, userId, 'approval-workflow.definition.created', AuditActionCategory.CONFIGURATION, 'ApprovalWorkflowDefinition', definition.id);
     await this.publishEvent(ApprovalWorkflowEvent.DEFINITION_CREATED, { workspaceId, definitionId: definition.id, actorId: userId });
+    return definition;
+  }
+
+  /** Clones a template definition (`isTemplate: true`) into a new DRAFT definition, optionally overridden for a specific organization/business scope. */
+  async createFromTemplate(
+    workspaceId: string,
+    userId: string,
+    templateKey: string,
+    overrides: { key: string; name?: string; organizationId?: string; businessId?: string },
+  ): Promise<IApprovalWorkflowDefinition> {
+    const template = await this.repository.findTemplateByKey(workspaceId, templateKey);
+    if (!template) {
+      throw new ApprovalTemplateNotFoundException(templateKey);
+    }
+
+    const existing = await this.repository.findDefinitionByKey(workspaceId, overrides.key);
+    if (existing) {
+      throw new ApprovalWorkflowAlreadyExistsException(overrides.key);
+    }
+
+    const definition = await this.repository.createDefinition({
+      workspaceId,
+      organizationId: overrides.organizationId ?? template.organizationId,
+      businessId: overrides.businessId ?? template.businessId,
+      key: overrides.key,
+      name: overrides.name ?? template.name,
+      description: template.description,
+      module: template.module,
+      entityType: template.entityType,
+      mode: template.mode,
+      steps: template.steps as any,
+      matchCriteria: template.matchCriteria as any,
+      slaHours: template.slaHours,
+      escalation: template.escalation as any,
+      isTemplate: false,
+      templateKey: template.key,
+      version: 1,
+      status: ApprovalWorkflowStatus.DRAFT,
+      createdBy: userId,
+    });
+
+    await this.repository.createDefinitionHistory({
+      definitionId: definition.id,
+      workspaceId,
+      toStatus: ApprovalWorkflowStatus.DRAFT,
+      version: 1,
+      changeReason: `Cloned from template '${templateKey}'`,
+      changedBy: userId,
+      snapshot: definition as any,
+    });
+
+    await this.recordAudit(workspaceId, userId, 'approval-workflow.definition.created_from_template', AuditActionCategory.CONFIGURATION, 'ApprovalWorkflowDefinition', definition.id, templateKey);
+    await this.publishEvent(ApprovalWorkflowEvent.DEFINITION_CREATED, { workspaceId, definitionId: definition.id, actorId: userId, metadata: { templateKey } });
     return definition;
   }
 
@@ -222,6 +294,8 @@ export class ApprovalWorkflowService {
 
     let request = await this.repository.createRequest({
       workspaceId,
+      organizationId: dto.organizationId ?? definition.organizationId ?? null,
+      businessId: dto.businessId ?? definition.businessId ?? null,
       definitionId: definition.id,
       definitionVersion: definition.version,
       module: definition.module,
@@ -231,8 +305,12 @@ export class ApprovalWorkflowService {
       title: dto.title,
       amount: dto.amount,
       riskLevel: dto.riskLevel,
+      countryCode: dto.countryCode ?? null,
+      marketplaceKey: dto.marketplaceKey ?? null,
       currentStepIndex: 0,
       status: ApprovalRequestStatus.PENDING,
+      sourceWorkflowExecutionId: dto.sourceWorkflowExecutionId ?? null,
+      sourceWorkflowStepExecutionId: dto.sourceWorkflowStepExecutionId ?? null,
       metadata: dto.metadata ?? {},
       slaDueAt: definition.slaHours ? new Date(Date.now() + definition.slaHours * 3_600_000) : null,
     });
@@ -255,6 +333,7 @@ export class ApprovalWorkflowService {
         status: request.status,
         actorId: userId,
       });
+      await this.notifyOwningWorkflow(request, true);
       return request;
     }
 
@@ -291,6 +370,13 @@ export class ApprovalWorkflowService {
     userRole: string,
     dto: DecideApprovalDto,
   ): Promise<IApprovalRequest> {
+    if (dto.idempotencyKey) {
+      const priorDecision = await this.repository.findDecisionByIdempotencyKey(stepInstanceId, userId, dto.idempotencyKey);
+      if (priorDecision) {
+        return this.getRequestOrThrow(requestId, workspaceId);
+      }
+    }
+
     const request = await this.getRequestOrThrow(requestId, workspaceId);
     const stepInstance = await this.getStepInstanceOrThrow(stepInstanceId, requestId);
 
@@ -316,6 +402,32 @@ export class ApprovalWorkflowService {
       throw new UnauthorizedApproverException();
     }
 
+    if (dto.action === 'DEFER') {
+      await this.repository.createDecision({
+        requestId,
+        stepInstanceId,
+        workspaceId,
+        decidedBy: userId,
+        action: ApprovalDecisionAction.DEFER,
+        comment: dto.comment,
+        evidence: (dto.evidence as any) ?? null,
+        sourceReference: (dto.sourceReference as any) ?? null,
+        idempotencyKey: dto.idempotencyKey ?? null,
+      });
+      await this.recordAudit(workspaceId, userId, 'approval-workflow.step.deferred', AuditActionCategory.UPDATE, 'ApprovalStepInstance', stepInstanceId, dto.comment);
+      await this.publishEvent(ApprovalWorkflowEvent.REQUEST_DEFERRED, {
+        workspaceId,
+        requestId,
+        stepInstanceId,
+        module: request.module,
+        entityType: request.entityType,
+        entityId: request.entityId,
+        status: request.status,
+        actorId: userId,
+      });
+      return request;
+    }
+
     await this.repository.updateAssignment(myAssignment.id, { status: ApprovalAssignmentStatus.ACTED });
     await this.repository.createDecision({
       requestId,
@@ -324,6 +436,9 @@ export class ApprovalWorkflowService {
       decidedBy: userId,
       action: dto.action as ApprovalDecisionAction,
       comment: dto.comment,
+      evidence: (dto.evidence as any) ?? null,
+      sourceReference: (dto.sourceReference as any) ?? null,
+      idempotencyKey: dto.idempotencyKey ?? null,
     });
 
     if (dto.action === 'REJECT') {
@@ -347,6 +462,7 @@ export class ApprovalWorkflowService {
         actorId: userId,
       });
       await this.notifyRequester(workspaceId, updatedRequest, 'Your approval request was rejected', dto.comment);
+      await this.notifyOwningWorkflow(updatedRequest, false);
       return updatedRequest;
     }
 
@@ -406,6 +522,7 @@ export class ApprovalWorkflowService {
         actorId: userId,
       });
       await this.notifyRequester(workspaceId, finalRequest, 'Your approval request was approved');
+      await this.notifyOwningWorkflow(finalRequest, true);
       return finalRequest;
     }
 
@@ -503,6 +620,19 @@ export class ApprovalWorkflowService {
     }
     if (!myAssignment) {
       throw new UnauthorizedApproverException();
+    }
+
+    const decisions = await this.repository.listDecisionsForRequest(requestId);
+    if (this.wouldCreateCircularDelegation(decisions, stepInstanceId, userId, dto.toUserId)) {
+      throw new CircularDelegationException(dto.toUserId);
+    }
+
+    const actorIsAdmin = await this.hasWorkspaceAdminRights(workspaceId, userId, userRole);
+    if (!actorIsAdmin && myAssignment.approverType === ApproverType.ROLE) {
+      const targetHoldsRole = await this.rolesPermissionsService.userHasActiveRole(workspaceId, dto.toUserId, myAssignment.approverRef);
+      if (!targetHoldsRole) {
+        throw new PrivilegeEscalationDeniedException();
+      }
     }
 
     await this.repository.updateAssignment(myAssignment.id, {
@@ -675,7 +805,7 @@ export class ApprovalWorkflowService {
 
     const pastSla = await this.repository.findRequestsPastSla(now);
     for (const request of pastSla) {
-      await this.repository.updateRequest(request.id, {
+      const expired = await this.repository.updateRequest(request.id, {
         status: ApprovalRequestStatus.EXPIRED,
         completedAt: now,
       } as Partial<IApprovalRequest>);
@@ -685,15 +815,33 @@ export class ApprovalWorkflowService {
         module: request.module,
         status: ApprovalRequestStatus.EXPIRED,
       });
+      await this.notifyOwningWorkflow(expired, false);
     }
 
     const pastDueSteps = await this.repository.findStepsPastDue(now);
     for (const step of pastDueSteps) {
       await this.repository.updateStepInstance(step.id, { escalatedAt: now } as Partial<IApprovalStepInstance>);
+
+      let escalatedTo = 0;
+      try {
+        const request = await this.repository.findRequestById(step.requestId);
+        const definition = request ? await this.repository.findDefinitionById(request.definitionId) : null;
+        const escalation = definition?.escalation as { escalateToRoleKeys?: string[]; escalateToUserIds?: string[] } | null | undefined;
+        escalatedTo = await this.engine.escalateStep(step.workspaceId, step.requestId, step.id, escalation);
+        if (request) {
+          for (const userId of escalation?.escalateToUserIds ?? []) {
+            await this.notifyUser(step.workspaceId, userId, 'An approval has been escalated to you', request.title);
+          }
+        }
+      } catch (err) {
+        this.logger.warn(`Escalation-target materialization failed for step '${step.id}': ${(err as Error).message}`);
+      }
+
       await this.publishEvent(ApprovalWorkflowEvent.STEP_ESCALATED, {
         workspaceId: step.workspaceId,
         requestId: step.requestId,
         stepInstanceId: step.id,
+        metadata: { escalatedAssignments: escalatedTo },
       });
     }
 
@@ -761,6 +909,7 @@ export class ApprovalWorkflowService {
       status: updated.status,
       actorId: userId,
     });
+    await this.notifyOwningWorkflow(updated, false);
     return updated;
   }
 
@@ -771,27 +920,200 @@ export class ApprovalWorkflowService {
     assignment: IApprovalAssignment,
   ): Promise<boolean> {
     if (assignment.approverType === ApproverType.USER) {
-      return assignment.approverRef === userId;
+      if (assignment.approverRef === userId) return true;
+      return this.isActiveSubstituteFor(workspaceId, ApproverType.USER, assignment.approverRef, userId);
     }
     if (assignment.approverType === ApproverType.ROLE) {
       if (userRole.toUpperCase() === assignment.approverRef.toUpperCase()) {
         return true;
       }
-      return this.rolesPermissionsService.userHasActiveRole(workspaceId, userId, assignment.approverRef);
+      if (await this.rolesPermissionsService.userHasActiveRole(workspaceId, userId, assignment.approverRef)) {
+        return true;
+      }
+      return this.isActiveSubstituteFor(workspaceId, ApproverType.ROLE, assignment.approverRef, userId);
     }
-    // TEAM: no Team membership model exists in this codebase — a TEAM assignment only becomes
-    // decidable once explicitly reassigned to a concrete user (see `reassign`), at which point
-    // its approverRef holds that user's id directly, same as a USER assignment.
+    // TEAM/BUSINESS_UNIT: no team- or business-unit-membership model exists in this codebase — an
+    // assignment of either type only becomes decidable once explicitly reassigned to a concrete
+    // user (see `reassign`), at which point its approverRef holds that user's id directly, same
+    // as a USER assignment.
     return assignment.approverRef === userId;
   }
 
+  private async isActiveSubstituteFor(workspaceId: string, approverType: ApproverType, approverRef: string, userId: string): Promise<boolean> {
+    const substitute = await this.repository.findActiveSubstitute(workspaceId, approverType, approverRef, new Date());
+    return substitute?.substituteUserId === userId;
+  }
+
+  // ── Substitute approvers ─────────────────────────────────────────
+
+  async createSubstitute(workspaceId: string, userId: string, dto: CreateApprovalSubstituteDto): Promise<IApprovalSubstitute> {
+    const substitute = await this.repository.createSubstitute({
+      workspaceId,
+      approverType: dto.approverType,
+      approverRef: dto.approverRef,
+      substituteUserId: dto.substituteUserId,
+      effectiveFrom: dto.effectiveFrom ? new Date(dto.effectiveFrom) : null,
+      effectiveTo: dto.effectiveTo ? new Date(dto.effectiveTo) : null,
+      reason: dto.reason ?? null,
+      isActive: true,
+      createdBy: userId,
+    });
+    await this.recordAudit(workspaceId, userId, 'approval-workflow.substitute.created', AuditActionCategory.CONFIGURATION, 'ApprovalSubstitute', substitute.id);
+    return substitute;
+  }
+
+  async listSubstitutes(workspaceId: string): Promise<IApprovalSubstitute[]> {
+    return this.repository.listSubstitutes(workspaceId);
+  }
+
+  async removeSubstitute(id: string, workspaceId: string, userId: string): Promise<void> {
+    const substitute = await this.repository.findSubstituteById(id);
+    if (!substitute || substitute.workspaceId !== workspaceId) {
+      throw new ApprovalSubstituteNotFoundException(id);
+    }
+    await this.repository.deactivateSubstitute(id);
+    await this.recordAudit(workspaceId, userId, 'approval-workflow.substitute.removed', AuditActionCategory.CONFIGURATION, 'ApprovalSubstitute', id);
+  }
+
+  // ── Manual override ───────────────────────────────────────────────
+
+  /**
+   * Forces a request directly to APPROVED/REJECTED, bypassing the normal
+   * step flow — gated behind explicit `PermissionAction.ADMIN` on the
+   * `approval_override` resource and a mandatory reason, distinct from
+   * every other decision path which requires being an eligible approver.
+   */
+  async override(requestId: string, workspaceId: string, userId: string, userRole: string, dto: OverrideApprovalDto): Promise<IApprovalRequest> {
+    const request = await this.getRequestOrThrow(requestId, workspaceId);
+    if (this.isTerminal(request.status)) {
+      throw new ApprovalRequestInvalidStateTransitionException(request.status, 'override');
+    }
+
+    if (dto.idempotencyKey) {
+      const priorDecision = await this.repository.findDecisionByIdempotencyKey(null, userId, dto.idempotencyKey);
+      if (priorDecision && priorDecision.requestId === requestId) {
+        return this.getRequestOrThrow(requestId, workspaceId);
+      }
+    }
+
+    const allowed = await this.permissionResolver.hasPermission({
+      userId,
+      workspaceId,
+      legacyRole: userRole,
+      module: APPROVAL_WORKFLOW_MODULE,
+      resource: 'approval_override',
+      action: PermissionAction.ADMIN,
+    });
+    if (!allowed) {
+      throw new ManualOverrideDeniedException();
+    }
+
+    const steps = await this.repository.listStepInstances(request.id);
+    for (const step of steps) {
+      if (step.status === ApprovalStepStatus.PENDING || step.status === ApprovalStepStatus.IN_PROGRESS) {
+        await this.repository.updateStepInstance(step.id, {
+          status: ApprovalStepStatus.SKIPPED,
+          completedAt: new Date(),
+        } as Partial<IApprovalStepInstance>);
+      }
+    }
+
+    const finalStatus = dto.status === 'APPROVED' ? ApprovalRequestStatus.APPROVED : ApprovalRequestStatus.REJECTED;
+    const updated = await this.repository.updateRequest(requestId, {
+      status: finalStatus,
+      completedAt: new Date(),
+    } as Partial<IApprovalRequest>);
+
+    await this.repository.createDecision({
+      requestId,
+      workspaceId,
+      decidedBy: userId,
+      action: ApprovalDecisionAction.OVERRIDE,
+      comment: dto.reason,
+      evidence: (dto.evidence as any) ?? null,
+      idempotencyKey: dto.idempotencyKey ?? null,
+    });
+
+    await this.recordAudit(workspaceId, userId, 'approval-workflow.request.overridden', AuditActionCategory.UPDATE, 'ApprovalRequest', requestId, dto.reason);
+    await this.publishEvent(ApprovalWorkflowEvent.REQUEST_OVERRIDDEN, {
+      workspaceId,
+      requestId,
+      module: request.module,
+      entityType: request.entityType,
+      entityId: request.entityId,
+      status: updated.status,
+      actorId: userId,
+      metadata: { reason: dto.reason },
+    });
+    await this.notifyRequester(workspaceId, updated, `Your approval request was manually ${dto.status.toLowerCase()} by an administrator`, dto.reason);
+    await this.notifyOwningWorkflow(updated, dto.status === 'APPROVED');
+    return updated;
+  }
+
   private async assertCanManageWorkspaceApprovals(workspaceId: string, userId: string, userRole: string): Promise<void> {
+    if (!(await this.hasWorkspaceAdminRights(workspaceId, userId, userRole))) {
+      throw new UnauthorizedApproverException();
+    }
+  }
+
+  private async hasWorkspaceAdminRights(workspaceId: string, userId: string, userRole: string): Promise<boolean> {
     if (APPROVAL_ADMIN_ROLES.includes(userRole)) {
+      return true;
+    }
+    return this.rolesPermissionsService.userHasActiveRole(workspaceId, userId, 'admin');
+  }
+
+  /** Walks the DELEGATE decision chain for this step to detect whether delegating `fromUserId -> toUserId` would close a cycle back to an approver already in the chain. */
+  private wouldCreateCircularDelegation(
+    decisions: IApprovalDecision[],
+    stepInstanceId: string,
+    fromUserId: string,
+    toUserId: string,
+  ): boolean {
+    if (toUserId === fromUserId) return true;
+    const edges = decisions
+      .filter((d) => d.stepInstanceId === stepInstanceId && d.action === ApprovalDecisionAction.DELEGATE && d.delegatedToUserId)
+      .map((d) => [d.decidedBy, d.delegatedToUserId as string] as const);
+
+    const visited = new Set<string>([toUserId]);
+    const queue = [toUserId];
+    while (queue.length > 0) {
+      const current = queue.shift() as string;
+      if (current === fromUserId) return true;
+      for (const [from, to] of edges) {
+        if (from === current && !visited.has(to)) {
+          visited.add(to);
+          queue.push(to);
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * When a request was started as a step of an Enterprise Workflow Engine
+   * execution (`ApprovalStepExecutor`), resumes that step on a final
+   * APPROVE-equivalent outcome, or fails it otherwise — so the owning
+   * workflow continues or terminates without this module knowing anything
+   * about workflow internals beyond the resume contract.
+   */
+  private async notifyOwningWorkflow(request: IApprovalRequest, approved: boolean): Promise<void> {
+    if (!request.sourceWorkflowExecutionId || !request.sourceWorkflowStepExecutionId) {
       return;
     }
-    const hasAdminRole = await this.rolesPermissionsService.userHasActiveRole(workspaceId, userId, 'admin');
-    if (!hasAdminRole) {
-      throw new UnauthorizedApproverException();
+    try {
+      await this.workflowEngineService.resumeStepExecution(
+        request.sourceWorkflowExecutionId,
+        request.workspaceId,
+        request.sourceWorkflowStepExecutionId,
+        {
+          status: approved ? WorkflowStepStatus.COMPLETED : WorkflowStepStatus.FAILED,
+          output: { approvalRequestId: request.id, approvalStatus: request.status },
+          errorMessage: approved ? undefined : `Approval request '${request.id}' ended with status '${request.status}'`,
+        },
+      );
+    } catch (err) {
+      this.logger.warn(`Failed to resume owning workflow step for approval request '${request.id}': ${(err as Error).message}`);
     }
   }
 
