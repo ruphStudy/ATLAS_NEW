@@ -46,5 +46,5 @@ export class UpdateRuleDto {
 
   @IsString()
   @IsNotEmpty()
-  changeReason: string;
+  changeReason!: string;
 }

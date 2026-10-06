@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   ReportType,
   ReportStatus,
+  ReportExecutionStatus,
   ReportDataSource,
   ReportColumnType,
   ReportAggregationType,
@@ -23,19 +24,19 @@ import {
 export class ReportColumnDto implements IReportColumn {
   @IsString()
   @IsNotEmpty()
-  columnKey: string;
+  columnKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(ReportColumnType)
   @IsNotEmpty()
-  type: ReportColumnType;
+  type!: ReportColumnType;
 
   @IsString()
   @IsNotEmpty()
-  sourceKey: string;
+  sourceKey!: string;
 
   @IsEnum(ReportAggregationType)
   @IsOptional()
@@ -51,19 +52,19 @@ export class ReportColumnDto implements IReportColumn {
 
   @IsBoolean()
   @IsNotEmpty()
-  sortable: boolean;
+  sortable!: boolean;
 
   @IsBoolean()
   @IsNotEmpty()
-  filterable: boolean;
+  filterable!: boolean;
 
   @IsBoolean()
   @IsNotEmpty()
-  visible: boolean;
+  visible!: boolean;
 
   @IsNumber()
   @IsNotEmpty()
-  order: number;
+  order!: number;
 
   @IsObject()
   @IsOptional()
@@ -78,11 +79,11 @@ export class ReportColumnDto implements IReportColumn {
 export class ReportFilterDto implements IReportFilter {
   @IsString()
   @IsNotEmpty()
-  columnKey: string;
+  columnKey!: string;
 
   @IsEnum(ReportFilterOperator)
   @IsNotEmpty()
-  operator: ReportFilterOperator;
+  operator!: ReportFilterOperator;
 
   @IsNotEmpty()
   value: any;
@@ -94,22 +95,22 @@ export class ReportFilterDto implements IReportFilter {
 export class ReportSortDto implements IReportSort {
   @IsString()
   @IsNotEmpty()
-  columnKey: string;
+  columnKey!: string;
 
   @IsEnum(ReportSortDirection)
   @IsNotEmpty()
-  direction: ReportSortDirection;
+  direction!: ReportSortDirection;
 }
 
 export class ReportGroupingDto implements IReportGrouping {
   @IsString()
   @IsNotEmpty()
-  columnKey: string;
+  columnKey!: string;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => Object)
-  aggregations: Array<{
+  aggregations!: Array<{
     columnKey: string;
     aggregation: ReportAggregationType;
   }>;
@@ -118,11 +119,11 @@ export class ReportGroupingDto implements IReportGrouping {
 export class ReportDateRangeDto implements IReportDateRange {
   @IsDate()
   @Type(() => Date)
-  start: Date;
+  start!: Date;
 
   @IsDate()
   @Type(() => Date)
-  end: Date;
+  end!: Date;
 
   @IsString()
   @IsOptional()
@@ -136,11 +137,11 @@ export class CreateReportDefinitionDto {
 
   @IsString()
   @IsNotEmpty()
-  reportKey: string;
+  reportKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -148,16 +149,16 @@ export class CreateReportDefinitionDto {
 
   @IsEnum(ReportType)
   @IsNotEmpty()
-  type: ReportType;
+  type!: ReportType;
 
   @IsEnum(ReportDataSource)
   @IsNotEmpty()
-  dataSource: ReportDataSource;
+  dataSource!: ReportDataSource;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ReportColumnDto)
-  columns: ReportColumnDto[];
+  columns!: ReportColumnDto[];
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -219,7 +220,7 @@ export class CreateReportDefinitionDto {
 
   @IsString()
   @IsNotEmpty()
-  createdBy: string;
+  createdBy!: string;
 }
 
 export class UpdateReportDefinitionDto {
@@ -293,17 +294,17 @@ export class UpdateReportDefinitionDto {
 
   @IsString()
   @IsNotEmpty()
-  updatedBy: string;
+  updatedBy!: string;
 }
 
 export class ExecuteReportDto {
   @IsString()
   @IsNotEmpty()
-  reportDefinitionId: string;
+  reportDefinitionId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -340,11 +341,11 @@ export class CreateReportTemplateDto {
 
   @IsString()
   @IsNotEmpty()
-  templateKey: string;
+  templateKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -352,16 +353,16 @@ export class CreateReportTemplateDto {
 
   @IsEnum(ReportType)
   @IsNotEmpty()
-  type: ReportType;
+  type!: ReportType;
 
   @IsEnum(ReportDataSource)
   @IsNotEmpty()
-  dataSource: ReportDataSource;
+  dataSource!: ReportDataSource;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ReportColumnDto)
-  columns: ReportColumnDto[];
+  columns!: ReportColumnDto[];
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -387,7 +388,7 @@ export class CreateReportTemplateDto {
 
   @IsString()
   @IsNotEmpty()
-  createdBy: string;
+  createdBy!: string;
 }
 
 export class UpdateReportTemplateDto {
@@ -429,47 +430,47 @@ export class UpdateReportTemplateDto {
 }
 
 export class ReportDefinitionResponseDto implements IReportDefinition {
-  id: string;
+  id!: string;
   workspaceId?: string;
-  reportKey: string;
-  name: string;
+  reportKey!: string;
+  name!: string;
   description?: string;
-  type: ReportType;
-  dataSource: ReportDataSource;
-  status: ReportStatus;
-  version: number;
-  columns: IReportColumn[];
+  type!: ReportType;
+  dataSource!: ReportDataSource;
+  status!: ReportStatus;
+  version!: number;
+  columns!: IReportColumn[];
   filters?: IReportFilter[];
   sorting?: IReportSort[];
   grouping?: IReportGrouping[];
   dateRange?: IReportDateRange;
   limit?: number;
   offset?: number;
-  drillDownEnabled: boolean;
-  cacheEnabled: boolean;
+  drillDownEnabled!: boolean;
+  cacheEnabled!: boolean;
   cacheTtlMinutes?: number;
   templateId?: string;
-  isTemplate: boolean;
+  isTemplate!: boolean;
   permissions?: {
     roles?: string[];
     userIds?: string[];
   };
   metadata?: Record<string, any>;
-  createdBy: string;
+  createdBy!: string;
   updatedBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
   publishedAt?: Date;
   archivedAt?: Date;
 }
 
 export class ReportExecutionResponseDto implements IReportExecution {
-  id: string;
-  reportDefinitionId: string;
-  workspaceId: string;
-  reportKey: string;
-  status: ReportExecutionStatus;
-  startTime: Date;
+  id!: string;
+  reportDefinitionId!: string;
+  workspaceId!: string;
+  reportKey!: string;
+  status!: ReportExecutionStatus;
+  startTime!: Date;
   endTime?: Date;
   duration?: number;
   resultCount?: number;
@@ -484,43 +485,43 @@ export class ReportExecutionResponseDto implements IReportExecution {
 }
 
 export class ReportResultResponseDto implements IReportResult {
-  executionId: string;
-  reportDefinitionId: string;
-  workspaceId: string;
-  columns: IReportColumn[];
-  rows: Record<string, any>[];
-  total: number;
+  executionId!: string;
+  reportDefinitionId!: string;
+  workspaceId!: string;
+  columns!: IReportColumn[];
+  rows!: Record<string, any>[];
+  total!: number;
   aggregations?: Record<string, any>;
   metadata?: Record<string, any>;
 }
 
 export class ReportVersionResponseDto implements IReportVersion {
-  id: string;
-  reportDefinitionId: string;
-  version: number;
-  definition: Partial<IReportDefinition>;
+  id!: string;
+  reportDefinitionId!: string;
+  version!: number;
+  definition!: Partial<IReportDefinition>;
   changeDescription?: string;
-  createdBy: string;
-  createdAt: Date;
+  createdBy!: string;
+  createdAt!: Date;
 }
 
 export class ReportTemplateResponseDto implements IReportTemplate {
-  id: string;
+  id!: string;
   workspaceId?: string;
-  templateKey: string;
-  name: string;
+  templateKey!: string;
+  name!: string;
   description?: string;
-  type: ReportType;
-  dataSource: ReportDataSource;
-  columns: IReportColumn[];
+  type!: ReportType;
+  dataSource!: ReportDataSource;
+  columns!: IReportColumn[];
   filters?: IReportFilter[];
   sorting?: IReportSort[];
   grouping?: IReportGrouping[];
-  isGlobal: boolean;
+  isGlobal!: boolean;
   metadata?: Record<string, any>;
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdBy!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class ReportFilterDto2 {

@@ -7,6 +7,7 @@ import { MarketplaceCapabilityValidator } from '../validator/marketplace-capabil
 import { MarketplaceCapabilityResolver } from '../resolver/marketplace-capability.resolver';
 import { MarketplaceCapabilityVersionManager } from '../version/marketplace-capability-version.manager';
 import { MarketplaceCapabilityCompatibilityManager } from '../compatibility/marketplace-capability-compatibility.manager';
+import { MarketplaceCapabilityMatrixBuilder } from '../matrix/marketplace-capability-matrix.builder';
 import { MarketplaceCapabilityAudit } from '../audit/marketplace-capability.audit';
 import { MarketplaceCapabilityEventQueue } from '../events/marketplace-capability-events.queue';
 import { MarketplaceCapabilityMetrics } from '../metrics/marketplace-capability.metrics';
@@ -196,6 +197,7 @@ describe('MarketplaceCapabilityService — Integration (fake repo)', () => {
         MarketplaceCapabilityMetrics,
         MarketplaceCapabilityVersionManager,
         MarketplaceCapabilityCompatibilityManager,
+        MarketplaceCapabilityMatrixBuilder,
         {
           provide: MarketplaceCapabilityResolver,
           useValue: {
@@ -242,6 +244,7 @@ describe('MarketplaceCapabilityService — Integration (fake repo)', () => {
       module.get(MarketplaceCapabilityResolver),
       module.get(MarketplaceCapabilityVersionManager),
       module.get(MarketplaceCapabilityCompatibilityManager),
+      module.get(MarketplaceCapabilityMatrixBuilder),
       module.get(MarketplaceCapabilityAudit),
       eventQueue as any,
       metrics,

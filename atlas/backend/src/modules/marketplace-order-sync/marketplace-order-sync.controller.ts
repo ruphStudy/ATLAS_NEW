@@ -11,6 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { MarketplaceOrderSyncService } from './marketplace-order-sync.service';
+import { MetricsSnapshot } from './metrics/order-sync.metrics';
 import {
   ConflictFilterQueryDto,
   ConflictResolutionRequestDto,
@@ -163,14 +164,14 @@ export class MarketplaceOrderSyncController {
   async getMetrics(
     @Param('workspaceId') workspaceId: string,
     @Param('accountId') accountId: string,
-  ) {
+  ): Promise<MetricsSnapshot> {
     return this.service.getMetrics(workspaceId, accountId);
   }
 
   @Get('metrics/:workspaceId')
   async getAllMetrics(
     @Param('workspaceId') workspaceId: string,
-  ) {
+  ): Promise<MetricsSnapshot[]> {
     return this.service.getAllMetrics(workspaceId);
   }
 }

@@ -66,7 +66,14 @@ export class ScoringEngine {
     };
 
     const total = raw.demand + raw.competition + raw.profit + raw.supplier;
-    if (total === 0) return { ...SCORING_CONSTANTS.DEFAULT_WEIGHTS };
+    if (total === 0) {
+      return {
+        demand: SCORING_CONSTANTS.DEFAULT_WEIGHTS.DEMAND,
+        competition: SCORING_CONSTANTS.DEFAULT_WEIGHTS.COMPETITION,
+        profit: SCORING_CONSTANTS.DEFAULT_WEIGHTS.PROFIT,
+        supplier: SCORING_CONSTANTS.DEFAULT_WEIGHTS.SUPPLIER,
+      };
+    }
 
     // Normalise to sum = 1
     return {

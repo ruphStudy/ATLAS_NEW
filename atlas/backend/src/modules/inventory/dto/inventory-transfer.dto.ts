@@ -1,5 +1,6 @@
 import { IsArray, IsEnum, IsNumber, IsObject, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '@common/dto/pagination.dto';
 import { InventoryTransferStatus, InventoryTransferLineStatus, InventoryStockStatus } from '../interfaces';
 
@@ -298,6 +299,7 @@ export class InventoryTransferHistoryResponseDto {
   id!: string;
   transferId!: string;
   workspaceId!: string;
+  @ApiPropertyOptional({ enum: InventoryTransferStatus, nullable: true })
   fromStatus?: InventoryTransferStatus | null;
   toStatus!: InventoryTransferStatus;
   reason?: string | null;

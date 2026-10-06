@@ -113,19 +113,19 @@ export class AuditInputOutputDto implements IAuditInputOutput {
 export class RecordAuditDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AnalyticsAuditModule)
   @IsNotEmpty()
-  module: AnalyticsAuditModule;
+  module!: AnalyticsAuditModule;
 
   @IsEnum(AnalyticsAuditAction)
   @IsNotEmpty()
-  action: AnalyticsAuditAction;
+  action!: AnalyticsAuditAction;
 
   @IsEnum(AuditActor)
   @IsNotEmpty()
-  actor: AuditActor;
+  actor!: AuditActor;
 
   @IsString()
   @IsOptional()
@@ -141,7 +141,7 @@ export class RecordAuditDto {
 
   @IsEnum(AuditOutcome)
   @IsNotEmpty()
-  outcome: AuditOutcome;
+  outcome!: AuditOutcome;
 
   @IsNumber()
   @IsOptional()
@@ -183,13 +183,13 @@ export class BulkRecordAuditDto {
   @ValidateNested({ each: true })
   @Type(() => RecordAuditDto)
   @IsNotEmpty()
-  records: RecordAuditDto[];
+  records!: RecordAuditDto[];
 }
 
 export class AuditFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AnalyticsAuditModule)
   @IsOptional()
@@ -255,15 +255,15 @@ export class AuditFilterDto {
 export class EntityTimelineDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityType: string;
+  entityType!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityId: string;
+  entityId!: string;
 
   @IsDate()
   @Type(() => Date)
@@ -284,12 +284,12 @@ export class EntityTimelineDto {
 export class ArchiveOldRecordsDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  beforeDate: Date;
+  beforeDate!: Date;
 
   @IsBoolean()
   @IsOptional()
@@ -297,16 +297,16 @@ export class ArchiveOldRecordsDto {
 }
 
 export class AnalyticsAuditRecordResponseDto implements IAnalyticsAuditRecord {
-  id: string;
-  workspaceId: string;
-  module: AnalyticsAuditModule;
-  action: AnalyticsAuditAction;
-  actor: AuditActor;
+  id!: string;
+  workspaceId!: string;
+  module!: AnalyticsAuditModule;
+  action!: AnalyticsAuditAction;
+  actor!: AuditActor;
   actorId?: string;
   entityType?: string;
   entityId?: string;
-  timestamp: Date;
-  outcome: AuditOutcome;
+  timestamp!: Date;
+  outcome!: AuditOutcome;
   duration?: number;
   correlationId?: string;
   parentAuditId?: string;
@@ -315,45 +315,45 @@ export class AnalyticsAuditRecordResponseDto implements IAnalyticsAuditRecord {
   status?: string;
   ipAddress?: string;
   userAgent?: string;
-  immutable: boolean;
-  createdAt: Date;
+  immutable!: boolean;
+  createdAt!: Date;
 }
 
 export class AuditTimelineResponseDto implements IAuditTimeline {
-  entityType: string;
-  entityId: string;
-  records: IAnalyticsAuditRecord[];
-  totalEvents: number;
-  firstEvent: Date;
-  lastEvent: Date;
+  entityType!: string;
+  entityId!: string;
+  records!: IAnalyticsAuditRecord[];
+  totalEvents!: number;
+  firstEvent!: Date;
+  lastEvent!: Date;
 }
 
 export class SuspiciousActivityResponseDto implements ISuspiciousActivity {
-  id: string;
-  workspaceId: string;
+  id!: string;
+  workspaceId!: string;
   actorId?: string;
-  pattern: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  detectedAt: Date;
-  auditRecordIds: string[];
-  description: string;
+  pattern!: string;
+  severity!: 'low' | 'medium' | 'high' | 'critical';
+  detectedAt!: Date;
+  auditRecordIds!: string[];
+  description!: string;
   metadata?: Record<string, any>;
 }
 
 export class PaginatedAuditRecordResponseDto {
-  data: AnalyticsAuditRecordResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: AnalyticsAuditRecordResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class AuditStatisticsDto {
-  workspaceId: string;
-  totalRecords: number;
-  recordsByModule: Record<string, number>;
-  recordsByAction: Record<string, number>;
-  recordsByOutcome: Record<string, number>;
+  workspaceId!: string;
+  totalRecords!: number;
+  recordsByModule!: Record<string, number>;
+  recordsByAction!: Record<string, number>;
+  recordsByOutcome!: Record<string, number>;
   averageDuration?: number;
-  suspiciousActivityCount: number;
+  suspiciousActivityCount!: number;
 }

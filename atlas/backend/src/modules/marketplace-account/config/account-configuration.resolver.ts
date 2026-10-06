@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MarketplaceProviderRegistry } from '../marketplace-provider/registry/marketplace-provider.registry';
+import { MarketplaceProviderRegistry } from '../../marketplace-provider/registry/marketplace-provider.registry';
 import { AccountConfigResolveRequest, AccountConfigResolveResult } from '../interfaces';
 import { MP_ACCOUNT_ERROR_CODES } from '../constants';
 

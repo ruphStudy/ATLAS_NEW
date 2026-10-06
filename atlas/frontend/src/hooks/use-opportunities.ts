@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import * as opportunitiesService from '@/services/opportunities.service';
 import { useAuthStore } from '@/stores';
+import { ROUTES } from '@/constants';
 import type { CreateOpportunityPayload, OpportunityFilterParams, UpdateOpportunityPayload } from '@/types';
 import { useToast } from './use-toast';
 
@@ -51,6 +52,21 @@ export function useUpdateOpportunity(id: string) {
   });
 }
 
+/** Promotes a MarketplaceProductCandidate into an Opportunity. Idempotent on the backend — repeated calls for the same candidate return the existing Opportunity rather than erroring. */
+export function usePromoteCandidate() {
+  const queryClient = useQueryClient();
+  const toast = useToast();
+  return useMutation({
+    mutationFn: (marketplaceProductCandidateId: string) =>
+      opportunitiesService.promoteCandidate(marketplaceProductCandidateId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [KEY] });
+      toast.success('Promoted to Opportunity');
+    },
+    onError: () => toast.error('Could not promote to Opportunity', 'Please try again.'),
+  });
+}
+
 export function useDeleteOpportunity() {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -60,7 +76,7 @@ export function useDeleteOpportunity() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [KEY] });
       toast.success('Opportunity deleted');
-      router.push('/dashboard/opportunities');
+      router.push(ROUTES.OPPORTUNITIES);
     },
     onError: () => toast.error('Could not delete opportunity', 'Please try again.'),
   });

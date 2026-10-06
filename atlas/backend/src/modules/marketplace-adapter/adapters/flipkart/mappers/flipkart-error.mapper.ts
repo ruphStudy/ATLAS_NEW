@@ -64,7 +64,7 @@ export class FlipkartErrorMapper {
   }
 
   private isRetryable(errorCode: string, statusCode?: number): boolean {
-    const retryableCodes = [
+    const retryableCodes: string[] = [
       FLIPKART_ERROR_CODES.RATE_LIMIT_EXCEEDED,
       FLIPKART_ERROR_CODES.INTERNAL_ERROR,
       FLIPKART_ERROR_CODES.SERVICE_UNAVAILABLE,

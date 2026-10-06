@@ -4,13 +4,13 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class AttachInvoiceDocumentDto {
   @IsString()
   @IsNotEmpty()
-  fileName: string;
+  fileName!: string;
 
   @IsString()
   @IsNotEmpty()
-  mimeType: string;
+  mimeType!: string;
 
   @IsString()
   @IsNotEmpty()
-  contentBase64: string;
+  contentBase64!: string;
 }

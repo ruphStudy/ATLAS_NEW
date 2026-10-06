@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
-import { IAnalyticsEvent } from './interfaces';
+import { IAnalyticsEvent } from '../interfaces';
 
 @Injectable()
 export class AnalyticsFoundationEventQueue {

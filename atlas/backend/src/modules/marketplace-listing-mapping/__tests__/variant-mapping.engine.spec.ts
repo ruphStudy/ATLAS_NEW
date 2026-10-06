@@ -1,6 +1,7 @@
 import { VariantMappingEngine } from '../engines/variant-mapping.engine';
 import {
   IUniversalVariant,
+  MappedVariant,
   MarketplaceVariantRules,
   VariantStructureType,
 } from '../interfaces';
@@ -15,6 +16,20 @@ function makeVariant(overrides: Partial<IUniversalVariant> = {}): IUniversalVari
     compareAtPrice: 39.99,
     imageIds: ['img1'],
     stockQty: 50,
+    ...overrides,
+  };
+}
+
+function makeMappedVariant(overrides: Partial<MappedVariant> = {}): MappedVariant {
+  return {
+    childSku: 'SKU-RED-L',
+    name: 'Red Large',
+    attributes: { color: 'Red', size: 'L' },
+    price: 29.99,
+    compareAtPrice: 39.99,
+    imageUrls: ['img1'],
+    stockQty: 50,
+    position: 1,
     ...overrides,
   };
 }
@@ -117,8 +132,8 @@ describe('VariantMappingEngine', () => {
   describe('validateVariantCombinations()', () => {
     it('returns no issues for consistent valid themes', () => {
       const variants = [
-        { ...makeVariant(), variationTheme: 'COLOR', parentSku: null, position: 1 },
-        { ...makeVariant({ id: 'v2', sku: 'SKU-2' }), variationTheme: 'COLOR', parentSku: null, position: 2 },
+        makeMappedVariant({ variationTheme: 'COLOR', parentSku: null, position: 1 }),
+        makeMappedVariant({ childSku: 'SKU-2', variationTheme: 'COLOR', parentSku: null, position: 2 }),
       ];
       const issues = engine.validateVariantCombinations(variants, ['SIZE', 'COLOR']);
       expect(issues).toHaveLength(0);
@@ -126,7 +141,7 @@ describe('VariantMappingEngine', () => {
 
     it('warns on disallowed theme', () => {
       const variants = [
-        { ...makeVariant(), variationTheme: 'MATERIAL', parentSku: null, position: 1 },
+        makeMappedVariant({ variationTheme: 'MATERIAL', parentSku: null, position: 1 }),
       ];
       const issues = engine.validateVariantCombinations(variants, ['SIZE', 'COLOR']);
       expect(issues.some((i) => i.message.includes('MATERIAL'))).toBe(true);
@@ -134,8 +149,8 @@ describe('VariantMappingEngine', () => {
 
     it('warns on inconsistent themes across variants', () => {
       const variants = [
-        { ...makeVariant(), variationTheme: 'COLOR', parentSku: null, position: 1 },
-        { ...makeVariant({ id: 'v2', sku: 'SKU-2' }), variationTheme: 'SIZE', parentSku: null, position: 2 },
+        makeMappedVariant({ variationTheme: 'COLOR', parentSku: null, position: 1 }),
+        makeMappedVariant({ childSku: 'SKU-2', variationTheme: 'SIZE', parentSku: null, position: 2 }),
       ];
       const issues = engine.validateVariantCombinations(variants, ['SIZE', 'COLOR']);
       expect(issues.some((i) => i.message.includes('inconsistent'))).toBe(true);

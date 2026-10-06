@@ -13,27 +13,27 @@ import {
 
 export class CreateAnalyticsSnapshotDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  snapshotKey: string;
+  snapshotKey!: string;
 
   @IsEnum(AnalyticsEntityType)
-  entityType: AnalyticsEntityType;
+  entityType!: AnalyticsEntityType;
 
   @IsEnum(AnalyticsAggregation)
-  period: AnalyticsAggregation;
+  period!: AnalyticsAggregation;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsObject()
-  data: Record<string, any>;
+  data!: Record<string, any>;
 
   @IsOptional()
   @IsObject()
@@ -41,14 +41,14 @@ export class CreateAnalyticsSnapshotDto {
 }
 
 export class AnalyticsSnapshotResponseDto {
-  id: string;
-  workspaceId: string;
-  snapshotKey: string;
-  entityType: AnalyticsEntityType;
-  period: AnalyticsAggregation;
-  startDate: Date;
-  endDate: Date;
-  data: Record<string, any>;
+  id!: string;
+  workspaceId!: string;
+  snapshotKey!: string;
+  entityType!: AnalyticsEntityType;
+  period!: AnalyticsAggregation;
+  startDate!: Date;
+  endDate!: Date;
+  data!: Record<string, any>;
   metadata?: Record<string, any>;
-  createdAt: Date;
+  createdAt!: Date;
 }

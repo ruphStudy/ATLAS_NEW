@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { WorkspaceId, UserId, UserRole } from '@common/decorators';
 import { RolesPermissionsService } from './roles-permissions.service';
+import { LEGACY_FULL_AUTHORITY_ROLES } from './interfaces';
 import {
   CreateRoleDto,
   UpdateRoleDto,
@@ -220,8 +221,10 @@ export class RolesPermissionsController {
   async getMyEffectivePermissions(
     @WorkspaceId() workspaceId: string,
     @UserId() userId: string,
+    @UserRole() userRole: string,
   ): Promise<EffectivePermissionsResponseDto> {
     const permissions = await this.rolesPermissionsService.getEffectivePermissions(workspaceId, userId);
-    return { userId, workspaceId, permissions };
+    const hasFullAccess = LEGACY_FULL_AUTHORITY_ROLES.includes(userRole);
+    return { userId, workspaceId, permissions, hasFullAccess };
   }
 }

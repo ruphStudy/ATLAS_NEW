@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   AiDecisionStatus,
   AiDecisionType,
@@ -7,11 +8,11 @@ import {
 } from '../interfaces';
 
 export class DecisionResponseDto {
-  id: string;
-  workspaceId: string;
-  status: AiDecisionStatus;
-  decisionType: AiDecisionType;
-  decisionMethod: AiDecisionMethod;
+  id!: string;
+  workspaceId!: string;
+  status!: AiDecisionStatus;
+  decisionType!: AiDecisionType;
+  decisionMethod!: AiDecisionMethod;
   orchestratorRequestId?: string | null;
   agentExecutionId?: string | null;
   workflowExecutionId?: string | null;
@@ -22,6 +23,7 @@ export class DecisionResponseDto {
   inputSnapshot: unknown;
   constraints: unknown;
   objectives: unknown;
+  @ApiPropertyOptional({ enum: AiDecisionOutcome, nullable: true })
   outcome?: AiDecisionOutcome | null;
   selectedCandidateId?: string | null;
   finalScore?: number | null;
@@ -33,7 +35,7 @@ export class DecisionResponseDto {
   modelProvider?: string | null;
   modelName?: string | null;
   ruleVersion?: string | null;
-  requiresHumanApproval: boolean;
+  requiresHumanApproval!: boolean;
   approvedBy?: string | null;
   approvedAt?: Date | null;
   reviewedBy?: string | null;
@@ -43,75 +45,75 @@ export class DecisionResponseDto {
   evaluationStartTime?: Date | null;
   evaluationEndTime?: Date | null;
   evaluationDuration?: number | null;
-  tags: string[];
+  tags!: string[];
   metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedDecisionResponseDto {
-  data: DecisionResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: DecisionResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class DecisionResultDto {
-  decisionId: string;
-  status: AiDecisionStatus;
+  decisionId!: string;
+  status!: AiDecisionStatus;
   outcome?: AiDecisionOutcome;
   selectedCandidate?: CandidateDto;
   finalScore?: number;
   confidenceScore?: number;
   rationale?: string;
-  risks: RiskDto[];
-  alternatives: AlternativeDto[];
+  risks!: RiskDto[];
+  alternatives!: AlternativeDto[];
   supportingEvidence?: unknown;
 }
 
 export class CandidateDto {
-  id: string;
+  id!: string;
   candidateData: unknown;
   candidateLabel?: string;
   score?: number;
-  selected: boolean;
+  selected!: boolean;
   rank?: number;
   pros: unknown;
   cons: unknown;
 }
 
 export class RiskDto {
-  type: string;
-  severity: string;
-  description: string;
+  type!: string;
+  severity!: string;
+  description!: string;
   mitigation?: string;
 }
 
 export class AlternativeDto {
-  candidateId: string;
-  score: number;
-  reason: string;
+  candidateId!: string;
+  score!: number;
+  reason!: string;
 }
 
 export class DecisionRuleResponseDto {
-  id: string;
+  id!: string;
   workspaceId?: string | null;
-  name: string;
-  decisionType: string;
-  method: string;
+  name!: string;
+  decisionType!: string;
+  method!: string;
   capability?: string | null;
   useCase?: string | null;
   ruleConfig: unknown;
   weights: unknown;
   thresholds: unknown;
-  priority: number;
-  enabled: boolean;
-  requiresApproval: boolean;
+  priority!: number;
+  enabled!: boolean;
+  requiresApproval!: boolean;
   approvalThreshold?: number | null;
-  version: string;
-  tags: string[];
+  version!: string;
+  tags!: string[];
   metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

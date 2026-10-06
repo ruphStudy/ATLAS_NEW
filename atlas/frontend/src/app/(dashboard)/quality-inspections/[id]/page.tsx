@@ -79,7 +79,7 @@ export default function QualityInspectionDetailPage() {
     <div>
       <PageHeader
         title={inspection.inspectionNumber}
-        breadcrumbs={[{ label: 'Quality Inspections', href: '/dashboard/quality-inspections' }, { label: inspection.inspectionNumber }]}
+        breadcrumbs={[{ label: 'Quality Inspections', href: '/quality-inspections' }, { label: inspection.inspectionNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={inspection.status} />

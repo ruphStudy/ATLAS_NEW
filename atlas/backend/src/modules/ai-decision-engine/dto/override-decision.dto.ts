@@ -12,11 +12,11 @@ import {
 export class OverrideDecisionDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiDecisionOverrideReason)
   @IsNotEmpty()
-  overrideReason: AiDecisionOverrideReason;
+  overrideReason!: AiDecisionOverrideReason;
 
   @IsString()
   @IsOptional()
@@ -24,7 +24,7 @@ export class OverrideDecisionDto {
 
   @IsEnum(AiDecisionOutcome)
   @IsNotEmpty()
-  newOutcome: AiDecisionOutcome;
+  newOutcome!: AiDecisionOutcome;
 
   @IsString()
   @IsOptional()
@@ -32,7 +32,7 @@ export class OverrideDecisionDto {
 
   @IsString()
   @IsNotEmpty()
-  overriddenBy: string;
+  overriddenBy!: string;
 
   @IsString()
   @IsOptional()

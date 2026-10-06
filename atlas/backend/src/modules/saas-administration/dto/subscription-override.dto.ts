@@ -5,12 +5,12 @@ import { SubscriptionStatus } from '@modules/subscription-management/interfaces'
 export class SubscriptionOverrideDto {
   @IsString()
   @IsNotEmpty()
-  subscriptionId: string;
+  subscriptionId!: string;
 
   @IsEnum(SubscriptionStatus)
-  toStatus: SubscriptionStatus;
+  toStatus!: SubscriptionStatus;
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }

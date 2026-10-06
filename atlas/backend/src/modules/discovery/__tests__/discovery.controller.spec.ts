@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { DiscoveryController } from '../discovery.controller';
 import { DiscoveryService } from '../discovery.service';
-import { DiscoverySessionStatus } from '../interfaces';
+import { DiscoveryMode, DiscoverySessionStatus } from '../interfaces';
 import type { DiscoverySessionResponseDto } from '../dto';
 import type { IDiscoverySessionListResult } from '../interfaces';
 
@@ -22,8 +22,10 @@ const MOCK_SESSION_DTO: DiscoverySessionResponseDto = {
   country: 'US',
   categories: ['Electronics'],
   keywords: ['wireless earbuds'],
+  mode: DiscoveryMode.KEYWORD,
   status: DiscoverySessionStatus.PENDING,
   totalDiscovered: 0,
+  newCandidates: 0,
   newOpportunities: 0,
   duplicatesSkipped: 0,
   errorMessage: null,
@@ -160,6 +162,7 @@ describe('DiscoveryController', () => {
         totalSessions: 3,
         runningSessions: 0,
         totalDiscovered: 30,
+        totalNewCandidates: 20,
         totalNewOpportunities: 20,
         totalDuplicatesSkipped: 10,
         byMarketplace: { AMAZON: 3 },

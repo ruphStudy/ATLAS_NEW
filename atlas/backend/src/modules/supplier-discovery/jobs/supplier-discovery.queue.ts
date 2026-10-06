@@ -48,7 +48,7 @@ export class SupplierDiscoveryQueue implements OnModuleInit, OnModuleDestroy {
       return null;
     }
     const job = await this.queue.add(SUPPLIER_DISCOVERY_CONSTANTS.JOB_NAME, data, {
-      jobId: `supplier-discovery:${data.sessionId}`,
+      jobId: `supplier-discovery-${data.sessionId}`, // idempotent per session (BullMQ custom IDs cannot contain ':')
     });
     return job.id ?? null;
   }

@@ -17,13 +17,13 @@ export class RegisterAiModelDto {
   workspaceId?: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsString()
-  modelKey: string;
+  modelKey!: string;
 
   @IsString()
-  displayName: string;
+  displayName!: string;
 
   @IsOptional()
   @IsString()
@@ -35,11 +35,11 @@ export class RegisterAiModelDto {
 
   @IsArray()
   @IsString({ each: true })
-  capabilities: string[];
+  capabilities!: string[];
 
   @IsArray()
   @IsString({ each: true })
-  modalities: string[];
+  modalities!: string[];
 
   @IsOptional()
   @IsInt()

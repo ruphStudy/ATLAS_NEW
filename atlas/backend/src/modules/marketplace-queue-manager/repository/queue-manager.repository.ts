@@ -3,18 +3,37 @@ import { BaseRepository } from '../../../database/base.repository';
 import { PrismaService } from '../../../database/prisma.service';
 import { QueueType, JobState } from '../interfaces';
 
+interface IJobMetadataRecord {
+  id: string;
+  failedReason: string | null;
+  finishedAt: Date | null;
+}
+
 @Injectable()
 export class QueueManagerRepository extends BaseRepository {
   constructor(prisma: PrismaService) {
     super(prisma);
   }
 
+  private model(name: string) {
+    return (this.prisma as unknown as Record<string, unknown>)[name] as Record<string, unknown>;
+  }
+
+  private call<T>(model: string, method: string, args: unknown): Promise<T> {
+    const m = this.model(model);
+    return (m[method] as (a: unknown) => Promise<T>)(args);
+  }
+
   async findQueueConfig(queueName: string) {
-    return this.findUnique('MarketplaceQueueConfig', { queueName });
+    return this.call<Record<string, unknown> | null>('marketplaceQueueConfig', 'findFirst', {
+      where: { queueName },
+    });
   }
 
   async findAllQueueConfigs() {
-    return this.findMany('MarketplaceQueueConfig', {});
+    return this.call<Record<string, unknown>[]>('marketplaceQueueConfig', 'findMany', {
+      where: {},
+    });
   }
 
   async createQueueConfig(data: {
@@ -26,7 +45,7 @@ export class QueueManagerRepository extends BaseRepository {
     enableMetrics?: boolean;
     enableDeadLetter?: boolean;
   }) {
-    return this.create('MarketplaceQueueConfig', data);
+    return this.call<Record<string, unknown>>('marketplaceQueueConfig', 'create', { data });
   }
 
   async updateQueueConfig(
@@ -39,13 +58,15 @@ export class QueueManagerRepository extends BaseRepository {
       enableDeadLetter: boolean;
     }>,
   ) {
-    return this.update('MarketplaceQueueConfig', { queueName }, data);
+    return this.call<Record<string, unknown>>('marketplaceQueueConfig', 'update', {
+      where: { queueName },
+      data,
+    });
   }
 
   async findJobMetadata(workspaceId: string, jobId: string) {
-    return this.findUnique('MarketplaceJobMetadata', {
-      id: jobId,
-      workspaceId,
+    return this.call<Record<string, unknown> | null>('marketplaceJobMetadata', 'findFirst', {
+      where: { id: jobId, workspaceId },
     });
   }
 
@@ -54,25 +75,24 @@ export class QueueManagerRepository extends BaseRepository {
     queueType: QueueType,
     state: JobState,
   ) {
-    return this.findMany('MarketplaceJobMetadata', {
-      workspaceId,
-      queueType,
-      state,
+    return this.call<Record<string, unknown>[]>('marketplaceJobMetadata', 'findMany', {
+      where: { workspaceId, queueType, state },
     });
   }
 
   async findJobsByQueue(workspaceId: string, queueName: string) {
-    return this.findMany('MarketplaceJobMetadata', {
-      workspaceId,
-      queueName,
+    return this.call<Record<string, unknown>[]>('marketplaceJobMetadata', 'findMany', {
+      where: { workspaceId, queueName },
     });
   }
 
   async findStaleJobs(queueType: QueueType, thresholdDate: Date) {
-    return this.findMany('MarketplaceJobMetadata', {
-      queueType,
-      state: JobState.ACTIVE,
-      processedAt: { lte: thresholdDate },
+    return this.call<Record<string, unknown>[]>('marketplaceJobMetadata', 'findMany', {
+      where: {
+        queueType,
+        state: JobState.ACTIVE,
+        processedAt: { lte: thresholdDate },
+      },
     });
   }
 
@@ -91,7 +111,7 @@ export class QueueManagerRepository extends BaseRepository {
     idempotencyKey?: string;
     addedAt: Date;
   }) {
-    return this.create('MarketplaceJobMetadata', data);
+    return this.call<Record<string, unknown>>('marketplaceJobMetadata', 'create', { data });
   }
 
   async updateJobMetadata(
@@ -107,17 +127,15 @@ export class QueueManagerRepository extends BaseRepository {
       stacktrace: string[];
     }>,
   ) {
-    return this.update(
-      'MarketplaceJobMetadata',
-      { id: jobId, workspaceId },
+    return this.call<Record<string, unknown>>('marketplaceJobMetadata', 'update', {
+      where: { id: jobId, workspaceId },
       data,
-    );
+    });
   }
 
   async findByIdempotencyKey(workspaceId: string, idempotencyKey: string) {
-    const jobs = await this.findMany('MarketplaceJobMetadata', {
-      workspaceId,
-      idempotencyKey,
+    const jobs = await this.call<Record<string, unknown>[]>('marketplaceJobMetadata', 'findMany', {
+      where: { workspaceId, idempotencyKey },
     });
     return jobs[0] || null;
   }
@@ -132,23 +150,22 @@ export class QueueManagerRepository extends BaseRepository {
     message?: string;
     metadata?: Record<string, any>;
   }) {
-    return this.create('MarketplaceJobHistory', {
-      ...data,
-      timestamp: new Date(),
+    return this.call<Record<string, unknown>>('marketplaceJobHistory', 'create', {
+      data: {
+        ...data,
+        timestamp: new Date(),
+      },
     });
   }
 
   async findJobHistory(workspaceId: string, jobId: string) {
-    return this.findMany(
-      'MarketplaceJobHistory',
-      {
+    return this.call<Record<string, unknown>[]>('marketplaceJobHistory', 'findMany', {
+      where: {
         workspaceId,
         jobId,
       },
-      {
-        orderBy: { timestamp: 'asc' },
-      },
-    );
+      orderBy: { timestamp: 'asc' },
+    });
   }
 
   async createDeadLetterJob(data: {
@@ -162,10 +179,12 @@ export class QueueManagerRepository extends BaseRepository {
     failedReason: string;
     attempts: number;
   }) {
-    return this.create('MarketplaceDeadLetterJob', {
-      ...data,
-      failedAt: new Date(),
-      isReprocessed: false,
+    return this.call<Record<string, unknown>>('marketplaceDeadLetterJob', 'create', {
+      data: {
+        ...data,
+        failedAt: new Date(),
+        isReprocessed: false,
+      },
     });
   }
 
@@ -179,20 +198,26 @@ export class QueueManagerRepository extends BaseRepository {
       where.queueType = queueType;
     }
 
-    return this.findMany('MarketplaceDeadLetterJob', where, {
+    return this.call<Record<string, unknown>[]>('marketplaceDeadLetterJob', 'findMany', {
+      where,
       orderBy: { failedAt: 'desc' },
     });
   }
 
+  async findDeadLetterJobById(id: string, workspaceId: string) {
+    return this.call<Record<string, unknown> | null>('marketplaceDeadLetterJob', 'findFirst', {
+      where: { id, workspaceId },
+    });
+  }
+
   async markDeadLetterJobReprocessed(workspaceId: string, jobId: string) {
-    return this.update(
-      'MarketplaceDeadLetterJob',
-      { id: jobId, workspaceId },
-      {
+    return this.call<Record<string, unknown>>('marketplaceDeadLetterJob', 'update', {
+      where: { id: jobId, workspaceId },
+      data: {
         isReprocessed: true,
         reprocessedAt: new Date(),
       },
-    );
+    });
   }
 
   async findRateLimitConfig(
@@ -201,11 +226,13 @@ export class QueueManagerRepository extends BaseRepository {
     accountId: string | undefined,
     queueType: QueueType,
   ) {
-    return this.findUnique('MarketplaceQueueRateLimit', {
-      workspaceId,
-      provider,
-      accountId: accountId || '',
-      queueType,
+    return this.call<Record<string, unknown> | null>('marketplaceQueueRateLimit', 'findFirst', {
+      where: {
+        workspaceId,
+        provider,
+        accountId: accountId || '',
+        queueType,
+      },
     });
   }
 
@@ -219,9 +246,11 @@ export class QueueManagerRepository extends BaseRepository {
     maxPerHour: number;
     isEnabled: boolean;
   }) {
-    return this.create('MarketplaceQueueRateLimit', {
-      ...data,
-      accountId: data.accountId || '',
+    return this.call<Record<string, unknown>>('marketplaceQueueRateLimit', 'create', {
+      data: {
+        ...data,
+        accountId: data.accountId || '',
+      },
     });
   }
 
@@ -237,16 +266,17 @@ export class QueueManagerRepository extends BaseRepository {
       isEnabled: boolean;
     }>,
   ) {
-    return this.update(
-      'MarketplaceQueueRateLimit',
-      {
-        workspaceId,
-        provider,
-        accountId: accountId || '',
-        queueType,
+    return this.call<Record<string, unknown>>('marketplaceQueueRateLimit', 'update', {
+      where: {
+        workspaceId_provider_accountId_queueType: {
+          workspaceId,
+          provider,
+          accountId: accountId || '',
+          queueType,
+        },
       },
       data,
-    );
+    });
   }
 
   async aggregateErrorsByType(
@@ -255,13 +285,15 @@ export class QueueManagerRepository extends BaseRepository {
     startDate: Date,
     endDate: Date,
   ) {
-    const jobs = await this.findMany('MarketplaceJobMetadata', {
-      workspaceId,
-      queueType,
-      state: JobState.FAILED,
-      finishedAt: {
-        gte: startDate,
-        lte: endDate,
+    const jobs = await this.call<IJobMetadataRecord[]>('marketplaceJobMetadata', 'findMany', {
+      where: {
+        workspaceId,
+        queueType,
+        state: JobState.FAILED,
+        finishedAt: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
     });
 
@@ -278,7 +310,7 @@ export class QueueManagerRepository extends BaseRepository {
     >();
 
     for (const job of jobs) {
-      const errorType = this.extractErrorType(job.failedReason);
+      const errorType = this.extractErrorType(job.failedReason ?? undefined);
       if (!errorMap.has(errorType)) {
         errorMap.set(errorType, {
           type: errorType,
@@ -319,17 +351,14 @@ export class QueueManagerRepository extends BaseRepository {
     queueType: QueueType,
     state: JobState,
   ) {
-    return this.count('MarketplaceJobMetadata', {
-      workspaceId,
-      queueType,
-      state,
+    return this.call<number>('marketplaceJobMetadata', 'count', {
+      where: { workspaceId, queueType, state },
     });
   }
 
   async deleteJobMetadata(workspaceId: string, jobId: string) {
-    return this.delete('MarketplaceJobMetadata', {
-      id: jobId,
-      workspaceId,
+    return this.call<Record<string, unknown>>('marketplaceJobMetadata', 'delete', {
+      where: { id: jobId, workspaceId },
     });
   }
 }

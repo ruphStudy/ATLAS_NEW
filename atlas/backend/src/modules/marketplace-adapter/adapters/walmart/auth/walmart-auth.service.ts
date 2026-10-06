@@ -59,7 +59,7 @@ export class WalmartAuthService {
       };
     } catch (error) {
       this.logger.error('Failed to generate Walmart access token', error);
-      throw new Error('Walmart token generation failed: ' + error.message);
+      throw new Error('Walmart token generation failed: ' + (error as Error).message);
     }
   }
 

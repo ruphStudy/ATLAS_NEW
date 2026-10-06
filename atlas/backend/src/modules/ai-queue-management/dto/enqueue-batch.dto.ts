@@ -11,7 +11,7 @@ import { EnqueueJobDto } from './enqueue-job.dto';
 class BatchJobItem {
   @IsString()
   @IsNotEmpty()
-  jobType: string;
+  jobType!: string;
 
   @IsNotEmpty()
   jobData: unknown;
@@ -26,11 +26,11 @@ class BatchJobItem {
 export class EnqueueBatchDto {
   @IsString()
   @IsNotEmpty()
-  queueName: string;
+  queueName!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -39,5 +39,5 @@ export class EnqueueBatchDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BatchJobItem)
-  jobs: BatchJobItem[];
+  jobs!: BatchJobItem[];
 }

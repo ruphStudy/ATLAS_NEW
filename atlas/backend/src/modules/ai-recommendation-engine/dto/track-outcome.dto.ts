@@ -10,7 +10,7 @@ import {
 export class TrackOutcomeDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -18,11 +18,11 @@ export class TrackOutcomeDto {
 
   @IsString()
   @IsNotEmpty()
-  outcomeType: string;
+  outcomeType!: string;
 
   @IsBoolean()
   @IsNotEmpty()
-  success: boolean;
+  success!: boolean;
 
   @IsObject()
   @IsOptional()

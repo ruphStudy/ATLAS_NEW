@@ -5,19 +5,19 @@ import { MAX_BULK_INDEX_SIZE } from '../constants';
 export class IndexDocumentDto {
   @IsString()
   @IsNotEmpty()
-  module: string;
+  module!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityType: string;
+  entityType!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityId: string;
+  entityId!: string;
 
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsOptional()
@@ -60,7 +60,7 @@ export class IndexDocumentDto {
   /** Opaque, owning-module-defined pointer used to navigate to the entity (e.g. { route, params }). */
   @IsObject()
   @IsNotEmpty()
-  navigationRef: Record<string, unknown>;
+  navigationRef!: Record<string, unknown>;
 
   @IsObject()
   @IsOptional()
@@ -72,5 +72,5 @@ export class BulkIndexDto {
   @ArrayMaxSize(MAX_BULK_INDEX_SIZE)
   @ValidateNested({ each: true })
   @Type(() => IndexDocumentDto)
-  documents: IndexDocumentDto[];
+  documents!: IndexDocumentDto[];
 }

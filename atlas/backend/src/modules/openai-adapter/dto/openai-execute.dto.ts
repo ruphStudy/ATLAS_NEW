@@ -1,18 +1,19 @@
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean, IsArray, IsObject, IsEnum } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { OpenAiExecutionMode } from '../interfaces';
 
 export class OpenAiExecuteDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  model: string;
+  model!: string;
 
   @IsString()
   @IsNotEmpty()
-  capability: string;
+  capability!: string;
 
   @IsString()
   @IsOptional()
@@ -20,6 +21,10 @@ export class OpenAiExecuteDto {
 
   @IsArray()
   @IsOptional()
+  @ApiPropertyOptional({
+    type: 'array',
+    items: { type: 'object' },
+  })
   messages?: Array<{
     role: 'system' | 'user' | 'assistant' | 'tool';
     content: string | any[];

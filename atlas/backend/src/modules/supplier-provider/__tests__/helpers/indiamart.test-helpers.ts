@@ -1,6 +1,6 @@
 // ── Shared test helpers for IndiaMART adapter tests ──────────
 
-import { AdapterCapability, IntegrationStrategy } from '../../../adapter.types';
+import { AdapterCapability, IntegrationStrategy } from '../../adapters/adapter.types';
 
 export const INDIAMART_ADAPTER_CAPABILITIES = [
   AdapterCapability.SEARCH_SUPPLIERS,

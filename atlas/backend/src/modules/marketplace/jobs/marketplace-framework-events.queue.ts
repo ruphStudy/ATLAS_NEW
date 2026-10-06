@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Queue } from 'bullmq';
+import { ConfigurationService } from '@config/configuration.service';
 import { QUEUE_NAMES } from '@common/constants';
 import { MarketplaceFrameworkEventPayload } from '../interfaces';
 
@@ -8,14 +9,12 @@ export class MarketplaceFrameworkEventQueue implements OnModuleDestroy {
   private readonly logger = new Logger(MarketplaceFrameworkEventQueue.name);
   private readonly queue: Queue<MarketplaceFrameworkEventPayload>;
 
-  constructor() {
+  constructor(configService: ConfigurationService) {
+    const redis = configService.getRedisConfig();
     this.queue = new Queue<MarketplaceFrameworkEventPayload>(
       QUEUE_NAMES.MARKETPLACE_FRAMEWORK_EVENTS,
       {
-        connection: {
-          host: process.env['REDIS_HOST'] ?? 'localhost',
-          port: Number(process.env['REDIS_PORT'] ?? 6379),
-        },
+        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
       },
     );
   }

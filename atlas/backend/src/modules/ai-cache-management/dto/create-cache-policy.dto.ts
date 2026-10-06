@@ -4,11 +4,11 @@ import { AiCacheScope, AiCacheStrategy } from '../interfaces';
 export class CreateCachePolicyDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -16,11 +16,11 @@ export class CreateCachePolicyDto {
 
   @IsEnum(AiCacheScope)
   @IsNotEmpty()
-  scope: AiCacheScope;
+  scope!: AiCacheScope;
 
   @IsEnum(AiCacheStrategy)
   @IsNotEmpty()
-  strategy: AiCacheStrategy;
+  strategy!: AiCacheStrategy;
 
   @IsString()
   @IsOptional()
@@ -48,7 +48,7 @@ export class CreateCachePolicyDto {
 
   @IsNumber()
   @IsNotEmpty()
-  ttlSeconds: number;
+  ttlSeconds!: number;
 
   @IsNumber()
   @IsOptional()

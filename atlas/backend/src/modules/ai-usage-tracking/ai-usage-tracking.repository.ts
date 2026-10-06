@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AiUsageQuotaScope } from '@prisma/client';
 import { BaseRepository } from '@database/base.repository';
 import { PrismaService } from '@database/prisma.service';
 import {
@@ -274,9 +275,13 @@ export class AiUsageTrackingRepository extends BaseRepository {
         enabled: true,
         deletedAt: null,
         OR: [
-          { scope: 'WORKSPACE' },
-          ...(params.feature ? [{ scope: 'FEATURE', feature: params.feature }] : []),
-          ...(params.projectId ? [{ scope: 'PROJECT', projectId: params.projectId }] : []),
+          { scope: AiUsageQuotaScope.WORKSPACE },
+          ...(params.feature
+            ? [{ scope: AiUsageQuotaScope.FEATURE, feature: params.feature }]
+            : []),
+          ...(params.projectId
+            ? [{ scope: AiUsageQuotaScope.PROJECT, projectId: params.projectId }]
+            : []),
         ],
       },
     }) as Promise<IAiUsageQuota[]>;

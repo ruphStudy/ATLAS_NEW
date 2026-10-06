@@ -67,7 +67,7 @@ export default function PutawayPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((t) => (
-              <TableRow key={t.id} clickable onClick={() => router.push(`/dashboard/putaway/${t.id}`)}>
+              <TableRow key={t.id} clickable onClick={() => router.push(`/putaway/${t.id}`)}>
                 <TableCell className="text-sm font-medium text-foreground">{t.taskNumber}</TableCell>
                 <TableCell>
                   <StatusBadge status={t.status} />

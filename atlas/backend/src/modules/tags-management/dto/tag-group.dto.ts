@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsOptional, IsInt, Min } from 'class-validator';
 export class CreateTagGroupDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()

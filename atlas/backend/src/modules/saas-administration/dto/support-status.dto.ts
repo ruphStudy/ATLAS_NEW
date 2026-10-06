@@ -3,7 +3,7 @@ import { SupportStatus } from '../interfaces';
 
 export class UpdateSupportStatusDto {
   @IsEnum(SupportStatus)
-  supportStatus: SupportStatus;
+  supportStatus!: SupportStatus;
 
   @IsString()
   @IsOptional()

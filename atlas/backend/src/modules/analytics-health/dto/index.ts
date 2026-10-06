@@ -31,7 +31,7 @@ export class HealthMetricsDto implements IHealthMetrics {
   @Min(0)
   @Max(1)
   @IsNotEmpty()
-  availability: number;
+  availability!: number;
 
   @IsNumber()
   @Min(0)
@@ -88,7 +88,7 @@ export class PerformHealthCheckDto {
 export class GetWorkspaceHealthDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsBoolean()
   @IsOptional()
@@ -102,7 +102,7 @@ export class GetServiceHealthDto {
 
   @IsEnum(AnalyticsService)
   @IsNotEmpty()
-  service: AnalyticsService;
+  service!: AnalyticsService;
 }
 
 export class ReportIncidentDto {
@@ -112,19 +112,19 @@ export class ReportIncidentDto {
 
   @IsEnum(AnalyticsService)
   @IsNotEmpty()
-  service: AnalyticsService;
+  service!: AnalyticsService;
 
   @IsEnum(['low', 'medium', 'high', 'critical'])
   @IsNotEmpty()
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity!: 'low' | 'medium' | 'high' | 'critical';
 
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   @IsNumber()
   @IsOptional()
@@ -142,7 +142,7 @@ export class ReportIncidentDto {
 export class ResolveIncidentDto {
   @IsString()
   @IsNotEmpty()
-  incidentId: string;
+  incidentId!: string;
 
   @IsString()
   @IsOptional()
@@ -179,58 +179,58 @@ export class GetHealthHistoryDto {
 }
 
 export class ServiceHealthResponseDto implements IServiceHealth {
-  service: AnalyticsService;
-  status: HealthStatus;
-  metrics: IHealthMetrics;
+  service!: AnalyticsService;
+  status!: HealthStatus;
+  metrics!: IHealthMetrics;
   lastSuccessful?: Date;
-  lastCheck: Date;
+  lastCheck!: Date;
   issues?: string[];
   metadata?: Record<string, any>;
 }
 
 export class WorkspaceHealthSummaryResponseDto implements IWorkspaceHealthSummary {
-  workspaceId: string;
-  overallStatus: HealthStatus;
-  services: IServiceHealth[];
-  totalServices: number;
-  healthyServices: number;
-  degradedServices: number;
-  failedServices: number;
-  lastUpdated: Date;
+  workspaceId!: string;
+  overallStatus!: HealthStatus;
+  services!: IServiceHealth[];
+  totalServices!: number;
+  healthyServices!: number;
+  degradedServices!: number;
+  failedServices!: number;
+  lastUpdated!: Date;
 }
 
 export class SystemHealthSummaryResponseDto implements ISystemHealthSummary {
-  overallStatus: HealthStatus;
-  totalWorkspaces: number;
-  healthyWorkspaces: number;
-  degradedWorkspaces: number;
-  failedWorkspaces: number;
-  services: IServiceHealth[];
-  lastUpdated: Date;
+  overallStatus!: HealthStatus;
+  totalWorkspaces!: number;
+  healthyWorkspaces!: number;
+  degradedWorkspaces!: number;
+  failedWorkspaces!: number;
+  services!: IServiceHealth[];
+  lastUpdated!: Date;
 }
 
 export class HealthCheckResponseDto implements IHealthCheck {
-  id: string;
+  id!: string;
   workspaceId?: string;
   service?: AnalyticsService;
-  type: HealthCheckType;
-  status: HealthStatus;
+  type!: HealthCheckType;
+  status!: HealthStatus;
   metrics?: IHealthMetrics;
   issues?: string[];
   triggeredBy?: string;
-  completedAt: Date;
+  completedAt!: Date;
   duration?: number;
 }
 
 export class HealthIncidentResponseDto implements IHealthIncident {
-  id: string;
+  id!: string;
   workspaceId?: string;
-  service: AnalyticsService;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  status: 'open' | 'investigating' | 'resolved';
-  title: string;
-  description: string;
-  detectedAt: Date;
+  service!: AnalyticsService;
+  severity!: 'low' | 'medium' | 'high' | 'critical';
+  status!: 'open' | 'investigating' | 'resolved';
+  title!: string;
+  description!: string;
+  detectedAt!: Date;
   resolvedAt?: Date;
   affectedOperations?: number;
   errorSummary?: string;
@@ -238,10 +238,10 @@ export class HealthIncidentResponseDto implements IHealthIncident {
 }
 
 export class OperationStatusResponseDto implements IOperationStatus {
-  operationType: string;
+  operationType!: string;
   lastSuccessful?: Date;
   lastFailed?: Date;
-  consecutiveFailures: number;
-  isStuck: boolean;
-  isDelayed: boolean;
+  consecutiveFailures!: number;
+  isStuck!: boolean;
+  isDelayed!: boolean;
 }

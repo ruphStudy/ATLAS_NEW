@@ -18,6 +18,7 @@ const MOCK_RESPONSE: OpportunityResponseDto = {
   marketplace: 'AMAZON_US',
   country: 'US',
   category: 'Electronics',
+  marketplaceProductCandidateId: null,
   demandScore: 78.5,
   competitionScore: 42.0,
   supplierScore: 65.0,

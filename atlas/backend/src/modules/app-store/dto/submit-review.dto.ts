@@ -5,7 +5,7 @@ export class SubmitReviewDto {
   @IsInt()
   @Min(MIN_RATING)
   @Max(MAX_RATING)
-  rating: number;
+  rating!: number;
 
   @IsString()
   @IsOptional()

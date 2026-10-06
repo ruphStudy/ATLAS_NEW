@@ -1,49 +1,49 @@
 import { AiJobStatus, AiJobType, AiJobTaskType, AiJobPriority } from '../interfaces';
 
 export class AiJobResponseDto {
-  id: string;
-  workspaceId: string;
-  key: string;
-  name: string;
+  id!: string;
+  workspaceId!: string;
+  key!: string;
+  name!: string;
   description?: string | null;
-  type: AiJobType;
-  taskType: AiJobTaskType;
-  priority: AiJobPriority;
-  status: AiJobStatus;
+  type!: AiJobType;
+  taskType!: AiJobTaskType;
+  priority!: AiJobPriority;
+  status!: AiJobStatus;
   taskConfig: unknown;
   scheduleConfig?: unknown | null;
   timeout?: number | null;
-  maxRetries: number;
+  maxRetries!: number;
   retryBackoff?: unknown | null;
   concurrencyLimit?: number | null;
   idempotencyKey?: string | null;
   startAfter?: Date | null;
   lastExecutedAt?: Date | null;
   nextExecutionAt?: Date | null;
-  executionCount: number;
-  successCount: number;
-  failureCount: number;
-  tags: string[];
+  executionCount!: number;
+  successCount!: number;
+  failureCount!: number;
+  tags!: string[];
   metadata: unknown;
   createdBy?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedAiJobResponseDto {
-  data: AiJobResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: AiJobResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class JobExecutionResponseDto {
-  id: string;
-  jobId: string;
-  workspaceId: string;
-  status: AiJobStatus;
-  attemptNumber: number;
+  id!: string;
+  jobId!: string;
+  workspaceId!: string;
+  status!: AiJobStatus;
+  attemptNumber!: number;
   input?: unknown | null;
   output?: unknown | null;
   progress?: number | null;
@@ -57,21 +57,21 @@ export class JobExecutionResponseDto {
   cost?: number | null;
   tokens?: number | null;
   metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedExecutionResponseDto {
-  data: JobExecutionResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: JobExecutionResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class ExecutionResultDto {
-  executionId: string;
-  status: AiJobStatus;
+  executionId!: string;
+  status!: AiJobStatus;
   output?: unknown;
   cost?: number;
   tokens?: number;

@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigurationService } from '@config/configuration.service';
 import { BaseAdapter } from '../../adapter/base.adapter';
-import { AmazonSpApiClient } from '../client/amazon-sp-api.client';
-import { AmazonAuthService } from '../auth/amazon-auth.service';
-import { AmazonRequestMapper } from '../mappers/amazon-request.mapper';
-import { AmazonResponseMapper } from '../mappers/amazon-response.mapper';
-import { AmazonErrorMapper } from '../mappers/amazon-error.mapper';
-import { AmazonAdapterEventQueue } from '../events/amazon-adapter-event.queue';
+import { AmazonSpApiClient } from './client/amazon-sp-api.client';
+import { AmazonAuthService } from './auth/amazon-auth.service';
+import { AmazonRequestMapper } from './mappers/amazon-request.mapper';
+import { AmazonResponseMapper } from './mappers/amazon-response.mapper';
+import { AmazonErrorMapper } from './mappers/amazon-error.mapper';
+import { AmazonAdapterEventQueue } from './events/amazon-adapter-event.queue';
 import { ResponseNormalizer } from '../../normalizer/response.normalizer';
 import {
   IAdapterCapabilities,
@@ -16,17 +17,18 @@ import {
   AdapterOperation,
   ApiVersion,
 } from '../../interfaces';
-import { IAmazonCredentials } from '../interfaces/amazon.interfaces';
+import { IAmazonCredentials, AmazonMarketplace, IAmazonCatalogSearchParams } from './interfaces/amazon.interfaces';
 import {
   AMAZON_API_PATHS,
+  AMAZON_CATALOG_INCLUDED_DATA,
   AMAZON_RATE_LIMITS,
-  AMAZON_MARKETPLACE_REGIONS,
-} from '../constants/amazon.constants';
+} from './constants/amazon.constants';
+import { composeAmazonCredentials } from './amazon-credentials.composer';
 
 @Injectable()
 export class AmazonAdapter extends BaseAdapter {
   private readonly logger = new Logger(AmazonAdapter.name);
-  private amazonCredentials: IAmazonCredentials;
+  private amazonCredentials!: IAmazonCredentials;
 
   constructor(
     private readonly spApiClient: AmazonSpApiClient,
@@ -36,20 +38,22 @@ export class AmazonAdapter extends BaseAdapter {
     private readonly errorMapper: AmazonErrorMapper,
     private readonly eventQueue: AmazonAdapterEventQueue,
     private readonly responseNormalizer: ResponseNormalizer,
+    private readonly configurationService: ConfigurationService,
   ) {
     super();
   }
 
   protected async onInitialize(): Promise<void> {
-    this.amazonCredentials = {
-      clientId: this.credentials.credentials.clientId,
-      clientSecret: this.credentials.credentials.clientSecret,
-      refreshToken: this.credentials.credentials.refreshToken,
-      sellerId: this.credentials.credentials.sellerId,
-      marketplace: this.credentials.credentials.marketplace,
-      region:
-        AMAZON_MARKETPLACE_REGIONS[this.credentials.credentials.marketplace],
-    };
+    // Runtime credentials = global app config (clientId/clientSecret) +
+    // this seller account's own authorization (refreshToken/sellerId/marketplace).
+    this.amazonCredentials = composeAmazonCredentials(
+      this.configurationService.getAmazonProviderConfig(),
+      {
+        refreshToken: this.credentials.credentials.refreshToken,
+        sellerId: this.credentials.credentials.sellerId,
+        marketplace: this.credentials.credentials.marketplace as AmazonMarketplace,
+      },
+    );
 
     await this.authService.getAccessToken(this.amazonCredentials);
 
@@ -144,39 +148,90 @@ export class AmazonAdapter extends BaseAdapter {
 
   async getCatalog(
     context: IRequestContext,
-    params?: IPaginationParams,
+    params?: IPaginationParams & IAmazonCatalogSearchParams,
   ): Promise<IAdapterResponse> {
     return this.executeOperation(
       context,
       AdapterOperation.GET_CATALOG,
       async () => {
-        const queryParams = {
-          ...this.requestMapper.mapPagination(params),
-          marketplaceIds: [this.amazonCredentials.marketplace],
-        };
-
-        const response = await this.spApiClient.get(
+        const { response, items, pagination } = await this.fetchCatalog(
           this.amazonCredentials,
-          AMAZON_API_PATHS.CATALOG_ITEMS,
-          queryParams,
-          AMAZON_RATE_LIMITS.CATALOG_ITEMS,
-          this.config.enableTracing,
+          params,
+          this.config?.enableTracing,
         );
-
-        const items =
-          response.data?.items?.map((item: any) =>
-            this.responseMapper.mapCatalogItem(item),
-          ) || [];
 
         return {
           ...response,
-          data: {
-            items,
-            pagination: this.responseMapper.mapPagination(response.data),
-          },
+          data: { items, pagination },
         };
       },
     );
+  }
+
+  /**
+   * Stateless Catalog Items search — credentials are supplied by the caller
+   * instead of relying on this instance's own `initialize()`d seller state.
+   * Reuses the exact same SP-API client/request/response mapping as
+   * `getCatalog()` (no duplicated HTTP or mapping logic); it only skips
+   * `executeOperation()`'s `ensureInitialized()` gate, since callers here
+   * are not necessarily bound to one seller account.
+   *
+   * Used by Discovery (both the sandbox-only global-credential path today,
+   * and — once real per-seller credential resolution is wired for
+   * Discovery — production, by composing real seller credentials the same
+   * way `AmazonAdapter.onInitialize()` does). No sandbox-specific behavior
+   * lives in this method itself; the caller decides which credentials to
+   * pass in.
+   *
+   * Supports Catalog Items v2022-04-01's two mutually-exclusive search
+   * modes: free-text `keywords` (production Discovery's only caller today),
+   * or `identifiers` + `identifiersType` (e.g. a known ASIN/UPC/EAN lookup —
+   * needed because Amazon's *static* sandbox pattern-matches a small fixed
+   * set of pre-registered requests and does not support arbitrary keyword
+   * text; see `amazon-catalog-search.spec.ts` for the identifier-based
+   * request shape this unlocks for sandbox verification).
+   */
+  async searchCatalogItems(
+    credentials: IAmazonCredentials,
+    params?: IPaginationParams & IAmazonCatalogSearchParams,
+  ): Promise<{ items: any[]; pagination?: any; status: number }> {
+    const { response, items, pagination } = await this.fetchCatalog(credentials, params);
+    return { items, pagination, status: response.status };
+  }
+
+  private async fetchCatalog(
+    credentials: IAmazonCredentials,
+    params?: IPaginationParams & IAmazonCatalogSearchParams,
+    enableTracing?: boolean,
+  ): Promise<{ response: any; items: any[]; pagination?: any }> {
+    const queryParams: Record<string, unknown> = {
+      ...this.requestMapper.mapPagination(params),
+      marketplaceIds: [credentials.marketplace],
+      includedData: AMAZON_CATALOG_INCLUDED_DATA,
+    };
+    if (params?.identifiers?.length) {
+      // Identifier-based lookup takes precedence — Amazon rejects a request
+      // that sets both `keywords` and `identifiers` on this operation.
+      queryParams.identifiers = params.identifiers;
+      queryParams.identifiersType = params.identifiersType ?? 'ASIN';
+    } else if (params?.keywords?.length) {
+      queryParams.keywords = params.keywords;
+    }
+
+    const response = await this.spApiClient.get(
+      credentials,
+      AMAZON_API_PATHS.CATALOG_ITEMS,
+      queryParams,
+      AMAZON_RATE_LIMITS.CATALOG_ITEMS,
+      enableTracing,
+    );
+
+    const items =
+      response.data?.items?.map((item: any) =>
+        this.responseMapper.mapCatalogItem(item),
+      ) || [];
+
+    return { response, items, pagination: this.responseMapper.mapPagination(response.data) };
   }
 
   async updateCatalog(

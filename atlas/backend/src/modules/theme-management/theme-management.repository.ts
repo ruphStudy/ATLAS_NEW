@@ -13,7 +13,7 @@ export class ThemeManagementRepository extends BaseRepository {
   // ── Themes ───────────────────────────────────────────────────────
 
   async create(data: Partial<ITheme>): Promise<ITheme> {
-    return this.prisma.theme.create({ data: data as any }) as Promise<ITheme>;
+    return this.prisma.theme.create({ data: data as any }) as unknown as Promise<ITheme>;
   }
 
   async findById(id: string): Promise<ITheme | null> {
@@ -53,11 +53,11 @@ export class ThemeManagementRepository extends BaseRepository {
       this.prisma.theme.count({ where: where as any }),
     ]);
 
-    return [data as ITheme[], total];
+    return [data as unknown as ITheme[], total];
   }
 
   async update(id: string, data: Partial<ITheme>): Promise<ITheme> {
-    return this.prisma.theme.update({ where: { id }, data: data as any }) as Promise<ITheme>;
+    return this.prisma.theme.update({ where: { id }, data: data as any }) as unknown as Promise<ITheme>;
   }
 
   // ── History ──────────────────────────────────────────────────────

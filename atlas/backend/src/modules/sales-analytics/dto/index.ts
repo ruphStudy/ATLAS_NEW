@@ -20,15 +20,15 @@ import {
 export class GetSalesSummaryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(SalesTrendPeriod)
   @IsOptional()
@@ -96,17 +96,17 @@ export class GetSalesSummaryDto {
 export class GetSalesTrendsDto extends GetSalesSummaryDto {
   @IsEnum(SalesMetricType)
   @IsNotEmpty()
-  metricType: SalesMetricType;
+  metricType!: SalesMetricType;
 
   @IsEnum(SalesTrendPeriod)
   @IsNotEmpty()
-  period: SalesTrendPeriod;
+  period!: SalesTrendPeriod;
 }
 
 export class GetSalesBreakdownDto extends GetSalesSummaryDto {
   @IsEnum(SalesBreakdownDimension)
   @IsNotEmpty()
-  dimension: SalesBreakdownDimension;
+  dimension!: SalesBreakdownDimension;
 
   @IsNumber()
   @IsOptional()
@@ -124,19 +124,19 @@ export class GetSalesBreakdownDto extends GetSalesSummaryDto {
 export class GetSalesComparisonDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  currentStartDate: Date;
+  currentStartDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  currentEndDate: Date;
+  currentEndDate!: Date;
 
   @IsEnum(SalesComparisonType)
   @IsNotEmpty()
-  comparisonType: SalesComparisonType;
+  comparisonType!: SalesComparisonType;
 
   @IsDate()
   @Type(() => Date)
@@ -166,7 +166,7 @@ export class GetSalesComparisonDto {
 export class GetProductPerformanceDto extends GetSalesSummaryDto {
   @IsEnum(ProductPerformanceCategory)
   @IsNotEmpty()
-  performanceCategory: ProductPerformanceCategory;
+  performanceCategory!: ProductPerformanceCategory;
 
   @IsNumber()
   @IsOptional()
@@ -176,35 +176,35 @@ export class GetProductPerformanceDto extends GetSalesSummaryDto {
 export class CreateSalesTargetDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  targetKey: string;
+  targetKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(SalesMetricType)
   @IsNotEmpty()
-  metricType: SalesMetricType;
+  metricType!: SalesMetricType;
 
   @IsNumber()
   @IsNotEmpty()
-  targetValue: number;
+  targetValue!: number;
 
   @IsEnum(SalesTrendPeriod)
   @IsNotEmpty()
-  period: SalesTrendPeriod;
+  period!: SalesTrendPeriod;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsOptional()
   dimensions?: Record<string, any>;
@@ -215,7 +215,7 @@ export class CreateSalesTargetDto {
 
   @IsString()
   @IsNotEmpty()
-  createdBy: string;
+  createdBy!: string;
 }
 
 export class UpdateSalesTargetDto {
@@ -248,34 +248,34 @@ export class UpdateSalesTargetDto {
 export class CreateSavedViewDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  viewKey: string;
+  viewKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
   @IsNotEmpty()
-  filters: Record<string, any>;
+  filters!: Record<string, any>;
 
   @IsArray()
   @IsEnum(SalesBreakdownDimension, { each: true })
-  dimensions: SalesBreakdownDimension[];
+  dimensions!: SalesBreakdownDimension[];
 
   @IsArray()
   @IsEnum(SalesMetricType, { each: true })
-  metrics: SalesMetricType[];
+  metrics!: SalesMetricType[];
 
   @IsEnum(SalesTrendPeriod)
   @IsNotEmpty()
-  period: SalesTrendPeriod;
+  period!: SalesTrendPeriod;
 
   @IsBoolean()
   @IsOptional()
@@ -283,7 +283,7 @@ export class CreateSavedViewDto {
 
   @IsString()
   @IsNotEmpty()
-  createdBy: string;
+  createdBy!: string;
 }
 
 export class UpdateSavedViewDto {
@@ -318,34 +318,34 @@ export class UpdateSavedViewDto {
 }
 
 export class SalesSummaryResponseDto implements ISalesSummary {
-  workspaceId: string;
-  period: SalesTrendPeriod;
-  startDate: Date;
-  endDate: Date;
-  revenue: number;
-  grossSales: number;
-  netSales: number;
-  unitsSold: number;
-  orderCount: number;
-  averageOrderValue: number;
-  discountAmount: number;
-  taxAmount: number;
-  shippingAmount: number;
-  refundAmount: number;
-  cancellationAmount: number;
-  returnAmount: number;
-  feeAmount: number;
-  currency: string;
+  workspaceId!: string;
+  period!: SalesTrendPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  revenue!: number;
+  grossSales!: number;
+  netSales!: number;
+  unitsSold!: number;
+  orderCount!: number;
+  averageOrderValue!: number;
+  discountAmount!: number;
+  taxAmount!: number;
+  shippingAmount!: number;
+  refundAmount!: number;
+  cancellationAmount!: number;
+  returnAmount!: number;
+  feeAmount!: number;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class SalesTrendResponseDto implements ISalesTrend {
-  workspaceId: string;
-  period: SalesTrendPeriod;
-  periodStart: Date;
-  periodEnd: Date;
-  metricType: SalesMetricType;
-  value: number;
+  workspaceId!: string;
+  period!: SalesTrendPeriod;
+  periodStart!: Date;
+  periodEnd!: Date;
+  metricType!: SalesMetricType;
+  value!: number;
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
@@ -354,29 +354,29 @@ export class SalesTrendResponseDto implements ISalesTrend {
 }
 
 export class SalesBreakdownResponseDto implements ISalesBreakdown {
-  workspaceId: string;
-  dimension: SalesBreakdownDimension;
-  dimensionValue: string;
+  workspaceId!: string;
+  dimension!: SalesBreakdownDimension;
+  dimensionValue!: string;
   dimensionLabel?: string;
-  period: SalesTrendPeriod;
-  startDate: Date;
-  endDate: Date;
-  revenue: number;
-  grossSales: number;
-  netSales: number;
-  unitsSold: number;
-  orderCount: number;
-  averageOrderValue: number;
+  period!: SalesTrendPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  revenue!: number;
+  grossSales!: number;
+  netSales!: number;
+  unitsSold!: number;
+  orderCount!: number;
+  averageOrderValue!: number;
   sharePercent?: number;
   rank?: number;
-  currency: string;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class SalesComparisonResponseDto implements ISalesComparison {
-  workspaceId: string;
-  comparisonType: SalesComparisonType;
-  currentPeriod: {
+  workspaceId!: string;
+  comparisonType!: SalesComparisonType;
+  currentPeriod!: {
     startDate: Date;
     endDate: Date;
     revenue: number;
@@ -386,7 +386,7 @@ export class SalesComparisonResponseDto implements ISalesComparison {
     orderCount: number;
     averageOrderValue: number;
   };
-  comparisonPeriod: {
+  comparisonPeriod!: {
     startDate: Date;
     endDate: Date;
     revenue: number;
@@ -396,7 +396,7 @@ export class SalesComparisonResponseDto implements ISalesComparison {
     orderCount: number;
     averageOrderValue: number;
   };
-  variance: {
+  variance!: {
     revenueAmount: number;
     revenuePercent: number;
     grossSalesAmount: number;
@@ -410,94 +410,94 @@ export class SalesComparisonResponseDto implements ISalesComparison {
     aovAmount: number;
     aovPercent: number;
   };
-  currency: string;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class ProductPerformanceResponseDto implements IProductPerformance {
-  workspaceId: string;
-  productId: string;
-  sku: string;
-  productName: string;
+  workspaceId!: string;
+  productId!: string;
+  sku!: string;
+  productName!: string;
   category?: string;
   brand?: string;
-  performanceCategory: ProductPerformanceCategory;
-  revenue: number;
-  unitsSold: number;
-  orderCount: number;
-  averagePrice: number;
-  revenueShare: number;
+  performanceCategory!: ProductPerformanceCategory;
+  revenue!: number;
+  unitsSold!: number;
+  orderCount!: number;
+  averagePrice!: number;
+  revenueShare!: number;
   growthPercent?: number;
   rank?: number;
-  currency: string;
-  period: SalesTrendPeriod;
-  startDate: Date;
-  endDate: Date;
+  currency!: string;
+  period!: SalesTrendPeriod;
+  startDate!: Date;
+  endDate!: Date;
   metadata?: Record<string, any>;
 }
 
 export class SalesTargetResponseDto implements ISalesTarget {
-  id: string;
-  workspaceId: string;
-  targetKey: string;
-  name: string;
-  metricType: SalesMetricType;
-  targetValue: number;
-  period: SalesTrendPeriod;
-  startDate: Date;
-  endDate: Date;
+  id!: string;
+  workspaceId!: string;
+  targetKey!: string;
+  name!: string;
+  metricType!: SalesMetricType;
+  targetValue!: number;
+  period!: SalesTrendPeriod;
+  startDate!: Date;
+  endDate!: Date;
   dimensions?: Record<string, any>;
   currency?: string;
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdBy!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class SalesTargetPerformanceResponseDto implements ISalesTargetPerformance {
-  targetId: string;
-  workspaceId: string;
-  targetKey: string;
-  name: string;
-  metricType: SalesMetricType;
-  targetValue: number;
-  actualValue: number;
-  variance: number;
-  variancePercent: number;
-  achievementPercent: number;
-  period: SalesTrendPeriod;
-  startDate: Date;
-  endDate: Date;
+  targetId!: string;
+  workspaceId!: string;
+  targetKey!: string;
+  name!: string;
+  metricType!: SalesMetricType;
+  targetValue!: number;
+  actualValue!: number;
+  variance!: number;
+  variancePercent!: number;
+  achievementPercent!: number;
+  period!: SalesTrendPeriod;
+  startDate!: Date;
+  endDate!: Date;
   currency?: string;
 }
 
 export class SavedViewResponseDto implements ISavedView {
-  id: string;
-  workspaceId: string;
-  viewKey: string;
-  name: string;
+  id!: string;
+  workspaceId!: string;
+  viewKey!: string;
+  name!: string;
   description?: string;
-  filters: Record<string, any>;
-  dimensions: SalesBreakdownDimension[];
-  metrics: SalesMetricType[];
-  period: SalesTrendPeriod;
-  isDefault: boolean;
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+  filters!: Record<string, any>;
+  dimensions!: SalesBreakdownDimension[];
+  metrics!: SalesMetricType[];
+  period!: SalesTrendPeriod;
+  isDefault!: boolean;
+  createdBy!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class DrillDownRequestDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsString()
   @IsOptional()
@@ -527,19 +527,19 @@ export class DrillDownRequestDto {
 export class ExportSalesDataDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsString()
   @IsNotEmpty()
-  format: 'csv' | 'xlsx' | 'json';
+  format!: 'csv' | 'xlsx' | 'json';
 
   @IsArray()
   @IsEnum(SalesMetricType, { each: true })

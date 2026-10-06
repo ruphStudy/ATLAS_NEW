@@ -76,7 +76,7 @@ export default function ReceivingPage() {
           </TableHeader>
           <TableBody>
             {data.items.map((r) => (
-              <TableRow key={r.id} clickable onClick={() => router.push(`/dashboard/receiving/${r.id}`)}>
+              <TableRow key={r.id} clickable onClick={() => router.push(`/receiving/${r.id}`)}>
                 <TableCell className="text-sm font-medium text-foreground">{r.receivingNumber}</TableCell>
                 <TableCell className="text-sm capitalize text-muted-foreground">{r.type.toLowerCase().replace(/_/g, ' ')}</TableCell>
                 <TableCell>

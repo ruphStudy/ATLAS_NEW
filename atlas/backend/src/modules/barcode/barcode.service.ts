@@ -360,7 +360,7 @@ export class BarcodeService {
       version: ((oldBarcode['version'] as number) ?? 1) + 1,
       replacedById: id,
       gs1Prefix: oldBarcode['gs1Prefix'],
-      metadata: { ...oldBarcode['metadata'], replacementReason: dto.reason },
+      metadata: { ...(oldBarcode['metadata'] as Record<string, unknown> | undefined), replacementReason: dto.reason },
     });
 
     await this.eventQueue.enqueue({

@@ -15,18 +15,18 @@ import { PushPlatform, PushDeviceTokenStatus } from './push-device-token.interfa
 export class RegisterDeviceTokenDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
   userId?: string;
 
   @IsEnum(PushPlatform)
-  platform: PushPlatform;
+  platform!: PushPlatform;
 
   @IsString()
   @IsNotEmpty()
-  token: string;
+  token!: string;
 
   @IsString()
   @IsOptional()
@@ -45,21 +45,21 @@ export class RegisterDeviceTokenDto {
 export class RefreshDeviceTokenDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  oldToken: string;
+  oldToken!: string;
 
   @IsString()
   @IsNotEmpty()
-  newToken: string;
+  newToken!: string;
 }
 
 export class DeviceTokenFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

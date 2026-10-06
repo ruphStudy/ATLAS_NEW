@@ -197,7 +197,7 @@ describe('ListingService — Universal + Marketplace Listing', () => {
 
       const result = await service.previewUniversalListing('ul1', WORKSPACE_ID);
       expect(result.qualityScore).toBeDefined();
-      expect(result.qualityResult).toBeDefined();
+      expect(result.validationResult).toBeDefined();
     });
   });
 

@@ -13,13 +13,13 @@ export class CreateMaintenanceWindowDto {
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 
   @IsString()
   @IsNotEmpty()
-  startAt: string;
+  startAt!: string;
 
   @IsString()
   @IsNotEmpty()
-  endAt: string;
+  endAt!: string;
 }

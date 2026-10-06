@@ -12,6 +12,7 @@ import {
   PublishQueue,
 } from './jobs';
 import { MarketplaceAdapterEngine } from './engine/marketplace-adapter.engine';
+import { MarketplaceAccountResolver } from './marketplace-account-resolver.service';
 import {
   PublicationEvent,
   PublicationMarketplace,
@@ -45,6 +46,7 @@ export class ListingPublisherService {
     private readonly bulkPublishQueue: BulkPublishQueue,
     private readonly eventQueue: PublicationEventQueue,
     private readonly adapterEngine: MarketplaceAdapterEngine,
+    private readonly accountResolver: MarketplaceAccountResolver,
   ) {}
 
   // ── Helpers ──────────────────────────────────────────────────
@@ -88,6 +90,12 @@ export class ListingPublisherService {
       );
     }
 
+    const marketplaceAccountId = await this.accountResolver.resolve(
+      workspaceId,
+      dto.marketplace,
+      dto.marketplaceAccountId,
+    );
+
     const version = await this.repository.getNextVersion(
       dto.listingId,
       dto.marketplace,
@@ -104,6 +112,7 @@ export class ListingPublisherService {
       marketplace: dto.marketplace,
       status: PublicationStatus.PENDING,
       publicationVersion: version,
+      marketplaceAccountId,
       marketplaceListingId: null,
       marketplaceUrl: null,
       marketplaceResponse: null,
@@ -139,6 +148,7 @@ export class ListingPublisherService {
         catalogProductId: dto.catalogProductId,
         workspaceId,
         marketplace: dto.marketplace,
+        marketplaceAccountId,
         trigger: record['trigger'] as PublishTrigger,
         triggeredBy: userId,
         retryCount: 0,
@@ -248,6 +258,7 @@ export class ListingPublisherService {
       catalogProductId: record['catalogProductId'] as string,
       workspaceId,
       marketplace: record['marketplace'] as PublicationMarketplace,
+      marketplaceAccountId: (record['marketplaceAccountId'] as string | null) ?? null,
       trigger: PublishTrigger.REPUBLISH,
       triggeredBy: userId,
       retryCount: 0,
@@ -302,6 +313,7 @@ export class ListingPublisherService {
       catalogProductId: record['catalogProductId'] as string,
       workspaceId,
       marketplace: record['marketplace'] as PublicationMarketplace,
+      marketplaceAccountId: (record['marketplaceAccountId'] as string | null) ?? null,
       trigger: PublishTrigger.RETRY,
       triggeredBy: userId,
       retryCount: currentRetryCount + 1,

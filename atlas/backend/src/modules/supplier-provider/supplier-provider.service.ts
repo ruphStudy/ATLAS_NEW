@@ -3,10 +3,10 @@ import {
   ProviderCapability,
   ProviderHealthResult,
   SupplierProviderCode,
-} from '../interfaces';
-import { SupplierProviderRegistry } from '../registry/supplier-provider.registry';
-import { SupplierProviderHealthMonitor } from '../health/supplier-provider-health.monitor';
-import { ProviderMetadataResponseDto, ProviderHealthResponseDto } from '../dto';
+} from './interfaces';
+import { SupplierProviderRegistry } from './registry/supplier-provider.registry';
+import { SupplierProviderHealthMonitor } from './health/supplier-provider-health.monitor';
+import { ProviderMetadataResponseDto, ProviderHealthResponseDto } from './dto';
 
 @Injectable()
 export class SupplierProviderService {

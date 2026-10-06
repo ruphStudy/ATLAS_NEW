@@ -4,14 +4,14 @@ import { PrincipalType, AssignmentScopeType } from '../interfaces';
 export class AssignRoleDto {
   @IsString()
   @IsNotEmpty()
-  roleId: string;
+  roleId!: string;
 
   @IsEnum(PrincipalType)
-  principalType: PrincipalType;
+  principalType!: PrincipalType;
 
   @IsString()
   @IsNotEmpty()
-  principalId: string;
+  principalId!: string;
 
   @IsEnum(AssignmentScopeType)
   @IsOptional()

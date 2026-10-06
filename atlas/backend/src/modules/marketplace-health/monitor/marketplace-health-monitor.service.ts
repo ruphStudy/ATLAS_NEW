@@ -107,7 +107,7 @@ export class MarketplaceHealthMonitorService {
     workspaceId: string,
     providerKey: string,
     accountId: string | null | undefined,
-    adapter: { healthCheck: (accountId?: string) => Promise<{ status: string; latencyMs?: number; message?: string; connectionStatus?: string }> },
+    adapter: { healthCheck: (accountId?: string) => Promise<{ status: string; latencyMs?: number; message?: string | null; connectionStatus?: string | null }> },
   ): Promise<HealthCheckResult> {
     const start = Date.now();
     const raw = await adapter.healthCheck(accountId ?? undefined);
@@ -115,7 +115,7 @@ export class MarketplaceHealthMonitorService {
 
     const healthState = this.computeState(raw.status, responseTimeMs);
     const connectionStatus = this.mapConnectionStatus(raw.connectionStatus ?? raw.status);
-    const authStatus = this.mapAuthStatus(raw.status, raw.message);
+    const authStatus = this.mapAuthStatus(raw.status, raw.message ?? undefined);
 
     return {
       workspaceId,

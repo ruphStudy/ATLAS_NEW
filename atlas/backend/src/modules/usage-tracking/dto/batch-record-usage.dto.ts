@@ -8,5 +8,5 @@ export class BatchRecordUsageDto {
   @ArrayMaxSize(500)
   @ValidateNested({ each: true })
   @Type(() => RecordUsageDto)
-  records: RecordUsageDto[];
+  records!: RecordUsageDto[];
 }

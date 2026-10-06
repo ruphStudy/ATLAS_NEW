@@ -10,6 +10,7 @@ import {
   InventoryItemType,
   InventorySyncAdapter,
   InventorySyncEvent,
+  NormalizedInventoryItem,
   SyncDirection,
   SyncItemOperation,
   SyncItemStatus,
@@ -200,114 +201,5 @@ export class InventoryPuller {
   private checksum(item: NormalizedInventoryItem): string {
     const data = `${item.available}|${item.reserved}|${item.incoming}|${item.safetyStock}`;
     return crypto.createHash(MP_INVENTORY_SYNC_CONSTANTS.CHECKSUM_ALGO).update(data).digest('hex').substring(0, 16);
-  }
-}
-        else if (result.status === SyncItemStatus.FAILED) counters.failedItems++;
-        else if (result.status === SyncItemStatus.CONFLICT) counters.conflictItems++;
-        else counters.skippedItems++;
-
-        if (itemBatch.length >= MP_INVENTORY_SYNC_CONSTANTS.ITEM_RESULT_FLUSH_SIZE) {
-          await this.repository.bulkCreateItemResults([...itemBatch]);
-          itemBatch = [];
-        }
-      }
-
-      await this.repository.incrementJobCounters(job.id, counters);
-      this.emitProgress(job, counters.processedItems);
-
-      cursor = pageResult.nextCursor ?? null;
-      if (!cursor) break;
-      page++;
-    }
-
-    if (itemBatch.length > 0) await this.repository.bulkCreateItemResults(itemBatch);
-  }
-
-  private async processItem(job: IInventorySyncJob, adapterItem: InventoryAdapterItem): Promise<InventoryItemSyncResult> {
-    try {
-      const normalized = this.mapper.normalizeInbound(adapterItem, job.providerKey, job.marketplaceKey);
-      const existingRef = await this.repository.findExternalRef(job.workspaceId, job.accountId, adapterItem.externalId);
-
-      const conflictType = await this.conflictResolver.detect(normalized, existingRef, job);
-      if (conflictType) {
-        const resolution = this.conflictResolver.resolveStrategy(conflictType, job.conflictStrategy ?? null, normalized, existingRef);
-        await this.conflictResolver.persistConflict(job, normalized, conflictType, resolution, existingRef);
-
-        if (resolution === 'SKIP') {
-          return { externalId: adapterItem.externalId, sku: normalized.externalSku, itemType: normalized.itemType, operation: SyncItemOperation.NOOP, status: SyncItemStatus.SKIPPED, conflictType, conflictResolution: 'SKIP', retryable: false };
-        }
-        if (resolution === 'FLAG') {
-          return { externalId: adapterItem.externalId, sku: normalized.externalSku, itemType: normalized.itemType, operation: SyncItemOperation.NOOP, status: SyncItemStatus.CONFLICT, conflictType, conflictResolution: 'FLAG', retryable: false };
-        }
-      }
-
-      const operation = existingRef ? SyncItemOperation.UPDATE : SyncItemOperation.CREATE;
-      const checksum = crypto.createHash('sha256').update(JSON.stringify(normalized.raw)).digest('hex').substring(0, 16);
-
-      await this.repository.upsertExternalRef({
-        workspaceId: job.workspaceId,
-        accountId: job.accountId,
-        providerKey: job.providerKey,
-        marketplaceKey: job.marketplaceKey,
-        warehouseId: normalized.warehouseId ?? job.warehouseId,
-        externalId: adapterItem.externalId,
-        externalSku: normalized.externalSku,
-        internalId: (existingRef?.['internalId'] as string | undefined) ?? null,
-        status: 'ACTIVE',
-        available: normalized.available,
-        reserved: normalized.reserved,
-        incoming: normalized.incoming,
-        safetyStock: normalized.safetyStock,
-        lastSyncedAt: new Date(),
-        lastJobId: job.id,
-        checksum,
-      });
-
-      return {
-        externalId: adapterItem.externalId,
-        sku: normalized.externalSku,
-        itemType: normalized.itemType,
-        operation,
-        status: SyncItemStatus.SYNCED,
-        retryable: false,
-      };
-    } catch (err) {
-      return {
-        externalId: adapterItem.externalId,
-        itemType: InventoryItemType.ALL,
-        operation: SyncItemOperation.NOOP,
-        status: SyncItemStatus.FAILED,
-        errorCode: MP_INVENTORY_SYNC_ERROR_CODES.ADAPTER_ERROR,
-        errorMessage: this.sanitize((err as Error).message),
-        retryable: true,
-      };
-    }
-  }
-
-  private async cancel(job: IInventorySyncJob, cursor?: string | null): Promise<void> {
-    await this.repository.updateJob(job.id, job.workspaceId, { status: SyncJobStatus.CANCELLED, cursor });
-    await this.eventQueue.enqueue({
-      event: InventorySyncEvent.CANCELLED,
-      jobId: job.id, correlationId: job.correlationId, workspaceId: job.workspaceId,
-      accountId: job.accountId, providerKey: job.providerKey, marketplaceKey: job.marketplaceKey,
-      warehouseId: job.warehouseId, direction: job.direction, scope: job.scope, itemType: job.itemType,
-      timestamp: new Date(),
-    });
-  }
-
-  private emitProgress(job: IInventorySyncJob, delta: number): void {
-    if (delta % MP_INVENTORY_SYNC_CONSTANTS.PROGRESS_EMIT_EVERY === 0) {
-      this.eventQueue.enqueue({
-        event: InventorySyncEvent.PROGRESS,
-        jobId: job.id, correlationId: job.correlationId, workspaceId: job.workspaceId,
-        accountId: job.accountId, providerKey: job.providerKey, marketplaceKey: job.marketplaceKey,
-        warehouseId: job.warehouseId, direction: job.direction, scope: job.scope, itemType: job.itemType,
-        timestamp: new Date(),
-      });
-    }
-  }
-
-  private sanitize(msg: string): string {
-    return msg.replace(/(secret|token|password|key|credential)=[^\s&]*/gi, '$1=***').substring(0, 500);
   }
 }

@@ -4,7 +4,7 @@ import { ThemeScope } from '../interfaces';
 export class SetActiveThemeDto {
   @IsString()
   @IsNotEmpty()
-  themeKey: string;
+  themeKey!: string;
 
   /** WORKSPACE (default) or ORGANIZATION — which Settings Framework precedence tier this activation applies at. */
   @IsEnum(ThemeScope)

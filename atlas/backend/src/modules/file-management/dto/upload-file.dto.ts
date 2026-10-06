@@ -12,16 +12,16 @@ import { FileCategory } from '../interfaces';
 export class UploadFileDto {
   @IsString()
   @IsNotEmpty()
-  fileName: string;
+  fileName!: string;
 
   @IsString()
   @IsNotEmpty()
-  mimeType: string;
+  mimeType!: string;
 
   /** Base64-encoded file content — mirrors NotificationAttachmentDto.contentBase64. */
   @IsString()
   @IsNotEmpty()
-  contentBase64: string;
+  contentBase64!: string;
 
   /** Client-computed sha256 checksum, cross-validated against the server-computed one when provided. */
   @IsString()

@@ -13,7 +13,7 @@ import { AiRetryStatus } from '../interfaces';
 export class RetryExecutionFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiRetryStatus)
   @IsOptional()

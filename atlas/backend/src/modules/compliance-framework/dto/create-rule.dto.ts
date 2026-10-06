@@ -25,23 +25,23 @@ export class CreateComplianceRuleDto {
 
   @IsString()
   @IsNotEmpty()
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
   @IsEnum(ComplianceRequirementType)
-  requirementType: ComplianceRequirementType;
+  requirementType!: ComplianceRequirementType;
 
   @IsArray()
   @IsEnum(ComplianceAction, { each: true })
   @ArrayMaxSize(20)
-  actions: ComplianceAction[];
+  actions!: ComplianceAction[];
 
   @IsString()
   @IsOptional()

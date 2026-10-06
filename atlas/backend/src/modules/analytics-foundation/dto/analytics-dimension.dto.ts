@@ -12,22 +12,22 @@ import {
 
 export class RegisterAnalyticsDimensionDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AnalyticsEntityType)
-  entityType: AnalyticsEntityType;
+  entityType!: AnalyticsEntityType;
 
   @IsString()
-  dimensionKey: string;
+  dimensionKey!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsEnum(AnalyticsDimensionType)
-  dimensionType: AnalyticsDimensionType;
+  dimensionType!: AnalyticsDimensionType;
 
   @IsString()
-  dataType: string;
+  dataType!: string;
 
   @IsOptional()
   @IsString()
@@ -77,18 +77,18 @@ export class UpdateAnalyticsDimensionDto {
 }
 
 export class AnalyticsDimensionResponseDto {
-  id: string;
-  workspaceId: string;
-  entityType: AnalyticsEntityType;
-  dimensionKey: string;
-  name: string;
-  dimensionType: AnalyticsDimensionType;
-  dataType: string;
+  id!: string;
+  workspaceId!: string;
+  entityType!: AnalyticsEntityType;
+  dimensionKey!: string;
+  name!: string;
+  dimensionType!: AnalyticsDimensionType;
+  dataType!: string;
   sourceColumn?: string;
   transformFunction?: string;
   description?: string;
   metadata?: Record<string, any>;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  isActive!: boolean;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

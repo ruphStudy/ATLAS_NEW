@@ -30,10 +30,10 @@ function useBreadcrumbs(): { title: string; items: BreadcrumbItem[] } {
   const navItem = NAV_ITEMS_BY_SLUG[moduleSlug as string];
   const moduleLabel = navItem?.label ?? humanize(moduleSlug as string);
 
-  const items: BreadcrumbItem[] = [{ label: moduleLabel, href: rest.length > 0 ? `/dashboard/${moduleSlug}` : undefined }];
+  const items: BreadcrumbItem[] = [{ label: moduleLabel, href: rest.length > 0 ? `/${moduleSlug}` : undefined }];
   rest.forEach((seg, i) => {
     const isId = /^[0-9a-f-]{8,}$/i.test(seg);
-    items.push({ label: isId ? 'Detail' : humanize(seg), href: i < rest.length - 1 ? `/dashboard/${moduleSlug}/${seg}` : undefined });
+    items.push({ label: isId ? 'Detail' : humanize(seg), href: i < rest.length - 1 ? `/${moduleSlug}/${seg}` : undefined });
   });
 
   return { title: items[items.length - 1]?.label ?? moduleLabel, items };

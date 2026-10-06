@@ -10,7 +10,9 @@ import type {
 
 const BASE = '/marketplace-accounts';
 
-export async function listMarketplaceAccounts(params: MarketplaceAccountFilterParams & { workspaceId: string }): Promise<MarketplaceAccountListResult> {
+// workspaceId is resolved server-side from the authenticated session —
+// never sent from the client (the backend rejects unknown query params).
+export async function listMarketplaceAccounts(params: MarketplaceAccountFilterParams = {}): Promise<MarketplaceAccountListResult> {
   const { data } = await apiClient.get<MarketplaceAccountListResult>(BASE, { params });
   return data;
 }
@@ -71,5 +73,17 @@ export async function setMarketplaceAccountPriority(id: string, workspaceId: str
 
 export async function getMarketplaceAccountHistory(id: string, workspaceId: string, params: { page?: number; limit?: number } = {}): Promise<MarketplaceAccountHistoryEntry[] | { items: MarketplaceAccountHistoryEntry[] }> {
   const { data } = await apiClient.get(`${BASE}/${workspaceId}/${id}/history`, { params });
+  return data;
+}
+
+// ── Amazon Connect OAuth ──────────────────────────────────────
+// workspaceId/userId are resolved server-side from the authenticated
+// session — never sent from the client.
+
+export async function startAmazonAuthorization(params: { country: string; accountId?: string }): Promise<{ authorizationUrl: string; expiresAt: string }> {
+  const { data } = await apiClient.post<{ authorizationUrl: string; expiresAt: string }>(
+    '/marketplace-adapter/amazon/oauth/authorize',
+    params,
+  );
   return data;
 }

@@ -5,5 +5,5 @@ export class BulkFileIdsDto {
   @IsString({ each: true })
   @ArrayMinSize(1)
   @ArrayMaxSize(100)
-  ids: string[];
+  ids!: string[];
 }

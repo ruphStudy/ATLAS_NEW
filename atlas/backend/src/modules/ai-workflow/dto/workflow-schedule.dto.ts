@@ -2,13 +2,13 @@ import { IsString, IsBoolean, IsOptional, IsObject } from 'class-validator';
 
 export class CreateWorkflowScheduleDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  workflowId: string;
+  workflowId!: string;
 
   @IsString()
-  cronExpression: string;
+  cronExpression!: string;
 
   @IsOptional()
   @IsString()

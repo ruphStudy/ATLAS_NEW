@@ -9,11 +9,11 @@ import { AiDecisionOutcome } from '../interfaces';
 export class ApproveDecisionDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  approvedBy: string;
+  approvedBy!: string;
 
   @IsString()
   @IsOptional()
@@ -23,11 +23,11 @@ export class ApproveDecisionDto {
 export class RejectDecisionDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  rejectedBy: string;
+  rejectedBy!: string;
 
   @IsString()
   @IsOptional()
@@ -37,11 +37,11 @@ export class RejectDecisionDto {
 export class ReviewDecisionDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  reviewedBy: string;
+  reviewedBy!: string;
 
   @IsString()
   @IsOptional()

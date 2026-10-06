@@ -73,7 +73,7 @@ export default function ListingsPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((listing) => (
-              <TableRow key={listing.id} clickable onClick={() => router.push(`/dashboard/listings/${listing.id}`)}>
+              <TableRow key={listing.id} clickable onClick={() => router.push(`/listings/${listing.id}`)}>
                 <TableCell>
                   <p className="text-sm font-medium text-foreground">{(listing.content?.['title'] as string) || listing.catalogProductId}</p>
                   <p className="text-xs text-muted-foreground">{listing.catalogProductId}</p>
@@ -94,7 +94,7 @@ export default function ListingsPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={data.totalPages} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateUniversalListingDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(l) => router.push(`/dashboard/listings/${l.id}`)} />
+      <CreateUniversalListingDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(l) => router.push(`/listings/${l.id}`)} />
     </div>
   );
 }

@@ -17,12 +17,12 @@ export class SaasMonitoringRepository extends BaseRepository {
   }
 
   async findSnapshotsByWorkspace(workspaceId: string): Promise<ISaasHealthSnapshot[]> {
-    return this.prisma.saasHealthSnapshot.findMany({ where: { workspaceId } }) as Promise<ISaasHealthSnapshot[]>;
+    return this.prisma.saasHealthSnapshot.findMany({ where: { workspaceId } }) as unknown as Promise<ISaasHealthSnapshot[]>;
   }
 
   /** Every snapshot for one module across ALL tenants — the raw input to the platform-wide module breakdown. */
   async findSnapshotsByModuleAcrossWorkspaces(module: string): Promise<ISaasHealthSnapshot[]> {
-    return this.prisma.saasHealthSnapshot.findMany({ where: { module } }) as Promise<ISaasHealthSnapshot[]>;
+    return this.prisma.saasHealthSnapshot.findMany({ where: { module } }) as unknown as Promise<ISaasHealthSnapshot[]>;
   }
 
   /** Every workspace this module has ever checked — used to sweep all known workspaces on a scheduled run/platform summary, without depending on the Workspace module. */
@@ -39,13 +39,13 @@ export class SaasMonitoringRepository extends BaseRepository {
       where: { workspaceId_module: { workspaceId, module } },
       create: { workspaceId, module, ...data } as any,
       update: data as any,
-    }) as Promise<ISaasHealthSnapshot>;
+    }) as unknown as Promise<ISaasHealthSnapshot>;
   }
 
   // ── Incidents ────────────────────────────────────────────────────
 
   async createIncident(data: Partial<ISaasHealthIncident>): Promise<ISaasHealthIncident> {
-    return this.prisma.saasHealthIncident.create({ data: data as any }) as Promise<ISaasHealthIncident>;
+    return this.prisma.saasHealthIncident.create({ data: data as any }) as unknown as Promise<ISaasHealthIncident>;
   }
 
   async findOpenIncident(workspaceId: string, module: string): Promise<ISaasHealthIncident | null> {
@@ -56,7 +56,7 @@ export class SaasMonitoringRepository extends BaseRepository {
   }
 
   async updateIncident(id: string, data: Partial<ISaasHealthIncident>): Promise<ISaasHealthIncident> {
-    return this.prisma.saasHealthIncident.update({ where: { id }, data: data as any }) as Promise<ISaasHealthIncident>;
+    return this.prisma.saasHealthIncident.update({ where: { id }, data: data as any }) as unknown as Promise<ISaasHealthIncident>;
   }
 
   async findIncidentById(id: string): Promise<ISaasHealthIncident | null> {
@@ -85,13 +85,13 @@ export class SaasMonitoringRepository extends BaseRepository {
       this.prisma.saasHealthIncident.count({ where: where as any }),
     ]);
 
-    return [data as ISaasHealthIncident[], total];
+    return [data as unknown as ISaasHealthIncident[], total];
   }
 
   // ── Check logs ───────────────────────────────────────────────────
 
   async createCheckLog(data: Partial<ISaasHealthCheckLog>): Promise<ISaasHealthCheckLog> {
-    return this.prisma.saasHealthCheckLog.create({ data: data as any }) as Promise<ISaasHealthCheckLog>;
+    return this.prisma.saasHealthCheckLog.create({ data: data as any }) as unknown as Promise<ISaasHealthCheckLog>;
   }
 
   /** `workspaceId` optional — omitted for the platform-wide, cross-tenant check-log view (`PlatformAdminGuard`-gated); always supplied for the tenant-scoped view. */
@@ -114,6 +114,6 @@ export class SaasMonitoringRepository extends BaseRepository {
       this.prisma.saasHealthCheckLog.count({ where: where as any }),
     ]);
 
-    return [data as ISaasHealthCheckLog[], total];
+    return [data as unknown as ISaasHealthCheckLog[], total];
   }
 }

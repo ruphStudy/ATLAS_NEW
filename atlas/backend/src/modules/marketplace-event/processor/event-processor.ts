@@ -47,11 +47,12 @@ export class DefaultEventProcessor implements EventProcessor {
         shouldRetry: false,
       };
     } catch (error) {
-      this.logger.error(`Failed to process event ${context.eventId}: ${error.message}`);
+      const err = error as Error;
+      this.logger.error(`Failed to process event ${context.eventId}: ${err.message}`);
       return {
         success: false,
         eventId: context.eventId,
-        error: error.message,
+        error: err.message,
         shouldRetry: true,
       };
     }

@@ -1,0 +1,333 @@
+import { IsString, IsEnum, IsOptional, IsObject, IsNumber, Min, IsBoolean, IsArray } from 'class-validator';
+import {
+  ConflictStrategy,
+  IReturnSyncJob,
+  IReturnSyncSchedule,
+  ReturnItemType,
+  SyncDirection,
+  SyncJobStatus,
+  SyncScope,
+  SyncTrigger,
+} from '../interfaces';
+
+export class StartReturnSyncRequestDto {
+  @IsString()
+  workspaceId!: string;
+
+  @IsString()
+  accountId!: string;
+
+  @IsString()
+  providerKey!: string;
+
+  @IsString()
+  marketplaceKey!: string;
+
+  @IsEnum(SyncDirection)
+  @IsOptional()
+  direction?: SyncDirection;
+
+  @IsEnum(SyncScope)
+  @IsOptional()
+  scope?: SyncScope;
+
+  @IsEnum(ReturnItemType)
+  @IsOptional()
+  itemType?: ReturnItemType;
+
+  @IsEnum(SyncTrigger)
+  @IsOptional()
+  trigger?: SyncTrigger;
+
+  @IsEnum(ConflictStrategy)
+  @IsOptional()
+  conflictStrategy?: ConflictStrategy;
+
+  @IsObject()
+  @IsOptional()
+  filterOptions?: Record<string, unknown>;
+
+  @IsString()
+  @IsOptional()
+  scheduleId?: string;
+
+  @IsString()
+  @IsOptional()
+  correlationId?: string;
+
+  @IsString()
+  @IsOptional()
+  createdBy?: string | null;
+}
+
+export class RetryFailedReturnItemsRequestDto {
+  @IsString()
+  jobId!: string;
+
+  @IsString()
+  workspaceId!: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  itemIds?: string[];
+
+  @IsString()
+  @IsOptional()
+  createdBy?: string | null;
+}
+
+export class ReturnSyncJobFilterQueryDto {
+  @IsString()
+  workspaceId!: string;
+
+  @IsString()
+  @IsOptional()
+  accountId?: string;
+
+  @IsString()
+  @IsOptional()
+  providerKey?: string;
+
+  @IsString()
+  @IsOptional()
+  marketplaceKey?: string;
+
+  @IsEnum(SyncJobStatus)
+  @IsOptional()
+  status?: SyncJobStatus;
+
+  @IsEnum(SyncTrigger)
+  @IsOptional()
+  trigger?: SyncTrigger;
+
+  @IsString()
+  @IsOptional()
+  scheduleId?: string;
+
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  page?: number;
+
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  limit?: number;
+}
+
+export class ItemResultFilterQueryDto {
+  @IsString()
+  @IsOptional()
+  status?: string | null;
+
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  page?: number;
+
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  limit?: number;
+}
+
+export class ExternalRefFilterQueryDto {
+  @IsString()
+  @IsOptional()
+  status?: string | null;
+
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  page?: number;
+
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  limit?: number;
+}
+
+export class ConflictFilterQueryDto {
+  @IsString()
+  @IsOptional()
+  accountId?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  resolved?: boolean;
+
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  page?: number;
+
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  limit?: number;
+}
+
+export class ConflictResolutionRequestDto {
+  @IsString()
+  resolution!: string;
+
+  @IsString()
+  resolvedBy!: string;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
+}
+
+export class CreateReturnScheduleRequestDto {
+  @IsString()
+  workspaceId!: string;
+
+  @IsString()
+  accountId!: string;
+
+  @IsString()
+  providerKey!: string;
+
+  @IsString()
+  marketplaceKey!: string;
+
+  @IsEnum(SyncDirection)
+  direction!: SyncDirection;
+
+  @IsEnum(SyncScope)
+  scope!: SyncScope;
+
+  @IsEnum(ReturnItemType)
+  itemType!: ReturnItemType;
+
+  @IsEnum(ConflictStrategy)
+  @IsOptional()
+  conflictStrategy?: ConflictStrategy;
+
+  @IsNumber()
+  @Min(60000)
+  intervalMs!: number;
+
+  @IsBoolean()
+  @IsOptional()
+  enabled?: boolean;
+
+  @IsObject()
+  @IsOptional()
+  filterOptions?: Record<string, unknown>;
+
+  @IsString()
+  @IsOptional()
+  createdBy?: string | null;
+}
+
+export class UpdateReturnScheduleRequestDto {
+  @IsEnum(SyncScope)
+  @IsOptional()
+  scope?: SyncScope;
+
+  @IsEnum(ReturnItemType)
+  @IsOptional()
+  itemType?: ReturnItemType;
+
+  @IsEnum(ConflictStrategy)
+  @IsOptional()
+  conflictStrategy?: ConflictStrategy;
+
+  @IsNumber()
+  @Min(60000)
+  @IsOptional()
+  intervalMs?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  enabled?: boolean;
+
+  @IsObject()
+  @IsOptional()
+  filterOptions?: Record<string, unknown>;
+
+  @IsString()
+  @IsOptional()
+  updatedBy?: string | null;
+}
+
+export class ReturnSyncJobResponseDto {
+  id!: string;
+  workspaceId!: string;
+  accountId!: string;
+  providerKey!: string;
+  marketplaceKey!: string;
+  direction!: SyncDirection;
+  scope!: SyncScope;
+  itemType!: ReturnItemType;
+  trigger!: SyncTrigger;
+  status!: SyncJobStatus;
+  conflictStrategy!: ConflictStrategy | null;
+  filterOptions!: Record<string, unknown> | null;
+  scheduleId!: string | null;
+  correlationId!: string;
+  cursor!: string | null;
+  totalItems!: number | null;
+  processedItems!: number;
+  importedReturns!: number;
+  updatedReturns!: number;
+  approvedReturns!: number;
+  rejectedReturns!: number;
+  refundedReturns!: number;
+  failedItems!: number;
+  conflictItems!: number;
+  skippedItems!: number;
+  errorCode!: string | null;
+  errorMessage!: string | null;
+  startedAt!: Date | null;
+  completedAt!: Date | null;
+  createdBy!: string | null;
+  createdAt!: Date;
+  updatedAt!: Date;
+
+  static from(job: IReturnSyncJob): ReturnSyncJobResponseDto {
+    const dto = new ReturnSyncJobResponseDto();
+    Object.assign(dto, job);
+    return dto;
+  }
+}
+
+export class PaginatedReturnSyncJobResponseDto {
+  items!: ReturnSyncJobResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
+}
+
+export class ReturnScheduleResponseDto {
+  id!: string;
+  workspaceId!: string;
+  accountId!: string;
+  providerKey!: string;
+  marketplaceKey!: string;
+  direction!: SyncDirection;
+  scope!: SyncScope;
+  itemType!: ReturnItemType;
+  conflictStrategy!: ConflictStrategy | null;
+  intervalMs!: number;
+  enabled!: boolean;
+  lastRunAt!: Date | null;
+  lastJobId!: string | null;
+  nextRunAt!: Date | null;
+  filterOptions!: Record<string, unknown> | null;
+  createdBy!: string | null;
+  updatedBy!: string | null;
+  createdAt!: Date;
+  updatedAt!: Date;
+
+  static from(schedule: IReturnSyncSchedule): ReturnScheduleResponseDto {
+    const dto = new ReturnScheduleResponseDto();
+    Object.assign(dto, schedule);
+    delete (dto as any).deletedAt;
+    return dto;
+  }
+}

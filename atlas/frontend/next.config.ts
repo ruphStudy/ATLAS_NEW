@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
   // Compress responses
   compress: true,
 
+  // Disable the floating Next.js dev tools indicator ("N" badge, bottom-left)
+  // — dev-only debug overlay, not part of the ATLAS UI.
+  devIndicators: false,
+
   // Image optimization domains
   images: {
     remotePatterns: [

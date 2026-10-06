@@ -397,7 +397,7 @@ export class WarehouseZoneService {
     const zone = await this.findOrFail(id, warehouseId, workspaceId);
 
     if (!zone['deletedAt']) {
-      throw new BusinessRuleException('Zone is not deleted', ErrorCode.INVALID_INPUT);
+      throw new BusinessRuleException('Zone is not deleted', ErrorCode.VALIDATION_FAILED);
     }
 
     const updated = await this.repository.restore(id);

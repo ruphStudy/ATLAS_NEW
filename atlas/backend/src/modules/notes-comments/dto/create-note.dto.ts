@@ -12,11 +12,11 @@ export class CreateNoteDto {
 
   @IsString()
   @IsNotEmpty()
-  entityType: string;
+  entityType!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityId: string;
+  entityId!: string;
 
   /** Set to reply to an existing COMMENT — threads the conversation. */
   @IsString()
@@ -25,7 +25,7 @@ export class CreateNoteDto {
 
   @IsString()
   @IsNotEmpty()
-  content: string;
+  content!: string;
 
   @IsEnum(NoteVisibility)
   @IsOptional()

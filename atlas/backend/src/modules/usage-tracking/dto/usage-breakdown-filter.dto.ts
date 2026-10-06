@@ -4,14 +4,14 @@ import { USAGE_BUCKET_GRANULARITIES } from '../constants';
 export class UsageBreakdownFilterDto {
   @IsString()
   @IsNotEmpty()
-  resourceKey: string;
+  resourceKey!: string;
 
   @IsIn(USAGE_BUCKET_GRANULARITIES)
-  bucket: (typeof USAGE_BUCKET_GRANULARITIES)[number];
+  bucket!: (typeof USAGE_BUCKET_GRANULARITIES)[number];
 
   @IsDateString()
-  startDate: string;
+  startDate!: string;
 
   @IsDateString()
-  endDate: string;
+  endDate!: string;
 }

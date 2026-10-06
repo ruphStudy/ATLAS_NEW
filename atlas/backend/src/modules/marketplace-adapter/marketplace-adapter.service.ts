@@ -32,7 +32,7 @@ export class MarketplaceAdapterService {
       `Initializing adapter for ${config.provider}:${config.accountId}`,
     );
 
-    const adapter = await this.factory.create(config, credentials);
+    const adapter = await this.factory.create(config.provider, config, credentials);
 
     this.logger.log(
       `Adapter initialized for ${config.provider}:${config.accountId}`,

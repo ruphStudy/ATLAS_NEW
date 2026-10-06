@@ -21,15 +21,15 @@ import {
 export class GetProcurementPerformanceDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(ProcurementPeriod)
   @IsOptional()
@@ -127,11 +127,11 @@ export class GetProcurementPerformanceDto {
 export class GetProcurementTrendsDto extends GetProcurementPerformanceDto {
   @IsEnum(ProcurementMetricType)
   @IsNotEmpty()
-  metricType: ProcurementMetricType;
+  metricType!: ProcurementMetricType;
 
   @IsEnum(ProcurementPeriod)
   @IsNotEmpty()
-  period: ProcurementPeriod;
+  period!: ProcurementPeriod;
 
   @IsEnum(ProcurementDimension)
   @IsOptional()
@@ -145,21 +145,21 @@ export class GetProcurementTrendsDto extends GetProcurementPerformanceDto {
 export class GetProcurementBreakdownDto extends GetProcurementPerformanceDto {
   @IsEnum(ProcurementDimension)
   @IsNotEmpty()
-  dimension: ProcurementDimension;
+  dimension!: ProcurementDimension;
 }
 
 export class GetProcurementComparisonDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(ProcurementPeriod)
   @IsOptional()
@@ -167,7 +167,7 @@ export class GetProcurementComparisonDto {
 
   @IsEnum(ProcurementComparisonType)
   @IsNotEmpty()
-  comparisonType: ProcurementComparisonType;
+  comparisonType!: ProcurementComparisonType;
 
   @IsDate()
   @Type(() => Date)
@@ -199,7 +199,7 @@ export class GetProcurementComparisonDto {
 export class GetProcurementRiskAlertsDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
@@ -237,18 +237,18 @@ export class GetProcurementRiskAlertsDto {
 }
 
 export class ProcurementPerformanceResponseDto implements IProcurementPerformance {
-  workspaceId: string;
-  period: ProcurementPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
-  performanceCategory: ProcurementPerformanceCategory;
-  rfqQuotationMetrics: IRfqQuotationMetrics;
-  purchaseOrderMetrics: IPurchaseOrderMetrics;
-  costMetrics: ICostMetrics;
-  deliveryQualityMetrics: IDeliveryQualityMetrics;
-  procurementCycleTime: number;
-  overallScore: number;
+  workspaceId!: string;
+  period!: ProcurementPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
+  performanceCategory!: ProcurementPerformanceCategory;
+  rfqQuotationMetrics!: IRfqQuotationMetrics;
+  purchaseOrderMetrics!: IPurchaseOrderMetrics;
+  costMetrics!: ICostMetrics;
+  deliveryQualityMetrics!: IDeliveryQualityMetrics;
+  procurementCycleTime!: number;
+  overallScore!: number;
   supplierId?: string;
   supplierName?: string;
   productId?: string;
@@ -259,12 +259,12 @@ export class ProcurementPerformanceResponseDto implements IProcurementPerformanc
 }
 
 export class ProcurementTrendResponseDto implements IProcurementTrend {
-  workspaceId: string;
-  period: ProcurementPeriod;
-  periodStart: Date;
-  periodEnd: Date;
-  metricType: ProcurementMetricType;
-  value: number;
+  workspaceId!: string;
+  period!: ProcurementPeriod;
+  periodStart!: Date;
+  periodEnd!: Date;
+  metricType!: ProcurementMetricType;
+  value!: number;
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
@@ -274,45 +274,45 @@ export class ProcurementTrendResponseDto implements IProcurementTrend {
 }
 
 export class ProcurementBreakdownResponseDto implements IProcurementBreakdown {
-  workspaceId: string;
-  dimension: ProcurementDimension;
-  dimensionValue: string;
+  workspaceId!: string;
+  dimension!: ProcurementDimension;
+  dimensionValue!: string;
   dimensionLabel?: string;
-  period: ProcurementPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
-  rfqQuotationMetrics: IRfqQuotationMetrics;
-  purchaseOrderMetrics: IPurchaseOrderMetrics;
-  costMetrics: ICostMetrics;
-  deliveryQualityMetrics: IDeliveryQualityMetrics;
-  overallScore: number;
+  period!: ProcurementPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
+  rfqQuotationMetrics!: IRfqQuotationMetrics;
+  purchaseOrderMetrics!: IPurchaseOrderMetrics;
+  costMetrics!: ICostMetrics;
+  deliveryQualityMetrics!: IDeliveryQualityMetrics;
+  overallScore!: number;
   rank?: number;
   metadata?: Record<string, any>;
 }
 
 export class ProcurementComparisonResponseDto implements IProcurementComparison {
-  workspaceId: string;
-  comparisonType: ProcurementComparisonType;
-  period: ProcurementPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
-  actualMetrics: {
+  workspaceId!: string;
+  comparisonType!: ProcurementComparisonType;
+  period!: ProcurementPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
+  actualMetrics!: {
     rfqQuotationMetrics: IRfqQuotationMetrics;
     purchaseOrderMetrics: IPurchaseOrderMetrics;
     costMetrics: ICostMetrics;
     deliveryQualityMetrics: IDeliveryQualityMetrics;
     overallScore: number;
   };
-  comparisonMetrics: {
+  comparisonMetrics!: {
     rfqQuotationMetrics: IRfqQuotationMetrics;
     purchaseOrderMetrics: IPurchaseOrderMetrics;
     costMetrics: ICostMetrics;
     deliveryQualityMetrics: IDeliveryQualityMetrics;
     overallScore: number;
   };
-  variance: {
+  variance!: {
     spendVariance: number;
     spendVariancePercent: number;
     savingsVariance: number;
@@ -331,9 +331,9 @@ export class ProcurementComparisonResponseDto implements IProcurementComparison 
 }
 
 export class ProcurementRiskAlertResponseDto implements IProcurementRiskAlert {
-  workspaceId: string;
-  alertType: ProcurementPerformanceCategory;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  workspaceId!: string;
+  alertType!: ProcurementPerformanceCategory;
+  severity!: 'low' | 'medium' | 'high' | 'critical';
   purchaseOrderId?: string;
   supplierId?: string;
   supplierName?: string;
@@ -341,8 +341,8 @@ export class ProcurementRiskAlertResponseDto implements IProcurementRiskAlert {
   productName?: string;
   rfqId?: string;
   quotationId?: string;
-  reason: string;
-  details: Record<string, any>;
-  detectedAt: Date;
+  reason!: string;
+  details!: Record<string, any>;
+  detectedAt!: Date;
   metadata?: Record<string, any>;
 }

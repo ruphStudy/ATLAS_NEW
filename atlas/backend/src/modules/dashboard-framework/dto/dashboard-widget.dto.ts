@@ -18,33 +18,33 @@ import {
 
 export class AddWidgetDto {
   @IsString()
-  dashboardId: string;
+  dashboardId!: string;
 
   @IsString()
-  widgetKey: string;
+  widgetKey!: string;
 
   @IsObject()
-  position: IWidgetPosition;
+  position!: IWidgetPosition;
 
   @IsString()
-  title: string;
+  title!: string;
 
   @IsOptional()
   @IsString()
   description?: string;
 
   @IsEnum(WidgetType)
-  widgetType: WidgetType;
+  widgetType!: WidgetType;
 
   @IsOptional()
   @IsEnum(ChartType)
   chartType?: ChartType;
 
   @IsObject()
-  dataSource: IWidgetDataSource;
+  dataSource!: IWidgetDataSource;
 
   @IsObject()
-  displayOptions: Record<string, any>;
+  displayOptions!: Record<string, any>;
 
   @IsOptional()
   @IsEnum(RefreshInterval)
@@ -96,11 +96,11 @@ export class UpdateWidgetDto {
 }
 
 export class DashboardWidgetResponseDto {
-  id: string;
-  dashboardId: string;
-  widgetKey: string;
-  position: IWidgetPosition;
-  config: {
+  id!: string;
+  dashboardId!: string;
+  widgetKey!: string;
+  position!: IWidgetPosition;
+  config!: {
     title: string;
     description?: string;
     widgetType: WidgetType;
@@ -112,6 +112,6 @@ export class DashboardWidgetResponseDto {
   cacheKey?: string;
   cacheTtl?: number;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

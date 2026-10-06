@@ -6,7 +6,8 @@ import { ActivityActorType, ActivityOutcome, AuditActionCategory, AuditRiskLevel
 import { WebhookFrameworkRepository } from './webhook-framework.repository';
 import { WebhookCredentialEncryptor } from './webhook-credential.encryptor';
 import { WebhookCredentialDecryptor } from './webhook-credential.decryptor';
-import { WebhookFrameworkEventQueue, WebhookDeliveryQueue } from './jobs';
+import { WebhookFrameworkEventQueue } from './jobs/webhook-framework-event.queue';
+import { WebhookDeliveryQueue } from './jobs/webhook-delivery.queue';
 import { generateWebhookSecret, signWebhookPayload } from './webhook-signing.util';
 import { buildWebhookScopeKey } from './scope-key.util';
 import { CreateWebhookDto, UpdateWebhookDto, WebhookFilterDto, DeliveryFilterDto, TestWebhookDto, PaginatedWebhookEndpointResponseDto, PaginatedWebhookDeliveryResponseDto } from './dto';
@@ -113,7 +114,7 @@ export class WebhookFrameworkService {
     });
 
     await this.recordAudit(workspaceId, userId, 'webhook-framework.endpoint.created', AuditActionCategory.CREATE, endpoint.id);
-    await this.publishEvent(WebhookFrameworkEvent.WEBHOOK_ENDPOINT_CREATED, endpoint, undefined, userId);
+    await this.publishEvent(WebhookFrameworkEvent.WEBHOOK_ENDPOINT_CREATED, endpoint, undefined, undefined, userId);
 
     return { endpoint, plaintextSecret };
   }
@@ -145,7 +146,7 @@ export class WebhookFrameworkService {
     });
 
     await this.recordAudit(workspaceId, userId, 'webhook-framework.endpoint.updated', AuditActionCategory.UPDATE, id);
-    await this.publishEvent(WebhookFrameworkEvent.WEBHOOK_ENDPOINT_UPDATED, updated, undefined, userId);
+    await this.publishEvent(WebhookFrameworkEvent.WEBHOOK_ENDPOINT_UPDATED, updated, undefined, undefined, userId);
     return updated;
   }
 
@@ -180,7 +181,7 @@ export class WebhookFrameworkService {
     });
 
     await this.recordAudit(workspaceId, userId, 'webhook-framework.endpoint.secret_rotated', AuditActionCategory.UPDATE, id, AuditRiskLevel.SUSPICIOUS);
-    await this.publishEvent(WebhookFrameworkEvent.WEBHOOK_ENDPOINT_SECRET_ROTATED, updated, undefined, userId);
+    await this.publishEvent(WebhookFrameworkEvent.WEBHOOK_ENDPOINT_SECRET_ROTATED, updated, undefined, undefined, userId);
 
     return { endpoint: updated, plaintextSecret };
   }
@@ -191,7 +192,7 @@ export class WebhookFrameworkService {
     await this.assertCanManage(workspaceId, userId, userRole);
 
     await this.recordAudit(workspaceId, userId, 'webhook-framework.endpoint.deleted', AuditActionCategory.DELETE, id, AuditRiskLevel.SUSPICIOUS);
-    await this.publishEvent(WebhookFrameworkEvent.WEBHOOK_ENDPOINT_DELETED, endpoint, undefined, userId);
+    await this.publishEvent(WebhookFrameworkEvent.WEBHOOK_ENDPOINT_DELETED, endpoint, undefined, undefined, userId);
     await this.repository.delete(id);
   }
 

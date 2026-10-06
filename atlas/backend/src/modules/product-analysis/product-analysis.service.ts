@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ProductAnalysisRepository } from './product-analysis.repository';
-import { ProductAnalysisQueue } from './jobs';
+import { ProductAnalysisQueue } from './jobs/product-analysis.queue';
 import {
   CreateProductAnalysisDto,
   UpdateProductAnalysisDto,
@@ -293,7 +293,11 @@ export class ProductAnalysisService {
       throw new NotFoundException(`Analysis not found: ${id}`);
     }
 
-    const updated = await this.repository.updateAnalysis(id, workspaceId, dto);
+    const updated = await this.repository.updateAnalysis(
+      id,
+      workspaceId,
+      dto as unknown as Record<string, unknown>,
+    );
     return this.mapToResponse(updated);
   }
 

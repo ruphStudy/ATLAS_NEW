@@ -166,7 +166,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
     dto: UpdateWorkflowDefinitionDto,
   ): Promise<WorkflowDefinitionResponseDto> {
     await this.validator.assertPermission(userId, workspaceId, userRole, 'workflow_definition', PermissionAction.UPDATE);
-    const existing = (await this.requireDefinition(id, workspaceId)) as IWorkflowDefinition;
+    const existing = (await this.requireDefinition(id, workspaceId)) as unknown as IWorkflowDefinition;
 
     const stages = (dto.stages as IWorkflowStageDefinition[] | undefined) ?? existing.stages;
     const structure = this.validator.validateStructure(stages);
@@ -235,7 +235,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
 
   async publishDefinition(id: string, workspaceId: string, userId: string, userRole: string): Promise<WorkflowDefinitionResponseDto> {
     await this.validator.assertPermission(userId, workspaceId, userRole, 'workflow_definition', PermissionAction.PUBLISH);
-    const existing = (await this.requireDefinition(id, workspaceId)) as IWorkflowDefinition;
+    const existing = (await this.requireDefinition(id, workspaceId)) as unknown as IWorkflowDefinition;
     this.assertTransition(existing.status, WorkflowDefinitionStatus.PUBLISHED);
 
     const unresolved = this.validator.assertPublishable(existing.stages);
@@ -254,7 +254,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
 
   async pauseDefinition(id: string, workspaceId: string, userId: string, userRole: string): Promise<WorkflowDefinitionResponseDto> {
     await this.validator.assertPermission(userId, workspaceId, userRole, 'workflow_definition', PermissionAction.UPDATE);
-    const existing = (await this.requireDefinition(id, workspaceId)) as IWorkflowDefinition;
+    const existing = (await this.requireDefinition(id, workspaceId)) as unknown as IWorkflowDefinition;
     this.assertTransition(existing.status, WorkflowDefinitionStatus.PAUSED);
     const raw = await this.repository.updateDefinition(id, { status: WorkflowDefinitionStatus.PAUSED, updatedBy: userId });
     return this.transitionSideEffects(raw, WorkflowEngineEvent.DEFINITION_PAUSED, 'Paused', userId, workspaceId);
@@ -262,7 +262,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
 
   async resumeDefinition(id: string, workspaceId: string, userId: string, userRole: string): Promise<WorkflowDefinitionResponseDto> {
     await this.validator.assertPermission(userId, workspaceId, userRole, 'workflow_definition', PermissionAction.UPDATE);
-    const existing = (await this.requireDefinition(id, workspaceId)) as IWorkflowDefinition;
+    const existing = (await this.requireDefinition(id, workspaceId)) as unknown as IWorkflowDefinition;
     this.assertTransition(existing.status, WorkflowDefinitionStatus.PUBLISHED);
     const raw = await this.repository.updateDefinition(id, { status: WorkflowDefinitionStatus.PUBLISHED, updatedBy: userId });
     return this.transitionSideEffects(raw, WorkflowEngineEvent.DEFINITION_RESUMED, 'Resumed', userId, workspaceId);
@@ -270,7 +270,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
 
   async archiveDefinition(id: string, workspaceId: string, userId: string, userRole: string): Promise<WorkflowDefinitionResponseDto> {
     await this.validator.assertPermission(userId, workspaceId, userRole, 'workflow_definition', PermissionAction.DELETE);
-    const existing = (await this.requireDefinition(id, workspaceId)) as IWorkflowDefinition;
+    const existing = (await this.requireDefinition(id, workspaceId)) as unknown as IWorkflowDefinition;
     this.assertTransition(existing.status, WorkflowDefinitionStatus.ARCHIVED);
     const raw = await this.repository.updateDefinition(id, { status: WorkflowDefinitionStatus.ARCHIVED, updatedBy: userId });
     return this.transitionSideEffects(raw, WorkflowEngineEvent.DEFINITION_ARCHIVED, 'Archived', userId, workspaceId);
@@ -278,7 +278,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
 
   async restoreDefinition(id: string, workspaceId: string, userId: string, userRole: string): Promise<WorkflowDefinitionResponseDto> {
     await this.validator.assertPermission(userId, workspaceId, userRole, 'workflow_definition', PermissionAction.UPDATE);
-    const existing = (await this.requireDefinition(id, workspaceId)) as IWorkflowDefinition;
+    const existing = (await this.requireDefinition(id, workspaceId)) as unknown as IWorkflowDefinition;
     this.assertTransition(existing.status, WorkflowDefinitionStatus.DRAFT);
     const raw = await this.repository.updateDefinition(id, { status: WorkflowDefinitionStatus.DRAFT, updatedBy: userId });
     return this.transitionSideEffects(raw, WorkflowEngineEvent.DEFINITION_RESTORED, 'Restored', userId, workspaceId);
@@ -313,7 +313,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
       }
     }
 
-    const definition = (await this.requireDefinition(dto.definitionId, workspaceId)) as IWorkflowDefinition;
+    const definition = (await this.requireDefinition(dto.definitionId, workspaceId)) as unknown as IWorkflowDefinition;
     if (definition.status !== WorkflowDefinitionStatus.PUBLISHED) {
       throw new WorkflowDefinitionNotPublishedException(definition.key);
     }
@@ -712,7 +712,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
     dto: ResumeStepExecutionDto,
     userId?: string,
   ): Promise<WorkflowExecutionResponseDto> {
-    const execution = (await this.requireExecution(executionId, workspaceId)) as IWorkflowExecution;
+    const execution = (await this.requireExecution(executionId, workspaceId)) as unknown as IWorkflowExecution;
     const stepExecution = await this.repository.findStepExecutionById(stepExecutionId);
     if (!stepExecution || stepExecution['executionId'] !== executionId) {
       throw new WorkflowStepExecutionNotFoundException(stepExecutionId);
@@ -728,7 +728,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
       errorMessage: dto.errorMessage ?? null,
     });
 
-    const definition = (await this.requireDefinition(execution.definitionId)) as IWorkflowDefinition;
+    const definition = (await this.requireDefinition(execution.definitionId)) as unknown as IWorkflowDefinition;
     const step = this.findStepDefinitionById(definition.stages, stepExecution['stepId'] as string);
     const location = this.locateStep(definition.stages, stepExecution['stepId'] as string);
     if (!step || !location) {
@@ -769,7 +769,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
   }
 
   async pauseExecution(id: string, workspaceId: string, userId?: string): Promise<WorkflowExecutionResponseDto> {
-    const existing = (await this.requireExecution(id, workspaceId)) as IWorkflowExecution;
+    const existing = (await this.requireExecution(id, workspaceId)) as unknown as IWorkflowExecution;
     this.assertExecutionTransition(existing.status, WorkflowExecutionStatus.PAUSED);
     const raw = await this.repository.updateExecution(id, { status: WorkflowExecutionStatus.PAUSED });
     await this.publishEvent(WorkflowEngineEvent.EXECUTION_PAUSED, { executionId: id, workspaceId, performedBy: userId });
@@ -785,9 +785,9 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
    * restarting an execution paused between steps/stages.
    */
   async resumeExecution(id: string, workspaceId: string, userId?: string): Promise<WorkflowExecutionResponseDto> {
-    const existing = (await this.requireExecution(id, workspaceId)) as IWorkflowExecution;
+    const existing = (await this.requireExecution(id, workspaceId)) as unknown as IWorkflowExecution;
     this.assertExecutionTransition(existing.status, WorkflowExecutionStatus.RUNNING);
-    const definition = (await this.requireDefinition(existing.definitionId)) as IWorkflowDefinition;
+    const definition = (await this.requireDefinition(existing.definitionId)) as unknown as IWorkflowDefinition;
     const currentLocation = existing.currentStepId ? this.locateStep(definition.stages, existing.currentStepId) : null;
     const resumeFrom: IResumePoint = currentLocation ?? { stageIndex: existing.currentStageIndex ?? 0, stepIndex: 0 };
     await this.publishEvent(WorkflowEngineEvent.EXECUTION_RESUMED, { executionId: id, workspaceId, performedBy: userId });
@@ -796,7 +796,7 @@ export class EnterpriseWorkflowEngineService implements OnModuleInit {
   }
 
   async cancelExecution(id: string, workspaceId: string, userId?: string, reason?: string): Promise<WorkflowExecutionResponseDto> {
-    const existing = (await this.requireExecution(id, workspaceId)) as IWorkflowExecution;
+    const existing = (await this.requireExecution(id, workspaceId)) as unknown as IWorkflowExecution;
     this.assertExecutionTransition(existing.status, WorkflowExecutionStatus.CANCELLED);
     const raw = await this.repository.updateExecution(id, {
       status: WorkflowExecutionStatus.CANCELLED,

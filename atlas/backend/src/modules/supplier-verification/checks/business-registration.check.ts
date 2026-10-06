@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CHECK_NAMES } from '../../constants';
-import type { ICheckResult, ISupplierForVerification, IVerificationCheck, IVerificationContext } from '../../interfaces';
+import { CHECK_NAMES } from '../constants';
+import type { ICheckResult, ISupplierForVerification, IVerificationCheck, IVerificationContext } from '../interfaces';
 
 @Injectable()
 export class BusinessRegistrationCheck implements IVerificationCheck {

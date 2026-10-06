@@ -20,8 +20,8 @@ import {
   IReportSchedule,
   IScheduleExecution,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -433,15 +433,15 @@ export class ScheduledReportsService {
         lastError = error as Error;
 
         this.logger.warn(
-          `Execution attempt ${attemptNumber} failed for schedule ${schedule.id}: ${error.message}`,
+          `Execution attempt ${attemptNumber} failed for schedule ${schedule.id}: ${lastError.message}`,
         );
 
         await this.repository.createExecutionLog({
           executionId: execution.id,
           workspaceId: execution.workspaceId,
           level: 'error',
-          message: `Execution attempt ${attemptNumber} failed: ${error.message}`,
-          context: { errorStack: (error as Error).stack },
+          message: `Execution attempt ${attemptNumber} failed: ${lastError.message}`,
+          context: { errorStack: lastError.stack },
         });
 
         if (attemptNumber >= schedule.maxRetries) {
@@ -454,7 +454,7 @@ export class ScheduledReportsService {
           scheduleId: schedule.id,
           executionId: execution.id,
           timestamp: new Date(),
-          metadata: { attemptNumber, errorMessage: error.message },
+          metadata: { attemptNumber, errorMessage: lastError.message },
         });
 
         const delayMs = this.calculateRetryDelay(attemptNumber, schedule.retryBackoff);

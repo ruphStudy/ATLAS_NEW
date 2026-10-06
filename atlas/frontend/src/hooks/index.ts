@@ -25,6 +25,7 @@ export * from './use-monitoring';
 export * from './use-dashboard-framework';
 export * from './use-opportunities';
 export * from './use-discovery';
+export * from './use-product-taxonomy';
 export * from './use-product-scoring';
 export * from './use-product-analysis';
 export * from './use-profit-calculator';

@@ -23,15 +23,15 @@ import {
 export class GetProductPerformanceDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(ProductPeriod)
   @IsOptional()
@@ -115,43 +115,43 @@ export class GetProductPerformanceDto {
 export class GetProductTrendsDto extends GetProductPerformanceDto {
   @IsString()
   @IsNotEmpty()
-  productId: string;
+  productId!: string;
 
   @IsEnum(ProductMetricType)
   @IsNotEmpty()
-  metricType: ProductMetricType;
+  metricType!: ProductMetricType;
 
   @IsEnum(ProductPeriod)
   @IsNotEmpty()
-  period: ProductPeriod;
+  period!: ProductPeriod;
 }
 
 export class GetProductBreakdownDto extends GetProductPerformanceDto {
   @IsEnum(ProductDimension)
   @IsNotEmpty()
-  dimension: ProductDimension;
+  dimension!: ProductDimension;
 }
 
 export class GetProductComparisonDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  productId: string;
+  productId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(ProductComparisonType)
   @IsNotEmpty()
-  comparisonType: ProductComparisonType;
+  comparisonType!: ProductComparisonType;
 
   @IsDate()
   @Type(() => Date)
@@ -171,23 +171,23 @@ export class GetProductComparisonDto {
 export class GetProductCohortDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  launchDateStart: Date;
+  launchDateStart!: Date;
 
   @IsDate()
   @Type(() => Date)
-  launchDateEnd: Date;
+  launchDateEnd!: Date;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(ProductPeriod)
   @IsOptional()
@@ -201,7 +201,7 @@ export class GetProductCohortDto {
 export class GetListingPerformanceDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -241,50 +241,50 @@ export class GetMarketplacePerformanceDto extends GetProductPerformanceDto {
 }
 
 export class ProductPerformanceMetricsResponseDto implements IProductPerformanceMetrics {
-  revenue: number;
-  unitsSold: number;
-  orders: number;
-  grossProfit: number;
-  netProfit: number;
-  grossMargin: number;
-  netMargin: number;
-  roi: number;
-  conversionRate: number;
-  returnRate: number;
-  growthRate: number;
-  averageSellingPrice: number;
-  views: number;
+  revenue!: number;
+  unitsSold!: number;
+  orders!: number;
+  grossProfit!: number;
+  netProfit!: number;
+  grossMargin!: number;
+  netMargin!: number;
+  roi!: number;
+  conversionRate!: number;
+  returnRate!: number;
+  growthRate!: number;
+  averageSellingPrice!: number;
+  views!: number;
 }
 
 export class ProductPerformanceResponseDto implements IProductPerformance {
-  workspaceId: string;
-  productId: string;
-  sku: string;
+  workspaceId!: string;
+  productId!: string;
+  sku!: string;
   variantId?: string;
-  productName: string;
+  productName!: string;
   category?: string;
   brand?: string;
-  performanceCategory: ProductPerformanceCategory;
-  lifecycleStage: ProductLifecycleStage;
-  metrics: IProductPerformanceMetrics;
+  performanceCategory!: ProductPerformanceCategory;
+  lifecycleStage!: ProductLifecycleStage;
+  metrics!: IProductPerformanceMetrics;
   rank?: number;
   sharePercent?: number;
-  period: ProductPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
+  period!: ProductPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class ProductTrendResponseDto implements IProductTrend {
-  workspaceId: string;
-  productId: string;
-  sku: string;
-  period: ProductPeriod;
-  periodStart: Date;
-  periodEnd: Date;
-  metricType: ProductMetricType;
-  value: number;
+  workspaceId!: string;
+  productId!: string;
+  sku!: string;
+  period!: ProductPeriod;
+  periodStart!: Date;
+  periodEnd!: Date;
+  metricType!: ProductMetricType;
+  value!: number;
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
@@ -293,28 +293,28 @@ export class ProductTrendResponseDto implements IProductTrend {
 }
 
 export class ProductBreakdownResponseDto implements IProductBreakdown {
-  workspaceId: string;
-  dimension: ProductDimension;
-  dimensionValue: string;
+  workspaceId!: string;
+  dimension!: ProductDimension;
+  dimensionValue!: string;
   dimensionLabel?: string;
-  period: ProductPeriod;
-  startDate: Date;
-  endDate: Date;
-  metrics: IProductPerformanceMetrics;
+  period!: ProductPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  metrics!: IProductPerformanceMetrics;
   rank?: number;
   sharePercent?: number;
-  currency: string;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class ProductComparisonResponseDto implements IProductComparison {
-  workspaceId: string;
-  productId: string;
-  sku: string;
-  comparisonType: ProductComparisonType;
-  actualMetrics: IProductPerformanceMetrics;
-  comparisonMetrics: IProductPerformanceMetrics;
-  variance: {
+  workspaceId!: string;
+  productId!: string;
+  sku!: string;
+  comparisonType!: ProductComparisonType;
+  actualMetrics!: IProductPerformanceMetrics;
+  comparisonMetrics!: IProductPerformanceMetrics;
+  variance!: {
     revenueAmount: number;
     revenuePercent: number;
     unitsSoldAmount: number;
@@ -326,73 +326,73 @@ export class ProductComparisonResponseDto implements IProductComparison {
     grossMarginPoints: number;
     netMarginPoints: number;
   };
-  period: ProductPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
+  period!: ProductPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class ProductCohortResponseDto implements IProductCohort {
-  workspaceId: string;
-  cohortKey: string;
-  cohortName: string;
-  launchDateStart: Date;
-  launchDateEnd: Date;
-  productCount: number;
-  totalRevenue: number;
-  totalUnitsSold: number;
-  averageRevenue: number;
-  averageUnitsSold: number;
-  retentionRate: number;
-  period: ProductPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
+  workspaceId!: string;
+  cohortKey!: string;
+  cohortName!: string;
+  launchDateStart!: Date;
+  launchDateEnd!: Date;
+  productCount!: number;
+  totalRevenue!: number;
+  totalUnitsSold!: number;
+  averageRevenue!: number;
+  averageUnitsSold!: number;
+  retentionRate!: number;
+  period!: ProductPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class ListingPerformanceResponseDto implements IListingPerformance {
-  workspaceId: string;
-  productId: string;
-  sku: string;
-  marketplaceId: string;
-  accountId: string;
-  listingQuality: ListingQualityScore;
-  qualityScore: number;
-  priceCompetitiveness: PriceCompetitiveness;
-  competitivenessScore: number;
-  stockAvailability: StockAvailability;
-  hasImages: boolean;
-  hasDescription: boolean;
-  hasBulletPoints: boolean;
-  hasKeywords: boolean;
-  hasReviews: boolean;
+  workspaceId!: string;
+  productId!: string;
+  sku!: string;
+  marketplaceId!: string;
+  accountId!: string;
+  listingQuality!: ListingQualityScore;
+  qualityScore!: number;
+  priceCompetitiveness!: PriceCompetitiveness;
+  competitivenessScore!: number;
+  stockAvailability!: StockAvailability;
+  hasImages!: boolean;
+  hasDescription!: boolean;
+  hasBulletPoints!: boolean;
+  hasKeywords!: boolean;
+  hasReviews!: boolean;
   averageRating?: number;
   reviewCount?: number;
-  impressions: number;
-  clicks: number;
-  conversionRate: number;
-  lastUpdated: Date;
+  impressions!: number;
+  clicks!: number;
+  conversionRate!: number;
+  lastUpdated!: Date;
   metadata?: Record<string, any>;
 }
 
 export class MarketplacePerformanceResponseDto implements IMarketplacePerformance {
-  workspaceId: string;
-  productId: string;
-  sku: string;
-  marketplaceId: string;
-  marketplaceName: string;
-  accountId: string;
-  isActive: boolean;
-  metrics: IProductPerformanceMetrics;
-  listingQuality: ListingQualityScore;
-  priceCompetitiveness: PriceCompetitiveness;
-  stockAvailability: StockAvailability;
+  workspaceId!: string;
+  productId!: string;
+  sku!: string;
+  marketplaceId!: string;
+  marketplaceName!: string;
+  accountId!: string;
+  isActive!: boolean;
+  metrics!: IProductPerformanceMetrics;
+  listingQuality!: ListingQualityScore;
+  priceCompetitiveness!: PriceCompetitiveness;
+  stockAvailability!: StockAvailability;
   rank?: number;
-  period: ProductPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
+  period!: ProductPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
   metadata?: Record<string, any>;
 }

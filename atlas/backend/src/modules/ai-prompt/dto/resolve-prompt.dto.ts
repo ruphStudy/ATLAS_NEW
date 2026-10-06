@@ -34,12 +34,12 @@ export class ResolvePromptDto {
 
 export class CompilePromptDto {
   @IsString()
-  promptId: string;
+  promptId!: string;
 
   @IsOptional()
   @IsString()
   workspaceId?: string;
 
   @IsObject()
-  variables: Record<string, unknown>;
+  variables!: Record<string, unknown>;
 }

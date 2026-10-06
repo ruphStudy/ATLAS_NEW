@@ -6,56 +6,56 @@ import {
 } from '../interfaces';
 
 export class AiQueueResponseDto {
-  id: string;
+  id!: string;
   workspaceId?: string | null;
-  name: string;
-  displayName: string;
+  name!: string;
+  displayName!: string;
   description?: string | null;
-  status: AiQueueStatus;
-  routingStrategy: AiQueueRoutingStrategy;
+  status!: AiQueueStatus;
+  routingStrategy!: AiQueueRoutingStrategy;
   routingConfig?: unknown | null;
-  concurrency: number;
+  concurrency!: number;
   rateLimit?: number | null;
   rateLimitWindow?: number | null;
   batchSize?: number | null;
   batchWindow?: number | null;
-  defaultPriority: AiQueueJobPriority;
+  defaultPriority!: AiQueueJobPriority;
   defaultTimeout?: number | null;
-  defaultRetries: number;
+  defaultRetries!: number;
   retryBackoff?: unknown | null;
-  enableDeadLetter: boolean;
-  deadLetterThreshold: number;
-  enableIdempotency: boolean;
+  enableDeadLetter!: boolean;
+  deadLetterThreshold!: number;
+  enableIdempotency!: boolean;
   idempotencyTtl?: number | null;
-  enableMetrics: boolean;
+  enableMetrics!: boolean;
   metricsRetention?: number | null;
-  tags: string[];
+  tags!: string[];
   metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedAiQueueResponseDto {
-  data: AiQueueResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: AiQueueResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class QueueJobResponseDto {
-  id: string;
-  queueId: string;
-  workspaceId: string;
-  jobType: string;
-  priority: AiQueueJobPriority;
-  status: AiQueueJobStatus;
+  id!: string;
+  queueId!: string;
+  workspaceId!: string;
+  jobType!: string;
+  priority!: AiQueueJobPriority;
+  status!: AiQueueJobStatus;
   jobData: unknown;
   jobOptions?: unknown | null;
   idempotencyKey?: string | null;
   scheduledFor?: Date | null;
-  attemptNumber: number;
-  maxRetries: number;
+  attemptNumber!: number;
+  maxRetries!: number;
   timeout?: number | null;
   startedAt?: Date | null;
   completedAt?: Date | null;
@@ -76,37 +76,37 @@ export class QueueJobResponseDto {
   cost?: number | null;
   tokens?: number | null;
   metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedQueueJobResponseDto {
-  data: QueueJobResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: QueueJobResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class EnqueueResultDto {
-  jobId: string;
-  queueId: string;
-  status: AiQueueJobStatus;
-  priority: AiQueueJobPriority;
+  jobId!: string;
+  queueId!: string;
+  status!: AiQueueJobStatus;
+  priority!: AiQueueJobPriority;
   position?: number;
   estimatedStartTime?: Date;
 }
 
 export class QueueStatsDto {
-  queueId: string;
-  status: AiQueueStatus;
-  waiting: number;
-  active: number;
-  completed: number;
-  failed: number;
-  delayed: number;
-  totalProcessed: number;
-  totalFailed: number;
+  queueId!: string;
+  status!: AiQueueStatus;
+  waiting!: number;
+  active!: number;
+  completed!: number;
+  failed!: number;
+  delayed!: number;
+  totalProcessed!: number;
+  totalFailed!: number;
   avgProcessingTime?: number;
   throughput?: number;
   errorRate?: number;

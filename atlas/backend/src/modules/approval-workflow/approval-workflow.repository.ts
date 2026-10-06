@@ -28,7 +28,7 @@ export class ApprovalWorkflowRepository extends BaseRepository {
   async createDefinition(data: Partial<IApprovalWorkflowDefinition>): Promise<IApprovalWorkflowDefinition> {
     return this.prisma.approvalWorkflowDefinition.create({
       data: data as any,
-    }) as Promise<IApprovalWorkflowDefinition>;
+    }) as unknown as Promise<IApprovalWorkflowDefinition>;
   }
 
   async findDefinitionById(id: string): Promise<IApprovalWorkflowDefinition | null> {
@@ -79,7 +79,7 @@ export class ApprovalWorkflowRepository extends BaseRepository {
       this.prisma.approvalWorkflowDefinition.count({ where: where as any }),
     ]);
 
-    return [data as IApprovalWorkflowDefinition[], total];
+    return [data as unknown as IApprovalWorkflowDefinition[], total];
   }
 
   async updateDefinition(
@@ -89,7 +89,7 @@ export class ApprovalWorkflowRepository extends BaseRepository {
     return this.prisma.approvalWorkflowDefinition.update({
       where: { id },
       data: data as any,
-    }) as Promise<IApprovalWorkflowDefinition>;
+    }) as unknown as Promise<IApprovalWorkflowDefinition>;
   }
 
   async createDefinitionHistory(

@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────
+   ATLAS Design System – CSS Custom Properties
+   Light Mode (default) → Dark Mode via .dark class (next-themes)
+───────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Base surfaces */
+  --background: 248 250 252;        /* near-white blue-gray */
+  --foreground: 15 23 42;           /* slate-900 */
+
+  /* Card / elevated surfaces */
+  --card: 255 255 255;
+  --card-foreground: 15 23 42;
+
+  /* Popover / overlay surfaces */
+  --popover: 255 255 255;
+  --popover-foreground: 15 23 42;
+
+  /* Primary – Purple */
+  --primary: 109 40 217;            /* violet-700 */
+  --primary-foreground: 255 255 255;
+
+  /* Secondary – light gray */
+  --secondary: 241 245 249;         /* slate-100 */
+  --secondary-foreground: 51 65 85; /* slate-700 */
+
+  /* Muted – subtle background */
+  --muted: 248 250 252;             /* slate-50 */
+  --muted-foreground: 100 116 139;  /* slate-500 */
+
+  /* Accent – Electric Blue */
+  --accent: 37 99 235;              /* blue-600 */
+  --accent-foreground: 255 255 255;
+
+  /* Semantic status colors */
+  --success: 16 185 129;            /* emerald-500 */
+  --warning: 245 158 11;            /* amber-500 */
+  --danger: 244 63 94;              /* rose-500 */
+  --info: 14 165 233;               /* sky-500 */
+
+  /* Border / Input */
+  --border: 226 232 240;            /* slate-200 */
+  --input: 241 245 249;             /* slate-100 */
+  --ring: 109 40 217;               /* primary */
+
+  /* Sidebar */
+  --sidebar: 255 255 255;
+  --sidebar-border: 241 245 249;
+
+  /* Geometry */
+  --radius: 12px;
+}
+
+/* ── Dark Mode ───────────────────────────────────────────────── */
+.dark {
+  --background: 9 10 16;            /* near-black, rich dark */
+  --foreground: 225 228 237;        /* slate-200 */
+
+  --card: 16 18 28;                 /* elevated surface */
+  --card-foreground: 225 228 237;
+
+  --popover: 16 18 28;
+  --popover-foreground: 225 228 237;
+
+  --primary: 139 92 246;            /* violet-500 (brighter on dark) */
+  --primary-foreground: 255 255 255;
+
+  --secondary: 28 31 45;
+  --secondary-foreground: 148 163 184; /* slate-400 */
+
+  --muted: 20 23 34;
+  --muted-foreground: 100 116 139;  /* slate-500 */
+
+  --accent: 59 130 246;             /* blue-500 */
+  --accent-foreground: 255 255 255;
+
+  --success: 52 211 153;            /* emerald-400 */
+  --warning: 251 191 36;            /* amber-400 */
+  --danger: 251 113 133;            /* rose-400 */
+  --info: 56 189 248;               /* sky-400 */
+
+  --border: 35 39 56;
+  --input: 28 31 45;
+  --ring: 139 92 246;
+
+  --sidebar: 11 12 19;
+  --sidebar-border: 26 29 44;
+}
+
+/* ── Base Styles ─────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* ── Custom Scrollbar ───────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-border;
+    transition: background 0.2s;
+  }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/30; }
+
+  /* ── Focus ──────────────────────────────────────────────────── */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+/* ── Utility Layers ─────────────────────────────────────────── */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  /* Glass morphism */
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl;
+    border: 1px solid rgb(var(--border) / 0.6);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-brand bg-clip-text text-transparent;
+  }
+
+  /* Card hover lift */
+  .card-hover {
+    @apply transition-all duration-300 ease-out;
+    &:hover {
+      @apply shadow-card-hover -translate-y-0.5;
+    }
+  }
+
+  /* Mesh gradient background */
+  .bg-mesh {
+    @apply bg-gradient-mesh;
+  }
+
+  /* Shimmer loading animation */
+  .shimmer {
+    background-size: 200% 100%;
+    @apply animate-shimmer bg-shimmer;
+  }
+
+  /* Sidebar transition */
+  .sidebar-transition {
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+

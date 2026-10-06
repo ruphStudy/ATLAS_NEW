@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { QUEUE_NAMES } from '@common/constants';
+import { ConfigurationService } from '@config/configuration.service';
 import { MarketplaceExpansionEventPayload } from '../interfaces';
 import { MARKETPLACE_EXPANSION_EVENT_QUEUE_CONFIG } from '../constants';
 
@@ -9,8 +10,10 @@ export class MarketplaceExpansionEventQueue implements OnModuleDestroy {
   private readonly logger = new Logger(MarketplaceExpansionEventQueue.name);
   private readonly queue: Queue<MarketplaceExpansionEventPayload>;
 
-  constructor() {
+  constructor(configService: ConfigurationService) {
+    const redis = configService.getRedisConfig();
     this.queue = new Queue<MarketplaceExpansionEventPayload>(QUEUE_NAMES.MARKETPLACE_EXPANSION_EVENTS, {
+      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
       defaultJobOptions: {
         attempts: MARKETPLACE_EXPANSION_EVENT_QUEUE_CONFIG.ATTEMPTS,
         backoff: { type: 'exponential', delay: MARKETPLACE_EXPANSION_EVENT_QUEUE_CONFIG.BACKOFF_MS },

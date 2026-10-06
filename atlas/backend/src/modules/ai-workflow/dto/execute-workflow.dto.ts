@@ -3,10 +3,10 @@ import { AiWorkflowTriggerType } from '../interfaces';
 
 export class ExecuteWorkflowDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  workflowId: string;
+  workflowId!: string;
 
   @IsOptional()
   @IsObject()

@@ -8,11 +8,11 @@ export class AssignTagDto {
 
   @IsString()
   @IsNotEmpty()
-  entityType: string;
+  entityType!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityId: string;
+  entityId!: string;
 }
 
 export class BulkAssignTagsDto {
@@ -20,7 +20,7 @@ export class BulkAssignTagsDto {
   @ArrayMinSize(1)
   @ArrayMaxSize(MAX_BULK_TAG_OPERATION_SIZE)
   @IsString({ each: true })
-  tagIds: string[];
+  tagIds!: string[];
 
   @IsString()
   @IsOptional()
@@ -28,11 +28,11 @@ export class BulkAssignTagsDto {
 
   @IsString()
   @IsNotEmpty()
-  entityType: string;
+  entityType!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityId: string;
+  entityId!: string;
 }
 
 export class BulkRemoveTagsDto {
@@ -40,13 +40,13 @@ export class BulkRemoveTagsDto {
   @ArrayMinSize(1)
   @ArrayMaxSize(MAX_BULK_TAG_OPERATION_SIZE)
   @IsString({ each: true })
-  tagIds: string[];
+  tagIds!: string[];
 
   @IsString()
   @IsNotEmpty()
-  entityType: string;
+  entityType!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityId: string;
+  entityId!: string;
 }

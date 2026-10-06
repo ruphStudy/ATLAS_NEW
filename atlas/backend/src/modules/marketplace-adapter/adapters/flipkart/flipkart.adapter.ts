@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BaseAdapter } from '../../adapter/base.adapter';
-import { FlipkartApiClient } from '../client/flipkart-api.client';
-import { FlipkartAuthService } from '../auth/flipkart-auth.service';
-import { FlipkartRequestMapper } from '../mappers/flipkart-request.mapper';
-import { FlipkartResponseMapper } from '../mappers/flipkart-response.mapper';
-import { FlipkartErrorMapper } from '../mappers/flipkart-error.mapper';
-import { FlipkartAdapterEventQueue } from '../events/flipkart-adapter-event.queue';
+import { FlipkartApiClient } from './client/flipkart-api.client';
+import { FlipkartAuthService } from './auth/flipkart-auth.service';
+import { FlipkartRequestMapper } from './mappers/flipkart-request.mapper';
+import { FlipkartResponseMapper } from './mappers/flipkart-response.mapper';
+import { FlipkartErrorMapper } from './mappers/flipkart-error.mapper';
+import { FlipkartAdapterEventQueue } from './events/flipkart-adapter-event.queue';
 import { ResponseNormalizer } from '../../normalizer/response.normalizer';
 import {
   IAdapterCapabilities,
@@ -16,16 +16,16 @@ import {
   AdapterOperation,
   ApiVersion,
 } from '../../interfaces';
-import { IFlipkartCredentials } from '../interfaces/flipkart.interfaces';
+import { IFlipkartCredentials } from './interfaces/flipkart.interfaces';
 import {
   FLIPKART_API_PATHS,
   FLIPKART_RATE_LIMITS,
-} from '../constants/flipkart.constants';
+} from './constants/flipkart.constants';
 
 @Injectable()
 export class FlipkartAdapter extends BaseAdapter {
   private readonly logger = new Logger(FlipkartAdapter.name);
-  private flipkartCredentials: IFlipkartCredentials;
+  private flipkartCredentials!: IFlipkartCredentials;
 
   constructor(
     private readonly apiClient: FlipkartApiClient,

@@ -14,7 +14,7 @@ import { Type } from 'class-transformer';
 export class NotificationRecipientDto {
   @IsString()
   @IsNotEmpty()
-  address: string;
+  address!: string;
 
   @IsString()
   @IsOptional()
@@ -28,7 +28,7 @@ export class NotificationRecipientDto {
 export class NotificationTemplateDto {
   @IsString()
   @IsNotEmpty()
-  templateId: string;
+  templateId!: string;
 
   @IsObject()
   @IsOptional()
@@ -48,11 +48,11 @@ export class NotificationTemplateDto {
 export class NotificationAttachmentDto {
   @IsString()
   @IsNotEmpty()
-  filename: string;
+  filename!: string;
 
   @IsString()
   @IsNotEmpty()
-  contentType: string;
+  contentType!: string;
 
   @IsString()
   @IsOptional()
@@ -66,17 +66,17 @@ export class NotificationAttachmentDto {
 export class SendNotificationDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  channel: string;
+  channel!: string;
 
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => NotificationRecipientDto)
-  recipients: NotificationRecipientDto[];
+  recipients!: NotificationRecipientDto[];
 
   @IsString()
   @IsOptional()

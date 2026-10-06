@@ -5,14 +5,14 @@ import {
   mapTradeIndiaProductValidation,
   mapTradeIndiaRfqToQuotation,
   mapTradeIndiaCatalog,
-} from '../tradeindia/tradeindia.mappers';
-import { SupplierProviderCode } from '../../../interfaces';
+} from '../adapters/providers/tradeindia/tradeindia.mappers';
+import { SupplierProviderCode } from '../interfaces';
 import {
   TradeIndiaRawSupplier,
   TradeIndiaRawProduct,
   TradeIndiaRawRfqResponse,
   TradeIndiaRawCatalog,
-} from '../tradeindia/tradeindia.types';
+} from '../adapters/providers/tradeindia/tradeindia.types';
 
 // ── Fixtures ──────────────────────────────────────────────────
 

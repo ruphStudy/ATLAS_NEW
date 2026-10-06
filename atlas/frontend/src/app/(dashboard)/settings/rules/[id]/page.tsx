@@ -98,7 +98,7 @@ function NewRulePage() {
 
   return (
     <div>
-      <PageHeader title="New Rule" breadcrumbs={[{ label: 'Business Rules', href: '/dashboard/settings/rules' }, { label: 'New' }]} />
+      <PageHeader title="New Rule" breadcrumbs={[{ label: 'Business Rules', href: '/settings/rules' }, { label: 'New' }]} />
 
       <div className="space-y-6">
         <Card>
@@ -177,7 +177,7 @@ function NewRulePage() {
                 executionOrder: Number(executionOrder) || 0,
                 stopOnMatch,
               },
-              { onSuccess: (rule) => router.push(`/dashboard/settings/rules/${rule.id}`) },
+              { onSuccess: (rule) => router.push(`/settings/rules/${rule.id}`) },
             )
           }
           disabled={!module || !key || !name || actions.length === 0 || createRule.isPending}
@@ -235,7 +235,7 @@ function ExistingRulePage({ id }: { id: string }) {
     <div>
       <PageHeader
         title={rule.name}
-        breadcrumbs={[{ label: 'Business Rules', href: '/dashboard/settings/rules' }, { label: rule.name }]}
+        breadcrumbs={[{ label: 'Business Rules', href: '/settings/rules' }, { label: rule.name }]}
         actions={
           <>
             <StatusBadge status={rule.status} />

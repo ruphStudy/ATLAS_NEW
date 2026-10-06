@@ -1,9 +1,10 @@
 import {
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { OpportunityRepository } from './opportunity.repository';
+import { OpportunityRepository, isUniqueConstraintError } from './opportunity.repository';
 import type {
   IOpportunity,
   IOpportunityListResult,
@@ -33,11 +34,13 @@ export class OpportunityService {
     dto: CreateOpportunityDto,
     workspaceId: string,
   ): Promise<OpportunityResponseDto> {
+    const country = dto.country ?? 'US';
     const data: Record<string, unknown> = {
       workspaceId,
       keyword: dto.keyword,
+      normalizedKeyword: dto.keyword.trim().toLowerCase(),
       marketplace: dto.marketplace,
-      country: dto.country ?? 'US',
+      country,
       category: dto.category ?? null,
       demandScore: dto.demandScore ?? null,
       competitionScore: dto.competitionScore ?? null,
@@ -50,9 +53,70 @@ export class OpportunityService {
       notes: dto.notes ?? null,
     };
 
-    const opportunity = await this.opportunityRepository.create(data);
-    this.logger.log(`Opportunity created: ${opportunity.id} [${opportunity.keyword}]`);
-    return this.toResponseDto(opportunity);
+    try {
+      const opportunity = await this.opportunityRepository.create(data);
+      this.logger.log(`Opportunity created: ${opportunity.id} [${opportunity.keyword}]`);
+      return this.toResponseDto(opportunity);
+    } catch (err) {
+      if (isUniqueConstraintError(err)) {
+        throw new ConflictException(
+          `An opportunity for "${dto.keyword}" on ${dto.marketplace}/${country} already exists in this workspace.`,
+        );
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Promotes a MarketplaceProductCandidate into a workspace Opportunity —
+   * the only path that creates an Opportunity from Discovery data (Prompt
+   * 3/4: Discovery itself no longer auto-creates one). Idempotent: a
+   * second promotion of the same candidate by the same workspace returns
+   * the existing active Opportunity rather than erroring or duplicating.
+   * Race-safe: the DB's partial unique index on
+   * (workspaceId, marketplaceProductCandidateId) is the actual guarantee —
+   * this method never relies on a find-then-create check alone.
+   */
+  async promoteCandidate(
+    marketplaceProductCandidateId: string,
+    workspaceId: string,
+  ): Promise<OpportunityResponseDto> {
+    const candidate = await this.opportunityRepository.findCandidateById(
+      marketplaceProductCandidateId,
+    );
+    if (!candidate) {
+      throw new NotFoundException(
+        `Marketplace product candidate '${marketplaceProductCandidateId}' not found`,
+      );
+    }
+
+    const keyword = candidate.title ?? candidate.externalProductId;
+
+    try {
+      const opportunity = await this.opportunityRepository.create({
+        workspaceId,
+        keyword,
+        normalizedKeyword: keyword.trim().toLowerCase(),
+        marketplace: candidate.marketplaceKey,
+        country: candidate.country,
+        category: candidate.marketplaceCategory,
+        marketplaceProductCandidateId: candidate.id,
+        status: 'DISCOVERED',
+      });
+      this.logger.log(
+        `Opportunity ${opportunity.id} created by promoting candidate ${candidate.id}`,
+      );
+      return this.toResponseDto(opportunity);
+    } catch (err) {
+      if (isUniqueConstraintError(err)) {
+        const existing = await this.opportunityRepository.findActiveByCandidateId(
+          workspaceId,
+          candidate.id,
+        );
+        if (existing) return this.toResponseDto(existing);
+      }
+      throw err;
+    }
   }
 
   async findAll(
@@ -121,6 +185,7 @@ export class OpportunityService {
       marketplace: o.marketplace,
       country: o.country,
       category: o.category,
+      marketplaceProductCandidateId: o.marketplaceProductCandidateId,
       demandScore: o.demandScore,
       competitionScore: o.competitionScore,
       supplierScore: o.supplierScore,

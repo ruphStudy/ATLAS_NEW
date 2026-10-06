@@ -25,9 +25,9 @@ import {
   AiModelCapability,
   IResolvedModel,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -84,7 +84,7 @@ export class AiModelManagementService {
       isFallback: dto.isFallback ?? false,
     };
 
-    const model = (await this.repository.registerModel(data)) as IAiModel;
+    const model = (await this.repository.registerModel(data)) as unknown as IAiModel;
 
     await this.eventQueue.publish({
       event: AiModelEvent.MODEL_REGISTERED,
@@ -108,8 +108,8 @@ export class AiModelManagementService {
 
     const updated = (await this.repository.updateModel(
       id,
-      dto,
-    )) as IAiModel;
+      dto as unknown as Record<string, unknown>,
+    )) as unknown as IAiModel;
 
     await this.eventQueue.publish({
       event: AiModelEvent.MODEL_UPDATED,
@@ -127,7 +127,7 @@ export class AiModelManagementService {
 
     const updated = (await this.repository.updateModel(id, {
       status: AiModelStatus.ACTIVE,
-    })) as IAiModel;
+    })) as unknown as IAiModel;
 
     await this.eventQueue.publish({
       event: AiModelEvent.MODEL_ENABLED,
@@ -145,7 +145,7 @@ export class AiModelManagementService {
 
     const updated = (await this.repository.updateModel(id, {
       status: AiModelStatus.DISABLED,
-    })) as IAiModel;
+    })) as unknown as IAiModel;
 
     await this.eventQueue.publish({
       event: AiModelEvent.MODEL_DISABLED,
@@ -163,7 +163,7 @@ export class AiModelManagementService {
 
     const updated = (await this.repository.updateModel(id, {
       status: AiModelStatus.DEPRECATED,
-    })) as IAiModel;
+    })) as unknown as IAiModel;
 
     await this.eventQueue.publish({
       event: AiModelEvent.MODEL_DEPRECATED,
@@ -181,7 +181,7 @@ export class AiModelManagementService {
 
     const updated = (await this.repository.updateModel(id, {
       status: AiModelStatus.ARCHIVED,
-    })) as IAiModel;
+    })) as unknown as IAiModel;
 
     await this.eventQueue.publish({
       event: AiModelEvent.MODEL_ARCHIVED,
@@ -208,7 +208,7 @@ export class AiModelManagementService {
         ErrorCode.RESOURCE_NOT_FOUND,
       );
     }
-    return model as IAiModel;
+    return model as unknown as IAiModel;
   }
 
   async findAllModels(
@@ -221,7 +221,7 @@ export class AiModelManagementService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: data as AiModelResponseDto[],
+      data: data as unknown as AiModelResponseDto[],
       total,
       page,
       limit,
@@ -253,7 +253,7 @@ export class AiModelManagementService {
 
     const config = (await this.repository.createConfiguration(
       data,
-    )) as IAiModelConfiguration;
+    )) as unknown as IAiModelConfiguration;
 
     await this.eventQueue.publish({
       event: AiModelEvent.CONFIGURATION_UPDATED,
@@ -277,8 +277,8 @@ export class AiModelManagementService {
     const updated = (await this.repository.updateConfiguration(
       id,
       workspaceId,
-      dto,
-    )) as IAiModelConfiguration;
+      dto as unknown as Record<string, unknown>,
+    )) as unknown as IAiModelConfiguration;
 
     await this.eventQueue.publish({
       event: AiModelEvent.CONFIGURATION_UPDATED,
@@ -309,7 +309,7 @@ export class AiModelManagementService {
         ErrorCode.RESOURCE_NOT_FOUND,
       );
     }
-    return config as IAiModelConfiguration;
+    return config as unknown as IAiModelConfiguration;
   }
 
   async findAllConfigurations(
@@ -322,7 +322,7 @@ export class AiModelManagementService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: data as AiModelConfigurationResponseDto[],
+      data: data as unknown as AiModelConfigurationResponseDto[],
       total,
       page,
       limit,
@@ -331,11 +331,11 @@ export class AiModelManagementService {
   }
 
   async resolveModel(dto: ModelResolutionDto): Promise<ResolvedModelResponseDto> {
-    const cacheKey = this.buildCacheKey('resolve', dto);
+    const cacheKey = this.buildCacheKey('resolve', dto as unknown as Record<string, unknown>);
     
     const cached = await this.repository.getCachedMetadata(cacheKey);
     if (cached) {
-      return cached as IResolvedModel;
+      return cached as unknown as IResolvedModel;
     }
 
     let model: IAiModel | null = null;
@@ -349,8 +349,8 @@ export class AiModelManagementService {
       );
 
       if (config) {
-        configuration = config as IAiModelConfiguration;
-        model = (config['model'] as unknown) as IAiModel;
+        configuration = config as unknown as IAiModelConfiguration;
+        model = config['model'] as unknown as IAiModel;
       }
     }
 
@@ -361,7 +361,7 @@ export class AiModelManagementService {
       );
 
       if (models.length > 0) {
-        model = models[0] as IAiModel;
+        model = models[0] as unknown as IAiModel;
       }
     }
 
@@ -456,7 +456,7 @@ export class AiModelManagementService {
     const [models, total] = await this.repository.findAllModels(filter);
 
     return {
-      models: models as AiModelResponseDto[],
+      models: models as unknown as AiModelResponseDto[],
       total,
       filters: {
         provider,

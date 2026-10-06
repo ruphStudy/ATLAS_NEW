@@ -63,7 +63,7 @@ export default function PurchaseOrderDetailPage() {
 
   const handleDelete = async () => {
     const ok = await confirm({ title: 'Delete this purchase order?', description: 'This cannot be undone.', confirmLabel: 'Delete', variant: 'danger' });
-    if (ok) deletePO.mutate(po.id, { onSuccess: () => router.push('/dashboard/purchase-orders') });
+    if (ok) deletePO.mutate(po.id, { onSuccess: () => router.push('/purchase-orders') });
   };
 
   const actions: ActionMenuItem[] = [];
@@ -98,7 +98,7 @@ export default function PurchaseOrderDetailPage() {
     <div>
       <PageHeader
         title={po.poNumber}
-        breadcrumbs={[{ label: 'Purchase Orders', href: '/dashboard/purchase-orders' }, { label: po.poNumber }]}
+        breadcrumbs={[{ label: 'Purchase Orders', href: '/purchase-orders' }, { label: po.poNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={po.status} />

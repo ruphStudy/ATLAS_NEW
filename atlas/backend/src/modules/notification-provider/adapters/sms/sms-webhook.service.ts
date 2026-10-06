@@ -75,7 +75,7 @@ export class SmsWebhookService {
     }
 
     const rawStatus = this.extractField(body, settings.statusResponsePath, ['status', 'Status', 'MessageStatus']);
-    const status = (rawStatus && STATUS_MAP[String(rawStatus).toLowerCase()]) ?? undefined;
+    const status = rawStatus ? STATUS_MAP[String(rawStatus).toLowerCase()] : undefined;
 
     if (!status) {
       this.logger.warn(`SMS callback for ${providerRef} had unrecognized status '${String(rawStatus)}'`);

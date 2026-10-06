@@ -111,18 +111,18 @@ export class MarketplaceProviderService {
       priority: dto.priority,
     });
 
-    return MarketplaceProviderConfigResponseDto.from(raw as Record<string, unknown>);
+    return MarketplaceProviderConfigResponseDto.from(raw as unknown as Record<string, unknown>);
   }
 
   async getConfigs(workspaceId: string, providerKey?: string): Promise<MarketplaceProviderConfigResponseDto[]> {
     const raws = await this.repository.findConfigs(workspaceId, providerKey);
-    return raws.map((r) => MarketplaceProviderConfigResponseDto.from(r as Record<string, unknown>));
+    return raws.map((r) => MarketplaceProviderConfigResponseDto.from(r as unknown as Record<string, unknown>));
   }
 
   async getConfigById(id: string, workspaceId: string): Promise<MarketplaceProviderConfigResponseDto> {
     const raw = await this.repository.findConfigById(id, workspaceId);
     if (!raw) throw new NotFoundException(`Provider config '${id}' not found`);
-    return MarketplaceProviderConfigResponseDto.from(raw as Record<string, unknown>);
+    return MarketplaceProviderConfigResponseDto.from(raw as unknown as Record<string, unknown>);
   }
 
   async enableProvider(providerKey: string, workspaceId: string, userId?: string): Promise<void> {
@@ -293,16 +293,23 @@ export class MarketplaceProviderService {
     return this.manager.getAllHealth();
   }
 
-  // ── Connection Test ───────────────────────────────────────────
+  // ── Credential Resolution ──────────────────────────────────────
 
-  async testConnection(
+  /**
+   * Resolves and decrypts the active credential set for a provider account.
+   * Single source of truth for turning stored config into a usable
+   * MarketplaceCredentials bag — reused by testConnection and by other
+   * modules (e.g. marketplace-webhook) that need real credentials to call
+   * an adapter. Returns null if no credentials are configured.
+   */
+  async resolveDecryptedCredentials(
     workspaceId: string,
     providerKey: string,
-    accountId: string,
-  ) {
+    accountId?: string,
+  ): Promise<MarketplaceCredentials | null> {
     const config = await this.repository.findActiveConfig(workspaceId, providerKey, accountId);
     if (!config?.encryptedCredentials) {
-      throw new BadRequestException('No credentials configured for this provider account');
+      return null;
     }
 
     const decryptedPacked = this.credentialService.decrypt(
@@ -321,7 +328,7 @@ export class MarketplaceProviderService {
       fields,
     });
 
-    const credentials: MarketplaceCredentials = {
+    return {
       workspaceId,
       providerKey,
       accountId,
@@ -330,6 +337,19 @@ export class MarketplaceProviderService {
       fields: decryptedFields,
       expiresAt: config.credentialExpiresAt ?? null,
     };
+  }
+
+  // ── Connection Test ───────────────────────────────────────────
+
+  async testConnection(
+    workspaceId: string,
+    providerKey: string,
+    accountId?: string,
+  ) {
+    const credentials = await this.resolveDecryptedCredentials(workspaceId, providerKey, accountId);
+    if (!credentials) {
+      throw new BadRequestException('No credentials configured for this provider account');
+    }
 
     return this.manager.testConnection(providerKey, workspaceId, accountId, credentials);
   }

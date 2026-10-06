@@ -82,7 +82,7 @@ export default function QualityInspectionsPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((qi) => (
-              <TableRow key={qi.id} clickable onClick={() => router.push(`/dashboard/quality-inspections/${qi.id}`)}>
+              <TableRow key={qi.id} clickable onClick={() => router.push(`/quality-inspections/${qi.id}`)}>
                 <TableCell className="text-sm font-medium text-foreground">{qi.inspectionNumber}</TableCell>
                 <TableCell className="text-sm capitalize text-muted-foreground">{qi.inspectionType.toLowerCase().replace(/_/g, ' ')}</TableCell>
                 <TableCell>
@@ -101,7 +101,7 @@ export default function QualityInspectionsPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={data.totalPages} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateInspectionDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(qi) => router.push(`/dashboard/quality-inspections/${qi.id}`)} />
+      <CreateInspectionDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(qi) => router.push(`/quality-inspections/${qi.id}`)} />
     </div>
   );
 }

@@ -17,15 +17,15 @@ export class CreateDecisionRuleDto {
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
-  decisionType: string;
+  decisionType!: string;
 
   @IsString()
   @IsNotEmpty()
-  method: string;
+  method!: string;
 
   @IsString()
   @IsOptional()

@@ -23,11 +23,11 @@ export class CreateAiQueueDto {
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
-  displayName: string;
+  displayName!: string;
 
   @IsString()
   @IsOptional()

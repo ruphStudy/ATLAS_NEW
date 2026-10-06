@@ -44,7 +44,7 @@ export class AdapterHealthChecker {
         errors: [
           {
             code: 'HEALTH_CHECK_ERROR',
-            message: error.message,
+            message: (error as Error).message,
           },
         ],
       };
@@ -86,7 +86,7 @@ export class AdapterHealthChecker {
         responseTime: 0,
         error: {
           code: 'CONNECTION_TEST_ERROR',
-          message: error.message,
+          message: (error as Error).message,
         },
       };
     }

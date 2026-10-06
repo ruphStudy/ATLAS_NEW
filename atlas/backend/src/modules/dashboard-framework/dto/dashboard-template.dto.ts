@@ -13,10 +13,10 @@ export class CreateDashboardTemplateDto {
   workspaceId?: string;
 
   @IsString()
-  templateKey: string;
+  templateKey!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
@@ -27,10 +27,10 @@ export class CreateDashboardTemplateDto {
   category?: string;
 
   @IsObject()
-  layout: IDashboardLayout;
+  layout!: IDashboardLayout;
 
   @IsArray()
-  defaultWidgets: any[];
+  defaultWidgets!: any[];
 
   @IsOptional()
   @IsBoolean()
@@ -68,16 +68,16 @@ export class UpdateDashboardTemplateDto {
 }
 
 export class DashboardTemplateResponseDto {
-  id: string;
+  id!: string;
   workspaceId?: string;
-  templateKey: string;
-  name: string;
+  templateKey!: string;
+  name!: string;
   description?: string;
   category?: string;
-  layout: IDashboardLayout;
-  defaultWidgets: any[];
-  isGlobal: boolean;
+  layout!: IDashboardLayout;
+  defaultWidgets!: any[];
+  isGlobal!: boolean;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

@@ -3,7 +3,7 @@ import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 export class CheckQuotaDto {
   @IsString()
   @IsNotEmpty()
-  resourceKey: string;
+  resourceKey!: string;
 
   @IsString()
   @IsOptional()

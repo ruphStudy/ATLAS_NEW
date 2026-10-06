@@ -7,7 +7,7 @@ export class CreateQuotaOverrideDto {
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 
   @IsDateString()
   @IsOptional()

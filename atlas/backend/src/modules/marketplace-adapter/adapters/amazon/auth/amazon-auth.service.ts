@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
-import { sanitizeErrorForLog } from '@common/utils';
+import { ConfigurationService } from '@config/configuration.service';
 import {
   IAmazonCredentials,
   IAmazonTokenResponse,
@@ -9,11 +9,25 @@ import {
   AMAZON_AUTH_ENDPOINT,
   AMAZON_TOKEN_EXPIRY_BUFFER,
 } from '../constants/amazon.constants';
+import { AmazonAuthFailureClass, classifyAmazonAuthFailure } from './amazon-auth-error.classifier';
+
+/** Carries a safe (secret-free) classification alongside the failure, so callers can distinguish a temporary Amazon outage from a revoked seller authorization without re-parsing the error. */
+export class AmazonAuthError extends Error {
+  constructor(
+    message: string,
+    public readonly classification: AmazonAuthFailureClass,
+  ) {
+    super(message);
+    this.name = 'AmazonAuthError';
+  }
+}
 
 @Injectable()
 export class AmazonAuthService {
   private readonly logger = new Logger(AmazonAuthService.name);
   private tokenCache: Map<string, IAmazonTokenResponse> = new Map();
+
+  constructor(private readonly configurationService: ConfigurationService) {}
 
   async getAccessToken(credentials: IAmazonCredentials): Promise<string> {
     const cacheKey = this.getCacheKey(credentials);
@@ -32,14 +46,24 @@ export class AmazonAuthService {
   async refreshAccessToken(
     credentials: IAmazonCredentials,
   ): Promise<IAmazonTokenResponse> {
+    // clientId/clientSecret come ONLY from global ConfigurationService —
+    // never from the per-seller `credentials` object, regardless of what
+    // it contains, so a stale/wrong per-account value can never reach Amazon.
+    const { clientId, clientSecret } = this.configurationService.getAmazonProviderConfig();
+    if (!clientId || !clientSecret) {
+      throw new Error(
+        'Amazon SP-API is not configured: AMAZON_SP_API_CLIENT_ID and AMAZON_SP_API_CLIENT_SECRET must both be set.',
+      );
+    }
+
     try {
       const response = await axios.post(
         AMAZON_AUTH_ENDPOINT,
         new URLSearchParams({
           grant_type: 'refresh_token',
           refresh_token: credentials.refreshToken,
-          client_id: credentials.clientId,
-          client_secret: credentials.clientSecret,
+          client_id: clientId,
+          client_secret: clientSecret,
         }),
         {
           headers: {
@@ -58,8 +82,59 @@ export class AmazonAuthService {
         expiresAt: new Date(Date.now() + data.expires_in * 1000),
       };
     } catch (error) {
-      this.logger.error('Failed to refresh Amazon access token', sanitizeErrorForLog(error));
-      throw new Error('Amazon token refresh failed: ' + (error as Error).message);
+      // classifyAmazonAuthFailure() only ever reads the HTTP status and
+      // Amazon's own response body — never the outgoing request, which is
+      // where client_id/client_secret/refresh_token are sent — so this is
+      // safe to log in full.
+      const { classification, reason, httpStatus, amazonErrorCode } = classifyAmazonAuthFailure(error, AMAZON_AUTH_ENDPOINT);
+      this.logger.error(`Failed to refresh Amazon access token (${classification}): ${reason}`, { httpStatus, amazonErrorCode });
+      throw new AmazonAuthError(`Amazon token refresh failed: ${reason}`, classification);
+    }
+  }
+
+  /**
+   * Exchanges a one-time `spapi_oauth_code` (from the Amazon OAuth consent
+   * callback) for tokens — the authorization_code grant, distinct from the
+   * refresh_token grant `refreshAccessToken()` uses for ongoing API calls.
+   * clientId/clientSecret come only from global ConfigurationService, same
+   * guarantee as refreshAccessToken().
+   */
+  async exchangeAuthorizationCode(code: string): Promise<IAmazonTokenResponse> {
+    const { clientId, clientSecret } = this.configurationService.getAmazonProviderConfig();
+    if (!clientId || !clientSecret) {
+      throw new Error(
+        'Amazon SP-API is not configured: AMAZON_SP_API_CLIENT_ID and AMAZON_SP_API_CLIENT_SECRET must both be set.',
+      );
+    }
+
+    try {
+      const response = await axios.post(
+        AMAZON_AUTH_ENDPOINT,
+        new URLSearchParams({
+          grant_type: 'authorization_code',
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+        }),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+      );
+
+      const data = response.data;
+      if (!data.refresh_token) {
+        throw new Error('Amazon token response did not include a refresh_token');
+      }
+
+      return {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+        tokenType: data.token_type,
+        expiresIn: data.expires_in,
+        expiresAt: new Date(Date.now() + data.expires_in * 1000),
+      };
+    } catch (error) {
+      const { classification, reason, httpStatus, amazonErrorCode } = classifyAmazonAuthFailure(error, AMAZON_AUTH_ENDPOINT);
+      this.logger.error(`Failed to exchange Amazon authorization code (${classification}): ${reason}`, { httpStatus, amazonErrorCode });
+      throw new AmazonAuthError(`Amazon authorization code exchange failed: ${reason}`, classification);
     }
   }
 

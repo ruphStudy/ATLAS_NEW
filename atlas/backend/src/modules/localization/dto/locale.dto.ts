@@ -5,11 +5,11 @@ export class CreateLocaleDto {
   @IsString()
   @IsNotEmpty()
   @Matches(/^[a-z]{2}(-[A-Z]{2})?$/, { message: 'code must be a BCP-47-style locale (e.g. "en" or "en-US")' })
-  code: string;
+  code!: string;
 
   @IsString()
   @IsNotEmpty()
-  language: string;
+  language!: string;
 
   @IsString()
   @IsOptional()
@@ -21,11 +21,11 @@ export class CreateLocaleDto {
 
   @IsString()
   @IsNotEmpty()
-  nativeName: string;
+  nativeName!: string;
 
   @IsString()
   @IsNotEmpty()
-  displayName: string;
+  displayName!: string;
 
   @IsEnum(LocaleDirection)
   @IsOptional()
@@ -117,7 +117,7 @@ export class UpdateLocaleDto {
 export class SwitchLocaleDto {
   @IsString()
   @IsNotEmpty()
-  localeCode: string;
+  localeCode!: string;
 
   @IsIn(['USER', 'WORKSPACE', 'ORGANIZATION'])
   @IsOptional()
@@ -134,7 +134,7 @@ export class LocaleReasonDto {
 export class SetEnabledLanguagesDto {
   @IsArray()
   @IsString({ each: true })
-  localeCodes: string[];
+  localeCodes!: string[];
 
   @IsIn(['WORKSPACE', 'ORGANIZATION'])
   @IsOptional()
@@ -144,5 +144,5 @@ export class SetEnabledLanguagesDto {
 export class SetPreferredLanguagesDto {
   @IsArray()
   @IsString({ each: true })
-  localeCodes: string[];
+  localeCodes!: string[];
 }

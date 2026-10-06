@@ -61,12 +61,13 @@ export class PricePuller {
             await this.pullPrice(jobId, workspaceId, accountId, rawPrice, conflictStrategy);
             totalProcessed++;
           } catch (error) {
-            this.logger.error(`Failed to pull price ${rawPrice.externalPriceId}: ${error.message}`);
+            const err = error as Error;
+            this.logger.error(`Failed to pull price ${rawPrice.externalPriceId}: ${err.message}`);
             await this.stateManager.recordItemResult(jobId, workspaceId, {
               externalPriceId: rawPrice.externalPriceId,
               sku: rawPrice.sku,
               status: ItemSyncStatus.FAILED,
-              errorMessage: error.message,
+              errorMessage: err.message,
             });
             await this.stateManager.incrementCounters(jobId, workspaceId, { failed: 1, processed: 1 });
           }
@@ -90,14 +91,15 @@ export class PricePuller {
         jobId,
       });
     } catch (error) {
-      this.logger.error(`Price pull job ${jobId} failed: ${error.message}`);
-      await this.stateManager.failJob(jobId, workspaceId, error.message);
+      const err = error as Error;
+      this.logger.error(`Price pull job ${jobId} failed: ${err.message}`);
+      await this.stateManager.failJob(jobId, workspaceId, err.message);
       await this.eventQueue.publish({
         event: PriceSyncEvent.SYNC_FAILED,
         workspaceId,
         accountId,
         jobId,
-        data: { error: error.message },
+        data: { error: err.message },
       });
     }
   }

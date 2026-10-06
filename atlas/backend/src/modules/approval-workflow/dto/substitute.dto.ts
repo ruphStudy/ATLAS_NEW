@@ -3,15 +3,15 @@ import { ApproverType } from '../interfaces';
 
 export class CreateApprovalSubstituteDto {
   @IsIn([ApproverType.USER, ApproverType.ROLE])
-  approverType: ApproverType.USER | ApproverType.ROLE;
+  approverType!: ApproverType.USER | ApproverType.ROLE;
 
   @IsString()
   @IsNotEmpty()
-  approverRef: string;
+  approverRef!: string;
 
   @IsString()
   @IsNotEmpty()
-  substituteUserId: string;
+  substituteUserId!: string;
 
   @IsDateString()
   @IsOptional()
@@ -27,15 +27,15 @@ export class CreateApprovalSubstituteDto {
 }
 
 export class ApprovalSubstituteResponseDto {
-  id: string;
-  workspaceId: string;
-  approverType: ApproverType;
-  approverRef: string;
-  substituteUserId: string;
+  id!: string;
+  workspaceId!: string;
+  approverType!: ApproverType;
+  approverRef!: string;
+  substituteUserId!: string;
   effectiveFrom?: Date | null;
   effectiveTo?: Date | null;
   reason?: string | null;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  isActive!: boolean;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

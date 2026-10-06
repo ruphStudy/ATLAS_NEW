@@ -4,23 +4,23 @@ import { WebhookEvent, WebhookStatus, WebhookDeliveryStatus } from '../interface
 
 export class RegisterWebhookRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsString()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
-  marketplaceKey: string;
+  marketplaceKey!: string;
 
   @IsUrl()
-  callbackUrl: string;
+  callbackUrl!: string;
 
   @IsArray()
   @IsEnum(WebhookEvent, { each: true })
-  events: WebhookEvent[];
+  events!: WebhookEvent[];
 
   @IsOptional()
   @IsObject()
@@ -101,40 +101,40 @@ export class WebhookDeliveryFilterQueryDto {
 
 export class IncomingWebhookDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsString()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
-  marketplaceKey: string;
+  marketplaceKey!: string;
 
   @IsObject()
-  headers: Record<string, string>;
+  headers!: Record<string, string>;
 
   @IsObject()
   body: any;
 }
 
 export class WebhookConfigResponseDto {
-  id: string;
-  workspaceId: string;
-  accountId: string;
-  providerKey: string;
-  marketplaceKey: string;
+  id!: string;
+  workspaceId!: string;
+  accountId!: string;
+  providerKey!: string;
+  marketplaceKey!: string;
   externalWebhookId?: string;
-  callbackUrl: string;
-  events: WebhookEvent[];
-  status: WebhookStatus;
-  isActive: boolean;
+  callbackUrl!: string;
+  events!: WebhookEvent[];
+  status!: WebhookStatus;
+  isActive!: boolean;
   lastDeliveryAt?: Date;
-  failureCount: number;
+  failureCount!: number;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 
   static from(config: any): WebhookConfigResponseDto {
     return {
@@ -158,24 +158,24 @@ export class WebhookConfigResponseDto {
 }
 
 export class PaginatedWebhookConfigResponseDto {
-  items: WebhookConfigResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  items!: WebhookConfigResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class WebhookDeliveryResponseDto {
-  id: string;
-  workspaceId: string;
-  accountId: string;
-  webhookConfigId: string;
-  externalEventId: string;
-  event: WebhookEvent;
-  status: WebhookDeliveryStatus;
-  receivedAt: Date;
+  id!: string;
+  workspaceId!: string;
+  accountId!: string;
+  webhookConfigId!: string;
+  externalEventId!: string;
+  event!: WebhookEvent;
+  status!: WebhookDeliveryStatus;
+  receivedAt!: Date;
   processedAt?: Date;
-  attemptCount: number;
+  attemptCount!: number;
   errorMessage?: string;
   metadata?: Record<string, any>;
 
@@ -198,14 +198,14 @@ export class WebhookDeliveryResponseDto {
 }
 
 export class PaginatedWebhookDeliveryResponseDto {
-  items: WebhookDeliveryResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  items!: WebhookDeliveryResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class WebhookSecretResponseDto {
-  secret: string;
-  rotatedAt: Date;
+  secret!: string;
+  rotatedAt!: Date;
 }

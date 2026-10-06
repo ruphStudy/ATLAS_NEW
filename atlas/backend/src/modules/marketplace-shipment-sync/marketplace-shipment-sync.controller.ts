@@ -129,7 +129,7 @@ export class MarketplaceShipmentSyncController {
     @Param('workspaceId') workspaceId: string,
     @Body() dto: UpdateShipmentScheduleRequestDto,
   ): Promise<ShipmentScheduleResponseDto> {
-    const schedule = await this.service.updateSchedule(scheduleId, workspaceId, dto);
+    const schedule = await this.service.updateSchedule(scheduleId, workspaceId, dto as unknown as Record<string, unknown>);
     return ShipmentScheduleResponseDto.from(schedule);
   }
 

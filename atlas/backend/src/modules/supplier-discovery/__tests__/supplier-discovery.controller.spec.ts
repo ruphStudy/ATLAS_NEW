@@ -5,6 +5,7 @@ import { SuppliersController, SupplierDiscoveryController } from '../supplier-di
 import { SupplierDiscoveryService } from '../supplier-discovery.service';
 import { SupplierDiscoverySessionStatus, SupplierSourceProvider, SupplierStatus, SupplierTier } from '../interfaces';
 import type { SupplierResponseDto, SupplierDiscoverySessionResponseDto } from '../dto';
+import type { ISupplier } from '../interfaces';
 
 const WS_ID = 'workspace-uuid';
 const SUPPLIER_ID = 'supplier-uuid';
@@ -17,6 +18,17 @@ const MOCK_SUPPLIER: SupplierResponseDto = {
   tier: SupplierTier.UNVERIFIED, status: SupplierStatus.PENDING_REVIEW,
   categories: [], minOrderQuantity: null, avgLeadTimeDays: null, overallRating: null, notes: null,
   createdAt: '2026-07-14T10:00:00.000Z', updatedAt: '2026-07-14T10:00:00.000Z',
+};
+
+const MOCK_SUPPLIER_RAW: ISupplier = {
+  id: SUPPLIER_ID, workspaceId: WS_ID, name: 'Acme Electronics',
+  provider: SupplierSourceProvider.MANUAL, providerSupplierId: null,
+  country: 'IN', city: 'Mumbai', website: null, contactEmail: null, contactPhone: null,
+  tier: SupplierTier.UNVERIFIED, status: SupplierStatus.PENDING_REVIEW,
+  categories: [], minOrderQuantity: null, avgLeadTimeDays: null, overallRating: null, notes: null,
+  rawData: {},
+  createdAt: new Date('2026-07-14T10:00:00.000Z'), updatedAt: new Date('2026-07-14T10:00:00.000Z'),
+  deletedAt: null,
 };
 
 const MOCK_SESSION: SupplierDiscoverySessionResponseDto = {
@@ -54,7 +66,7 @@ describe('SuppliersController', () => {
   });
 
   it('findAll() should return paginated list', async () => {
-    service.findAllSuppliers.mockResolvedValue({ items: [MOCK_SUPPLIER], total: 1, page: 1, limit: 20 });
+    service.findAllSuppliers.mockResolvedValue({ items: [MOCK_SUPPLIER_RAW], total: 1, page: 1, limit: 20 });
     const result = await controller.findAll(WS_ID, { page: 1, limit: 20, skip: 0 } as never);
     expect(result.total).toBe(1);
   });

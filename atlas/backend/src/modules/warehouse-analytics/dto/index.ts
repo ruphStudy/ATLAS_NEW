@@ -21,15 +21,15 @@ import {
 export class GetWarehousePerformanceDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(WarehousePeriod)
   @IsOptional()
@@ -121,11 +121,11 @@ export class GetWarehousePerformanceDto {
 export class GetWarehouseTrendsDto extends GetWarehousePerformanceDto {
   @IsEnum(WarehouseMetricType)
   @IsNotEmpty()
-  metricType: WarehouseMetricType;
+  metricType!: WarehouseMetricType;
 
   @IsEnum(WarehousePeriod)
   @IsNotEmpty()
-  period: WarehousePeriod;
+  period!: WarehousePeriod;
 
   @IsEnum(WarehouseDimension)
   @IsOptional()
@@ -139,21 +139,21 @@ export class GetWarehouseTrendsDto extends GetWarehousePerformanceDto {
 export class GetWarehouseBreakdownDto extends GetWarehousePerformanceDto {
   @IsEnum(WarehouseDimension)
   @IsNotEmpty()
-  dimension: WarehouseDimension;
+  dimension!: WarehouseDimension;
 }
 
 export class GetWarehouseComparisonDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(WarehousePeriod)
   @IsOptional()
@@ -161,7 +161,7 @@ export class GetWarehouseComparisonDto {
 
   @IsEnum(WarehouseComparisonType)
   @IsNotEmpty()
-  comparisonType: WarehouseComparisonType;
+  comparisonType!: WarehouseComparisonType;
 
   @IsDate()
   @Type(() => Date)
@@ -185,7 +185,7 @@ export class GetWarehouseComparisonDto {
 export class GetWarehouseIssueAlertsDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
@@ -228,34 +228,34 @@ export class GetWarehouseIssueAlertsDto {
 }
 
 export class WarehousePerformanceResponseDto implements IWarehousePerformance {
-  workspaceId: string;
+  workspaceId!: string;
   warehouseId?: string;
   warehouseName?: string;
   zoneId?: string;
   zoneName?: string;
-  period: WarehousePeriod;
-  startDate: Date;
-  endDate: Date;
-  performanceCategory: WarehousePerformanceCategory;
-  operationalMetrics: IOperationalMetrics;
-  capacityMetrics: ICapacityMetrics;
-  inventoryEfficiencyMetrics: IInventoryEfficiencyMetrics;
-  laborProductivityMetrics: ILaborProductivityMetrics;
-  slaPerformanceMetrics: ISlaPerformanceMetrics;
-  throughput: number;
-  overallScore: number;
+  period!: WarehousePeriod;
+  startDate!: Date;
+  endDate!: Date;
+  performanceCategory!: WarehousePerformanceCategory;
+  operationalMetrics!: IOperationalMetrics;
+  capacityMetrics!: ICapacityMetrics;
+  inventoryEfficiencyMetrics!: IInventoryEfficiencyMetrics;
+  laborProductivityMetrics!: ILaborProductivityMetrics;
+  slaPerformanceMetrics!: ISlaPerformanceMetrics;
+  throughput!: number;
+  overallScore!: number;
   metadata?: Record<string, any>;
 }
 
 export class WarehouseTrendResponseDto implements IWarehouseTrend {
-  workspaceId: string;
+  workspaceId!: string;
   warehouseId?: string;
   warehouseName?: string;
-  period: WarehousePeriod;
-  periodStart: Date;
-  periodEnd: Date;
-  metricType: WarehouseMetricType;
-  value: number;
+  period!: WarehousePeriod;
+  periodStart!: Date;
+  periodEnd!: Date;
+  metricType!: WarehouseMetricType;
+  value!: number;
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
@@ -265,30 +265,30 @@ export class WarehouseTrendResponseDto implements IWarehouseTrend {
 }
 
 export class WarehouseBreakdownResponseDto implements IWarehouseBreakdown {
-  workspaceId: string;
-  dimension: WarehouseDimension;
-  dimensionValue: string;
+  workspaceId!: string;
+  dimension!: WarehouseDimension;
+  dimensionValue!: string;
   dimensionLabel?: string;
-  period: WarehousePeriod;
-  startDate: Date;
-  endDate: Date;
-  operationalMetrics: IOperationalMetrics;
-  capacityMetrics: ICapacityMetrics;
-  inventoryEfficiencyMetrics: IInventoryEfficiencyMetrics;
-  laborProductivityMetrics: ILaborProductivityMetrics;
-  slaPerformanceMetrics: ISlaPerformanceMetrics;
-  overallScore: number;
+  period!: WarehousePeriod;
+  startDate!: Date;
+  endDate!: Date;
+  operationalMetrics!: IOperationalMetrics;
+  capacityMetrics!: ICapacityMetrics;
+  inventoryEfficiencyMetrics!: IInventoryEfficiencyMetrics;
+  laborProductivityMetrics!: ILaborProductivityMetrics;
+  slaPerformanceMetrics!: ISlaPerformanceMetrics;
+  overallScore!: number;
   rank?: number;
   metadata?: Record<string, any>;
 }
 
 export class WarehouseComparisonResponseDto implements IWarehouseComparison {
-  workspaceId: string;
-  comparisonType: WarehouseComparisonType;
-  period: WarehousePeriod;
-  startDate: Date;
-  endDate: Date;
-  actualMetrics: {
+  workspaceId!: string;
+  comparisonType!: WarehouseComparisonType;
+  period!: WarehousePeriod;
+  startDate!: Date;
+  endDate!: Date;
+  actualMetrics!: {
     operationalMetrics: IOperationalMetrics;
     capacityMetrics: ICapacityMetrics;
     inventoryEfficiencyMetrics: IInventoryEfficiencyMetrics;
@@ -296,7 +296,7 @@ export class WarehouseComparisonResponseDto implements IWarehouseComparison {
     slaPerformanceMetrics: ISlaPerformanceMetrics;
     overallScore: number;
   };
-  comparisonMetrics: {
+  comparisonMetrics!: {
     operationalMetrics: IOperationalMetrics;
     capacityMetrics: ICapacityMetrics;
     inventoryEfficiencyMetrics: IInventoryEfficiencyMetrics;
@@ -304,7 +304,7 @@ export class WarehouseComparisonResponseDto implements IWarehouseComparison {
     slaPerformanceMetrics: ISlaPerformanceMetrics;
     overallScore: number;
   };
-  variance: {
+  variance!: {
     throughputVariance: number;
     throughputVariancePercent: number;
     utilizationVariancePoints: number;
@@ -321,9 +321,9 @@ export class WarehouseComparisonResponseDto implements IWarehouseComparison {
 }
 
 export class WarehouseIssueAlertResponseDto implements IWarehouseIssueAlert {
-  workspaceId: string;
-  alertType: WarehousePerformanceCategory;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  workspaceId!: string;
+  alertType!: WarehousePerformanceCategory;
+  severity!: 'low' | 'medium' | 'high' | 'critical';
   warehouseId?: string;
   warehouseName?: string;
   zoneId?: string;
@@ -333,8 +333,8 @@ export class WarehouseIssueAlertResponseDto implements IWarehouseIssueAlert {
   operationType?: string;
   userId?: string;
   productId?: string;
-  reason: string;
-  details: Record<string, any>;
-  detectedAt: Date;
+  reason!: string;
+  details!: Record<string, any>;
+  detectedAt!: Date;
   metadata?: Record<string, any>;
 }

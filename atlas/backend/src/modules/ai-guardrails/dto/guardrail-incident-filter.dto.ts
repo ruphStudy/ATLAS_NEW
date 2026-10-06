@@ -9,7 +9,7 @@ import {
 export class GuardrailIncidentFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(GuardrailIncidentStatus)
   @IsOptional()

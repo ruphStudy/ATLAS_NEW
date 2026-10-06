@@ -87,7 +87,7 @@ export default function TaskDetailPage() {
     <div>
       <PageHeader
         title={task.title}
-        breadcrumbs={[{ label: 'Tasks', href: '/dashboard/tasks' }, { label: task.title }]}
+        breadcrumbs={[{ label: 'Tasks', href: '/tasks' }, { label: task.title }]}
         actions={
           <>
             <Badge variant={priorityTone[task.priority]} className="capitalize">
@@ -139,7 +139,7 @@ export default function TaskDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <AssigneeCard taskId={id} assigneeType={task.assigneeType} assigneeRef={task.assigneeRef} />
-        <SubtasksCard taskId={id} onOpenSubtask={(subId) => router.push(`/dashboard/tasks/${subId}`)} />
+        <SubtasksCard taskId={id} onOpenSubtask={(subId) => router.push(`/tasks/${subId}`)} />
         <ChecklistCard taskId={id} />
         <WatchersCard taskId={id} />
         <CommentsCard taskId={id} />

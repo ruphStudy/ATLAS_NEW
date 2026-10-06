@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { QUEUE_NAMES } from '../../../common/constants';
+import { ConfigurationService } from '@config/configuration.service';
 import { ConflictStrategy, ListingItemType, SyncDirection, SyncScope, SyncTrigger } from '../interfaces';
 import { MP_LISTING_SYNC_QUEUE_CONFIG } from '../constants';
 
@@ -26,8 +27,10 @@ export class ListingSyncQueue implements OnModuleDestroy {
   private readonly logger = new Logger(ListingSyncQueue.name);
   private readonly queue: Queue;
 
-  constructor() {
+  constructor(configService: ConfigurationService) {
+    const redis = configService.getRedisConfig();
     this.queue = new Queue(QUEUE_NAMES.MARKETPLACE_LISTING_SYNC_JOB, {
+      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
       defaultJobOptions: {
         attempts: MP_LISTING_SYNC_QUEUE_CONFIG.ATTEMPTS,
         backoff: { type: 'exponential', delay: MP_LISTING_SYNC_QUEUE_CONFIG.BACKOFF_MS },

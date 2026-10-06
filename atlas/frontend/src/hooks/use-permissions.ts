@@ -7,9 +7,15 @@ import { useAuthStore } from '@/stores';
 /**
  * The current user's effective permission keys (`module.resource.action`,
  * e.g. `products.product.view`) for the active workspace — used to
- * permission-gate navigation/actions without hardcoding role names.
- * ADMIN/OWNER roles still go through this same check; there is no
- * role-name special-casing here.
+ * permission-gate navigation/actions without hardcoding role names in
+ * this hook. The one exception is `hasFullAccess`, computed backend-side
+ * from the same `LEGACY_FULL_AUTHORITY_ROLES` (OWNER, ADMIN) bypass that
+ * already governs real API authorization in `PermissionResolverService`
+ * — surfaced here so module-visibility checks agree with what those
+ * roles can actually do, instead of relying solely on explicit role
+ * assignments (which a freshly registered OWNER has none of). It never
+ * covers Platform Administration, which is gated exclusively by
+ * `isPlatformAdmin` — see `SidebarNav`.
  */
 export function useEffectivePermissions() {
   const user = useAuthStore((s) => s.user);
@@ -31,6 +37,7 @@ export function usePermissionChecks() {
 
   /** Exact permission-key check, e.g. `hasPermission('products.product.view')`. */
   const hasPermission = (key: string): boolean => {
+    if (data?.hasFullAccess) return true;
     if (deniedKeys.has(key)) return false;
     return allowedKeys.has(key);
   };
@@ -38,6 +45,7 @@ export function usePermissionChecks() {
   /** Nav-visibility check — true if the user holds *any* allowed permission whose key starts with `${moduleSlug}.`. */
   const canAccessModule = (moduleSlug: string): boolean => {
     if (!data) return false;
+    if (data.hasFullAccess) return true;
     const prefix = `${moduleSlug}.`;
     for (const key of allowedKeys) {
       if (key === moduleSlug || key.startsWith(prefix)) return true;
@@ -45,5 +53,5 @@ export function usePermissionChecks() {
     return false;
   };
 
-  return { hasPermission, canAccessModule, isLoaded: !!data };
+  return { hasPermission, canAccessModule, hasFullAccess: !!data?.hasFullAccess, isLoaded: !!data };
 }

@@ -18,7 +18,7 @@ export const DISPATCH_CONSTANTS = {
     [DispatchStatus.COMPLETED]: [
       DispatchStatus.REOPENED,
     ],
-    [DispatchStatus.CANCELLED]: [],
+    [DispatchStatus.CANCELLED]: [] as DispatchStatus[],
     [DispatchStatus.REOPENED]: [
       DispatchStatus.IN_PROGRESS,
       DispatchStatus.CANCELLED,

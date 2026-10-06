@@ -7,6 +7,10 @@ import type {
   ISwaggerConfig,
   IQueueConfig,
   ILoggerConfig,
+  IAiProviderFoundationConfig,
+  IAiCredentialConfig,
+  IStorageFoundationConfig,
+  IAmazonProviderConfig,
 } from '../interfaces';
 
 /**
@@ -21,6 +25,10 @@ export type ConfigMap = {
   swagger: ISwaggerConfig;
   queue: IQueueConfig;
   logger: ILoggerConfig;
+  aiProvider: IAiProviderFoundationConfig;
+  aiCredential: IAiCredentialConfig;
+  storage: IStorageFoundationConfig;
+  amazonProvider: IAmazonProviderConfig;
 };
 
 export type ConfigValueByNamespace<K extends ConfigNamespace> = ConfigMap[K];

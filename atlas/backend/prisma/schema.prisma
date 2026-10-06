@@ -90,6 +90,30 @@ enum DiscoverySessionStatus {
   CANCELLED
 }
 
+/// How a DiscoveryRun (DiscoverySession) was initiated. KEYWORD is the
+/// existing/default behavior; ASIN and TREND_COLD_START are schema slots
+/// for future discovery modes — no provider logic for them exists yet.
+enum DiscoveryMode {
+  KEYWORD
+  ASIN
+  TREND_COLD_START
+}
+
+/// Polymorphic subject a TrendSignal is evidence about.
+enum TrendSignalSubjectType {
+  CATEGORY
+  PRODUCT_CONCEPT
+}
+
+/// Distinguishes what a TrendSignal row actually represents — never mix
+/// a provider's raw observation with ATLAS's own computed number or an
+/// AI-authored explanation in the same classification.
+enum TrendSignalClassification {
+  RAW_PROVIDER
+  ATLAS_DERIVED
+  AI_EXPLANATION
+}
+
 enum SupplierStatus {
   ACTIVE
   INACTIVE
@@ -332,6 +356,19 @@ model User {
   emailVerifiedAt   DateTime? @map("email_verified_at")
   refreshTokenHash  String?   @map("refresh_token_hash")
 
+  /// Password rotation (Amazon SP-API Developer Profile compliance): set on
+  /// registration and on every successful password change; checked against
+  /// `MAX_PASSWORD_AGE_DAYS` at login/refresh. Never null after the backfill
+  /// migration — a null value is treated as already-expired (forces rotation)
+  /// rather than silently trusted.
+  passwordChangedAt DateTime? @map("password_changed_at")
+
+  /// AES-256-GCM encrypted TOTP secret (see `MfaSecretEncryptor`) — never the
+  /// raw base32 secret, never logged, never returned in any response.
+  mfaSecret   String?   @map("mfa_secret")
+  mfaEnabled  Boolean   @default(false) @map("mfa_enabled")
+  mfaEnabledAt DateTime? @map("mfa_enabled_at")
+
   // Flexible metadata (DB-006 – avoid schema bloat)
   metadata Json @default("{}")
 
@@ -350,13 +387,29 @@ model User {
   @@map("users")
 }
 
+/// Two DB-only partial unique indexes protect active-row identity and are
+/// NOT representable in Prisma's schema DSL (Postgres `WHERE` predicate),
+/// so they exist only in migration SQL, not as `@@unique` here:
+///   opportunities_candidate_active_key
+///     ON (workspace_id, marketplace_product_candidate_id)
+///     WHERE deleted_at IS NULL AND marketplace_product_candidate_id IS NOT NULL
+///   opportunities_manual_active_key
+///     ON (workspace_id, normalized_keyword, marketplace, country)
+///     WHERE deleted_at IS NULL AND marketplace_product_candidate_id IS NULL
 model Opportunity {
   id          String @id @default(uuid())
   workspaceId String @map("workspace_id")
   keyword     String
+  /// trim+lowercase(keyword) — the manual-dedup key; keyword itself keeps
+  /// user-entered casing for display.
+  normalizedKeyword String? @map("normalized_keyword")
   marketplace String
   country     String @default("US")
   category    String?
+
+  /// Present only when this Opportunity was created by promoting a
+  /// MarketplaceProductCandidate; null for manual/legacy keyword-only rows.
+  marketplaceProductCandidateId String? @map("marketplace_product_candidate_id")
 
   // AI-generated scores (0–100, nullable until AI processes the record)
   demandScore      Float? @map("demand_score")
@@ -376,13 +429,16 @@ model Opportunity {
   deletedAt DateTime? @map("deleted_at")
 
   // Relations
-  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  workspace                   Workspace                     @relation(fields: [workspaceId], references: [id])
+  marketplaceProductCandidate MarketplaceProductCandidate?  @relation(fields: [marketplaceProductCandidateId], references: [id])
 
   @@index([workspaceId])
   @@index([status])
   @@index([marketplace])
   @@index([finalScore])
   @@index([deletedAt])
+  @@index([marketplaceProductCandidateId])
+  @@index([normalizedKeyword])
   @@map("opportunities")
 }
 
@@ -393,8 +449,16 @@ model DiscoverySession {
   country           String                 @default("US")
   categories        Json                   @default("[]")
   keywords          Json                   @default("[]")
+  mode              DiscoveryMode          @default(KEYWORD)
+  /// Cold-start seed category (TREND_COLD_START mode only) — no provider
+  /// populates this yet; schema slot for a future prompt.
+  seedCategoryId    String?                @map("seed_category_id")
   status            DiscoverySessionStatus @default(PENDING)
   totalDiscovered   Int                    @default(0) @map("total_discovered")
+  /// Legacy column name, semantics migrated: counts newly discovered
+  /// MarketplaceProductCandidate rows, not Opportunity rows — Discovery no
+  /// longer auto-creates Opportunity. Not renamed to avoid churn on a
+  /// working, already-consumed column.
   newOpportunities  Int                    @default(0) @map("new_opportunities")
   duplicatesSkipped Int                    @default(0) @map("duplicates_skipped")
   errorMessage      String?                @map("error_message")
@@ -406,20 +470,27 @@ model DiscoverySession {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  workspace Workspace        @relation(fields: [workspaceId], references: [id])
-  results   DiscoveryResult[]
+  workspace    Workspace         @relation(fields: [workspaceId], references: [id])
+  seedCategory Category?         @relation(fields: [seedCategoryId], references: [id])
+  results      DiscoveryResult[]
 
   @@index([workspaceId])
   @@index([status])
   @@index([marketplace])
   @@index([createdAt])
+  @@index([mode])
   @@map("discovery_sessions")
 }
 
 model DiscoveryResult {
   id            String   @id @default(uuid())
   sessionId     String   @map("session_id")
+  /// Legacy — Discovery no longer creates Opportunity rows, so this is
+  /// null on every row written going forward. Kept for historical rows.
   opportunityId String?  @map("opportunity_id")
+  /// Set when the discovered product had a stable external product ID and
+  /// a MarketplaceProductCandidate could be upserted for it.
+  marketplaceProductCandidateId String? @map("marketplace_product_candidate_id")
   keyword       String
   marketplace   String
   country       String   @default("US")
@@ -432,13 +503,157 @@ model DiscoveryResult {
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  session DiscoverySession @relation(fields: [sessionId], references: [id])
+  session                     DiscoverySession              @relation(fields: [sessionId], references: [id])
+  marketplaceProductCandidate MarketplaceProductCandidate?  @relation(fields: [marketplaceProductCandidateId], references: [id])
 
   @@index([sessionId])
   @@index([keyword])
   @@index([isDuplicate])
   @@index([marketplace])
+  @@index([marketplaceProductCandidateId])
   @@map("discovery_results")
+}
+
+// =============================================================
+// PRODUCT DISCOVERY DOMAIN FOUNDATION (marketplace-neutral)
+// =============================================================
+
+/// Generic, provider-agnostic taxonomy node. Not tied to any marketplace —
+/// MarketplaceCategoryMapping links a marketplace's own category tree into
+/// this generic tree; Amazon's and Flipkart's trees are never assumed
+/// identical, they each map in independently (many marketplace nodes can
+/// point at one generic Category).
+model Category {
+  id       String  @id @default(uuid())
+  parentId String? @map("parent_id")
+  name     String
+  slug     String
+  /// Free string, not an enum, so a new taxonomy source never needs a
+  /// migration: e.g. "SEED", "WIKIPEDIA", "MARKETPLACE_IMPORT", "MANUAL".
+  source   String  @default("MANUAL")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  parent            Category?                    @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children          Category[]                   @relation("CategoryHierarchy")
+  productConcepts   ProductConcept[]
+  categoryMappings  MarketplaceCategoryMapping[]
+  discoverySessions DiscoverySession[]
+
+  @@unique([parentId, slug])
+  @@index([parentId])
+  @@index([source])
+  @@map("categories")
+}
+
+/// A marketplace-neutral product idea — not yet validated against any
+/// marketplace. Global/shared (not workspace-scoped): it is an idea, not a
+/// workspace decision.
+model ProductConcept {
+  id             String @id @default(uuid())
+  categoryId     String? @map("category_id")
+  name           String
+  /// trim+lowercase(name) — canonical identity, see Prompt 3 §5.A.
+  normalizedName String  @map("normalized_name")
+  /// Free string: "TREND_DISCOVERY", "MANUAL", "KEYWORD_SEARCH".
+  createdFrom    String  @default("MANUAL") @map("created_from")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  category   Category?                     @relation(fields: [categoryId], references: [id])
+  candidates MarketplaceProductCandidate[]
+
+  @@unique([categoryId, normalizedName])
+  @@index([normalizedName])
+  @@map("product_concepts")
+}
+
+/// Generic, provider-agnostic evidence record. Polymorphic subject
+/// (subjectType/subjectId) deliberately has NO Prisma `@relation`/FK —
+/// Postgres can't enforce a foreign key against two different target
+/// tables, so referential integrity for this pointer is an application-
+/// layer responsibility, a standard trade-off for polymorphic associations.
+/// `source` stays a free string (never an enum) so a new provider (e.g.
+/// Wikipedia, Keepa, Google Trends) never requires a schema migration.
+model TrendSignal {
+  id             String                     @id @default(uuid())
+  subjectType    TrendSignalSubjectType     @map("subject_type")
+  subjectId      String                     @map("subject_id")
+  /// Free string bucket, e.g. "ATTENTION", "SEARCH_DEMAND", "GROWTH",
+  /// "MARKETPLACE_RANK", "PRICE", "COMPETITION", "SUPPLIER_AVAILABILITY".
+  signalType     String                     @map("signal_type")
+  source         String
+  classification TrendSignalClassification
+  value          Float?
+  unit           String?
+  /// Untouched provider response, for RAW_PROVIDER rows.
+  rawPayload      Json?    @map("raw_payload")
+  /// Plain-language summary, for AI_EXPLANATION rows only — must reference
+  /// real RAW_PROVIDER/ATLAS_DERIVED rows, never invent a value.
+  explanationText String?  @map("explanation_text")
+  capturedAt      DateTime @map("captured_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([subjectType, subjectId])
+  @@index([signalType])
+  @@index([source])
+  @@index([capturedAt])
+  @@map("trend_signals")
+}
+
+/// A specific real product on a specific marketplace. Global/shared (not
+/// workspace-scoped) — the same ASIN rediscovered by any workspace or any
+/// discovery run resolves to this same row via the unique constraint below.
+/// Canonical identity is the marketplace's own native external ID — never
+/// a keyword (Case 11).
+model MarketplaceProductCandidate {
+  id                  String  @id @default(uuid())
+  marketplaceKey      String  @map("marketplace_key")
+  country             String
+  /// The marketplace's own native product ID — ASIN for Amazon, FSN for
+  /// Flipkart, etc. Mandatory: if an adapter can't return a stable ID, no
+  /// candidate row is created for that result at all (Prompt 3 §5.B).
+  externalProductId   String  @map("external_product_id")
+  productConceptId    String? @map("product_concept_id")
+  title               String?
+  marketplaceCategory String? @map("marketplace_category")
+
+  discoveredAt DateTime @default(now()) @map("discovered_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  productConcept   ProductConcept?       @relation(fields: [productConceptId], references: [id])
+  snapshots        MarketplaceSnapshot[]
+  opportunities    Opportunity[]
+  discoveryResults DiscoveryResult[]
+
+  @@unique([marketplaceKey, country, externalProductId])
+  @@index([productConceptId])
+  @@map("marketplace_product_candidates")
+}
+
+/// One poll of a candidate's live marketplace metrics. Rank/price/offer
+/// count are stored together because a real marketplace call typically
+/// returns them together — a deliberate efficiency merge over one
+/// polymorphic TrendSignal row per metric, not a new concept.
+model MarketplaceSnapshot {
+  id          String   @id @default(uuid())
+  candidateId String   @map("candidate_id")
+  salesRank   Int?     @map("sales_rank")
+  price       Float?
+  offerCount  Int?     @map("offer_count")
+  source      String
+  capturedAt  DateTime @map("captured_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  candidate MarketplaceProductCandidate @relation(fields: [candidateId], references: [id])
+
+  @@index([candidateId])
+  @@index([capturedAt])
+  @@map("marketplace_snapshots")
 }
 
 // =============================================================
@@ -2258,6 +2473,10 @@ model ListingPublication {
   publicationVersion     Int                     @default(1)              @map("publication_version")
 
   // Marketplace tracking
+  // Which connected MarketplaceAccount this was (or should be) published
+  // through — required for real Amazon publishing so the correct seller's
+  // credentials are used; null for marketplaces still on the mock path.
+  marketplaceAccountId   String?                 @map("marketplace_account_id")
   marketplaceListingId   String?                 @map("marketplace_listing_id")
   marketplaceUrl         String?                 @map("marketplace_url")
   marketplaceResponse    Json?                   @map("marketplace_response")
@@ -2291,6 +2510,7 @@ model ListingPublication {
   @@index([marketplace])
   @@index([status])
   @@index([marketplaceListingId])
+  @@index([marketplaceAccountId])
   @@index([deletedAt])
   @@map("listing_publications")
 }
@@ -2434,7 +2654,11 @@ model MarketplaceCategoryMapping {
   id                    String                @id @default(cuid())
   workspaceId           String?               @map("workspace_id")
   schemaId              String?               @map("schema_id")
+  /// Legacy free-text universal label — kept for existing listing-mapping
+  /// behavior. `categoryId` below is the new link into the generic,
+  /// hierarchical Category taxonomy; the two are not auto-reconciled.
   universalCategory     String                @map("universal_category")
+  categoryId            String?               @map("category_id")
   marketplaceKey        String                @map("marketplace_key")
   country               String                @default("GLOBAL")
   marketplaceCategory   String                @map("marketplace_category")
@@ -2452,11 +2676,13 @@ model MarketplaceCategoryMapping {
   updatedAt             DateTime              @updatedAt     @map("updated_at")
 
   schema                MarketplaceSchemaConfig? @relation(fields: [schemaId], references: [id])
+  category              Category?                @relation(fields: [categoryId], references: [id])
 
   @@index([universalCategory])
   @@index([marketplaceKey])
   @@index([country])
   @@index([workspaceId])
+  @@index([categoryId])
   @@map("marketplace_category_mappings")
 }
 
@@ -4644,6 +4870,109 @@ model MarketplaceInventoryAdjustment {
 }
 
 // =============================================================
+// Marketplace Queue Manager
+// =============================================================
+
+model MarketplaceQueueConfig {
+  id                String   @id @default(cuid())
+  queueName         String   @unique @map("queue_name")
+  queueType         String   @map("queue_type")
+  concurrency       Int      @default(5)
+  rateLimit         Json?    @map("rate_limit")
+  defaultJobOptions Json?    @map("default_job_options")
+  enableMetrics     Boolean  @default(true) @map("enable_metrics")
+  enableDeadLetter  Boolean  @default(true) @map("enable_dead_letter")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("marketplace_queue_configs")
+}
+
+model MarketplaceJobMetadata {
+  id             String    @id @map("id")
+  workspaceId    String    @map("workspace_id")
+  queueName      String    @map("queue_name")
+  queueType      String    @map("queue_type")
+  provider       String
+  accountId      String?   @map("account_id")
+  state          String    @default("WAITING")
+  priority       Int
+  attempts       Int
+  maxAttempts    Int       @map("max_attempts")
+  progress       Int?
+  payload        Json
+  idempotencyKey String?   @map("idempotency_key")
+  addedAt        DateTime  @default(now()) @map("added_at")
+  processedAt    DateTime? @map("processed_at")
+  finishedAt     DateTime? @map("finished_at")
+  failedReason   String?   @map("failed_reason")
+  stacktrace     String[]  @default([])
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@unique([workspaceId, idempotencyKey])
+  @@index([workspaceId])
+  @@index([workspaceId, queueName])
+  @@index([workspaceId, queueType, state])
+  @@index([queueType, state, processedAt])
+  @@index([workspaceId, queueType, finishedAt])
+  @@map("marketplace_job_metadata")
+}
+
+model MarketplaceJobHistory {
+  id          String   @id @default(cuid())
+  jobId       String   @map("job_id")
+  workspaceId String   @map("workspace_id")
+  queueName   String   @map("queue_name")
+  queueType   String   @map("queue_type")
+  state       String
+  event       String
+  message     String?
+  metadata    Json?
+  timestamp   DateTime @default(now())
+
+  @@index([workspaceId, jobId, timestamp])
+  @@map("marketplace_job_history")
+}
+
+model MarketplaceDeadLetterJob {
+  id            String    @id @default(cuid())
+  workspaceId   String    @map("workspace_id")
+  queueName     String    @map("queue_name")
+  queueType     String    @map("queue_type")
+  provider      String
+  accountId     String?   @map("account_id")
+  originalJobId String    @map("original_job_id")
+  payload       Json
+  failedReason  String    @map("failed_reason")
+  attempts      Int
+  failedAt      DateTime  @default(now()) @map("failed_at")
+  isReprocessed Boolean   @default(false) @map("is_reprocessed")
+  reprocessedAt DateTime? @map("reprocessed_at")
+
+  @@index([workspaceId, isReprocessed, failedAt])
+  @@index([workspaceId, queueType, isReprocessed])
+  @@map("marketplace_dead_letter_jobs")
+}
+
+model MarketplaceQueueRateLimit {
+  id            String   @id @default(cuid())
+  workspaceId   String   @map("workspace_id")
+  provider      String
+  accountId     String   @default("") @map("account_id")
+  queueType     String   @map("queue_type")
+  maxConcurrent Int      @map("max_concurrent")
+  maxPerMinute  Int      @map("max_per_minute")
+  maxPerHour    Int      @map("max_per_hour")
+  isEnabled     Boolean  @map("is_enabled")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([workspaceId, provider, accountId, queueType])
+  @@map("marketplace_queue_rate_limits")
+}
+
+// =============================================================
 // INVENTORY FOUNDATION
 // =============================================================
 
@@ -5131,6 +5460,7 @@ model WarehouseLocation {
   workspaceId      String                  @map("workspace_id")
   warehouseId      String                  @map("warehouse_id")
   parentLocationId String?                 @map("parent_location_id")
+  zoneId           String?                 @map("zone_id")
   code             String
   name             String?
   type             WarehouseLocationType   @default(BIN)
@@ -5151,6 +5481,7 @@ model WarehouseLocation {
   deletedAt DateTime? @map("deleted_at")
 
   warehouse Warehouse                 @relation(fields: [warehouseId], references: [id])
+  zoneRef   WarehouseZone?            @relation(fields: [zoneId], references: [id])
   bins      WarehouseBin[]
   stocks    InventoryStock[]
   history   WarehouseLocationHistory[]
@@ -5251,6 +5582,7 @@ model WarehouseBin {
   workspaceId String    @map("workspace_id")
   warehouseId String    @map("warehouse_id")
   locationId  String?   @map("location_id")
+  zoneId      String?   @map("zone_id")
   code        String
   name        String?
   type        BinType   @default(STORAGE)
@@ -5285,15 +5617,15 @@ model WarehouseBin {
   deletedAt DateTime? @map("deleted_at")
 
   warehouse Warehouse          @relation(fields: [warehouseId], references: [id])
-  zone      WarehouseZone?     @relation(fields: [zoneId], references: [id])
+  zoneRef   WarehouseZone?     @relation(fields: [zoneId], references: [id])
   location  WarehouseLocation? @relation(fields: [locationId], references: [id])
   stocks    InventoryStock[]
   history   WarehouseBinHistory[]
 
   @@unique([warehouseId, code])
   @@index([workspaceId])
-  @@index([wareId])
-  @@index([zonehouseId])
+  @@index([warehouseId])
+  @@index([zoneId])
   @@index([locationId])
   @@index([zone])
   @@index([barcode])
@@ -10946,7 +11278,7 @@ enum AiRecommendationType {
   CUSTOM
 }
 
-enum AiRecommendationStrategy {
+enum AiRecommendationStrategyType {
   WEIGHTED
   RULE_BASED
   AI_ASSISTED
@@ -10968,7 +11300,7 @@ model AiRecommendation {
 
   status                  AiRecommendationStatus      @default(PENDING)
   recommendationType      AiRecommendationType        @map("recommendation_type")
-  strategy                AiRecommendationStrategy
+  strategy                AiRecommendationStrategyType
 
   orchestratorRequestId   String?                     @map("orchestrator_request_id")
   agentExecutionId        String?                     @map("agent_execution_id")
@@ -12440,7 +12772,7 @@ model PushDeviceToken {
 
   status          String    @default("ACTIVE")
 
-  /** Topics/segments this device is subscribed to — a simple denormalized array, not a separate join table, given scope. */
+  /// Topics/segments this device is subscribed to — a simple denormalized array, not a separate join table, given scope.
   topics          String[]
 
   lastSeenAt      DateTime? @map("last_seen_at")
@@ -12478,7 +12810,7 @@ enum ActivityActorType {
   PLATFORM_ADMIN
   ORGANIZATION_ADMIN
   SERVICE_ACCOUNT
-  /** A third-party or first-party plugin/app-store extension acting under its own installed identity — distinct from a `PROVIDER` (marketplace/supplier/shipping integration) or `SERVICE_ACCOUNT` (tenant-issued API credential). */
+  /// A third-party or first-party plugin/app-store extension acting under its own installed identity — distinct from a `PROVIDER` (marketplace/supplier/shipping integration) or `SERVICE_ACCOUNT` (tenant-issued API credential).
   PLUGIN
 }
 
@@ -12526,7 +12858,7 @@ model ActivityEntry {
   status          ActivityStatus    @default(UNREAD)
   pinned          Boolean           @default(false)
 
-  /** Null = workspace-wide activity (visible in the workspace feed, not tied to one user's personalized feed). */
+  /// Null = workspace-wide activity (visible in the workspace feed, not tied to one user's personalized feed).
   recipientUserId String?           @map("recipient_user_id")
 
   dedupeKey       String?           @map("dedupe_key")
@@ -12582,7 +12914,7 @@ enum AuditActionCategory {
   LOGIN
   PERMISSION
   CONFIGURATION
-  /** An explicit override of a policy/rule/approval decision (Enterprise Approval Engine's OVERRIDE decision action, Business Rules Engine policy bypass) — distinct from an ordinary APPROVE/REJECT so Enterprise Audit's policy-violation detection can target it precisely. */
+  /// An explicit override of a policy/rule/approval decision (Enterprise Approval Engine's OVERRIDE decision action, Business Rules Engine policy bypass) — distinct from an ordinary APPROVE/REJECT so Enterprise Audit's policy-violation detection can target it precisely.
   OVERRIDE
   OTHER
 }
@@ -12609,7 +12941,7 @@ model AuditLogEntry {
   entityType     String?             @map("entity_type")
   entityId       String?             @map("entity_id")
 
-  /** Optional Multi-Business dimensional tag (soft reference to `Business.id`, plain string per the established organizationId/businessId convention — see `IBusiness`) — lets Enterprise Audit filter/aggregate a single immutable entry by business unit without a second audit table. */
+  /// Optional Multi-Business dimensional tag (soft reference to `Business.id`, plain string per the established organizationId/businessId convention — see `IBusiness`) — lets Enterprise Audit filter/aggregate a single immutable entry by business unit without a second audit table.
   businessId     String?             @map("business_id")
 
   outcome        ActivityOutcome     @default(SUCCESS)
@@ -12624,7 +12956,7 @@ model AuditLogEntry {
   jobId          String?             @map("job_id")
   workflowId     String?             @map("workflow_id")
   sessionId      String?             @map("session_id")
-  /** Distributed-tracing span/trace id, distinct from `correlationId` (business-level correlation) and `requestId` (single HTTP request). */
+  /// Distributed-tracing span/trace id, distinct from `correlationId` (business-level correlation) and `requestId` (single HTTP request).
   traceId        String?             @map("trace_id")
   externalRef    String?             @map("external_ref")
 
@@ -12634,17 +12966,15 @@ model AuditLogEntry {
 
   dedupeKey      String?             @map("dedupe_key")
 
-  /**
-   * Tamper-evidence hash chain (Enterprise Audit): `integrityHash` is a
-   * SHA-256 digest of this entry's canonical fields plus `previousHash`,
-   * computed once in `AuditLogsService.record()` — the single write path
-   * every module already calls — so a deleted or altered historical row
-   * breaks the chain for every entry after it within the same workspace.
-   * Best-effort under concurrent writes to the same workspace (no
-   * distributed lock is introduced for this): two records created at the
-   * same instant may link to the same `previousHash`, which is a detection
-   * gap, not a false-tamper report.
-   */
+  /// Tamper-evidence hash chain (Enterprise Audit): `integrityHash` is a
+  /// SHA-256 digest of this entry's canonical fields plus `previousHash`,
+  /// computed once in `AuditLogsService.record()` — the single write path
+  /// every module already calls — so a deleted or altered historical row
+  /// breaks the chain for every entry after it within the same workspace.
+  /// Best-effort under concurrent writes to the same workspace (no
+  /// distributed lock is introduced for this): two records created at the
+  /// same instant may link to the same `previousHash`, which is a detection
+  /// gap, not a false-tamper report.
   integrityHash  String?             @map("integrity_hash")
   previousHash   String?             @map("previous_hash")
 
@@ -19227,7 +19557,7 @@ enum SaasIncidentType {
   DESTRUCTIVE_ACTION
   REPEATED_FAILURE
   SUSPICIOUS_CROSS_TENANT_ACCESS
-  /** Raised by Enterprise Audit's policy-violation sweep for entries the source module itself flagged via `metadata.policyViolation` or logged under `AuditActionCategory.OVERRIDE` — reuses this same incident workflow rather than a parallel one. */
+  /// Raised by Enterprise Audit's policy-violation sweep for entries the source module itself flagged via `metadata.policyViolation` or logged under `AuditActionCategory.OVERRIDE` — reuses this same incident workflow rather than a parallel one.
   POLICY_VIOLATION
 }
 

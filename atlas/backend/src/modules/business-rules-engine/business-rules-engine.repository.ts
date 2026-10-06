@@ -13,7 +13,7 @@ export class BusinessRulesEngineRepository extends BaseRepository {
   // ── Rules ────────────────────────────────────────────────────────
 
   async create(data: Partial<IRule>): Promise<IRule> {
-    return this.prisma.ruleDefinition.create({ data: data as any }) as Promise<IRule>;
+    return this.prisma.ruleDefinition.create({ data: data as any }) as unknown as Promise<IRule>;
   }
 
   async findById(id: string): Promise<IRule | null> {
@@ -55,7 +55,7 @@ export class BusinessRulesEngineRepository extends BaseRepository {
       this.prisma.ruleDefinition.count({ where: where as any }),
     ]);
 
-    return [data as IRule[], total];
+    return [data as unknown as IRule[], total];
   }
 
   /** All non-deleted rules visible to a scope, matched for evaluation (PUBLISHED only) by module + triggerType (+ triggerRef when EVENT/WORKFLOW), ordered for deterministic precedence. */
@@ -77,14 +77,14 @@ export class BusinessRulesEngineRepository extends BaseRepository {
     return this.prisma.ruleDefinition.findMany({
       where: where as any,
       orderBy: [{ priority: 'desc' }, { executionOrder: 'asc' }],
-    }) as Promise<IRule[]>;
+    }) as unknown as Promise<IRule[]>;
   }
 
   /** All non-deleted EVENT-triggered rules visible to a scope — used only for static circular-execution graph construction at validate/publish time. */
   async findAllEventTriggeredForValidation(visibleScopeKeys: string[]): Promise<IRule[]> {
     return this.prisma.ruleDefinition.findMany({
       where: { scopeKey: { in: visibleScopeKeys }, triggerType: RuleTriggerType.EVENT, deletedAt: null },
-    }) as Promise<IRule[]>;
+    }) as unknown as Promise<IRule[]>;
   }
 
   async findDueScheduledRules(before: Date): Promise<IRule[]> {
@@ -95,11 +95,11 @@ export class BusinessRulesEngineRepository extends BaseRepository {
         deletedAt: null,
         nextRunAt: { lte: before },
       },
-    }) as Promise<IRule[]>;
+    }) as unknown as Promise<IRule[]>;
   }
 
   async update(id: string, data: Partial<IRule>): Promise<IRule> {
-    return this.prisma.ruleDefinition.update({ where: { id }, data: data as any }) as Promise<IRule>;
+    return this.prisma.ruleDefinition.update({ where: { id }, data: data as any }) as unknown as Promise<IRule>;
   }
 
   // ── History ──────────────────────────────────────────────────────

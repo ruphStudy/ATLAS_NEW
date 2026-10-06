@@ -15,19 +15,19 @@ export class RegisterRegistryEntryDto {
 
   @IsString()
   @IsNotEmpty()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  channel: string;
+  channel!: string;
 
   @IsString()
   @IsNotEmpty()
-  displayName: string;
+  displayName!: string;
 
   @IsString()
   @IsNotEmpty()
-  version: string;
+  version!: string;
 
   @IsArray()
   @IsString({ each: true })

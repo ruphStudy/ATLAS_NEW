@@ -14,17 +14,17 @@ import { AiCostBudgetScope, AiCostBudgetPeriod } from '../interfaces';
 export class CreateBudgetDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiCostBudgetScope)
-  scope: AiCostBudgetScope;
+  scope!: AiCostBudgetScope;
 
   @IsEnum(AiCostBudgetPeriod)
-  period: AiCostBudgetPeriod;
+  period!: AiCostBudgetPeriod;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -36,7 +36,7 @@ export class CreateBudgetDto {
 
   @IsNumber()
   @Min(0)
-  limitAmount: number;
+  limitAmount!: number;
 
   @IsString()
   @IsOptional()

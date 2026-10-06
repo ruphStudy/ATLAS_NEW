@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { BaseRepository } from '@database/base.repository';
 import { PrismaService } from '@database/prisma.service';
 import {
@@ -253,11 +254,11 @@ export class AiPromptRepository extends BaseRepository {
       create: {
         workspaceId,
         cacheKey,
-        promptData,
+        promptData: promptData as unknown as Prisma.InputJsonValue,
         expiresAt,
       },
       update: {
-        promptData,
+        promptData: promptData as unknown as Prisma.InputJsonValue,
         expiresAt,
         updatedAt: new Date(),
       },

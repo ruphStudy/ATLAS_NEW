@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { MarketplaceProviderFactory } from '../marketplace-provider-factory/marketplace-provider-factory.service';
-import { MarketplaceCapability } from '../marketplace-provider/interfaces/marketplace-provider.interface';
+import { MarketplaceProviderFactoryService } from '../marketplace-provider-factory/marketplace-provider-factory.service';
+import { MarketplaceCapability } from '../marketplace-provider/interfaces';
 import { PriceSyncRepository } from './repository/price-sync.repository';
 import { PriceSyncValidator } from './validator/price-sync.validator';
 import { PriceSyncStateManager } from './state/price-sync-state.manager';
@@ -24,7 +24,7 @@ import { PriceSyncEvent, ItemSyncStatus } from './interfaces';
 @Injectable()
 export class MarketplacePricingSyncService {
   constructor(
-    private readonly providerFactory: MarketplaceProviderFactory,
+    private readonly providerFactory: MarketplaceProviderFactoryService,
     private readonly repository: PriceSyncRepository,
     private readonly validator: PriceSyncValidator,
     private readonly stateManager: PriceSyncStateManager,
@@ -38,8 +38,14 @@ export class MarketplacePricingSyncService {
   async startSync(dto: StartPriceSyncRequestDto) {
     this.validator.validateSyncRequest(dto);
 
-    const provider = await this.providerFactory.getProvider(dto.providerKey, dto.marketplaceKey);
-    if (!provider.hasCapability(MarketplaceCapability.SYNC_PRICING)) {
+    try {
+      await this.providerFactory.resolve({
+        workspaceId: dto.workspaceId,
+        accountId: dto.accountId,
+        providerKey: dto.providerKey,
+        capability: MarketplaceCapability.SYNC_PRICING,
+      });
+    } catch {
       throw new BadRequestException(
         `Provider ${dto.providerKey}/${dto.marketplaceKey} does not support pricing sync`,
       );

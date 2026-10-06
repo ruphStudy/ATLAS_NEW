@@ -9,5 +9,5 @@ export class AppStoreReasonDto {
 export class AppStoreRequiredReasonDto {
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }

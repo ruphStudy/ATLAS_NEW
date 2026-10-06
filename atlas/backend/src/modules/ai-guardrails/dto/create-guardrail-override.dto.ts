@@ -14,7 +14,7 @@ import {
 
 export class CreateGuardrailOverrideDto {
   @IsEnum(GuardrailOverrideScope)
-  scope: GuardrailOverrideScope;
+  scope!: GuardrailOverrideScope;
 
   @IsString()
   @IsOptional()

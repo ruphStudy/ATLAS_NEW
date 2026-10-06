@@ -293,7 +293,9 @@ export class PushProviderAdapter implements INotificationProvider, OnModuleInit 
         'Status',
       ]);
       const status =
-        (rawStatus && STATUS_MAP[String(rawStatus).toLowerCase()]) ?? NotificationDeliveryStatus.SENT;
+        rawStatus
+          ? (STATUS_MAP[String(rawStatus).toLowerCase()] ?? NotificationDeliveryStatus.SENT)
+          : NotificationDeliveryStatus.SENT;
 
       return {
         providerKey: PUSH_ADAPTER_PROVIDER_KEY,

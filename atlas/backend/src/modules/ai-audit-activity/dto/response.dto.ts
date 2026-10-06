@@ -7,13 +7,13 @@ import {
 } from '../interfaces';
 
 export class AuditLogResponseDto implements IAiAuditLog {
-  id: string;
-  workspaceId: string;
-  actorType: AiAuditActorType;
+  id!: string;
+  workspaceId!: string;
+  actorType!: AiAuditActorType;
   actorId?: string;
   actorName?: string;
-  action: AiAuditAction;
-  outcome: AiAuditOutcome;
+  action!: AiAuditAction;
+  outcome!: AiAuditOutcome;
   capability?: string;
   useCase?: string;
   provider?: string;
@@ -35,47 +35,47 @@ export class AuditLogResponseDto implements IAiAuditLog {
   latencyMs?: number;
   validationResult?: string;
   guardrailDecision?: string;
-  guardrailReasons: string[];
+  guardrailReasons!: string[];
   inputReference?: string;
   outputReference?: string;
   errorCode?: string;
   errorMessage?: string;
-  suspicious: boolean;
-  suspicionReasons: string[];
+  suspicious!: boolean;
+  suspicionReasons!: string[];
   ipAddress?: string;
   userAgent?: string;
-  tags: string[];
-  metadata: Record<string, unknown>;
-  timestamp: Date;
+  tags!: string[];
+  metadata!: Record<string, unknown>;
+  timestamp!: Date;
   retentionDate?: Date;
   archivedAt?: Date;
 }
 
 export class PaginatedAuditLogResponseDto {
-  data: AuditLogResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: AuditLogResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class AuditSummaryResponseDto implements IAiAuditSummary {
-  id: string;
-  workspaceId: string;
-  entityType: string;
-  entityId: string;
-  totalActivities: number;
-  successCount: number;
-  failureCount: number;
-  blockedCount: number;
-  totalTokens: number;
-  totalCost: number;
-  suspiciousCount: number;
+  id!: string;
+  workspaceId!: string;
+  entityType!: string;
+  entityId!: string;
+  totalActivities!: number;
+  successCount!: number;
+  failureCount!: number;
+  blockedCount!: number;
+  totalTokens!: number;
+  totalCost!: number;
+  suspiciousCount!: number;
   firstActivityAt?: Date;
-  lastActivityAt: Date;
-  periodStart: Date;
-  periodEnd: Date;
-  metadata: Record<string, unknown>;
-  createdAt: Date;
-  updatedAt: Date;
+  lastActivityAt!: Date;
+  periodStart!: Date;
+  periodEnd!: Date;
+  metadata!: Record<string, unknown>;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

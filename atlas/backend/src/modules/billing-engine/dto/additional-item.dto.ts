@@ -3,15 +3,15 @@ import { BillingItemType } from '../interfaces';
 
 export class AdditionalItemDto {
   @IsEnum(BillingItemType)
-  type: BillingItemType;
+  type!: BillingItemType;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   /** Positive for charges, negative for discounts/credits — this module never assumes sign from `type`. */
   @IsNumber()
-  amount: number;
+  amount!: number;
 
   @IsNumber()
   @IsOptional()

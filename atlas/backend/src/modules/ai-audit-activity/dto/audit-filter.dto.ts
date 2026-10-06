@@ -4,7 +4,7 @@ import { AiAuditActorType, AiAuditAction, AiAuditOutcome } from '../interfaces';
 export class AuditLogFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiAuditActorType)
   @IsOptional()

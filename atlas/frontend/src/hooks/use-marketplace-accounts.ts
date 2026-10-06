@@ -13,7 +13,7 @@ export function useMarketplaceAccounts(params: MarketplaceAccountFilterParams = 
   const workspaceId = useWorkspaceId();
   return useQuery({
     queryKey: [QUERY_KEYS.MARKETPLACE_ACCOUNTS, workspaceId, params],
-    queryFn: () => accountsService.listMarketplaceAccounts({ ...params, workspaceId: workspaceId as string }),
+    queryFn: () => accountsService.listMarketplaceAccounts(params),
     enabled: !!workspaceId,
     staleTime: 30 * 1000,
   });
@@ -159,5 +159,21 @@ export function useSetMarketplaceAccountPriority(id: string) {
       toast.success('Priority updated');
     },
     onError: () => toast.error('Action failed', 'Please try again.'),
+  });
+}
+
+/**
+ * Starts the Amazon Connect OAuth flow and redirects the browser to
+ * Amazon's consent screen. Pass `accountId` to reconnect an existing
+ * (EXPIRED/INVALID) Amazon account rather than creating a new one.
+ */
+export function useConnectAmazon() {
+  const toast = useToast();
+  return useMutation({
+    mutationFn: (params: { country: string; accountId?: string }) => accountsService.startAmazonAuthorization(params),
+    onSuccess: (result) => {
+      window.location.href = result.authorizationUrl;
+    },
+    onError: () => toast.error('Could not start Amazon authorization', 'Please try again.'),
   });
 }

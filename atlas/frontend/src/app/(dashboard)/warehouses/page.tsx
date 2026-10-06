@@ -95,7 +95,7 @@ export default function WarehousesPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((w) => (
-              <TableRow key={w.id} clickable onClick={() => router.push(`/dashboard/warehouses/${w.id}`)}>
+              <TableRow key={w.id} clickable onClick={() => router.push(`/warehouses/${w.id}`)}>
                 <TableCell>
                   <p className="text-sm font-medium text-foreground">{w.name}</p>
                   <p className="text-xs text-muted-foreground">
@@ -118,7 +118,7 @@ export default function WarehousesPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={data.totalPages} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateWarehouseDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(w) => router.push(`/dashboard/warehouses/${w.id}`)} />
+      <CreateWarehouseDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(w) => router.push(`/warehouses/${w.id}`)} />
     </div>
   );
 }

@@ -22,16 +22,16 @@ import {
 
 export class GeminiExecuteDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(GeminiModel)
-  model: string;
+  model!: string;
 
   @IsEnum(GeminiCapability)
-  capability: string;
+  capability!: string;
 
   @IsArray()
-  contents: IGeminiContent[];
+  contents!: IGeminiContent[];
 
   @IsOptional()
   @IsString()

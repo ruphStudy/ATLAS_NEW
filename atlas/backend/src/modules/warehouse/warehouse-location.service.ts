@@ -106,7 +106,7 @@ export class WarehouseLocationService {
       );
     }
 
-    let currentParentId = parentLocationId;
+    let currentParentId: string | null = parentLocationId;
     const visited = new Set<string>();
 
     while (currentParentId) {
@@ -406,7 +406,7 @@ export class WarehouseLocationService {
     const location = await this.findOrFail(id, warehouseId, workspaceId);
 
     if (!location['deletedAt']) {
-      throw new BusinessRuleException('Location is not deleted', ErrorCode.INVALID_INPUT);
+      throw new BusinessRuleException('Location is not deleted', ErrorCode.VALIDATION_FAILED);
     }
 
     const updated = await this.repository.restore(id);

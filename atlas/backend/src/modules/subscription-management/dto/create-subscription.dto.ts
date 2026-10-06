@@ -3,7 +3,7 @@ import { SubscriptionScope, SubscriptionType, SubscriptionBillingCycle } from '.
 
 export class CreateSubscriptionDto {
   @IsEnum(SubscriptionScope)
-  scope: SubscriptionScope;
+  scope!: SubscriptionScope;
 
   /** Required when scope is ORGANIZATION; also accepted for WORKSPACE to denormalize a known org — never validated against an Organization entity, which does not exist in this schema. */
   @IsString()
@@ -11,15 +11,15 @@ export class CreateSubscriptionDto {
   organizationId?: string;
 
   @IsEnum(SubscriptionType)
-  type: SubscriptionType;
+  type!: SubscriptionType;
 
   /** Opaque reference into the Plan Management catalog — never validated or interpreted here. */
   @IsString()
   @IsNotEmpty()
-  planKey: string;
+  planKey!: string;
 
   @IsEnum(SubscriptionBillingCycle)
-  billingCycle: SubscriptionBillingCycle;
+  billingCycle!: SubscriptionBillingCycle;
 
   @IsInt()
   @IsOptional()

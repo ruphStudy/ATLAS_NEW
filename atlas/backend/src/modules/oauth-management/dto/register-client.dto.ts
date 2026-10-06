@@ -5,14 +5,14 @@ import { OAUTH_GRANT_TYPES } from '../constants';
 export class RegisterOAuthClientDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
   @IsEnum(OAuthScopeType)
-  scopeType: OAuthScopeType;
+  scopeType!: OAuthScopeType;
 
   /** Required for ORGANIZATION scope. */
   @IsString()
@@ -21,21 +21,21 @@ export class RegisterOAuthClientDto {
 
   @IsString()
   @IsNotEmpty()
-  providerKey: string;
+  providerKey!: string;
 
   /** The client ID as issued by the external provider — not a secret, safe to display. */
   @IsString()
   @IsNotEmpty()
-  clientId: string;
+  clientId!: string;
 
   @IsString()
   @IsNotEmpty()
-  clientSecret: string;
+  clientSecret!: string;
 
   @IsArray()
   @IsString({ each: true })
   @ArrayMinSize(1)
-  redirectUris: string[];
+  redirectUris!: string[];
 
   @IsArray()
   @IsString({ each: true })
@@ -45,7 +45,7 @@ export class RegisterOAuthClientDto {
   @IsArray()
   @IsIn(OAUTH_GRANT_TYPES, { each: true })
   @ArrayMinSize(1)
-  grantTypes: string[];
+  grantTypes!: string[];
 
   @IsString()
   @IsOptional()
@@ -53,11 +53,11 @@ export class RegisterOAuthClientDto {
 
   @IsString()
   @IsNotEmpty()
-  authorizationEndpoint: string;
+  authorizationEndpoint!: string;
 
   @IsString()
   @IsNotEmpty()
-  tokenEndpoint: string;
+  tokenEndpoint!: string;
 
   @IsString()
   @IsOptional()

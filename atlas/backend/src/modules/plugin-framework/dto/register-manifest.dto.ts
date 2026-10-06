@@ -3,7 +3,7 @@ import { IsArray, IsNotEmpty, IsObject, IsOptional, IsString } from 'class-valid
 export class RegisterPluginManifestDto {
   @IsString()
   @IsNotEmpty()
-  versionId: string;
+  versionId!: string;
 
   @IsArray()
   @IsString({ each: true })

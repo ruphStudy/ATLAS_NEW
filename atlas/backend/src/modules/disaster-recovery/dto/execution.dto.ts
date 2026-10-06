@@ -29,11 +29,11 @@ export class TriggerDrRecoveryDto {
 export class DetectDrDisasterDto {
   @IsString()
   @IsNotEmpty()
-  criticalService: string;
+  criticalService!: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   @IsString()
   @IsOptional()

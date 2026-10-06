@@ -10,6 +10,7 @@ import {
 } from '../interfaces';
 import { ListingPublisherRepository } from '../listing-publisher.repository';
 import { PublishQueue } from './publish.queue';
+import { MarketplaceAccountResolver } from '../marketplace-account-resolver.service';
 
 @Injectable()
 export class BulkPublishWorker implements OnModuleInit, OnModuleDestroy {
@@ -20,6 +21,7 @@ export class BulkPublishWorker implements OnModuleInit, OnModuleDestroy {
     private readonly configService: ConfigurationService,
     private readonly repository: ListingPublisherRepository,
     private readonly publishQueue: PublishQueue,
+    private readonly accountResolver: MarketplaceAccountResolver,
   ) {}
 
   onModuleInit(): void {
@@ -92,6 +94,11 @@ export class BulkPublishWorker implements OnModuleInit, OnModuleDestroy {
           continue;
         }
 
+        const marketplaceAccountId = await this.accountResolver.resolve(
+          workspaceId,
+          item.marketplace,
+        );
+
         const version = await this.repository.getNextVersion(
           item.listingId,
           item.marketplace,
@@ -105,6 +112,7 @@ export class BulkPublishWorker implements OnModuleInit, OnModuleDestroy {
           marketplace: item.marketplace,
           status: PublicationStatus.PENDING,
           publicationVersion: version,
+          marketplaceAccountId,
           marketplaceListingId: null,
           marketplaceUrl: null,
           marketplaceResponse: null,
@@ -131,6 +139,7 @@ export class BulkPublishWorker implements OnModuleInit, OnModuleDestroy {
             catalogProductId: item.catalogProductId,
             workspaceId,
             marketplace: item.marketplace,
+            marketplaceAccountId,
             trigger: PublishTrigger.BULK,
             triggeredBy,
             retryCount: 0,

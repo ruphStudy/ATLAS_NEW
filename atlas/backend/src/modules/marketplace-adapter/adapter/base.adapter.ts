@@ -13,8 +13,8 @@ import {
 } from '../interfaces';
 
 export abstract class BaseAdapter implements IAdapter {
-  protected config: IAdapterConfig;
-  protected credentials: IAdapterCredentials;
+  protected config!: IAdapterConfig;
+  protected credentials!: IAdapterCredentials;
   protected initialized: boolean = false;
 
   async initialize(
@@ -49,7 +49,7 @@ export abstract class BaseAdapter implements IAdapter {
         errors: [
           {
             code: 'HEALTH_CHECK_FAILED',
-            message: error.message,
+            message: (error as Error).message,
           },
         ],
       };
@@ -79,7 +79,7 @@ export abstract class BaseAdapter implements IAdapter {
         responseTime: Date.now() - startTime,
         error: {
           code: 'CONNECTION_TEST_FAILED',
-          message: error.message,
+          message: (error as Error).message,
         },
       };
     }

@@ -2,10 +2,10 @@ import { IsString, IsOptional, IsInt, Min } from 'class-validator';
 
 export class CreatePromptVersionDto {
   @IsString()
-  promptId: string;
+  promptId!: string;
 
   @IsString()
-  template: string;
+  template!: string;
 
   @IsOptional()
   variables?: string[];
@@ -33,11 +33,11 @@ export class CreatePromptVersionDto {
 
 export class RollbackPromptDto {
   @IsString()
-  promptId: string;
+  promptId!: string;
 
   @IsInt()
   @Min(1)
-  targetVersion: number;
+  targetVersion!: number;
 
   @IsOptional()
   @IsString()

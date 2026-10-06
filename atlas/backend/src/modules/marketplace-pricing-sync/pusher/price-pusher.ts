@@ -72,12 +72,13 @@ export class PricePusher {
           await this.stateManager.incrementCounters(jobId, workspaceId, { failed: 1, processed: 1 });
         }
       } catch (error) {
-        this.logger.error(`Failed to push price ${atlasPrice.id}: ${error.message}`);
+        const err = error as Error;
+        this.logger.error(`Failed to push price ${atlasPrice.id}: ${err.message}`);
         await this.stateManager.recordItemResult(jobId, workspaceId, {
           externalPriceId: atlasPrice.id,
           sku: atlasPrice.sku,
           status: ItemSyncStatus.FAILED,
-          errorMessage: error.message,
+          errorMessage: err.message,
         });
         await this.stateManager.incrementCounters(jobId, workspaceId, { failed: 1, processed: 1 });
       }
@@ -130,12 +131,13 @@ export class PricePusher {
         await this.stateManager.incrementCounters(jobId, workspaceId, { failed: 1, processed: 1 });
       }
     } catch (error) {
-      this.logger.error(`Failed to update price ${externalPriceId}: ${error.message}`);
+      const err = error as Error;
+      this.logger.error(`Failed to update price ${externalPriceId}: ${err.message}`);
       await this.stateManager.recordItemResult(jobId, workspaceId, {
         externalPriceId,
         sku: price.sku,
         status: ItemSyncStatus.FAILED,
-        errorMessage: error.message,
+        errorMessage: err.message,
       });
       await this.stateManager.incrementCounters(jobId, workspaceId, { failed: 1, processed: 1 });
     }

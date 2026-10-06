@@ -10,7 +10,7 @@ import { WarehouseSyncStatus, WarehouseSyncType } from '../interfaces';
 
 export class WarehouseSyncConfigurationFilterDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
@@ -37,7 +37,7 @@ export class WarehouseSyncConfigurationFilterDto {
 
 export class WarehouseSyncJobFilterDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
@@ -72,7 +72,7 @@ export class WarehouseSyncJobFilterDto {
 
 export class WarehouseSyncConflictFilterDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()

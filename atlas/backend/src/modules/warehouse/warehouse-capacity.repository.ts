@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/core';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@database/prisma.service';
 import { BaseRepository } from '@database/base.repository';
 import { CapacityLevel, CapacityMeasure } from './interfaces';

@@ -4,9 +4,9 @@ import { ComplianceRecordStatus } from '../interfaces';
 /** Manual override of a compliance record's status — a reason is always required. */
 export class OverrideComplianceRecordDto {
   @IsEnum(ComplianceRecordStatus)
-  status: ComplianceRecordStatus;
+  status!: ComplianceRecordStatus;
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }

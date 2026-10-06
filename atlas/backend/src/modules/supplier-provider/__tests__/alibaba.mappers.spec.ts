@@ -8,8 +8,8 @@ import {
   mapAlibabaOrderResponse,
   mapAlibabaShipmentTracking,
   mapAlibabaCatalog,
-} from '../alibaba/alibaba.mappers';
-import { SupplierProviderCode } from '../../../interfaces';
+} from '../adapters/providers/alibaba/alibaba.mappers';
+import { SupplierProviderCode } from '../interfaces';
 import {
   AlibabaRawSupplier,
   AlibabaRawProduct,
@@ -17,7 +17,7 @@ import {
   AlibabaRawOrderResponse,
   AlibabaRawShipmentTracking,
   AlibabaRawCatalog,
-} from '../alibaba/alibaba.types';
+} from '../adapters/providers/alibaba/alibaba.types';
 
 // ── Fixtures ──────────────────────────────────────────────────
 

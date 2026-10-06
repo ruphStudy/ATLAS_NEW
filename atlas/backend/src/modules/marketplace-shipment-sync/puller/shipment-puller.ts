@@ -7,6 +7,7 @@ import {
   ShipmentItemType,
   ShipmentSyncAdapter,
   ShipmentSyncEvent,
+  NormalizedShipmentItem,
   SyncItemOperation,
   SyncItemStatus,
   SyncJobStatus,
@@ -215,7 +216,7 @@ export class ShipmentPuller {
     return typeof id === 'string' ? id : typeof id === 'number' ? String(id) : null;
   }
 
-  private computeChecksum(normalized: Record<string, unknown>): string {
+  private computeChecksum(normalized: NormalizedShipmentItem): string {
     const payload = JSON.stringify(normalized, Object.keys(normalized).sort());
     return createHash('sha256').update(payload).digest('hex');
   }

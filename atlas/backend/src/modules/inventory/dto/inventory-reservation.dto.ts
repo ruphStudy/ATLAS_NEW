@@ -11,6 +11,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '@common/dto/pagination.dto';
 import {
   InventoryOwnershipType,
@@ -263,6 +264,7 @@ export class InventoryReservationHistoryResponseDto {
   id!: string;
   reservationId!: string;
   workspaceId!: string;
+  @ApiPropertyOptional({ enum: InventoryReservationStatus, nullable: true })
   fromStatus?: InventoryReservationStatus | null;
   toStatus!: InventoryReservationStatus;
   reason?: string | null;

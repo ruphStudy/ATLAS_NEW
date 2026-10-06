@@ -4,7 +4,7 @@ import { MonitoringAlertRuleStatus, MonitoringAlertSeverity } from '../interface
 
 export class CreateMonitoringAlertRuleDto {
   @IsString()
-  sourceKey: string;
+  sourceKey!: string;
 
   @IsString()
   @IsOptional()
@@ -20,17 +20,17 @@ export class CreateMonitoringAlertRuleDto {
 
   @IsString()
   @IsNotEmpty()
-  conditionField: string;
+  conditionField!: string;
 
   @IsString()
   @IsNotEmpty()
-  conditionOperator: string;
+  conditionOperator!: string;
 
   @IsNotEmpty()
   conditionValue: unknown;
 
   @IsEnum(MonitoringAlertSeverity)
-  severity: MonitoringAlertSeverity;
+  severity!: MonitoringAlertSeverity;
 
   @IsInt()
   @Min(0)

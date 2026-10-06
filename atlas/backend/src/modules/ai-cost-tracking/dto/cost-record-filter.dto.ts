@@ -5,7 +5,7 @@ import { AiCostRecordStatus } from '../interfaces';
 export class CostRecordFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

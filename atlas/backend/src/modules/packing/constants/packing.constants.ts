@@ -23,7 +23,7 @@ export const PACKING_CONSTANTS = {
     [PackingStatus.COMPLETED]: [
       PackingStatus.REOPENED,
     ],
-    [PackingStatus.CANCELLED]: [],
+    [PackingStatus.CANCELLED]: [] as PackingStatus[],
     [PackingStatus.REOPENED]: [
       PackingStatus.IN_PROGRESS,
       PackingStatus.CANCELLED,

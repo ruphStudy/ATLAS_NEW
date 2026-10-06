@@ -1,26 +1,27 @@
-import { ProviderErrorNormalizer } from '../../../errors/provider-error-normalizer';
-import { SupplierProviderCredentialService } from '../../../credentials/supplier-provider-credential.service';
-import { AdapterCapabilityValidator } from '../../adapter-capability.validator';
-import { AdapterIdempotencyService } from '../../adapter-idempotency.service';
-import { AdapterRateLimitHandler } from '../../adapter-rate-limit.handler';
-import { AdapterHealthChecker } from '../../adapter-health.checker';
-import { AdapterMetricsRecorder } from '../../adapter-metrics.recorder';
-import { AdapterAuditLogger } from '../../adapter-audit.logger';
-import { AlibabaAdapter } from '../alibaba/alibaba.adapter';
-import { SupplierProviderCode, ProviderCapability, ProviderErrorCode } from '../../../interfaces';
-import { AdapterCapability, IntegrationStrategy } from '../../adapter.types';
+import { ProviderErrorNormalizer } from '../errors/provider-error-normalizer';
+import { SupplierProviderCredentialService } from '../credentials/supplier-provider-credential.service';
+import { AdapterCapabilityValidator } from '../adapters/adapter-capability.validator';
+import { AdapterIdempotencyService } from '../adapters/adapter-idempotency.service';
+import { AdapterRateLimitHandler } from '../adapters/adapter-rate-limit.handler';
+import { AdapterHealthChecker } from '../adapters/adapter-health.checker';
+import { AdapterMetricsRecorder } from '../adapters/adapter-metrics.recorder';
+import { AdapterAuditLogger } from '../adapters/adapter-audit.logger';
+import { AlibabaAdapter } from '../adapters/providers/alibaba/alibaba.adapter';
+import { SupplierProviderCode, ProviderCapability, ProviderErrorCode } from '../interfaces';
+import { AdapterCapability, IntegrationStrategy } from '../adapters/adapter.types';
 
 // ── Helpers ───────────────────────────────────────────────────
 
 function makeAdapter(prismaOverride?: Record<string, unknown>): AlibabaAdapter {
+  const metricsRecorder = new AdapterMetricsRecorder();
   return new AlibabaAdapter(
     new ProviderErrorNormalizer(),
     new SupplierProviderCredentialService(),
     new AdapterCapabilityValidator(),
     new AdapterIdempotencyService(),
     new AdapterRateLimitHandler(),
-    new AdapterHealthChecker(),
-    new AdapterMetricsRecorder(),
+    new AdapterHealthChecker(metricsRecorder),
+    metricsRecorder,
     new AdapterAuditLogger(),
     (prismaOverride ?? makePrismaMock()) as never,
   );
@@ -384,7 +385,7 @@ describe('AlibabaAdapter – validateSupplier', () => {
 describe('AlibabaAdapter – error normalization', () => {
   it('normalizes rate limit error', async () => {
     const adapter = makeAdapter();
-    const { AlibabaHttpError } = await import('../alibaba/alibaba.http-client');
+    const { AlibabaHttpError } = await import('../adapters/providers/alibaba/alibaba.http-client');
     jest.spyOn(adapter as never, 'resolveHttpClient').mockResolvedValue(
       makeResolvedClient(jest.fn().mockRejectedValue(
         new AlibabaHttpError(ProviderErrorCode.RATE_LIMITED, 'Rate limit exceeded', 429),
@@ -402,7 +403,7 @@ describe('AlibabaAdapter – error normalization', () => {
 
   it('normalizes auth error as non-retryable', async () => {
     const adapter = makeAdapter();
-    const { AlibabaHttpError } = await import('../alibaba/alibaba.http-client');
+    const { AlibabaHttpError } = await import('../adapters/providers/alibaba/alibaba.http-client');
     jest.spyOn(adapter as never, 'resolveHttpClient').mockResolvedValue(
       makeResolvedClient(jest.fn().mockRejectedValue(
         new AlibabaHttpError(ProviderErrorCode.AUTH_FAILED, 'Invalid session', 401),

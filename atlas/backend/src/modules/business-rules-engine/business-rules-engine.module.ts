@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { DatabaseModule } from '@database/database.module';
 import { QUEUE_NAMES } from '@common/constants';
@@ -39,7 +39,7 @@ import { BusinessRulesEngineEventQueue, BusinessRulesEngineEventWorker } from '.
     DatabaseModule,
     NotificationsModule,
     TaskManagementModule,
-    ApprovalWorkflowModule,
+    forwardRef(() => ApprovalWorkflowModule),
     AuditLogsModule,
     BullModule.registerQueue({
       name: QUEUE_NAMES.BUSINESS_RULES_ENGINE_EVENTS,

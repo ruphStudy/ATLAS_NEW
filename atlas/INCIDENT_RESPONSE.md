@@ -45,12 +45,22 @@ Security Owner must be different people.
 ## 3. Amazon Notification (SP-API)
 
 If an incident involves unauthorized access to, or disclosure of, Amazon
-Selling Partner API data or credentials (client secret, refresh token,
-access token, or data retrieved via SP-API), the Security Owner **must
-notify Amazon within 24 hours** of confirming the incident, via the channel
-specified in ATLAS's SP-API developer agreement. The Communications Owner
-records the notification (date/time, channel, content) in the incident
-timeline.
+Information — Amazon Selling Partner API data or credentials (client
+secret, refresh token, access token, or data retrieved via SP-API) — the
+Security Owner **must email security@amazon.com within 24 hours** of
+detecting the incident. This is in addition to, not instead of, any
+notification required by ATLAS's SP-API developer agreement.
+
+The notification must include, at minimum:
+- Date/time the incident was detected.
+- A description of the incident and its scope (what happened).
+- Which Amazon Information was or may have been affected (data types,
+  affected seller/workspace accounts, approximate record counts if known).
+- Containment actions already taken (e.g. credential revocation).
+- A point of contact for Amazon's follow-up.
+
+The Communications Owner records the notification (date/time sent, content,
+and any Amazon reference/case number) in the incident timeline.
 
 ## 4. Review Cadence
 

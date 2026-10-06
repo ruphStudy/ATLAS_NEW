@@ -133,7 +133,7 @@ export class AiProviderExpansionService {
    * version — the live row is never touched.
    */
   async updateExpansion(id: string, workspaceId: string, dto: UpdateAiProviderExpansionDto, userId?: string): Promise<AiProviderExpansionResponseDto> {
-    const existing = (await this.requireExpansion(id, workspaceId)) as IAiProviderExpansion;
+    const existing = (await this.requireExpansion(id, workspaceId)) as unknown as IAiProviderExpansion;
 
     const validation = this.validator.validate({
       providerKey: existing.providerKey,
@@ -195,7 +195,7 @@ export class AiProviderExpansionService {
   // ── Adapter Compatibility ──────────────────────────────────────
 
   async validateAdapterCompatibility(id: string, workspaceId: string, userId?: string): Promise<AiProviderExpansionResponseDto> {
-    const existing = (await this.requireExpansion(id, workspaceId)) as IAiProviderExpansion;
+    const existing = (await this.requireExpansion(id, workspaceId)) as unknown as IAiProviderExpansion;
     const result = await this.validator.validateAdapterCompatibility(existing.providerKey);
 
     const raw = await this.repository.update(id, {
@@ -216,7 +216,7 @@ export class AiProviderExpansionService {
   // ── Rollout ─────────────────────────────────────────────────────
 
   async changeRolloutState(id: string, workspaceId: string, dto: PromoteRolloutDto, userId?: string): Promise<AiProviderExpansionResponseDto> {
-    const existing = (await this.requireExpansion(id, workspaceId)) as IAiProviderExpansion;
+    const existing = (await this.requireExpansion(id, workspaceId)) as unknown as IAiProviderExpansion;
     const allowed = AI_PROVIDER_EXPANSION_CONSTANTS.ALLOWED_ROLLOUT_TRANSITIONS[existing.rolloutState] ?? [];
     if (!allowed.includes(dto.targetState)) {
       throw new AiProviderExpansionInvalidTransitionException(existing.rolloutState, dto.targetState);

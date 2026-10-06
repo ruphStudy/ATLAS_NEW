@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { isAxiosError } from 'axios';
-import { CheckCircle2, Loader2, PlugZap, RotateCcw, Star, Trash2, X } from 'lucide-react';
+import { CheckCircle2, Loader2, Plug, PlugZap, RotateCcw, Star, Trash2, X } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -16,6 +16,7 @@ import { CapabilityMatrix } from '@/components/marketplace/capability-matrix';
 import {
   useArchiveMarketplaceAccount,
   useConfirm,
+  useConnectAmazon,
   useDeleteMarketplaceAccount,
   useDisableMarketplaceAccount,
   useEnableMarketplaceAccount,
@@ -45,6 +46,7 @@ export default function MarketplaceAccountDetailPage() {
   const testConnection = useTestMarketplaceAccountConnection(id);
   const setDefault = useSetDefaultMarketplaceAccount(id);
   const setPriority = useSetMarketplaceAccountPriority(id);
+  const connectAmazon = useConnectAmazon();
   const [priorityInput, setPriorityInput] = useState('');
 
   const isForbidden = isAxiosError(error) && error.response?.status === 403;
@@ -62,7 +64,7 @@ export default function MarketplaceAccountDetailPage() {
 
   const handleDelete = async () => {
     const ok = await confirm({ title: 'Delete this marketplace account?', description: 'This cannot be undone.', confirmLabel: 'Delete', variant: 'danger' });
-    if (ok) deleteAccount.mutate(account.id, { onSuccess: () => router.push('/dashboard/marketplace-accounts') });
+    if (ok) deleteAccount.mutate(account.id, { onSuccess: () => router.push('/marketplace-accounts') });
   };
 
   const actions: ActionMenuItem[] = [];
@@ -86,10 +88,20 @@ export default function MarketplaceAccountDetailPage() {
     <div>
       <PageHeader
         title={account.accountName}
-        breadcrumbs={[{ label: 'Marketplace Accounts', href: '/dashboard/marketplace-accounts' }, { label: account.accountName }]}
+        breadcrumbs={[{ label: 'Marketplace Accounts', href: '/marketplace-accounts' }, { label: account.accountName }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={account.status} />
+            {account.providerKey === 'AMAZON' && (account.status === 'EXPIRED' || account.status === 'INVALID') && (
+              <Button
+                variant="outline"
+                onClick={() => connectAmazon.mutate({ country: account.country ?? 'US', accountId: account.id })}
+                disabled={connectAmazon.isPending}
+              >
+                {connectAmazon.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plug className="h-4 w-4" />}
+                Reconnect Amazon
+              </Button>
+            )}
             <Button variant="outline" onClick={() => testConnection.mutate()} disabled={testConnection.isPending}>
               {testConnection.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlugZap className="h-4 w-4" />}
               Test connection

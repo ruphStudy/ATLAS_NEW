@@ -14,6 +14,7 @@ import {
 } from './dto';
 import {
   CacheEventType,
+  CacheScope,
   ICacheEntry,
 } from './interfaces';
 
@@ -280,7 +281,7 @@ export class AnalyticsCacheService {
 
     const scopeKeys = Object.keys(dto.scopes).sort();
     for (const key of scopeKeys) {
-      parts.push(`${key}:${dto.scopes[key as any]}`);
+      parts.push(`${key}:${dto.scopes[key as CacheScope]}`);
     }
 
     if (dto.filters) {

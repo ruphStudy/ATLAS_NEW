@@ -16,7 +16,7 @@ import {
 export class ValidationFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiResponseValidationStatus)
   @IsOptional()

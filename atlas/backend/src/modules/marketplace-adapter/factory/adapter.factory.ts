@@ -20,8 +20,9 @@ export class AdapterFactory implements IAdapterFactory {
   ): Promise<IAdapter> {
     const key = this.getInstanceKey(provider, config.accountId);
 
-    if (this.instances.has(key)) {
-      return this.instances.get(key);
+    const existing = this.instances.get(key);
+    if (existing) {
+      return existing;
     }
 
     const AdapterClass = this.registry.get(provider);

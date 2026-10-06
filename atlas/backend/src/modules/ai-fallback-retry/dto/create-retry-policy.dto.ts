@@ -20,7 +20,7 @@ export class CreateRetryPolicyDto {
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()

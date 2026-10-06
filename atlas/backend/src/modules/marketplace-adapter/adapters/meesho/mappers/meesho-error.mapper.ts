@@ -70,7 +70,7 @@ export class MeeshoErrorMapper {
   }
 
   private isRetryable(errorCode: string, statusCode?: number): boolean {
-    const retryableCodes = [
+    const retryableCodes: string[] = [
       MEESHO_ERROR_CODES.RATE_LIMIT_EXCEEDED,
       MEESHO_ERROR_CODES.INTERNAL_ERROR,
       MEESHO_ERROR_CODES.SERVICE_UNAVAILABLE,

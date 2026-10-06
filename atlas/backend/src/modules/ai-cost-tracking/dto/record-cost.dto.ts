@@ -13,11 +13,11 @@ import { AiCostRecordStatus } from '../interfaces';
 export class RecordAiCostDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
   @IsOptional()

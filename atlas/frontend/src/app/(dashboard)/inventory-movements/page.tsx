@@ -78,7 +78,7 @@ export default function InventoryMovementsPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((m) => (
-              <TableRow key={m.id} clickable onClick={() => router.push(`/dashboard/inventory-movements/${m.id}`)}>
+              <TableRow key={m.id} clickable onClick={() => router.push(`/inventory-movements/${m.id}`)}>
                 <TableCell>
                   <StatusBadge status={m.status} />
                 </TableCell>
@@ -96,7 +96,7 @@ export default function InventoryMovementsPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={data.totalPages} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateMovementDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(m) => router.push(`/dashboard/inventory-movements/${m.id}`)} />
+      <CreateMovementDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(m) => router.push(`/inventory-movements/${m.id}`)} />
     </div>
   );
 }

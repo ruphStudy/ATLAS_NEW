@@ -1,4 +1,4 @@
-import { AlibabaRequestSigner } from '../alibaba/alibaba.auth';
+import { AlibabaRequestSigner } from '../adapters/providers/alibaba/alibaba.auth';
 
 function makeSigner(appKey = 'test_app_key', appSecret = 'test_secret'): AlibabaRequestSigner {
   return new AlibabaRequestSigner(appKey, appSecret);

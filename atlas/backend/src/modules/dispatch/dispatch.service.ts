@@ -258,7 +258,7 @@ export class DispatchService {
           dispatched: true,
           dispatchedAt: new Date(),
           scannedBarcodes,
-          metadata: { ...pkg['metadata'], ...pkgDto.metadata },
+          metadata: { ...(pkg['metadata'] as Record<string, unknown> | undefined), ...pkgDto.metadata },
         },
       });
 
@@ -295,7 +295,7 @@ export class DispatchService {
       ...(dto.dispatchReference !== undefined && { dispatchReference: dto.dispatchReference }),
       ...(dto.dispatchNoteUrl !== undefined && { dispatchNoteUrl: dto.dispatchNoteUrl }),
       ...(dto.handoverUrl !== undefined && { handoverUrl: dto.handoverUrl }),
-      ...(dto.metadata !== undefined && { metadata: { ...existing['metadata'], ...dto.metadata } }),
+      ...(dto.metadata !== undefined && { metadata: { ...(existing['metadata'] as Record<string, unknown> | undefined), ...dto.metadata } }),
     });
 
     if (dto.manifestUrl) {

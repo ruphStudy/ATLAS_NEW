@@ -135,11 +135,11 @@ export class EbayResponseMapper {
     }
 
     if (response.next) {
-      pagination.nextToken = this.extractOffsetFromUrl(response.next);
+      pagination.nextCursor = this.extractOffsetFromUrl(response.next);
     }
 
     if (response.prev) {
-      pagination.prevToken = this.extractOffsetFromUrl(response.prev);
+      pagination.previousCursor = this.extractOffsetFromUrl(response.prev);
     }
 
     return Object.keys(pagination).length > 0 ? pagination : undefined;

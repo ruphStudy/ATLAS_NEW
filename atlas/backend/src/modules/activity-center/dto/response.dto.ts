@@ -1,17 +1,17 @@
 import { ActivityActorType, ActivityOutcome, ActivityStatus } from '../interfaces';
 
 export class ActivityEntryResponseDto {
-  id: string;
-  workspaceId: string;
-  actorType: ActivityActorType;
+  id!: string;
+  workspaceId!: string;
+  actorType!: ActivityActorType;
   actorId?: string | null;
   actorName?: string | null;
-  action: string;
-  sourceModule: string;
+  action!: string;
+  sourceModule!: string;
   entityType?: string | null;
   entityId?: string | null;
-  outcome: ActivityOutcome;
-  title: string;
+  outcome!: ActivityOutcome;
+  title!: string;
   description?: string | null;
   correlationId?: string | null;
   requestId?: string | null;
@@ -19,30 +19,30 @@ export class ActivityEntryResponseDto {
   workflowId?: string | null;
   externalRef?: string | null;
   timelineId?: string | null;
-  status: ActivityStatus;
-  pinned: boolean;
+  status!: ActivityStatus;
+  pinned!: boolean;
   recipientUserId?: string | null;
   readAt?: Date | null;
   pinnedAt?: Date | null;
   archivedAt?: Date | null;
   dismissedAt?: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedActivityEntryResponseDto {
-  data: ActivityEntryResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: ActivityEntryResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class UnreadActivityCountResponseDto {
-  unreadCount: number;
+  unreadCount!: number;
 }
 
 export class ActivityTimelineResponseDto {
-  timelineId: string;
-  entries: ActivityEntryResponseDto[];
+  timelineId!: string;
+  entries!: ActivityEntryResponseDto[];
 }

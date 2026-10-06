@@ -4,28 +4,28 @@ import { SyncDirection, SyncMode, PriceItemType, SyncStatus, ItemSyncStatus, Con
 
 export class StartPriceSyncRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsString()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
-  marketplaceKey: string;
+  marketplaceKey!: string;
 
   @IsEnum(SyncDirection)
-  direction: SyncDirection;
+  direction!: SyncDirection;
 
   @IsEnum(SyncMode)
-  mode: SyncMode;
+  mode!: SyncMode;
 
   @IsEnum(PriceItemType)
-  itemType: PriceItemType;
+  itemType!: PriceItemType;
 
   @IsEnum(ConflictResolutionStrategy)
-  conflictStrategy: ConflictResolutionStrategy;
+  conflictStrategy!: ConflictResolutionStrategy;
 
   @IsOptional()
   @IsString()
@@ -44,10 +44,10 @@ export class StartPriceSyncRequestDto {
 
 export class RetryFailedPriceItemsRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  originalJobId: string;
+  originalJobId!: string;
 
   @IsOptional()
   @IsObject()
@@ -56,34 +56,34 @@ export class RetryFailedPriceItemsRequestDto {
 
 export class CreatePriceScheduleRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsString()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
-  marketplaceKey: string;
+  marketplaceKey!: string;
 
   @IsEnum(SyncDirection)
-  direction: SyncDirection;
+  direction!: SyncDirection;
 
   @IsEnum(SyncMode)
-  mode: SyncMode;
+  mode!: SyncMode;
 
   @IsEnum(PriceItemType)
-  itemType: PriceItemType;
+  itemType!: PriceItemType;
 
   @IsEnum(ConflictResolutionStrategy)
-  conflictStrategy: ConflictResolutionStrategy;
+  conflictStrategy!: ConflictResolutionStrategy;
 
   @IsString()
-  cronExpression: string;
+  cronExpression!: string;
 
   @IsBoolean()
-  isActive: boolean;
+  isActive!: boolean;
 
   @IsOptional()
   @IsObject()
@@ -215,10 +215,10 @@ export class ConflictFilterQueryDto {
 
 export class ConflictResolutionRequestDto {
   @IsString()
-  resolution: string;
+  resolution!: string;
 
   @IsString()
-  resolvedBy: string;
+  resolvedBy!: string;
 
   @IsOptional()
   @IsString()
@@ -226,28 +226,28 @@ export class ConflictResolutionRequestDto {
 }
 
 export class PriceSyncJobResponseDto {
-  id: string;
-  workspaceId: string;
-  accountId: string;
-  providerKey: string;
-  marketplaceKey: string;
-  direction: SyncDirection;
-  mode: SyncMode;
-  status: SyncStatus;
-  itemType: PriceItemType;
+  id!: string;
+  workspaceId!: string;
+  accountId!: string;
+  providerKey!: string;
+  marketplaceKey!: string;
+  direction!: SyncDirection;
+  mode!: SyncMode;
+  status!: SyncStatus;
+  itemType!: PriceItemType;
   startedAt?: Date;
   completedAt?: Date;
-  totalItems: number;
-  processedItems: number;
-  successCount: number;
-  failedCount: number;
-  skippedCount: number;
-  conflictCount: number;
+  totalItems!: number;
+  processedItems!: number;
+  successCount!: number;
+  failedCount!: number;
+  skippedCount!: number;
+  conflictCount!: number;
   cursor?: string;
   errorMessage?: string;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 
   static from(job: any): PriceSyncJobResponseDto {
     return {
@@ -278,30 +278,30 @@ export class PriceSyncJobResponseDto {
 }
 
 export class PaginatedPriceSyncJobResponseDto {
-  items: PriceSyncJobResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  items!: PriceSyncJobResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class PriceScheduleResponseDto {
-  id: string;
-  workspaceId: string;
-  accountId: string;
-  providerKey: string;
-  marketplaceKey: string;
-  direction: SyncDirection;
-  mode: SyncMode;
-  itemType: PriceItemType;
-  conflictStrategy: ConflictResolutionStrategy;
-  cronExpression: string;
-  isActive: boolean;
+  id!: string;
+  workspaceId!: string;
+  accountId!: string;
+  providerKey!: string;
+  marketplaceKey!: string;
+  direction!: SyncDirection;
+  mode!: SyncMode;
+  itemType!: PriceItemType;
+  conflictStrategy!: ConflictResolutionStrategy;
+  cronExpression!: string;
+  isActive!: boolean;
   lastRunAt?: Date;
   nextRunAt?: Date;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 
   static from(schedule: any): PriceScheduleResponseDto {
     return {

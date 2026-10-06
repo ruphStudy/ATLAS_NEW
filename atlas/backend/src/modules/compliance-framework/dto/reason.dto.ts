@@ -4,5 +4,5 @@ import { IsString, IsNotEmpty } from 'class-validator';
 export class ComplianceReasonDto {
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }

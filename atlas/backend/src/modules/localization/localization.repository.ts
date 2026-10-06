@@ -22,7 +22,7 @@ export class LocalizationRepository extends BaseRepository {
   // ── Locales ──────────────────────────────────────────────────────
 
   async createLocale(data: Partial<ILocaleDefinition>): Promise<ILocaleDefinition> {
-    return this.prisma.localeDefinition.create({ data: data as any }) as Promise<ILocaleDefinition>;
+    return this.prisma.localeDefinition.create({ data: data as any }) as unknown as Promise<ILocaleDefinition>;
   }
 
   async findLocaleByCode(code: string): Promise<ILocaleDefinition | null> {
@@ -33,7 +33,7 @@ export class LocalizationRepository extends BaseRepository {
     return this.prisma.localeDefinition.findMany({
       where: activeOnly ? { isActive: true } : {},
       orderBy: { displayName: 'asc' },
-    }) as Promise<ILocaleDefinition[]>;
+    }) as unknown as Promise<ILocaleDefinition[]>;
   }
 
   async findDefaultLocale(): Promise<ILocaleDefinition | null> {
@@ -41,7 +41,7 @@ export class LocalizationRepository extends BaseRepository {
   }
 
   async updateLocale(id: string, data: Partial<ILocaleDefinition>): Promise<ILocaleDefinition> {
-    return this.prisma.localeDefinition.update({ where: { id }, data: data as any }) as Promise<ILocaleDefinition>;
+    return this.prisma.localeDefinition.update({ where: { id }, data: data as any }) as unknown as Promise<ILocaleDefinition>;
   }
 
   async clearDefaultLocale(): Promise<void> {
@@ -80,7 +80,7 @@ export class LocalizationRepository extends BaseRepository {
       this.prisma.localeDefinition.count({ where: where as any }),
     ]);
 
-    return [data as ILocaleDefinition[], total];
+    return [data as unknown as ILocaleDefinition[], total];
   }
 
   async createLocaleHistory(data: Partial<ILocaleDefinitionHistory>): Promise<ILocaleDefinitionHistory> {

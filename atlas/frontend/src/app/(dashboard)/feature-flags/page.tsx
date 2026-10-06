@@ -40,12 +40,21 @@ import {
 } from '@/hooks';
 import { formatDate } from '@/lib/utils';
 import type { CreateFeatureFlagDefinitionPayload, CreateFeatureFlagOverridePayload, FeatureFlagDefinitionStatus, FeatureFlagScopeType, FeatureFlagType } from '@/types';
+import { PlatformAdminGuard } from '@/components/auth/platform-admin-guard';
 
 const FLAG_TYPES: FeatureFlagType[] = ['BOOLEAN', 'PERCENTAGE', 'ALLOWLIST', 'DENYLIST', 'RULE_BASED'];
 const FLAG_STATUSES: FeatureFlagDefinitionStatus[] = ['DRAFT', 'ACTIVE', 'DISABLED', 'ARCHIVED'];
 const SCOPE_TYPES: FeatureFlagScopeType[] = ['GLOBAL', 'ORGANIZATION', 'WORKSPACE', 'PLAN', 'USER', 'ENVIRONMENT'];
 
 export default function FeatureFlagsPage() {
+  return (
+    <PlatformAdminGuard>
+      <FeatureFlagsPageContent />
+    </PlatformAdminGuard>
+  );
+}
+
+function FeatureFlagsPageContent() {
   return (
     <div>
       <PageHeader title="Feature Flags" description="Feature flag definitions, rollout rules, kill switches and scoped overrides." />

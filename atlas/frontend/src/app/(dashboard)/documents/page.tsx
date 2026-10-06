@@ -152,7 +152,7 @@ export default function DocumentsPage() {
             </TableHeader>
             <TableBody>
               {rows.map((d: AtlasDocument) => (
-                <TableRow key={d.id} className="cursor-pointer" onClick={() => router.push(`/dashboard/documents/${d.id}`)}>
+                <TableRow key={d.id} className="cursor-pointer" onClick={() => router.push(`/documents/${d.id}`)}>
                   <TableCell>
                     <p className="text-sm font-medium text-foreground">{d.title}</p>
                     <p className="text-xs text-muted-foreground">{d.documentNumber ?? '—'}</p>

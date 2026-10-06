@@ -88,19 +88,19 @@ export class ExportConfigDto implements IExportConfig {
 export class CreateExportRequestDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  exportKey: string;
+  exportKey!: string;
 
   @IsEnum(ExportType)
   @IsNotEmpty()
-  type: ExportType;
+  type!: ExportType;
 
   @IsEnum(ExportFormat)
   @IsNotEmpty()
-  format: ExportFormat;
+  format!: ExportFormat;
 
   @IsEnum(ExportMode)
   @IsOptional()
@@ -108,11 +108,11 @@ export class CreateExportRequestDto {
 
   @IsString()
   @IsNotEmpty()
-  sourceId: string;
+  sourceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  sourceName: string;
+  sourceName!: string;
 
   @ValidateNested()
   @Type(() => ExportConfigDto)
@@ -159,15 +159,15 @@ export class CreateExportRequestDto {
 export class CreateBulkExportDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  bulkKey: string;
+  bulkKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -177,7 +177,7 @@ export class CreateBulkExportDto {
   @ValidateNested({ each: true })
   @Type(() => CreateExportRequestDto)
   @IsNotEmpty()
-  exports: CreateExportRequestDto[];
+  exports!: CreateExportRequestDto[];
 
   @IsString()
   @IsOptional()
@@ -187,7 +187,7 @@ export class CreateBulkExportDto {
 export class ExportFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(ExportType)
   @IsOptional()
@@ -238,7 +238,7 @@ export class ExportFilterDto {
 export class ExecutionFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -271,23 +271,23 @@ export class ExecutionFilterDto {
 }
 
 export class ExportRequestResponseDto implements IExportRequest {
-  id: string;
-  workspaceId: string;
-  exportKey: string;
-  type: ExportType;
-  format: ExportFormat;
-  mode: ExportMode;
-  status: ExportStatus;
-  sourceId: string;
-  sourceName: string;
-  config: IExportConfig;
+  id!: string;
+  workspaceId!: string;
+  exportKey!: string;
+  type!: ExportType;
+  format!: ExportFormat;
+  mode!: ExportMode;
+  status!: ExportStatus;
+  sourceId!: string;
+  sourceName!: string;
+  config!: IExportConfig;
   idempotencyKey?: string;
   estimatedSize?: number;
   estimatedRows?: number;
-  priority: number;
-  maxRetries: number;
-  retryCount: number;
-  retryBackoff: {
+  priority!: number;
+  maxRetries!: number;
+  retryCount!: number;
+  retryBackoff!: {
     type: 'fixed' | 'exponential';
     initialDelayMs: number;
     maxDelayMs: number;
@@ -296,16 +296,16 @@ export class ExportRequestResponseDto implements IExportRequest {
   scheduledExportId?: string;
   bulkExportId?: string;
   requestedBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class ExportExecutionResponseDto implements IExportExecution {
-  id: string;
-  exportRequestId: string;
-  workspaceId: string;
-  exportKey: string;
-  status: ExportStatus;
+  id!: string;
+  exportRequestId!: string;
+  workspaceId!: string;
+  exportKey!: string;
+  status!: ExportStatus;
   startedAt?: Date;
   completedAt?: Date;
   duration?: number;
@@ -321,55 +321,55 @@ export class ExportExecutionResponseDto implements IExportExecution {
   errorMessage?: string;
   errorStack?: string;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class BulkExportResponseDto implements IBulkExport {
-  id: string;
-  workspaceId: string;
-  bulkKey: string;
-  name: string;
+  id!: string;
+  workspaceId!: string;
+  bulkKey!: string;
+  name!: string;
   description?: string;
-  exportRequestIds: string[];
-  status: ExportStatus;
-  totalExports: number;
-  completedExports: number;
-  failedExports: number;
+  exportRequestIds!: string[];
+  status!: ExportStatus;
+  totalExports!: number;
+  completedExports!: number;
+  failedExports!: number;
   requestedBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class ExportFileResponseDto implements IExportFile {
-  id: string;
-  exportExecutionId: string;
-  workspaceId: string;
-  fileName: string;
-  filePath: string;
-  fileSize: number;
-  format: ExportFormat;
-  mimeType: string;
-  downloadUrl: string;
-  downloadExpiresAt: Date;
-  downloadCount: number;
+  id!: string;
+  exportExecutionId!: string;
+  workspaceId!: string;
+  fileName!: string;
+  filePath!: string;
+  fileSize!: number;
+  format!: ExportFormat;
+  mimeType!: string;
+  downloadUrl!: string;
+  downloadExpiresAt!: Date;
+  downloadCount!: number;
   maxDownloads?: number;
   retentionPolicy?: {
     deleteAfterDays: number;
     deleteAfterDownloads?: number;
   };
-  isExpired: boolean;
-  isDeleted: boolean;
+  isExpired!: boolean;
+  isDeleted!: boolean;
   deletedAt?: Date;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class ExportResultResponseDto implements IExportResult {
-  exportRequestId: string;
-  exportExecutionId: string;
-  status: ExportStatus;
+  exportRequestId!: string;
+  exportExecutionId!: string;
+  status!: ExportStatus;
   downloadUrl?: string;
   downloadExpiresAt?: Date;
   fileSize?: number;
@@ -379,17 +379,17 @@ export class ExportResultResponseDto implements IExportResult {
 }
 
 export class PaginatedExportRequestResponseDto {
-  data: ExportRequestResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: ExportRequestResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class PaginatedExportExecutionResponseDto {
-  data: ExportExecutionResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: ExportExecutionResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }

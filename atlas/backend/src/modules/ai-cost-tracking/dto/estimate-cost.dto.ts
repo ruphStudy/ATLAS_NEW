@@ -3,11 +3,11 @@ import { IsString, IsNotEmpty, IsOptional, IsInt, Min } from 'class-validator';
 export class EstimateAiCostDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
   @IsOptional()

@@ -189,7 +189,7 @@ export class MultiBusinessService {
       (dto.taxIdentifier !== undefined && dto.taxIdentifier !== existing.taxIdentifier)
     ) {
       const duplicateIdentity = await this.repository.findBusinessByLegalIdentity(
-        existing.organizationId,
+        existing.organizationId ?? null,
         existing.workspaceId,
         registrationNumber ?? null,
         taxIdentifier ?? null,
@@ -442,7 +442,7 @@ export class MultiBusinessService {
       (dto.taxIdentifier !== undefined && dto.taxIdentifier !== existing.taxIdentifier)
     ) {
       const duplicateIdentity = await this.repository.findBusinessByLegalIdentity(
-        existing.organizationId,
+        existing.organizationId ?? null,
         existing.workspaceId,
         registrationNumber ?? null,
         taxIdentifier ?? null,

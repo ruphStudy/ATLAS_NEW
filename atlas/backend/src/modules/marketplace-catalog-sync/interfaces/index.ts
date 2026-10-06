@@ -215,8 +215,8 @@ export interface CatalogSyncRequest {
   accountId: string;
   providerKey: string;
   marketplaceKey: string;
-  direction: SyncDirection;
-  scope: SyncScope;
+  direction?: SyncDirection;
+  scope?: SyncScope;
   itemType?: SyncItemType;
   trigger?: SyncTrigger;
   conflictStrategy?: ConflictStrategy;

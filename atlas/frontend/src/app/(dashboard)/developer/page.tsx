@@ -13,12 +13,12 @@ interface HubCard {
 }
 
 const CARDS: HubCard[] = [
-  { title: 'API Keys', description: 'Create, rotate and revoke API keys, and manage scopes and permissions.', href: '/dashboard/api-keys', icon: KeyRound },
-  { title: 'Webhooks', description: 'Subscribe endpoints to events, monitor delivery health and redeliver failed events.', href: '/dashboard/webhooks', icon: Radio },
-  { title: 'OAuth Connections', description: 'Register provider clients and manage authorized connections and tokens.', href: '/dashboard/oauth-connections', icon: Link2 },
-  { title: 'SSO Configuration', description: 'Configure SAML/OIDC single sign-on, domain enforcement and group mapping.', href: '/dashboard/sso-connections', icon: ShieldCheck },
-  { title: 'AI Providers', description: 'AI provider registry, configuration, credentials and rollout status.', href: '/dashboard/ai-providers', icon: Server },
-  { title: 'Marketplace Providers', description: 'Marketplace provider capability matrix and account connections.', href: '/dashboard/marketplace-providers', icon: Store },
+  { title: 'API Keys', description: 'Create, rotate and revoke API keys, and manage scopes and permissions.', href: '/api-keys', icon: KeyRound },
+  { title: 'Webhooks', description: 'Subscribe endpoints to events, monitor delivery health and redeliver failed events.', href: '/webhooks', icon: Radio },
+  { title: 'OAuth Connections', description: 'Register provider clients and manage authorized connections and tokens.', href: '/oauth-connections', icon: Link2 },
+  { title: 'SSO Configuration', description: 'Configure SAML/OIDC single sign-on, domain enforcement and group mapping.', href: '/sso-connections', icon: ShieldCheck },
+  { title: 'AI Providers', description: 'AI provider registry, configuration, credentials and rollout status.', href: '/ai-providers', icon: Server },
+  { title: 'Marketplace Providers', description: 'Marketplace provider capability matrix and account connections.', href: '/marketplace-providers', icon: Store },
 ];
 
 export default function DeveloperHubPage() {

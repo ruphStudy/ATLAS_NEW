@@ -15,7 +15,7 @@ import {
   WarehouseAuditEvent,
   WarehouseAuditEntityType,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -62,31 +62,31 @@ export class WarehouseAuditService {
 
     const auditLog = (await this.repository.recordAuditLog(
       data,
-    )) as IWarehouseAuditLog;
+    )) as unknown as IWarehouseAuditLog;
 
     await this.eventQueue.publish({
       event: WarehouseAuditEvent.AUDIT_RECORDED,
       workspaceId: auditLog.workspaceId,
-      warehouseId: auditLog.warehouseId,
+      warehouseId: auditLog.warehouseId ?? undefined,
       auditLogId: auditLog.id,
       actorType: auditLog.actorType,
       actionType: auditLog.actionType,
       entityType: auditLog.entityType,
-      entityId: auditLog.entityId,
+      entityId: auditLog.entityId ?? undefined,
     });
 
     if (auditLog.suspicious) {
       await this.eventQueue.publish({
         event: WarehouseAuditEvent.SUSPICIOUS_ACTIVITY,
         workspaceId: auditLog.workspaceId,
-        warehouseId: auditLog.warehouseId,
+        warehouseId: auditLog.warehouseId ?? undefined,
         auditLogId: auditLog.id,
         actorType: auditLog.actorType,
         actionType: auditLog.actionType,
         entityType: auditLog.entityType,
-        entityId: auditLog.entityId,
+        entityId: auditLog.entityId ?? undefined,
         suspicious: true,
-        suspiciousReason: auditLog.suspiciousReason,
+        suspiciousReason: auditLog.suspiciousReason ?? undefined,
       });
     }
 
@@ -104,7 +104,7 @@ export class WarehouseAuditService {
         ErrorCode.RESOURCE_NOT_FOUND,
       );
     }
-    return auditLog as IWarehouseAuditLog;
+    return auditLog as unknown as IWarehouseAuditLog;
   }
 
   async findAllAuditLogs(
@@ -121,7 +121,7 @@ export class WarehouseAuditService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: data as WarehouseAuditLogResponseDto[],
+      data: data as unknown as WarehouseAuditLogResponseDto[],
       total,
       page,
       limit,
@@ -145,7 +145,7 @@ export class WarehouseAuditService {
     return {
       entityType,
       entityId,
-      activities: activities as WarehouseAuditLogResponseDto[],
+      activities: activities as unknown as WarehouseAuditLogResponseDto[],
       total: activities.length,
     };
   }
@@ -161,7 +161,7 @@ export class WarehouseAuditService {
       limit,
     );
 
-    return activities as WarehouseAuditLogResponseDto[];
+    return activities as unknown as WarehouseAuditLogResponseDto[];
   }
 
   async getAuditStatistics(

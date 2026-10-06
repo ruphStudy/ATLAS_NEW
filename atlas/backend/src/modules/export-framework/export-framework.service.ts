@@ -24,8 +24,8 @@ import {
   IExportExecution,
   IBulkExport,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -176,7 +176,7 @@ export class ExportFrameworkService {
         lastError = error as Error;
 
         this.logger.warn(
-          `Export attempt ${attemptNumber} failed for request ${request.id}: ${error.message}`,
+          `Export attempt ${attemptNumber} failed for request ${request.id}: ${lastError.message}`,
         );
 
         if (attemptNumber >= request.maxRetries) {

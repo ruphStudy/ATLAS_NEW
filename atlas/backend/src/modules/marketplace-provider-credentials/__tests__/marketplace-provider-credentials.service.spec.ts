@@ -150,7 +150,7 @@ describe('MarketplaceProviderCredentialsService', () => {
       expect(queue.enqueue).toHaveBeenCalledWith(expect.objectContaining({ event: CredentialEvent.CREATED }));
       expect(result.id).toBe('cred-1');
       // encryptedFields must not appear in response
-      expect((result as Record<string, unknown>)['encryptedFields']).toBeUndefined();
+      expect((result as unknown as Record<string, unknown>)['encryptedFields']).toBeUndefined();
     });
 
     it('throws BadRequestException when validation fails', async () => {

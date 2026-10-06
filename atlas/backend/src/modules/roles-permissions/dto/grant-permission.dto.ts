@@ -4,7 +4,7 @@ import { PermissionEffect } from '../interfaces';
 export class GrantPermissionDto {
   @IsString()
   @IsNotEmpty()
-  permissionKey: string;
+  permissionKey!: string;
 
   @IsEnum(PermissionEffect)
   @IsOptional()

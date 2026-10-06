@@ -23,6 +23,12 @@ export class ListingPublisherRepository extends BaseRepository {
     ] as Record<string, unknown>;
   }
 
+  private get catalogProductModel() {
+    return (this.prisma as unknown as Record<string, unknown>)[
+      'catalogProduct'
+    ] as Record<string, unknown>;
+  }
+
   private call<T>(method: string, args: unknown): Promise<T> {
     return (this.model[method] as (a: unknown) => Promise<T>)(args);
   }
@@ -170,6 +176,23 @@ export class ListingPublisherRepository extends BaseRepository {
       failedCount: byStatus[PublicationStatus.FAILED] ?? 0,
       pendingCount: byStatus[PublicationStatus.PENDING] ?? 0,
     };
+  }
+
+  /**
+   * Real SKU source for Amazon publishing — Listing.content has no sku
+   * field, CatalogProduct.catalogSku is the genuine origin.
+   */
+  async findCatalogProductSku(
+    catalogProductId: string,
+    workspaceId: string,
+  ): Promise<string | null> {
+    const product = await (this.catalogProductModel['findFirst'] as (
+      a: unknown,
+    ) => Promise<{ catalogSku: string } | null>)({
+      where: { id: catalogProductId, workspaceId },
+      select: { catalogSku: true },
+    });
+    return product?.catalogSku ?? null;
   }
 
   async findHistory(

@@ -7,49 +7,49 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const CATEGORIES = [
   {
-    href: '/dashboard/settings/organization',
+    href: '/settings/organization',
     icon: Building2,
     title: 'Organization',
     description: 'Profile, regional defaults, operational defaults and business policies.',
   },
   {
-    href: '/dashboard/settings/preferences',
+    href: '/settings/preferences',
     icon: User,
     title: 'My Preferences',
     description: 'Locale, timezone, currency, notifications, dashboards, tables, defaults and appearance.',
   },
   {
-    href: '/dashboard/settings/rules',
+    href: '/settings/rules',
     icon: GitBranch,
     title: 'Business Rules',
     description: 'Conditions, actions, priorities, simulation and execution history.',
   },
   {
-    href: '/dashboard/settings/feature-flags',
+    href: '/settings/feature-flags',
     icon: ToggleLeft,
     title: 'Feature Flags',
     description: 'Targeting, rollout percentage, dependencies and kill switches.',
   },
   {
-    href: '/dashboard/settings/localization',
+    href: '/settings/localization',
     icon: Languages,
     title: 'Localization',
     description: 'Locales, fallback languages, enabled/preferred languages and translation completeness.',
   },
   {
-    href: '/dashboard/settings/regional',
+    href: '/settings/regional',
     icon: Globe2,
     title: 'Regional Settings',
     description: 'Country/region profiles — currency, tax, business hours, holidays and operational preferences.',
   },
   {
-    href: '/dashboard/settings/theme',
+    href: '/settings/theme',
     icon: Palette,
     title: 'Theme & Branding',
     description: 'Light/dark/system mode, logo, accent color, typography and density.',
   },
   {
-    href: '/dashboard/settings/explorer',
+    href: '/settings/explorer',
     icon: SlidersHorizontal,
     title: 'Settings Explorer',
     description: 'Browse every setting definition, see inherited vs. overridden values and precedence, and roll back.',

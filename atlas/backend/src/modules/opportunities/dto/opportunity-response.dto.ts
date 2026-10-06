@@ -20,6 +20,13 @@ export class OpportunityResponseDto {
   @ApiPropertyOptional({ example: 'Electronics', nullable: true })
   category: string | null = null;
 
+  @ApiPropertyOptional({
+    example: null,
+    nullable: true,
+    description: 'Set when this Opportunity was created by promoting a MarketplaceProductCandidate; null for manual opportunities.',
+  })
+  marketplaceProductCandidateId: string | null = null;
+
   @ApiPropertyOptional({ example: 78.5, nullable: true })
   demandScore: number | null = null;
 

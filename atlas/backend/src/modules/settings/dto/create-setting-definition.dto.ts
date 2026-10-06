@@ -19,22 +19,22 @@ export class CreateSettingDefinitionDto {
   @Matches(/^[a-z0-9]+(\.[a-z0-9-]+)*$/, {
     message: 'key must be a lowercase dot-separated identifier (e.g. "notifications.email.enabled")',
   })
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  category: string;
+  category!: string;
 
   @IsString()
   @IsNotEmpty()
-  label: string;
+  label!: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
   @IsEnum(SettingValueType)
-  valueType: SettingValueType;
+  valueType!: SettingValueType;
 
   @IsOptional()
   defaultValue?: unknown;
@@ -48,7 +48,7 @@ export class CreateSettingDefinitionDto {
   @ArrayNotEmpty()
   @ArrayMinSize(1)
   @IsEnum(SettingScope, { each: true })
-  allowedScopes: SettingScope[];
+  allowedScopes!: SettingScope[];
 
   @IsObject()
   @IsOptional()

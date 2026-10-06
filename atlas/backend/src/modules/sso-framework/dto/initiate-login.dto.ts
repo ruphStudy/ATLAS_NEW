@@ -3,12 +3,12 @@ import { IsEmail, IsOptional, IsString } from 'class-validator';
 /** Public, unauthenticated — the visitor supplies an email address and the framework resolves the matching SSO connection by its domain (home-realm discovery). */
 export class InitiateSsoLoginDto {
   @IsEmail()
-  email: string;
+  email!: string;
 }
 
 export class SamlCallbackDto {
   @IsString()
-  SAMLResponse: string;
+  SAMLResponse!: string;
 
   @IsString()
   @IsOptional()
@@ -17,10 +17,10 @@ export class SamlCallbackDto {
 
 export class OidcSsoCallbackDto {
   @IsString()
-  code: string;
+  code!: string;
 
   @IsString()
-  state: string;
+  state!: string;
 
   @IsString()
   @IsOptional()

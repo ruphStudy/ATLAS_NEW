@@ -269,7 +269,7 @@ export class ReceivingService {
           discrepancyNotes: lineDto.discrepancyNotes ?? line['discrepancyNotes'],
           evidenceUrls: lineDto.evidenceUrls ?? line['evidenceUrls'],
           scannedBarcodes,
-          metadata: { ...line['metadata'], ...lineDto.metadata },
+          metadata: { ...(line['metadata'] as Record<string, unknown> | undefined), ...lineDto.metadata },
         },
       });
 

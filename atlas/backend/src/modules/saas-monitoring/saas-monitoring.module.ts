@@ -8,6 +8,7 @@ import { SaasAdministrationModule } from '@modules/saas-administration/saas-admi
 import { PluginFrameworkModule } from '@modules/plugin-framework/plugin-framework.module';
 import { WebhookFrameworkModule } from '@modules/webhook-framework/webhook-framework.module';
 import { PaymentProviderModule } from '@modules/payment-provider/payment-provider.module';
+import { UsersModule } from '@modules/users/users.module';
 import { TenantIsolationModule } from '@modules/tenant-isolation/tenant-isolation.module';
 import { SaasMonitoringController } from './saas-monitoring.controller';
 import { SaasMonitoringService } from './saas-monitoring.service';
@@ -45,6 +46,7 @@ import { SaasMonitoringEventQueue, SaasMonitoringEventWorker } from './jobs';
     PluginFrameworkModule,
     WebhookFrameworkModule,
     PaymentProviderModule,
+    UsersModule,
     TenantIsolationModule,
     BullModule.registerQueue(
       { name: QUEUE_NAMES.SAAS_MONITORING_EVENTS },

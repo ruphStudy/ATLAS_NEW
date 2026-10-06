@@ -18,10 +18,10 @@ import {
 export class CreateAiContextDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiContextType)
-  type: AiContextType;
+  type!: AiContextType;
 
   @IsEnum(AiContextPriority)
   @IsOptional()

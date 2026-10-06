@@ -14,22 +14,22 @@ import { AiRecommendationType, AiRecommendationStrategy } from '../interfaces';
 export class GenerateRecommendationDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiRecommendationType)
   @IsNotEmpty()
-  recommendationType: AiRecommendationType;
+  recommendationType!: AiRecommendationType;
 
   @IsEnum(AiRecommendationStrategy)
   @IsNotEmpty()
-  strategy: AiRecommendationStrategy;
+  strategy!: AiRecommendationStrategy;
 
   @IsNotEmpty()
   inputSnapshot: unknown;
 
   @IsArray()
   @IsNotEmpty()
-  candidates: unknown[];
+  candidates!: unknown[];
 
   @IsObject()
   @IsOptional()

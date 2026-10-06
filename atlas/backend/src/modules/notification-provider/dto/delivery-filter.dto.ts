@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 export class DeliveryFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

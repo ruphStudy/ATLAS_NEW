@@ -44,7 +44,11 @@ export class WarehouseCapacityService {
     if (!warehouse) throw new ResourceNotFoundException('Warehouse', warehouseId);
 
     // Calculate warehouse-level capacity from zones
-    const zones = await this.prisma['warehouseZone'].findMany({
+    const zones = await (
+      this.prisma['warehouseZone']['findMany'] as (
+        args: unknown,
+      ) => Promise<Record<string, unknown>[]>
+    )({
       where: { warehouseId, workspaceId, deletedAt: null },
     });
 
@@ -368,7 +372,10 @@ export class WarehouseCapacityService {
   // ── Helper Methods ───────────────────────────────────────────
 
   private get prisma() {
-    return this.capacityRepository['prisma'] as Record<string, Record<string, unknown>>;
+    return this.capacityRepository['prisma'] as unknown as Record<
+      string,
+      Record<string, unknown>
+    >;
   }
 
   private async verifyEntity(

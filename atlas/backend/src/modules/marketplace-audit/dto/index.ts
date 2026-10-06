@@ -19,7 +19,7 @@ import {
 
 export class ActorDto {
   @IsEnum(ActorType)
-  type: ActorType;
+  type!: ActorType;
 
   @IsOptional()
   @IsString()
@@ -50,29 +50,29 @@ export class ChangeReferenceDto {
 
 export class RecordActivityRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsOptional()
   @IsString()
   accountId?: string;
 
   @IsEnum(ActivityModule)
-  module: ActivityModule;
+  module!: ActivityModule;
 
   @IsEnum(ActivityAction)
-  action: ActivityAction;
+  action!: ActivityAction;
 
   @IsEnum(ActivityStatus)
-  status: ActivityStatus;
+  status!: ActivityStatus;
 
   @IsEnum(EntityType)
-  entityType: EntityType;
+  entityType!: EntityType;
 
   @IsString()
-  entityId: string;
+  entityId!: string;
 
   @IsOptional()
   @IsString()
@@ -80,7 +80,7 @@ export class RecordActivityRequestDto {
 
   @ValidateNested()
   @Type(() => ActorDto)
-  actor: ActorDto;
+  actor!: ActorDto;
 
   @IsOptional()
   @ValidateNested()
@@ -122,7 +122,7 @@ export class RecordActivityRequestDto {
 
 export class SearchActivitiesQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
@@ -199,13 +199,13 @@ export class SearchActivitiesQueryDto {
 
 export class GetEntityHistoryQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(EntityType)
-  entityType: EntityType;
+  entityType!: EntityType;
 
   @IsString()
-  entityId: string;
+  entityId!: string;
 
   @IsOptional()
   @Type(() => Number)
@@ -216,7 +216,7 @@ export class GetEntityHistoryQueryDto {
 
 export class GetTimelineQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
@@ -227,10 +227,10 @@ export class GetTimelineQueryDto {
   accountId?: string;
 
   @IsDateString()
-  startDate: string;
+  startDate!: string;
 
   @IsDateString()
-  endDate: string;
+  endDate!: string;
 
   @IsOptional()
   @Type(() => Number)
@@ -241,18 +241,18 @@ export class GetTimelineQueryDto {
 
 export class GetStatisticsQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDateString()
-  startDate: string;
+  startDate!: string;
 
   @IsDateString()
-  endDate: string;
+  endDate!: string;
 }
 
 export class CreateRetentionPolicyRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsEnum(ActivityModule)
@@ -261,27 +261,27 @@ export class CreateRetentionPolicyRequestDto {
   @Type(() => Number)
   @IsNumber()
   @Min(1)
-  retentionDays: number;
+  retentionDays!: number;
 
   @Type(() => Boolean)
-  archiveBeforeDelete: boolean;
+  archiveBeforeDelete!: boolean;
 
   @Type(() => Boolean)
-  enabled: boolean;
+  enabled!: boolean;
 }
 
 export class ActivityRecordResponseDto {
-  id: string;
-  workspaceId: string;
-  provider: string;
+  id!: string;
+  workspaceId!: string;
+  provider!: string;
   accountId?: string;
-  module: ActivityModule;
-  action: ActivityAction;
-  status: ActivityStatus;
-  entityType: EntityType;
-  entityId: string;
+  module!: ActivityModule;
+  action!: ActivityAction;
+  status!: ActivityStatus;
+  entityType!: EntityType;
+  entityId!: string;
   entityName?: string;
-  actor: ActorDto;
+  actor!: ActorDto;
   changeReference?: ChangeReferenceDto;
   metadata?: Record<string, any>;
   correlationId?: string;
@@ -291,39 +291,39 @@ export class ActivityRecordResponseDto {
   duration?: number;
   errorCode?: string;
   errorMessage?: string;
-  timestamp: Date;
+  timestamp!: Date;
 }
 
 export class EntityHistoryResponseDto {
-  entityType: EntityType;
-  entityId: string;
+  entityType!: EntityType;
+  entityId!: string;
   entityName?: string;
-  activities: ActivityRecordResponseDto[];
-  totalCount: number;
+  activities!: ActivityRecordResponseDto[];
+  totalCount!: number;
 }
 
 export class ActivityTimelineResponseDto {
-  workspaceId: string;
+  workspaceId!: string;
   provider?: string;
   accountId?: string;
-  startDate: Date;
-  endDate: Date;
-  activities: ActivityRecordResponseDto[];
-  totalCount: number;
+  startDate!: Date;
+  endDate!: Date;
+  activities!: ActivityRecordResponseDto[];
+  totalCount!: number;
 }
 
 export class AuditStatisticsResponseDto {
-  workspaceId: string;
-  totalActivities: number;
-  successCount: number;
-  failureCount: number;
-  retryCount: number;
-  cancelledCount: number;
-  byModule: Record<string, number>;
-  byAction: Record<string, number>;
-  byStatus: Record<string, number>;
-  byActor: Record<string, number>;
-  topEntities: Array<{
+  workspaceId!: string;
+  totalActivities!: number;
+  successCount!: number;
+  failureCount!: number;
+  retryCount!: number;
+  cancelledCount!: number;
+  byModule!: Record<string, number>;
+  byAction!: Record<string, number>;
+  byStatus!: Record<string, number>;
+  byActor!: Record<string, number>;
+  topEntities!: Array<{
     entityType: EntityType;
     entityId: string;
     activityCount: number;
@@ -331,20 +331,20 @@ export class AuditStatisticsResponseDto {
 }
 
 export class SuspiciousActivityResponseDto {
-  activityId: string;
-  workspaceId: string;
-  reason: string;
-  severity: string;
-  detectedAt: Date;
-  isResolved: boolean;
+  activityId!: string;
+  workspaceId!: string;
+  reason!: string;
+  severity!: string;
+  detectedAt!: Date;
+  isResolved!: boolean;
   resolvedAt?: Date;
 }
 
 export class RetentionPolicyResponseDto {
-  id: string;
-  workspaceId: string;
+  id!: string;
+  workspaceId!: string;
   module?: ActivityModule;
-  retentionDays: number;
-  archiveBeforeDelete: boolean;
-  enabled: boolean;
+  retentionDays!: number;
+  archiveBeforeDelete!: boolean;
+  enabled!: boolean;
 }

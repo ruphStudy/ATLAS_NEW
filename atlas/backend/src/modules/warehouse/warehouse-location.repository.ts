@@ -104,6 +104,8 @@ export class WarehouseLocationRepository extends BaseRepository {
     await this.call<unknown>('update', {
       where: { id },
       data: { deletedAt: new Date() },
+    });
+  }
 
   async restore(id: string): Promise<Record<string, unknown>> {
     return this.call<Record<string, unknown>>('update', {
@@ -140,8 +142,6 @@ export class WarehouseLocationRepository extends BaseRepository {
     return this.callHistory<Record<string, unknown>[]>('findMany', {
       where: { locationId, workspaceId },
       orderBy: { createdAt: 'desc' },
-    });
-  }
     });
   }
 }

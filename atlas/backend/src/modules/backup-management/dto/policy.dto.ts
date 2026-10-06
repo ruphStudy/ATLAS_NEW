@@ -4,16 +4,16 @@ import { BackupPolicyStatus, BackupScope } from '../interfaces';
 
 export class CreateBackupPolicyDto {
   @IsString()
-  environment: string;
+  environment!: string;
 
   @IsString()
-  service: string;
+  service!: string;
 
   @IsString()
-  dataType: string;
+  dataType!: string;
 
   @IsString()
-  backupType: string;
+  backupType!: string;
 
   @IsEnum(BackupScope)
   @IsOptional()

@@ -1,16 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IOrderSyncSchedule } from '../interfaces';
+import { IOrderSyncSchedule, IOrderSyncJob, OrderSyncRequest, SyncTrigger } from '../interfaces';
 import { OrderSyncRepository } from '../repository/order-sync.repository';
 
 @Injectable()
 export class OrderSyncScheduler {
   private readonly logger = new Logger(OrderSyncScheduler.name);
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
-  private service: { startSync: (req: unknown) => Promise<unknown> } | null = null;
+  private service: { startSync: (req: OrderSyncRequest) => Promise<IOrderSyncJob> } | null = null;
 
   constructor(private readonly repository: OrderSyncRepository) {}
 
-  setService(service: { startSync: (req: unknown) => Promise<unknown> }): void {
+  setService(service: { startSync: (req: OrderSyncRequest) => Promise<IOrderSyncJob> }): void {
     this.service = service;
   }
 
@@ -39,7 +39,7 @@ export class OrderSyncScheduler {
 
   async triggerNow(scheduleId: string): Promise<void> {
     const schedules = await this.repository.findSchedulesByWorkspace('');
-    const schedule = schedules.find((s) => s['id'] === scheduleId) as unknown as IOrderSyncSchedule | undefined;
+    const schedule = schedules.find((s: Record<string, unknown>) => s['id'] === scheduleId) as unknown as IOrderSyncSchedule | undefined;
     if (schedule) await this.fire(schedule);
   }
 
@@ -54,10 +54,10 @@ export class OrderSyncScheduler {
           direction: schedule.direction,
           scope: schedule.scope,
           itemType: schedule.itemType,
-          conflictStrategy: schedule.conflictStrategy,
-          filterOptions: schedule.filterOptions,
+          conflictStrategy: schedule.conflictStrategy ?? undefined,
+          filterOptions: schedule.filterOptions ?? undefined,
           scheduleId: schedule.id,
-          trigger: 'SCHEDULED',
+          trigger: SyncTrigger.SCHEDULED,
         });
       }
 

@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   QualityInspectionStatus,
   InspectionType,
@@ -61,6 +62,7 @@ export class QualityInspectionResponseDto {
   defects!: unknown[];
   checklist!: unknown[];
   qualityScore?: number | null;
+  @ApiPropertyOptional({ enum: InspectionRecommendation, nullable: true })
   recommendation?: InspectionRecommendation | null;
 
   images!: unknown[];

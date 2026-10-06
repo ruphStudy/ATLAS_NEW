@@ -4,7 +4,7 @@ import { TagScope, TagManagedBy } from '../interfaces';
 export class CreateTagDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(TagScope)
   @IsOptional()

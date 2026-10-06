@@ -31,11 +31,11 @@ import {
 export class InsightEvidenceDto implements IInsightEvidence {
   @IsString()
   @IsNotEmpty()
-  sourceType: string;
+  sourceType!: string;
 
   @IsString()
   @IsNotEmpty()
-  sourceId: string;
+  sourceId!: string;
 
   @IsString()
   @IsOptional()
@@ -54,7 +54,7 @@ export class InsightEvidenceDto implements IInsightEvidence {
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  timestamp: Date;
+  timestamp!: Date;
 }
 
 export class InsightImpactDto implements IInsightImpact {
@@ -82,19 +82,19 @@ export class InsightImpactDto implements IInsightImpact {
 export class RecommendedActionDto implements IRecommendedAction {
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   @IsString()
   @IsNotEmpty()
-  targetModule: string;
+  targetModule!: string;
 
   @IsString()
   @IsNotEmpty()
-  actionType: string;
+  actionType!: string;
 
   @IsObject()
   @IsOptional()
@@ -104,11 +104,11 @@ export class RecommendedActionDto implements IRecommendedAction {
 export class AffectedEntityDto implements IAffectedEntity {
   @IsString()
   @IsNotEmpty()
-  entityType: string;
+  entityType!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityId: string;
+  entityId!: string;
 
   @IsString()
   @IsOptional()
@@ -118,15 +118,15 @@ export class AffectedEntityDto implements IAffectedEntity {
 export class GenerateInsightDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(InsightDomain)
   @IsNotEmpty()
-  domain: InsightDomain;
+  domain!: InsightDomain;
 
   @IsEnum(InsightType)
   @IsNotEmpty()
-  type: InsightType;
+  type!: InsightType;
 
   @IsEnum(InsightStrategy)
   @IsOptional()
@@ -149,13 +149,13 @@ export class GenerateInsightDto {
 export class BulkGenerateInsightsDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => GenerateInsightDto)
   @IsNotEmpty()
-  requests: GenerateInsightDto[];
+  requests!: GenerateInsightDto[];
 
   @IsString()
   @IsOptional()
@@ -165,11 +165,11 @@ export class BulkGenerateInsightsDto {
 export class ReviewInsightDto {
   @IsString()
   @IsNotEmpty()
-  insightId: string;
+  insightId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -183,11 +183,11 @@ export class ReviewInsightDto {
 export class AcceptInsightDto {
   @IsString()
   @IsNotEmpty()
-  insightId: string;
+  insightId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -206,11 +206,11 @@ export class AcceptInsightDto {
 export class DismissInsightDto {
   @IsString()
   @IsNotEmpty()
-  insightId: string;
+  insightId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -224,11 +224,11 @@ export class DismissInsightDto {
 export class ResolveInsightDto {
   @IsString()
   @IsNotEmpty()
-  insightId: string;
+  insightId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsArray()
   @IsString({ each: true })
@@ -243,11 +243,11 @@ export class ResolveInsightDto {
 export class RecordOutcomeDto {
   @IsString()
   @IsNotEmpty()
-  insightId: string;
+  insightId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @ValidateNested()
   @Type(() => InsightImpactDto)
@@ -257,11 +257,11 @@ export class RecordOutcomeDto {
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty()
-  actionsTaken: string[];
+  actionsTaken!: string[];
 
   @IsString()
   @IsNotEmpty()
-  resultSummary: string;
+  resultSummary!: string;
 
   @IsNumber()
   @IsOptional()
@@ -277,15 +277,15 @@ export class RecordOutcomeDto {
 export class ChangePriorityDto {
   @IsString()
   @IsNotEmpty()
-  insightId: string;
+  insightId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(InsightPriority)
   @IsNotEmpty()
-  newPriority: InsightPriority;
+  newPriority!: InsightPriority;
 
   @IsString()
   @IsOptional()
@@ -299,7 +299,7 @@ export class ChangePriorityDto {
 export class InsightFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(InsightDomain)
   @IsOptional()
@@ -343,7 +343,7 @@ export class InsightFilterDto {
 export class HistoryFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -371,22 +371,22 @@ export class HistoryFilterDto {
 }
 
 export class InsightResponseDto implements IInsight {
-  id: string;
-  workspaceId: string;
-  insightKey: string;
-  domain: InsightDomain;
-  type: InsightType;
-  priority: InsightPriority;
-  status: InsightStatus;
-  strategy: InsightStrategy;
-  title: string;
-  summary: string;
-  evidence: IInsightEvidence[];
+  id!: string;
+  workspaceId!: string;
+  insightKey!: string;
+  domain!: InsightDomain;
+  type!: InsightType;
+  priority!: InsightPriority;
+  status!: InsightStatus;
+  strategy!: InsightStrategy;
+  title!: string;
+  summary!: string;
+  evidence!: IInsightEvidence[];
   impact?: IInsightImpact;
-  confidence: number;
-  recommendedActions: IRecommendedAction[];
-  affectedEntities: IAffectedEntity[];
-  version: number;
+  confidence!: number;
+  recommendedActions!: IRecommendedAction[];
+  affectedEntities!: IAffectedEntity[];
+  version!: number;
   sourceSnapshot?: Record<string, any>;
   validUntil?: Date;
   reviewedBy?: string;
@@ -402,48 +402,48 @@ export class InsightResponseDto implements IInsight {
   dueDate?: Date;
   actionReferences?: string[];
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class InsightHistoryResponseDto implements IInsightHistory {
-  id: string;
-  insightId: string;
-  workspaceId: string;
-  version: number;
-  previousStatus: InsightStatus;
-  newStatus: InsightStatus;
+  id!: string;
+  insightId!: string;
+  workspaceId!: string;
+  version!: number;
+  previousStatus!: InsightStatus;
+  newStatus!: InsightStatus;
   previousPriority?: InsightPriority;
   newPriority?: InsightPriority;
   changeReason?: string;
   changedBy?: string;
-  changedAt: Date;
+  changedAt!: Date;
 }
 
 export class InsightOutcomeResponseDto implements IInsightOutcome {
-  id: string;
-  insightId: string;
-  workspaceId: string;
+  id!: string;
+  insightId!: string;
+  workspaceId!: string;
   actualImpact?: IInsightImpact;
-  actionsTaken: string[];
-  resultSummary: string;
+  actionsTaken!: string[];
+  resultSummary!: string;
   successRate?: number;
   recordedBy?: string;
-  recordedAt: Date;
+  recordedAt!: Date;
 }
 
 export class PaginatedInsightResponseDto {
-  data: InsightResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: InsightResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class PaginatedHistoryResponseDto {
-  data: InsightHistoryResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: InsightHistoryResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }

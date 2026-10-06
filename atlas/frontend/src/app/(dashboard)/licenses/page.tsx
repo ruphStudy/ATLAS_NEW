@@ -37,12 +37,21 @@ import {
 } from '@/hooks';
 import { formatDate } from '@/lib/utils';
 import type { CreateLicensePayload, LicenseScopeType, LicenseStatus, LicenseType } from '@/types';
+import { PlatformAdminGuard } from '@/components/auth/platform-admin-guard';
 
 const SCOPE_TYPES: LicenseScopeType[] = ['WORKSPACE', 'ORGANIZATION', 'USER', 'ENVIRONMENT', 'DEPLOYMENT'];
 const LICENSE_TYPES: LicenseType[] = ['TRIAL', 'STANDARD', 'ENTERPRISE', 'INTERNAL', 'OEM'];
 const LICENSE_STATUSES: LicenseStatus[] = ['PENDING', 'ISSUED', 'ACTIVE', 'SUSPENDED', 'EXPIRED', 'REVOKED'];
 
 export default function LicensesPage() {
+  return (
+    <PlatformAdminGuard>
+      <LicensesPageContent />
+    </PlatformAdminGuard>
+  );
+}
+
+function LicensesPageContent() {
   const [scopeType, setScopeType] = useState<LicenseScopeType | ''>('');
   const [type, setType] = useState<LicenseType | ''>('');
   const [status, setStatus] = useState<LicenseStatus | ''>('');

@@ -15,10 +15,10 @@ export class PlanDependenciesDto {
 
 export class BlockedPlanTransitionDto {
   @IsString()
-  toCode: string;
+  toCode!: string;
 
   @IsString()
-  reason: string;
+  reason!: string;
 }
 
 export class PlanMigrationRulesDto {

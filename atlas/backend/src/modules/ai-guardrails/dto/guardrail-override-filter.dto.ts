@@ -5,7 +5,7 @@ import { GuardrailOverrideScope } from '../interfaces';
 export class GuardrailOverrideFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(GuardrailOverrideScope)
   @IsOptional()

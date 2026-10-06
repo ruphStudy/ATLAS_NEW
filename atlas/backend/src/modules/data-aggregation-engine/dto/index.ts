@@ -30,15 +30,15 @@ import {
 export class DimensionDto implements IDimension {
   @IsEnum(DimensionType)
   @IsNotEmpty()
-  type: DimensionType;
+  type!: DimensionType;
 
   @IsString()
   @IsNotEmpty()
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -46,7 +46,7 @@ export class DimensionDto implements IDimension {
 
   @IsString()
   @IsNotEmpty()
-  sourceColumn: string;
+  sourceColumn!: string;
 
   @IsArray()
   @IsString({ each: true })
@@ -57,11 +57,11 @@ export class DimensionDto implements IDimension {
 export class MetricDto implements IMetric {
   @IsString()
   @IsNotEmpty()
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -69,15 +69,15 @@ export class MetricDto implements IMetric {
 
   @IsEnum(MetricType)
   @IsNotEmpty()
-  type: MetricType;
+  type!: MetricType;
 
   @IsString()
   @IsNotEmpty()
-  sourceColumn: string;
+  sourceColumn!: string;
 
   @IsEnum(SourceModule)
   @IsNotEmpty()
-  sourceModule: SourceModule;
+  sourceModule!: SourceModule;
 
   @IsString()
   @IsOptional()
@@ -104,15 +104,15 @@ export class MetricDto implements IMetric {
 export class CreateAggregationDefinitionDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  definitionKey: string;
+  definitionKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -120,27 +120,27 @@ export class CreateAggregationDefinitionDto {
 
   @IsEnum(SourceModule)
   @IsNotEmpty()
-  sourceModule: SourceModule;
+  sourceModule!: SourceModule;
 
   @IsEnum(AggregationMode)
   @IsNotEmpty()
-  mode: AggregationMode;
+  mode!: AggregationMode;
 
   @IsEnum(TimeBucket)
   @IsNotEmpty()
-  timeBucket: TimeBucket;
+  timeBucket!: TimeBucket;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => DimensionDto)
   @IsNotEmpty()
-  dimensions: DimensionDto[];
+  dimensions!: DimensionDto[];
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => MetricDto)
   @IsNotEmpty()
-  metrics: MetricDto[];
+  metrics!: MetricDto[];
 
   @IsArray()
   @IsOptional()
@@ -244,21 +244,21 @@ export class UpdateAggregationDefinitionDto {
 export class ExecuteAggregationDto {
   @IsString()
   @IsNotEmpty()
-  definitionId: string;
+  definitionId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  periodStart: Date;
+  periodStart!: Date;
 
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  periodEnd: Date;
+  periodEnd!: Date;
 
   @IsBoolean()
   @IsOptional()
@@ -272,21 +272,21 @@ export class ExecuteAggregationDto {
 export class BackfillAggregationDto {
   @IsString()
   @IsNotEmpty()
-  definitionId: string;
+  definitionId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  endDate: Date;
+  endDate!: Date;
 
   @IsString()
   @IsOptional()
@@ -296,7 +296,7 @@ export class BackfillAggregationDto {
 export class DefinitionFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(SourceModule)
   @IsOptional()
@@ -332,7 +332,7 @@ export class DefinitionFilterDto {
 export class ExecutionFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -364,16 +364,16 @@ export class ExecutionFilterDto {
 }
 
 export class AggregationDefinitionResponseDto implements IAggregationDefinition {
-  id: string;
-  workspaceId: string;
-  definitionKey: string;
-  name: string;
+  id!: string;
+  workspaceId!: string;
+  definitionKey!: string;
+  name!: string;
   description?: string;
-  sourceModule: SourceModule;
-  mode: AggregationMode;
-  timeBucket: TimeBucket;
-  dimensions: IDimension[];
-  metrics: IMetric[];
+  sourceModule!: SourceModule;
+  mode!: AggregationMode;
+  timeBucket!: TimeBucket;
+  dimensions!: IDimension[];
+  metrics!: IMetric[];
   filters?: Array<{
     field: string;
     operator: string;
@@ -382,25 +382,25 @@ export class AggregationDefinitionResponseDto implements IAggregationDefinition 
   scheduleExpression?: string;
   refreshIntervalMinutes?: number;
   retentionDays?: number;
-  enabled: boolean;
-  version: number;
+  enabled!: boolean;
+  version!: number;
   metadata?: Record<string, any>;
   createdBy?: string;
   updatedBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class AggregationExecutionResponseDto implements IAggregationExecution {
-  id: string;
-  definitionId: string;
-  workspaceId: string;
-  definitionKey: string;
-  mode: AggregationMode;
-  status: AggregationStatus;
-  timeBucket: TimeBucket;
-  periodStart: Date;
-  periodEnd: Date;
+  id!: string;
+  definitionId!: string;
+  workspaceId!: string;
+  definitionKey!: string;
+  mode!: AggregationMode;
+  status!: AggregationStatus;
+  timeBucket!: TimeBucket;
+  periodStart!: Date;
+  periodEnd!: Date;
   startedAt?: Date;
   completedAt?: Date;
   duration?: number;
@@ -414,38 +414,38 @@ export class AggregationExecutionResponseDto implements IAggregationExecution {
   errorMessage?: string;
   errorStack?: string;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class AggregationSnapshotResponseDto implements IAggregationSnapshot {
-  id: string;
-  definitionId: string;
-  executionId: string;
-  workspaceId: string;
-  definitionKey: string;
-  timeBucket: TimeBucket;
-  periodStart: Date;
-  periodEnd: Date;
-  version: number;
-  measures: IMeasure[];
-  recordCount: number;
+  id!: string;
+  definitionId!: string;
+  executionId!: string;
+  workspaceId!: string;
+  definitionKey!: string;
+  timeBucket!: TimeBucket;
+  periodStart!: Date;
+  periodEnd!: Date;
+  version!: number;
+  measures!: IMeasure[];
+  recordCount!: number;
   metadata?: Record<string, any>;
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class PaginatedDefinitionResponseDto {
-  data: AggregationDefinitionResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: AggregationDefinitionResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class PaginatedExecutionResponseDto {
-  data: AggregationExecutionResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: AggregationExecutionResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }

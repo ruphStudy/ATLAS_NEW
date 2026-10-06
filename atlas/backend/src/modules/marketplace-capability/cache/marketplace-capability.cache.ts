@@ -271,7 +271,7 @@ export class MarketplaceCapabilityCache {
 
   private evictIfFull(
     map: Map<string, { cachedAt: number }>,
-    max = MP_CAPABILITY_CONSTANTS.CACHE_MAX_ENTRIES,
+    max: number = MP_CAPABILITY_CONSTANTS.CACHE_MAX_ENTRIES,
   ): void {
     if (map.size < max) return;
     const entries = [...map.entries()].sort((a, b) => a[1].cachedAt - b[1].cachedAt);

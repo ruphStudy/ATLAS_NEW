@@ -13,6 +13,7 @@ import type {
   IRedisConfig,
   ISwaggerConfig,
   IStorageFoundationConfig,
+  IAmazonProviderConfig,
 } from './interfaces';
 
 /**
@@ -149,6 +150,21 @@ export class ConfigurationService {
     return this.getOrThrow<IStorageFoundationConfig>(
       CONFIG_NAMESPACES.STORAGE,
       'Storage config not found',
+    );
+  }
+
+  /**
+   * Returns the Amazon SP-API global app-level configuration block.
+   * Contains: clientId, clientSecret, environment (sandbox|production).
+   * These are ATLAS's own SP-API application credentials — the same
+   * pair is used for every workspace/seller account. Per-seller
+   * refreshToken/sellerId are NOT here (see marketplace-provider-credentials
+   * / marketplace-account).
+   */
+  getAmazonProviderConfig(): IAmazonProviderConfig {
+    return this.getOrThrow<IAmazonProviderConfig>(
+      CONFIG_NAMESPACES.AMAZON_PROVIDER,
+      'Amazon provider config not found',
     );
   }
 

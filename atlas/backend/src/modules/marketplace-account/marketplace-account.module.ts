@@ -32,6 +32,8 @@ import { MarketplaceAccountController } from './marketplace-account.controller';
     MarketplaceAccountService,
     AccountStatusManager,
     MarketplaceAccountRepository,
+    AccountAudit,
+    AccountEventQueue,
   ],
 })
 export class MarketplaceAccountModule {}

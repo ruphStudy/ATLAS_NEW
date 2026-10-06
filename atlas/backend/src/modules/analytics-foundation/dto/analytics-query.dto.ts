@@ -18,10 +18,10 @@ import {
 
 export class AnalyticsFilterDto {
   @IsString()
-  dimensionKey: string;
+  dimensionKey!: string;
 
   @IsEnum(AnalyticsFilterOperator)
-  operator: AnalyticsFilterOperator;
+  operator!: AnalyticsFilterOperator;
 
   @IsOptional()
   value?: any;
@@ -33,14 +33,14 @@ export class AnalyticsFilterDto {
 
 export class ExecuteAnalyticsQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AnalyticsEntityType)
-  entityType: AnalyticsEntityType;
+  entityType!: AnalyticsEntityType;
 
   @IsArray()
   @IsString({ each: true })
-  metrics: string[];
+  metrics!: string[];
 
   @IsOptional()
   @IsArray()
@@ -86,10 +86,10 @@ export class ExecuteAnalyticsQueryDto {
 }
 
 export class AnalyticsQueryResultDto {
-  queryId: string;
-  entityType: AnalyticsEntityType;
-  data: Record<string, any>[];
-  total: number;
-  executionTimeMs: number;
+  queryId!: string;
+  entityType!: AnalyticsEntityType;
+  data!: Record<string, any>[];
+  total!: number;
+  executionTimeMs!: number;
   metadata?: Record<string, any>;
 }

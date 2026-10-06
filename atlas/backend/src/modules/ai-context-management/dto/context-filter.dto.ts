@@ -17,7 +17,7 @@ import {
 export class ContextFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiContextType)
   @IsOptional()

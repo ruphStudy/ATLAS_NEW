@@ -24,9 +24,9 @@ import {
   ReorderRecommendationStatus,
   ReorderEvent,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -87,7 +87,7 @@ export class ReorderManagementService {
 
     const config = (await this.repository.createConfiguration(
       data,
-    )) as IReorderConfiguration;
+    )) as unknown as IReorderConfiguration;
 
     return config;
   }
@@ -102,8 +102,8 @@ export class ReorderManagementService {
     const updated = (await this.repository.updateConfiguration(
       id,
       workspaceId,
-      dto,
-    )) as IReorderConfiguration;
+      dto as unknown as Record<string, unknown>,
+    )) as unknown as IReorderConfiguration;
 
     return updated;
   }
@@ -124,7 +124,7 @@ export class ReorderManagementService {
         ErrorCode.RESOURCE_NOT_FOUND,
       );
     }
-    return config as IReorderConfiguration;
+    return config as unknown as IReorderConfiguration;
   }
 
   async findAllConfigurations(
@@ -141,7 +141,7 @@ export class ReorderManagementService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: data as ReorderConfigurationResponseDto[],
+      data: data as unknown as ReorderConfigurationResponseDto[],
       total,
       page,
       limit,
@@ -207,7 +207,7 @@ export class ReorderManagementService {
     }
 
     const reorderQuantity = this.calculateReorderQuantity(
-      config as IReorderConfiguration,
+      config as unknown as IReorderConfiguration,
       currentStock,
       availableStock,
       reservedStock,
@@ -280,7 +280,7 @@ export class ReorderManagementService {
 
     const recommendation = (await this.repository.createRecommendation(
       data,
-    )) as IReorderRecommendation;
+    )) as unknown as IReorderRecommendation;
 
     await this.createHistoryEntry(
       recommendation.id,
@@ -329,7 +329,7 @@ export class ReorderManagementService {
       id,
       workspaceId,
       updateData,
-    )) as IReorderRecommendation;
+    )) as unknown as IReorderRecommendation;
 
     await this.createHistoryEntry(
       id,
@@ -373,7 +373,7 @@ export class ReorderManagementService {
       rejectedBy: dto.rejectedBy ?? rejectedBy,
       rejectedAt: new Date(),
       rejectionReason: dto.rejectionReason,
-    })) as IReorderRecommendation;
+    })) as unknown as IReorderRecommendation;
 
     await this.createHistoryEntry(
       id,
@@ -416,7 +416,7 @@ export class ReorderManagementService {
       snoozedUntil: new Date(dto.snoozedUntil),
       snoozedBy: dto.snoozedBy ?? snoozedBy,
       snoozeReason: dto.snoozeReason,
-    })) as IReorderRecommendation;
+    })) as unknown as IReorderRecommendation;
 
     await this.createHistoryEntry(
       id,
@@ -454,7 +454,7 @@ export class ReorderManagementService {
       resolutionNotes: dto.resolutionNotes,
       procurementDraftId: dto.procurementDraftId,
       purchaseOrderId: dto.purchaseOrderId,
-    })) as IReorderRecommendation;
+    })) as unknown as IReorderRecommendation;
 
     await this.createHistoryEntry(
       id,
@@ -488,7 +488,7 @@ export class ReorderManagementService {
         ErrorCode.RESOURCE_NOT_FOUND,
       );
     }
-    return recommendation as IReorderRecommendation;
+    return recommendation as unknown as IReorderRecommendation;
   }
 
   async findAllRecommendations(
@@ -505,7 +505,7 @@ export class ReorderManagementService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: data as ReorderRecommendationResponseDto[],
+      data: data as unknown as ReorderRecommendationResponseDto[],
       total,
       page,
       limit,

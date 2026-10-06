@@ -2,12 +2,12 @@ import { IsIn, IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validato
 
 export class OverrideApprovalDto {
   @IsIn(['APPROVED', 'REJECTED'])
-  status: 'APPROVED' | 'REJECTED';
+  status!: 'APPROVED' | 'REJECTED';
 
   /** Explicit justification — mandatory for every manual override, distinct from the optional comment on a normal decision. */
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 
   @IsObject()
   @IsOptional()

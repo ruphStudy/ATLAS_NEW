@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AiAgentRepository } from './ai-agent.repository';
 import { AiAgentEventQueue } from './jobs';
 import { AiOrchestratorService } from '@modules/ai-orchestrator/ai-orchestrator.service';
+import { AiExecutionMode } from '@modules/ai-orchestrator/interfaces';
 import {
   CreateAiAgentDto,
   UpdateAiAgentDto,
@@ -26,9 +27,9 @@ import {
   AiAgentExecutionStatus,
   AiAgentEvent,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -350,9 +351,9 @@ export class AiAgentService {
         maxTokens: agent.maxTokens,
         topP: agent.topP,
       },
-      executionMode: 'SYNC',
+      executionMode: AiExecutionMode.SYNC,
       maxRetries: agent.maxRetries,
-      timeout: agent.timeout,
+      timeout: agent.timeout ?? undefined,
       requestMetadata: {
         agentId: agent.id,
         agentExecutionId: execution.id,

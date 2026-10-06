@@ -77,7 +77,7 @@ export default function ShipmentDetailPage() {
     <div>
       <PageHeader
         title={shipment.shipmentNumber}
-        breadcrumbs={[{ label: 'Shipments', href: '/dashboard/shipments' }, { label: shipment.shipmentNumber }]}
+        breadcrumbs={[{ label: 'Shipments', href: '/shipments' }, { label: shipment.shipmentNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={shipment.status} />

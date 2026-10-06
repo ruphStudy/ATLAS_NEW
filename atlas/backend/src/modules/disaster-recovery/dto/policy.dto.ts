@@ -4,18 +4,18 @@ import { DrEnvironment, DrPolicyStatus } from '../interfaces';
 
 export class CreateDrPolicyDto {
   @IsEnum(DrEnvironment)
-  environment: DrEnvironment;
+  environment!: DrEnvironment;
 
   @IsString()
-  criticalService: string;
+  criticalService!: string;
 
   @IsInt()
   @Min(1)
-  rpoMinutes: number;
+  rpoMinutes!: number;
 
   @IsInt()
   @Min(1)
-  rtoMinutes: number;
+  rtoMinutes!: number;
 
   @IsInt()
   @Min(0)
@@ -24,7 +24,7 @@ export class CreateDrPolicyDto {
 
   @IsArray()
   @IsString({ each: true })
-  coverageTargets: string[];
+  coverageTargets!: string[];
 
   @IsArray()
   @IsString({ each: true })

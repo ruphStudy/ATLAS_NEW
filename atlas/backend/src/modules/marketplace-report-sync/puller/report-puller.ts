@@ -87,12 +87,13 @@ export class ReportPuller {
             );
             totalProcessed++;
           } catch (error) {
-            this.logger.error(`Failed to pull report ${rawReport.externalReportId}: ${error.message}`);
+            const err = error as Error;
+            this.logger.error(`Failed to pull report ${rawReport.externalReportId}: ${err.message}`);
             await this.stateManager.recordItemResult(jobId, workspaceId, {
               externalReportId: rawReport.externalReportId,
               reportType: rawReport.reportType,
               status: ItemSyncStatus.FAILED,
-              errorMessage: error.message,
+              errorMessage: err.message,
             });
             await this.stateManager.incrementCounters(jobId, workspaceId, { failed: 1, processed: 1 });
           }
@@ -116,14 +117,15 @@ export class ReportPuller {
         jobId,
       });
     } catch (error) {
-      this.logger.error(`Report pull job ${jobId} failed: ${error.message}`);
-      await this.stateManager.failJob(jobId, workspaceId, error.message);
+      const err = error as Error;
+      this.logger.error(`Report pull job ${jobId} failed: ${err.message}`);
+      await this.stateManager.failJob(jobId, workspaceId, err.message);
       await this.eventQueue.publish({
         event: ReportSyncEvent.SYNC_FAILED,
         workspaceId,
         accountId,
         jobId,
-        data: { error: error.message },
+        data: { error: err.message },
       });
     }
   }

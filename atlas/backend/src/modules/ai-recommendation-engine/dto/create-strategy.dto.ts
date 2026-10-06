@@ -16,15 +16,15 @@ export class CreateStrategyDto {
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
-  recommendationType: string;
+  recommendationType!: string;
 
   @IsString()
   @IsNotEmpty()
-  strategy: string;
+  strategy!: string;
 
   @IsString()
   @IsOptional()

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CHECK_NAMES } from '../../constants';
-import type { ICheckResult, ISupplierForVerification, IVerificationCheck } from '../../interfaces';
+import { CHECK_NAMES } from '../constants';
+import type { ICheckResult, ISupplierForVerification, IVerificationCheck } from '../interfaces';
 
 // E.164 format: + followed by 7-15 digits
 const PHONE_REGEX = /^\+?[1-9]\d{6,14}$/;

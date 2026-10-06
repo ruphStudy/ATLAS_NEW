@@ -37,9 +37,9 @@ export default function InventoryDashboardPage() {
             <CardTitle className="text-sm">Pending adjustments</CardTitle>
           </CardHeader>
           <CardContent>
-            <ListSection isLoading={pendingAdjustments.isLoading} items={pendingAdjustments.data?.data} emptyLabel="No adjustments pending approval" viewAllHref="/dashboard/inventory-adjustments">
+            <ListSection isLoading={pendingAdjustments.isLoading} items={pendingAdjustments.data?.data} emptyLabel="No adjustments pending approval" viewAllHref="/inventory-adjustments">
               {(adj) => (
-                <Row key={adj.id} href={`/dashboard/inventory-adjustments/${adj.id}`} title={adj.type.replace(/_/g, ' ')} subtitle={adj.reason} status={adj.status} />
+                <Row key={adj.id} href={`/inventory-adjustments/${adj.id}`} title={adj.type.replace(/_/g, ' ')} subtitle={adj.reason} status={adj.status} />
               )}
             </ListSection>
           </CardContent>
@@ -50,8 +50,8 @@ export default function InventoryDashboardPage() {
             <CardTitle className="text-sm">Pending transfers</CardTitle>
           </CardHeader>
           <CardContent>
-            <ListSection isLoading={pendingTransfers.isLoading} items={pendingTransfers.data?.data} emptyLabel="No transfers pending approval" viewAllHref="/dashboard/inventory-transfers">
-              {(t) => <Row key={t.id} href={`/dashboard/inventory-transfers/${t.id}`} title={t.transferNumber} subtitle={t.reason} status={t.status} />}
+            <ListSection isLoading={pendingTransfers.isLoading} items={pendingTransfers.data?.data} emptyLabel="No transfers pending approval" viewAllHref="/inventory-transfers">
+              {(t) => <Row key={t.id} href={`/inventory-transfers/${t.id}`} title={t.transferNumber} subtitle={t.reason} status={t.status} />}
             </ListSection>
           </CardContent>
         </Card>
@@ -61,8 +61,8 @@ export default function InventoryDashboardPage() {
             <CardTitle className="text-sm">Active cycle counts</CardTitle>
           </CardHeader>
           <CardContent>
-            <ListSection isLoading={activeCycleCounts.isLoading} items={activeCycleCounts.data?.data} emptyLabel="No active cycle counts" viewAllHref="/dashboard/inventory-cycle-counts">
-              {(c) => <Row key={c.id} href={`/dashboard/inventory-cycle-counts/${c.id}`} title={c.type} subtitle={`${c.countedLines}/${c.totalLines} lines counted`} status={c.status} />}
+            <ListSection isLoading={activeCycleCounts.isLoading} items={activeCycleCounts.data?.data} emptyLabel="No active cycle counts" viewAllHref="/inventory-cycle-counts">
+              {(c) => <Row key={c.id} href={`/inventory-cycle-counts/${c.id}`} title={c.type} subtitle={`${c.countedLines}/${c.totalLines} lines counted`} status={c.status} />}
             </ListSection>
           </CardContent>
         </Card>

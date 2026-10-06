@@ -168,7 +168,21 @@ export enum StorageCondition {
   HAZMAT = 'HAZMAT',
   FRAGILE = 'FRAGILE',
   HIGH_VALUE = 'HIGH_VALUE',
-}region?: string | null;
+}
+
+export interface IWarehouse {
+  id: string;
+  workspaceId: string;
+  code: string;
+  name: string;
+  type: WarehouseType;
+  status: WarehouseStatus;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  region?: string | null;
   postalCode?: string | null;
   timezone: string;
   currency?: string | null;
@@ -195,25 +209,7 @@ export interface IWarehouseHistory {
   reason?: string | null;
   changedBy?: string | null;
   snapshot?: unknown;
-  createdAt: Date
-  type: WarehouseType;
-  status: WarehouseStatus;
-  addressLine1?: string | null;
-  addressLine2?: string | null;
-  city?: string | null;
-  zone?: string | null;
-  barcode?: string | null;
-  capacity?: number | null;
-  occupiedCapacity?: number;
-  reservedCapacity?: number;
-  dimensionLength?: number | null;
-  dimensionWidth?: number | null;
-  dimensionHeight?: number | null;
-  dimensionUnit?: string | null;
-  metadata: Record<string, unknown>;
   createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date | null;
 }
 
 export interface IWarehouseLocationHistory {
@@ -225,12 +221,7 @@ export interface IWarehouseLocationHistory {
   reason?: string | null;
   changedBy?: string | null;
   snapshot?: unknown;
-  createdAt: Date
-  isDefault: boolean;
-  metadata: Record<string, unknown>;
   createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date | null;
 }
 
 export interface IWarehouseLocation {

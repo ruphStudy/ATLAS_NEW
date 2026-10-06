@@ -8,16 +8,16 @@ import {
 export class MergeContextDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  targetContextId: string;
+  targetContextId!: string;
 
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty()
-  sourceContextIds: string[];
+  sourceContextIds!: string[];
 
   @IsString()
   @IsOptional()

@@ -4,11 +4,11 @@ import { AiAuditActorType, AiAuditAction, AiAuditOutcome } from '../interfaces';
 export class RecordAuditDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiAuditActorType)
   @IsNotEmpty()
-  actorType: AiAuditActorType;
+  actorType!: AiAuditActorType;
 
   @IsString()
   @IsOptional()
@@ -20,11 +20,11 @@ export class RecordAuditDto {
 
   @IsEnum(AiAuditAction)
   @IsNotEmpty()
-  action: AiAuditAction;
+  action!: AiAuditAction;
 
   @IsEnum(AiAuditOutcome)
   @IsNotEmpty()
-  outcome: AiAuditOutcome;
+  outcome!: AiAuditOutcome;
 
   @IsString()
   @IsOptional()

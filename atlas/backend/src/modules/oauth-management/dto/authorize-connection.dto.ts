@@ -3,7 +3,7 @@ import { OAuthScopeType } from '../interfaces';
 
 export class AuthorizeConnectionDto {
   @IsEnum(OAuthScopeType)
-  scopeType: OAuthScopeType;
+  scopeType!: OAuthScopeType;
 
   /** Required for ORGANIZATION scope. */
   @IsString()

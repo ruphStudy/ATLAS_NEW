@@ -11,27 +11,27 @@ import { AiWorkflowTriggerType } from '../interfaces';
 
 export class CreateAiWorkflowDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  key: string;
+  key!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
   description?: string;
 
   @IsEnum(AiWorkflowTriggerType)
-  triggerType: AiWorkflowTriggerType;
+  triggerType!: AiWorkflowTriggerType;
 
   @IsOptional()
   @IsObject()
   triggerConfig?: unknown;
 
   @IsArray()
-  steps: unknown[];
+  steps!: unknown[];
 
   @IsOptional()
   @IsObject()

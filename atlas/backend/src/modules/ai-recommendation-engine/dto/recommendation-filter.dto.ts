@@ -13,7 +13,7 @@ import { AiRecommendationStatus, AiRecommendationType } from '../interfaces';
 export class RecommendationFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiRecommendationStatus)
   @IsOptional()

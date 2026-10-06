@@ -108,9 +108,3 @@ export class InventorySyncConflictResolver {
     return clean;
   }
 }
-
-  private sanitize(d: Record<string, unknown>): Record<string, unknown> {
-    const unsafe = /secret|token|password|credential|key|auth/i;
-    return Object.fromEntries(Object.entries(d).map(([k, v]) => [k, unsafe.test(k) ? '***' : v]));
-  }
-}

@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { SeoProvider, SeoSection, SeoStatus } from '../interfaces';
 
 export class SeoHistoryResponseDto {
@@ -7,6 +8,7 @@ export class SeoHistoryResponseDto {
   fromStatus!: SeoStatus;
   toStatus!: SeoStatus;
   version!: number;
+  @ApiPropertyOptional({ enum: SeoSection, isArray: true, nullable: true })
   sectionsOptimized?: SeoSection[] | null;
   reason?: string | null;
   changedBy?: string | null;

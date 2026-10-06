@@ -155,7 +155,7 @@ export class InventoryStockService {
       warehouseId: dto.warehouseId,
       locationId: dto.locationId ?? null,
       batchId: dto.batchId ?? null,
-      status: InventoryStockStatus.AVAILABLE,
+      status: dto.status ?? InventoryStockStatus.AVAILABLE,
       ownershipType,
       ownerRef: dto.ownerRef ?? null,
     };

@@ -4,11 +4,11 @@ import { AiHealthCheckType } from '../interfaces';
 export class HealthCheckRequestDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiHealthCheckType)
   @IsNotEmpty()
-  checkType: AiHealthCheckType;
+  checkType!: AiHealthCheckType;
 
   @IsString()
   @IsOptional()
@@ -16,7 +16,7 @@ export class HealthCheckRequestDto {
 
   @IsString()
   @IsNotEmpty()
-  targetName: string;
+  targetName!: string;
 
   @IsString()
   @IsOptional()

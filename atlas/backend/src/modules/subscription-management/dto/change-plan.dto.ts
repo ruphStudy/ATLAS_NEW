@@ -4,7 +4,7 @@ import { SubscriptionBillingCycle, PlanChangeEffective, PlanChangeDirection } fr
 export class ChangePlanDto {
   @IsString()
   @IsNotEmpty()
-  toPlanKey: string;
+  toPlanKey!: string;
 
   @IsEnum(SubscriptionBillingCycle)
   @IsOptional()
@@ -12,10 +12,10 @@ export class ChangePlanDto {
 
   /** Caller states the direction explicitly — this module never compares plan tiers, since it does not own the Plan Management catalog. */
   @IsEnum(PlanChangeDirection)
-  changeType: PlanChangeDirection;
+  changeType!: PlanChangeDirection;
 
   @IsEnum(PlanChangeEffective)
-  effective: PlanChangeEffective;
+  effective!: PlanChangeEffective;
 
   @IsString()
   @IsOptional()

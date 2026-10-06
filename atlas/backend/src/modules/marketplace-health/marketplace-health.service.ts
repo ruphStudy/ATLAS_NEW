@@ -8,7 +8,7 @@ import {
   HealthMetricsSnapshot,
   IHealthRecord,
   MarketplaceHealthState,
-} from '../interfaces';
+} from './interfaces';
 import { MarketplaceHealthMonitorService } from './monitor/marketplace-health-monitor.service';
 import { MarketplaceHealthStatusManager } from './status/marketplace-health-status.manager';
 import { MarketplaceHealthMetrics } from './metrics/marketplace-health.metrics';

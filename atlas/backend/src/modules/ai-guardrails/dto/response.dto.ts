@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   GuardrailStage,
   GuardrailCheckType,
@@ -11,93 +12,95 @@ import {
 } from '../interfaces';
 
 export class GuardrailRuleResponseDto {
-  id: string;
+  id!: string;
   workspaceId?: string | null;
-  name: string;
+  name!: string;
   description?: string | null;
-  stage: GuardrailStage;
-  category: GuardrailViolationCategory;
-  checkType: GuardrailCheckType;
+  stage!: GuardrailStage;
+  category!: GuardrailViolationCategory;
+  checkType!: GuardrailCheckType;
   capability?: string | null;
   useCase?: string | null;
   modelProvider?: string | null;
-  enabled: boolean;
+  enabled!: boolean;
   config: unknown;
-  severity: GuardrailSeverity;
-  decision: GuardrailDecision;
-  riskWeight: number;
-  requiresApproval: boolean;
-  priority: number;
-  stopOnMatch: boolean;
-  version: number;
-  tags: string[];
+  severity!: GuardrailSeverity;
+  decision!: GuardrailDecision;
+  riskWeight!: number;
+  requiresApproval!: boolean;
+  priority!: number;
+  stopOnMatch!: boolean;
+  version!: number;
+  tags!: string[];
   metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedGuardrailRuleResponseDto {
-  data: GuardrailRuleResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: GuardrailRuleResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class GuardrailRuleVersionResponseDto {
-  id: string;
-  ruleId: string;
-  version: number;
+  id!: string;
+  ruleId!: string;
+  version!: number;
   snapshot: unknown;
   changeReason?: string | null;
   changedBy?: string | null;
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class GuardrailOverrideResponseDto {
-  id: string;
-  scope: GuardrailOverrideScope;
+  id!: string;
+  scope!: GuardrailOverrideScope;
   ruleId?: string | null;
   workspaceId?: string | null;
   providerKey?: string | null;
   modelId?: string | null;
   enabledOverride?: boolean | null;
+  @ApiPropertyOptional({ enum: GuardrailDecision, nullable: true })
   decisionOverride?: GuardrailDecision | null;
+  @ApiPropertyOptional({ enum: GuardrailSeverity, nullable: true })
   severityOverride?: GuardrailSeverity | null;
-  priority: number;
+  priority!: number;
   reason?: string | null;
   metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedGuardrailOverrideResponseDto {
-  data: GuardrailOverrideResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: GuardrailOverrideResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class GuardrailEvaluationResultResponseDto {
-  id: string;
-  evaluationId: string;
+  id!: string;
+  evaluationId!: string;
   ruleId?: string | null;
-  ruleName: string;
-  category: GuardrailViolationCategory;
-  matched: boolean;
-  severity: GuardrailSeverity;
-  decision: GuardrailDecision;
-  reason: string;
-  matchCount: number;
-  createdAt: Date;
+  ruleName!: string;
+  category!: GuardrailViolationCategory;
+  matched!: boolean;
+  severity!: GuardrailSeverity;
+  decision!: GuardrailDecision;
+  reason!: string;
+  matchCount!: number;
+  createdAt!: Date;
 }
 
 export class GuardrailEvaluationResponseDto {
-  id: string;
-  workspaceId: string;
-  stage: GuardrailStage;
-  status: GuardrailEvaluationStatus;
+  id!: string;
+  workspaceId!: string;
+  stage!: GuardrailStage;
+  status!: GuardrailEvaluationStatus;
   capability?: string | null;
   useCase?: string | null;
   modelProvider?: string | null;
@@ -106,84 +109,84 @@ export class GuardrailEvaluationResponseDto {
   workflowExecutionId?: string | null;
   toolName?: string | null;
   actionName?: string | null;
-  riskScore: number;
-  severity: GuardrailSeverity;
-  decision: GuardrailDecision;
-  reasons: string[];
-  matchedRuleCount: number;
-  requiresApproval: boolean;
-  createdAt: Date;
+  riskScore!: number;
+  severity!: GuardrailSeverity;
+  decision!: GuardrailDecision;
+  reasons!: string[];
+  matchedRuleCount!: number;
+  requiresApproval!: boolean;
+  createdAt!: Date;
 }
 
 export class PaginatedGuardrailEvaluationResponseDto {
-  data: GuardrailEvaluationResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: GuardrailEvaluationResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class GuardrailEvaluationOutcomeResponseDto {
-  evaluationId: string;
-  stage: GuardrailStage;
-  riskScore: number;
-  severity: GuardrailSeverity;
-  decision: GuardrailDecision;
-  reasons: string[];
-  matchedRuleCount: number;
-  requiresApproval: boolean;
+  evaluationId!: string;
+  stage!: GuardrailStage;
+  riskScore!: number;
+  severity!: GuardrailSeverity;
+  decision!: GuardrailDecision;
+  reasons!: string[];
+  matchedRuleCount!: number;
+  requiresApproval!: boolean;
   approvalId?: string;
   incidentId?: string;
   redactedContent?: string;
 }
 
 export class GuardrailIncidentResponseDto {
-  id: string;
-  workspaceId: string;
+  id!: string;
+  workspaceId!: string;
   evaluationId?: string | null;
-  category: GuardrailViolationCategory;
-  severity: GuardrailSeverity;
-  decision: GuardrailDecision;
-  status: GuardrailIncidentStatus;
-  description: string;
+  category!: GuardrailViolationCategory;
+  severity!: GuardrailSeverity;
+  decision!: GuardrailDecision;
+  status!: GuardrailIncidentStatus;
+  description!: string;
   reportedBy?: string | null;
   assignedTo?: string | null;
   resolution?: string | null;
   resolvedAt?: Date | null;
   resolvedBy?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedGuardrailIncidentResponseDto {
-  data: GuardrailIncidentResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: GuardrailIncidentResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class GuardrailApprovalResponseDto {
-  id: string;
-  workspaceId: string;
-  evaluationId: string;
-  status: GuardrailApprovalStatus;
-  stage: GuardrailStage;
-  category: GuardrailViolationCategory;
-  severity: GuardrailSeverity;
+  id!: string;
+  workspaceId!: string;
+  evaluationId!: string;
+  status!: GuardrailApprovalStatus;
+  stage!: GuardrailStage;
+  category!: GuardrailViolationCategory;
+  severity!: GuardrailSeverity;
   requestedBy?: string | null;
   decidedBy?: string | null;
   decidedAt?: Date | null;
   reason?: string | null;
   expiresAt?: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedGuardrailApprovalResponseDto {
-  data: GuardrailApprovalResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: GuardrailApprovalResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }

@@ -1,3 +1,4 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   AtlasProduct,
   AtlasQuotation,
@@ -63,6 +64,7 @@ export class ProviderResponseDto<T> {
   requestId!: string;
   providerCode!: SupplierProviderCode;
   success!: boolean;
+  @ApiPropertyOptional({ type: Object })
   data?: T;
   error?: NormalizedProviderError | null;
   meta!: ProviderResponseMeta;
@@ -121,6 +123,18 @@ export class AtlasQuotationResponseDto implements AtlasQuotation {
 export class AtlasValidationResponseDto implements AtlasValidationResult {
   isValid!: boolean;
   score!: number;
+  @ApiProperty({
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        checkName: { type: 'string' },
+        passed: { type: 'boolean' },
+        score: { type: 'number' },
+        notes: { type: 'string', nullable: true },
+      },
+    },
+  })
   checks!: { checkName: string; passed: boolean; score: number; notes?: string | null }[];
   summary!: string;
 }

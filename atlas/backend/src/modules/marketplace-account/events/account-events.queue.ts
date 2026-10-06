@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { QUEUE_NAMES } from '@common/constants';
+import { ConfigurationService } from '@config/configuration.service';
 import { AccountEventPayload } from '../interfaces';
 import { MP_ACCOUNT_QUEUE_CONFIG } from '../constants';
 
@@ -9,8 +10,10 @@ export class AccountEventQueue {
   private readonly logger = new Logger(AccountEventQueue.name);
   private readonly queue: Queue;
 
-  constructor() {
+  constructor(configService: ConfigurationService) {
+    const redis = configService.getRedisConfig();
     this.queue = new Queue(QUEUE_NAMES.MARKETPLACE_ACCOUNT_EVENTS, {
+      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
       defaultJobOptions: {
         attempts: MP_ACCOUNT_QUEUE_CONFIG.ATTEMPTS,
         backoff: { type: 'exponential', delay: MP_ACCOUNT_QUEUE_CONFIG.BACKOFF_MS },

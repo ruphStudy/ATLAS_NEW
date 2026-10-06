@@ -17,7 +17,7 @@ export type CostSummaryGroupByField = (typeof COST_SUMMARY_GROUP_BY_FIELDS)[numb
 export class CostSummaryFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

@@ -19,18 +19,18 @@ import { RuleActionDto } from './rule-action.dto';
 export class CreateRuleDto {
   @IsString()
   @IsNotEmpty()
-  module: string;
+  module!: string;
 
   @IsString()
   @IsNotEmpty()
   @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
     message: 'key must be a lowercase, hyphen-separated identifier (e.g. "high-value-order-approval")',
   })
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -46,7 +46,7 @@ export class CreateRuleDto {
   organizationId?: string;
 
   @IsEnum(RuleTriggerType)
-  triggerType: RuleTriggerType;
+  triggerType!: RuleTriggerType;
 
   /** Event name (EVENT), workflow key (WORKFLOW), or omitted (API/SCHEDULE). */
   @IsString()
@@ -55,12 +55,12 @@ export class CreateRuleDto {
 
   @ValidateNested()
   @Type(() => RuleConditionGroupDto)
-  conditions: RuleConditionGroupDto;
+  conditions!: RuleConditionGroupDto;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => RuleActionDto)
-  actions: RuleActionDto[];
+  actions!: RuleActionDto[];
 
   @IsInt()
   @IsOptional()

@@ -17,20 +17,20 @@ export class CreateAiPromptDto {
   workspaceId?: string;
 
   @IsString()
-  key: string;
+  key!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
   description?: string;
 
   @IsEnum(AiPromptType)
-  type: AiPromptType;
+  type!: AiPromptType;
 
   @IsString()
-  useCase: string;
+  useCase!: string;
 
   @IsOptional()
   @IsString()
@@ -41,7 +41,7 @@ export class CreateAiPromptDto {
   agentId?: string;
 
   @IsString()
-  template: string;
+  template!: string;
 
   @IsOptional()
   @IsArray()

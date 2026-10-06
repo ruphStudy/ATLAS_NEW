@@ -23,9 +23,9 @@ import {
   AiPromptStatus,
   AiPromptEvent,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -322,7 +322,7 @@ export class AiPromptService {
   }
 
   async resolvePrompt(dto: ResolvePromptDto): Promise<ResolvedPromptResponseDto> {
-    const cacheKey = this.buildCacheKey('resolve', dto);
+    const cacheKey = this.buildCacheKey('resolve', dto as unknown as Record<string, unknown>);
 
     const cached = await this.repository.getCachedPrompt(cacheKey);
     if (cached) {

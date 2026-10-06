@@ -126,7 +126,7 @@ export default function ProductsPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((product) => (
-              <TableRow key={product.id} clickable onClick={() => router.push(`/dashboard/products/${product.id}`)}>
+              <TableRow key={product.id} clickable onClick={() => router.push(`/products/${product.id}`)}>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     {product.images[0] ? (
@@ -152,7 +152,7 @@ export default function ProductsPage() {
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {data.data.map((product) => (
-            <Card key={product.id} hover className="cursor-pointer" onClick={() => router.push(`/dashboard/products/${product.id}`)}>
+            <Card key={product.id} hover className="cursor-pointer" onClick={() => router.push(`/products/${product.id}`)}>
               {product.images[0] ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={product.images[0]} alt="" className="aspect-square w-full rounded-t-[var(--radius)] object-cover" />
@@ -186,7 +186,7 @@ export default function ProductsPage() {
         />
       )}
 
-      <ProductFormDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(p) => router.push(`/dashboard/products/${p.id}`)} />
+      <ProductFormDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(p) => router.push(`/products/${p.id}`)} />
     </div>
   );
 }

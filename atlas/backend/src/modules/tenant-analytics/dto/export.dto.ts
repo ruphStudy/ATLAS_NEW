@@ -5,7 +5,7 @@ export class ExportAnalyticsQueryDto {
   /** Which report to export — matches one of this module's own report method names (e.g. 'growth', 'revenue', 'churn', 'payment-health', 'segments'). */
   @IsString()
   @IsNotEmpty()
-  report: string;
+  report!: string;
 
   @IsIn(EXPORT_FORMATS)
   @IsOptional()

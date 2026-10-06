@@ -7,6 +7,7 @@ import { AuditLogsModule } from '@modules/audit-logs/audit-logs.module';
 import { SaasMonitoringModule } from '@modules/saas-monitoring/saas-monitoring.module';
 import { TenantAnalyticsModule } from '@modules/tenant-analytics/tenant-analytics.module';
 import { WorkspaceModule } from '@modules/workspace/workspace.module';
+import { UsersModule } from '@modules/users/users.module';
 import { TenantIsolationModule } from '@modules/tenant-isolation/tenant-isolation.module';
 import { SaasHealthController } from './saas-health.controller';
 import { SaasHealthService } from './saas-health.service';
@@ -41,6 +42,7 @@ import { SaasHealthEventQueue, SaasHealthEventWorker } from './jobs';
     SaasMonitoringModule,
     TenantAnalyticsModule,
     WorkspaceModule,
+    UsersModule,
     TenantIsolationModule,
     BullModule.registerQueue({ name: QUEUE_NAMES.SAAS_HEALTH_EVENTS }),
   ],

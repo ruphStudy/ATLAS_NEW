@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsEnum,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -173,6 +174,34 @@ export class EnvironmentVariables {
   @IsString()
   @MinLength(32, { message: 'ATLAS_CREDENTIAL_KEY must be at least 32 characters' })
   ATLAS_CREDENTIAL_KEY!: string;
+
+  // ── Amazon SP-API (global app-level credentials) ─────────────
+  // Optional at startup so ATLAS can boot before Amazon is configured —
+  // the Amazon adapter fails loudly at call time if these are unset,
+  // rather than the whole app refusing to start.
+  @IsString()
+  @IsOptional()
+  AMAZON_SP_API_CLIENT_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  AMAZON_SP_API_CLIENT_SECRET?: string;
+
+  @IsIn(['sandbox', 'production'])
+  @IsOptional()
+  AMAZON_SP_API_ENVIRONMENT: 'sandbox' | 'production' = 'sandbox';
+
+  @IsString()
+  @IsOptional()
+  AMAZON_SP_API_APPLICATION_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  AMAZON_SP_API_REDIRECT_URI?: string;
+
+  @IsString()
+  @IsOptional()
+  AMAZON_SP_API_SANDBOX_REFRESH_TOKEN?: string;
 }
 
 /**

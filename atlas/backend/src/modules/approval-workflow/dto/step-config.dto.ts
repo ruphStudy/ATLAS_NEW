@@ -4,10 +4,10 @@ import { ApproverType, ApprovalStrategy } from '../interfaces';
 
 export class ApprovalConditionDto {
   @IsIn(['amount', 'riskLevel', 'entityType', 'countryCode', 'marketplaceKey'])
-  field: 'amount' | 'riskLevel' | 'entityType' | 'countryCode' | 'marketplaceKey';
+  field!: 'amount' | 'riskLevel' | 'entityType' | 'countryCode' | 'marketplaceKey';
 
   @IsIn(['eq', 'neq', 'gte', 'lte', 'in'])
-  operator: 'eq' | 'neq' | 'gte' | 'lte' | 'in';
+  operator!: 'eq' | 'neq' | 'gte' | 'lte' | 'in';
 
   @IsNotEmpty()
   value: unknown;
@@ -16,18 +16,18 @@ export class ApprovalConditionDto {
 export class ApprovalStepConfigDto {
   @IsInt()
   @Min(0)
-  stepOrder: number;
+  stepOrder!: number;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(ApproverType)
-  approverType: ApproverType;
+  approverType!: ApproverType;
 
   @IsArray()
   @IsString({ each: true })
-  approverRefs: string[];
+  approverRefs!: string[];
 
   @IsInt()
   @Min(1)
@@ -87,7 +87,7 @@ export class ApprovalMatchCriteriaDto {
 export class ApprovalEscalationConfigDto {
   @IsInt()
   @Min(1)
-  afterHours: number;
+  afterHours!: number;
 
   @IsArray()
   @IsString({ each: true })

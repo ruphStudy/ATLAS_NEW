@@ -114,10 +114,29 @@ export class AdapterHttpClient {
     };
   }
 
+  /**
+   * Normalizes either `IThrottleConfig` shape to the fixed-window form this method operates on.
+   * For `{ rate, burst }`, the window is sized so that allowing `burst` requests across it
+   * reproduces the same steady-state `rate` (requests/sec): `windowMs = (burst / rate) * 1000`.
+   */
+  private resolveThrottleWindow(
+    config: IThrottleConfig,
+  ): { maxRequests: number; windowMs: number } {
+    if ('maxRequests' in config) {
+      return config;
+    }
+
+    return {
+      maxRequests: config.burst,
+      windowMs: (config.burst / config.rate) * 1000,
+    };
+  }
+
   private async applyThrottle(
     url: string,
     config: IThrottleConfig,
   ): Promise<void> {
+    const { maxRequests, windowMs } = this.resolveThrottleWindow(config);
     const now = Date.now();
     const key = this.getThrottleKey(url);
     const entry = this.requestCounts.get(key);
@@ -125,12 +144,12 @@ export class AdapterHttpClient {
     if (!entry || now > entry.resetAt) {
       this.requestCounts.set(key, {
         count: 1,
-        resetAt: now + config.windowMs,
+        resetAt: now + windowMs,
       });
       return;
     }
 
-    if (entry.count >= config.maxRequests) {
+    if (entry.count >= maxRequests) {
       const waitTime = entry.resetAt - now;
       this.logger.warn(`Rate limit reached, waiting ${waitTime}ms`);
       await this.delay(waitTime);

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ApprovalWorkflowService } from '@modules/approval-workflow/approval-workflow.service';
 import { StartApprovalRequestDto } from '@modules/approval-workflow/dto';
 import { IStepExecutionContext, IStepExecutionResult, IWorkflowStepExecutor, WorkflowStepStatus, WorkflowStepType } from '../interfaces';
@@ -13,7 +13,10 @@ import { SYSTEM_ACTOR_ID } from '../constants';
 export class ApprovalStepExecutor implements IWorkflowStepExecutor {
   readonly stepType = WorkflowStepType.APPROVAL;
 
-  constructor(private readonly approvalWorkflowService: ApprovalWorkflowService) {}
+  constructor(
+    @Inject(forwardRef(() => ApprovalWorkflowService))
+    private readonly approvalWorkflowService: ApprovalWorkflowService,
+  ) {}
 
   async execute(ctx: IStepExecutionContext): Promise<IStepExecutionResult> {
     const { step, execution, userId } = ctx;

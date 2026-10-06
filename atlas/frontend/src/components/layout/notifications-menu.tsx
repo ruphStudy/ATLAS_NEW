@@ -85,7 +85,7 @@ export function NotificationsMenu() {
         </div>
 
         <Link
-          href="/dashboard/notifications"
+          href="/notifications"
           className="block border-t border-border px-3 py-2.5 text-center text-xs font-medium text-primary hover:bg-secondary"
         >
           View all notifications

@@ -4,7 +4,7 @@ export class AddDocumentVersionDto {
   /** Base64-encoded new version content, forwarded to File Management's own version history. */
   @IsString()
   @IsNotEmpty()
-  contentBase64: string;
+  contentBase64!: string;
 
   @IsString()
   @IsOptional()

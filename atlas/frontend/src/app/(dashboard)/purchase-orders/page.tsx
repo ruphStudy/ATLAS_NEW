@@ -82,7 +82,7 @@ export default function PurchaseOrdersPage() {
           </TableHeader>
           <TableBody>
             {data.items.map((po) => (
-              <TableRow key={po.id} clickable onClick={() => router.push(`/dashboard/purchase-orders/${po.id}`)}>
+              <TableRow key={po.id} clickable onClick={() => router.push(`/purchase-orders/${po.id}`)}>
                 <TableCell>
                   <p className="text-sm font-medium text-foreground">{po.poNumber}</p>
                   <p className="text-xs text-muted-foreground">v{po.version}</p>
@@ -103,7 +103,7 @@ export default function PurchaseOrdersPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={Math.ceil(data.total / limit)} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreatePurchaseOrderDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(po) => router.push(`/dashboard/purchase-orders/${po.id}`)} />
+      <CreatePurchaseOrderDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(po) => router.push(`/purchase-orders/${po.id}`)} />
     </div>
   );
 }

@@ -62,7 +62,7 @@ export class AmazonErrorMapper {
   }
 
   private isRetryable(errorCode: string, statusCode?: number): boolean {
-    const retryableCodes = [
+    const retryableCodes: string[] = [
       AMAZON_ERROR_CODES.RATE_LIMIT_EXCEEDED,
       AMAZON_ERROR_CODES.REQUEST_THROTTLED,
       AMAZON_ERROR_CODES.INTERNAL_ERROR,

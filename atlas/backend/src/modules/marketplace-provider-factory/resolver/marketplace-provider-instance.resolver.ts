@@ -254,6 +254,3 @@ export class MarketplaceProviderInstanceResolver {
     return msg.replace(/(key|secret|token|password)\s*[:=]\s*\S+/gi, '$1=[REDACTED]');
   }
 }
-
-// Needed for buildCacheKey reference
-import { MarketplaceProviderInstanceCache } from '../cache/marketplace-provider-instance.cache';

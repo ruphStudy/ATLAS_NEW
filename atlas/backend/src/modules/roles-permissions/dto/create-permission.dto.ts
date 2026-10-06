@@ -7,21 +7,21 @@ export class CreatePermissionDto {
   @Matches(/^[a-z0-9]+(\.[a-z0-9-]+)*$/, {
     message: 'key must be a lowercase dot-separated identifier (e.g. "inventory.item.approve")',
   })
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  module: string;
+  module!: string;
 
   @IsString()
   @IsNotEmpty()
-  resource: string;
+  resource!: string;
 
   @IsEnum(PermissionAction)
-  action: PermissionAction;
+  action!: PermissionAction;
 
   @IsEnum(PermissionScope)
-  scope: PermissionScope;
+  scope!: PermissionScope;
 
   @IsString()
   @IsOptional()

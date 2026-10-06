@@ -11,7 +11,7 @@ import { InventoryAnalyticsPeriod } from '../interfaces';
 
 export class InventoryAnalyticsFilterDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
@@ -70,7 +70,7 @@ export class InventoryAnalyticsFilterDto {
 
 export class DashboardFilterDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
@@ -104,17 +104,17 @@ export class DashboardFilterDto {
 
 export class TrendFilterDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
   warehouseId?: string;
 
   @IsString()
-  metric: string;
+  metric!: string;
 
   @IsEnum(InventoryAnalyticsPeriod)
-  period: InventoryAnalyticsPeriod;
+  period!: InventoryAnalyticsPeriod;
 
   @IsOptional()
   @IsDateString()
@@ -127,7 +127,7 @@ export class TrendFilterDto {
 
 export class ProductAnalyticsFilterDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
@@ -158,7 +158,7 @@ export class ProductAnalyticsFilterDto {
 
 export class WarehouseBreakdownFilterDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
@@ -171,7 +171,7 @@ export class WarehouseBreakdownFilterDto {
 
 export class RefreshCacheDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()

@@ -14,14 +14,14 @@ import {
 
 export class RecordAuditLogDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
   warehouseId?: string;
 
   @IsEnum(WarehouseAuditActorType)
-  actorType: WarehouseAuditActorType;
+  actorType!: WarehouseAuditActorType;
 
   @IsOptional()
   @IsString()
@@ -32,14 +32,14 @@ export class RecordAuditLogDto {
   actorName?: string;
 
   @IsEnum(WarehouseAuditActionType)
-  actionType: WarehouseAuditActionType;
+  actionType!: WarehouseAuditActionType;
 
   @IsOptional()
   @IsString()
   actionDescription?: string;
 
   @IsEnum(WarehouseAuditEntityType)
-  entityType: WarehouseAuditEntityType;
+  entityType!: WarehouseAuditEntityType;
 
   @IsOptional()
   @IsString()

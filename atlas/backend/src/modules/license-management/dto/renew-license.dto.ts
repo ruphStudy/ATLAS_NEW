@@ -3,7 +3,7 @@ import { IsDateString, IsInt, IsNotEmpty, IsOptional, Min } from 'class-validato
 export class RenewLicenseDto {
   @IsDateString()
   @IsNotEmpty()
-  expiresAt: string;
+  expiresAt!: string;
 
   @IsInt()
   @IsOptional()

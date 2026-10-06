@@ -39,13 +39,14 @@ export class ReportParser {
           throw new Error(`Unsupported report format: ${format}`);
       }
     } catch (error) {
-      this.logger.error(`Failed to parse report ${filePath}: ${error.message}`);
+      const err = error as Error;
+      this.logger.error(`Failed to parse report ${filePath}: ${err.message}`);
       return {
         reportId: filePath,
         reportType,
         recordCount: 0,
         records: [],
-        errors: [{ error: error.message }],
+        errors: [{ error: err.message }],
         metadata: {},
       };
     }
@@ -64,7 +65,7 @@ export class ReportParser {
           try {
             records.push(this.normalizeRow(row, reportType));
           } catch (error) {
-            errors.push({ row: rowNumber, error: error.message });
+            errors.push({ row: rowNumber, error: (error as Error).message });
           }
         })
         .on('end', () => {
@@ -95,20 +96,20 @@ export class ReportParser {
         try {
           return this.normalizeRow(item, reportType);
         } catch (error) {
-          errors.push({ row: index, error: error.message });
+          errors.push({ row: index, error: (error as Error).message });
           return null;
         }
-      }).filter(Boolean);
+      }).filter((r): r is Record<string, any> => r !== null);
     } else if (data.records || data.items || data.data) {
       const items = data.records || data.items || data.data;
       records = items.map((item: any, index: number) => {
         try {
           return this.normalizeRow(item, reportType);
         } catch (error) {
-          errors.push({ row: index, error: error.message });
+          errors.push({ row: index, error: (error as Error).message });
           return null;
         }
-      }).filter(Boolean);
+      }).filter((r: Record<string, any> | null): r is Record<string, any> => r !== null);
     } else {
       records = [this.normalizeRow(data, reportType)];
     }
@@ -144,7 +145,7 @@ export class ReportParser {
       const input = fs.createReadStream(filePath);
       const output = fs.createWriteStream(outputPath);
       
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         input
           .pipe(zlib.createGunzip())
           .pipe(output)

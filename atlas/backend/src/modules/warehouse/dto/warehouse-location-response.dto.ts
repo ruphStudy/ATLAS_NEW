@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { WarehouseLocationStatus, WarehouseLocationType } from '../interfaces';
 
 export class WarehouseLocationResponseDto {
@@ -77,6 +78,7 @@ export class WarehouseLocationHistoryResponseDto {
   id!: string;
   locationId!: string;
   workspaceId!: string;
+  @ApiPropertyOptional({ enum: WarehouseLocationStatus, nullable: true })
   fromStatus?: WarehouseLocationStatus | null;
   toStatus!: WarehouseLocationStatus;
   reason?: string | null;

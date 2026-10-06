@@ -1,5 +1,6 @@
 import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ConflictStrategy,
   IInventorySyncJob,
@@ -134,6 +135,7 @@ export class InventorySyncJobResponseDto {
   skippedItems!: number;
   errorCode?: string | null;
   errorMessage?: string | null;
+  @ApiPropertyOptional({ enum: ConflictStrategy, nullable: true })
   conflictStrategy?: ConflictStrategy | null;
   filterOptions?: Record<string, unknown> | null;
   metadata?: Record<string, unknown> | null;
@@ -168,6 +170,7 @@ export class InventoryScheduleResponseDto {
   direction!: SyncDirection;
   scope!: SyncScope;
   itemType!: InventoryItemType;
+  @ApiPropertyOptional({ enum: ConflictStrategy, nullable: true })
   conflictStrategy?: ConflictStrategy | null;
   intervalMs!: number;
   enabled!: boolean;
@@ -184,131 +187,5 @@ export class InventoryScheduleResponseDto {
     const dto = new InventoryScheduleResponseDto();
     Object.assign(dto, schedule);
     return dto;
-  }
-}
-  @IsOptional() @IsString() accountId?: string;
-  @IsOptional() @IsString() jobId?: string;
-  @IsOptional() @IsString() status?: string;
-  @IsOptional() @Type(() => Number) @IsInt() @Min(1) page?: number;
-  @IsOptional() @Type(() => Number) @IsInt() @Min(1) limit?: number;
-}
-
-// ── Response DTOs ─────────────────────────────────────────────
-
-export class InventorySyncJobResponseDto {
-  id!: string;
-  workspaceId!: string;
-  accountId!: string;
-  providerKey!: string;
-  marketplaceKey!: string;
-  warehouseId!: string | null;
-  direction!: string;
-  scope!: string;
-  itemType!: string;
-  trigger!: string;
-  status!: string;
-  conflictStrategy!: string | null;
-  correlationId!: string;
-  scheduleId!: string | null;
-  scheduledAt!: Date | null;
-  startedAt!: Date | null;
-  completedAt!: Date | null;
-  cursor!: string | null;
-  totalItems!: number;
-  processedItems!: number;
-  pushedItems!: number;
-  pulledItems!: number;
-  adjustedItems!: number;
-  reconciledItems!: number;
-  failedItems!: number;
-  conflictItems!: number;
-  skippedItems!: number;
-  errorCode!: string | null;
-  errorMessage!: string | null;
-  createdAt!: Date;
-  updatedAt!: Date;
-
-  static from(job: IInventorySyncJob): InventorySyncJobResponseDto {
-    return {
-      id: job.id,
-      workspaceId: job.workspaceId,
-      accountId: job.accountId,
-      providerKey: job.providerKey,
-      marketplaceKey: job.marketplaceKey,
-      warehouseId: job.warehouseId ?? null,
-      direction: job.direction,
-      scope: job.scope,
-      itemType: job.itemType,
-      trigger: job.trigger,
-      status: job.status,
-      conflictStrategy: job.conflictStrategy ?? null,
-      correlationId: job.correlationId,
-      scheduleId: job.scheduleId ?? null,
-      scheduledAt: job.scheduledAt ?? null,
-      startedAt: job.startedAt ?? null,
-      completedAt: job.completedAt ?? null,
-      cursor: job.cursor ?? null,
-      totalItems: job.totalItems ?? 0,
-      processedItems: job.processedItems ?? 0,
-      pushedItems: job.pushedItems ?? 0,
-      pulledItems: job.pulledItems ?? 0,
-      adjustedItems: job.adjustedItems ?? 0,
-      reconciledItems: job.reconciledItems ?? 0,
-      failedItems: job.failedItems ?? 0,
-      conflictItems: job.conflictItems ?? 0,
-      skippedItems: job.skippedItems ?? 0,
-      errorCode: job.errorCode ?? null,
-      errorMessage: job.errorMessage ?? null,
-      createdAt: job.createdAt,
-      updatedAt: job.updatedAt,
-    };
-  }
-}
-
-export class PaginatedInventorySyncJobResponseDto {
-  items!: InventorySyncJobResponseDto[];
-  total!: number;
-  page!: number;
-  limit!: number;
-  totalPages!: number;
-}
-
-export class InventoryScheduleResponseDto {
-  id!: string;
-  workspaceId!: string;
-  accountId!: string;
-  providerKey!: string;
-  marketplaceKey!: string;
-  warehouseId!: string | null;
-  direction!: string;
-  scope!: string;
-  itemType!: string;
-  conflictStrategy!: string | null;
-  intervalMs!: number;
-  enabled!: boolean;
-  lastRunAt!: Date | null;
-  nextRunAt!: Date | null;
-  createdAt!: Date;
-  updatedAt!: Date;
-
-  static from(s: IInventorySyncSchedule): InventoryScheduleResponseDto {
-    return {
-      id: s.id,
-      workspaceId: s.workspaceId,
-      accountId: s.accountId,
-      providerKey: s.providerKey,
-      marketplaceKey: s.marketplaceKey,
-      warehouseId: s.warehouseId ?? null,
-      direction: s.direction,
-      scope: s.scope,
-      itemType: s.itemType,
-      conflictStrategy: s.conflictStrategy ?? null,
-      intervalMs: s.intervalMs,
-      enabled: s.enabled,
-      lastRunAt: s.lastRunAt ?? null,
-      nextRunAt: s.nextRunAt ?? null,
-      createdAt: s.createdAt,
-      updatedAt: s.updatedAt,
-    };
   }
 }

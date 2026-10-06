@@ -59,7 +59,7 @@ export class ComparisonEngine {
 
     return Object.fromEntries(
       Object.entries(raw).map(([k, v]) => [k, v / total]),
-    ) as ComparisonWeights;
+    ) as unknown as ComparisonWeights;
   }
 
   // ── Private: per-supplier breakdown ──────────────────────────

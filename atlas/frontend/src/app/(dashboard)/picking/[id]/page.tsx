@@ -79,7 +79,7 @@ export default function PickingTaskDetailPage() {
     <div>
       <PageHeader
         title={task.taskNumber}
-        breadcrumbs={[{ label: 'Picking', href: '/dashboard/picking' }, { label: task.taskNumber }]}
+        breadcrumbs={[{ label: 'Picking', href: '/picking' }, { label: task.taskNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={task.status} />

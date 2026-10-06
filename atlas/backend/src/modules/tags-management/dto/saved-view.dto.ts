@@ -3,11 +3,11 @@ import { IsString, IsNotEmpty, IsOptional, IsObject, IsBoolean } from 'class-val
 export class CreateSavedViewDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsObject()
   @IsNotEmpty()
-  filters: Record<string, unknown>;
+  filters!: Record<string, unknown>;
 
   @IsBoolean()
   @IsOptional()

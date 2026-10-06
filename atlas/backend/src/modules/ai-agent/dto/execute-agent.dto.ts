@@ -2,13 +2,13 @@ import { IsString, IsOptional, IsObject } from 'class-validator';
 
 export class ExecuteAgentDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  agentId: string;
+  agentId!: string;
 
   @IsString()
-  input: string;
+  input!: string;
 
   @IsOptional()
   @IsObject()

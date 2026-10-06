@@ -12,22 +12,22 @@ import {
 
 export class RegisterAnalyticsMetricDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AnalyticsEntityType)
-  entityType: AnalyticsEntityType;
+  entityType!: AnalyticsEntityType;
 
   @IsString()
-  metricKey: string;
+  metricKey!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsEnum(AnalyticsMetricType)
-  metricType: AnalyticsMetricType;
+  metricType!: AnalyticsMetricType;
 
   @IsString()
-  aggregationFunction: string;
+  aggregationFunction!: string;
 
   @IsOptional()
   @IsString()
@@ -89,19 +89,19 @@ export class UpdateAnalyticsMetricDto {
 }
 
 export class AnalyticsMetricResponseDto {
-  id: string;
-  workspaceId: string;
-  entityType: AnalyticsEntityType;
-  metricKey: string;
-  name: string;
-  metricType: AnalyticsMetricType;
-  aggregationFunction: string;
+  id!: string;
+  workspaceId!: string;
+  entityType!: AnalyticsEntityType;
+  metricKey!: string;
+  name!: string;
+  metricType!: AnalyticsMetricType;
+  aggregationFunction!: string;
   sourceColumn?: string;
   formula?: string;
   unit?: string;
   description?: string;
   metadata?: Record<string, any>;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  isActive!: boolean;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

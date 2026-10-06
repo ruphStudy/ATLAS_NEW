@@ -3,7 +3,7 @@ import { LicenseScopeType, LicenseType } from '../interfaces';
 
 export class CreateLicenseDto {
   @IsEnum(LicenseScopeType)
-  scopeType: LicenseScopeType;
+  scopeType!: LicenseScopeType;
 
   /** Required for ORGANIZATION scope. */
   @IsString()
@@ -26,12 +26,12 @@ export class CreateLicenseDto {
   deploymentId?: string;
 
   @IsEnum(LicenseType)
-  type: LicenseType;
+  type!: LicenseType;
 
   /** `Plan.code` (Plan Management) this license's entitlements are sourced from. */
   @IsString()
   @IsNotEmpty()
-  planKey: string;
+  planKey!: string;
 
   /** `Subscription.id` (Subscription Management), if this license is tied to a billed subscription rather than issued standalone (e.g. TRIAL/INTERNAL). */
   @IsString()

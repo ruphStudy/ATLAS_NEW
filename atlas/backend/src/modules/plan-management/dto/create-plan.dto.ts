@@ -20,11 +20,11 @@ export class CreatePlanDto {
   @IsString()
   @IsNotEmpty()
   @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, { message: 'code must be a lowercase, hyphen-separated identifier (e.g. "pro-monthly")' })
-  code: string;
+  code!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -32,18 +32,18 @@ export class CreatePlanDto {
 
   @IsString()
   @IsNotEmpty()
-  tier: string;
+  tier!: string;
 
   @IsInt()
   @IsOptional()
   tierRank?: number;
 
   @IsEnum(PlanType)
-  type: PlanType;
+  type!: PlanType;
 
   @IsArray()
   @IsEnum(PlanBillingCycle, { each: true })
-  supportedBillingCycles: PlanBillingCycle[];
+  supportedBillingCycles!: PlanBillingCycle[];
 
   @IsInt()
   @IsOptional()

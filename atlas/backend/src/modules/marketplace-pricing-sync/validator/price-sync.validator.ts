@@ -101,7 +101,7 @@ export class PriceSyncValidator {
     }
   }
 
-  private validatePromotion(promotion: NormalizedPriceItem['promotion']): void {
+  private validatePromotion(promotion: NonNullable<NormalizedPriceItem['promotion']>): void {
     if (promotion.discountAmount !== undefined && promotion.discountAmount !== null) {
       this.validatePrice(promotion.discountAmount, 'Discount amount');
     }
@@ -117,7 +117,7 @@ export class PriceSyncValidator {
     }
   }
 
-  private validateTax(tax: NormalizedPriceItem['tax']): void {
+  private validateTax(tax: NonNullable<NormalizedPriceItem['tax']>): void {
     if (tax.rate !== undefined && tax.rate !== null) {
       if (tax.rate < 0 || tax.rate > 100) {
         throw new BadRequestException('Tax rate must be between 0 and 100');
@@ -128,7 +128,7 @@ export class PriceSyncValidator {
     }
   }
 
-  private validateFees(fees: NormalizedPriceItem['fees']): void {
+  private validateFees(fees: NonNullable<NormalizedPriceItem['fees']>): void {
     for (const fee of fees) {
       if (!fee.type?.trim()) {
         throw new BadRequestException('Fee type is required');

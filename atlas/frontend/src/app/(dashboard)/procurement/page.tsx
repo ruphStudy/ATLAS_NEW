@@ -82,7 +82,7 @@ export default function ProcurementPage() {
           </TableHeader>
           <TableBody>
             {data.items.map((p) => (
-              <TableRow key={p.id} clickable onClick={() => router.push(`/dashboard/procurement/${p.id}`)}>
+              <TableRow key={p.id} clickable onClick={() => router.push(`/procurement/${p.id}`)}>
                 <TableCell className="text-sm font-medium text-foreground">{p.procurementNumber}</TableCell>
                 <TableCell>
                   <StatusBadge status={p.status} />
@@ -100,7 +100,7 @@ export default function ProcurementPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={Math.ceil(data.total / limit)} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateProcurementDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(p) => router.push(`/dashboard/procurement/${p.id}`)} />
+      <CreateProcurementDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(p) => router.push(`/procurement/${p.id}`)} />
     </div>
   );
 }

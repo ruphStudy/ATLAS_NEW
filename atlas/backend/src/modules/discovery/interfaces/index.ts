@@ -1,4 +1,4 @@
-export { DiscoverySessionStatus } from './discovery.interface';
+export { DiscoverySessionStatus, DiscoveryMode } from './discovery.interface';
 export type {
   IDiscoverySession,
   IDiscoveryResult,
@@ -7,4 +7,6 @@ export type {
   IDiscoverySessionListResult,
   IMarketplaceAdapter,
   IMarketplaceAdapterDiscoverParams,
+  IMarketplaceProductCandidate,
+  IMarketplaceSnapshot,
 } from './discovery.interface';

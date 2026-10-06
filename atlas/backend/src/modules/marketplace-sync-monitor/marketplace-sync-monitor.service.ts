@@ -5,7 +5,7 @@ import { SyncMonitorRepository } from './repository/sync-monitor.repository';
 import { SyncAggregator } from './aggregator/sync-aggregator';
 import { SyncIssueDetector } from './detector/sync-issue-detector';
 import { SyncMonitorLifecycleQueue } from './events/sync-monitor-lifecycle.queue';
-import { SyncMonitorMetrics as MetricsService } from './metrics/sync-monitor.metrics';
+import { SyncMonitorMetrics as MetricsService, ISyncMonitorMetrics } from './metrics/sync-monitor.metrics';
 import {
   SyncModule,
   SyncStatus,
@@ -20,7 +20,6 @@ import {
   SyncMonitorEvent,
   ISyncMonitorEvent,
 } from './interfaces';
-import { SyncMonitorMetrics } from './dto';
 
 @Injectable()
 export class MarketplaceSyncMonitorService {
@@ -154,13 +153,28 @@ export class MarketplaceSyncMonitorService {
     accountId?: string,
     limit?: number,
   ): Promise<ISyncHistory[]> {
-    const jobs = await this.repository.findRecentHistory(
+    const jobsRaw = await this.repository.findRecentHistory(
       workspaceId,
       module,
       provider,
       accountId,
       limit,
     );
+    const jobs = jobsRaw as unknown as Array<{
+      workspaceId: string;
+      module: SyncModule;
+      provider: string;
+      accountId?: string;
+      id: string;
+      status: SyncStatus;
+      startedAt: Date;
+      completedAt?: Date;
+      itemsProcessed?: number;
+      itemsTotal?: number;
+      itemsFailed?: number;
+      lastError?: string;
+      triggeredBy?: string;
+    }>;
 
     return jobs.map((job) => ({
       workspaceId: job.workspaceId,
@@ -188,11 +202,13 @@ export class MarketplaceSyncMonitorService {
     unresolvedOnly?: boolean,
   ): Promise<IItemLevelFailure[]> {
     if (jobId) {
-      return this.repository.findItemFailures(workspaceId, jobId);
+      const failures = await this.repository.findItemFailures(workspaceId, jobId);
+      return failures as unknown as IItemLevelFailure[];
     }
 
     if (module && unresolvedOnly) {
-      return this.repository.findUnresolvedItemFailures(workspaceId, module);
+      const failures = await this.repository.findUnresolvedItemFailures(workspaceId, module);
+      return failures as unknown as IItemLevelFailure[];
     }
 
     return [];
@@ -224,7 +240,8 @@ export class MarketplaceSyncMonitorService {
     module?: SyncModule,
     type?: SyncIssueType,
   ): Promise<ISyncIssue[]> {
-    const issues = await this.repository.findActiveIssues(workspaceId, module);
+    const issuesRaw = await this.repository.findActiveIssues(workspaceId, module);
+    const issues = issuesRaw as unknown as ISyncIssue[];
 
     if (type) {
       return issues.filter((issue) => issue.type === type);
@@ -303,7 +320,7 @@ export class MarketplaceSyncMonitorService {
       timestamp: new Date(),
     });
 
-    return { jobId: job.id };
+    return { jobId: job.id as string };
   }
 
   async cancelSync(options: SyncCancellationOptions): Promise<void> {
@@ -323,9 +340,9 @@ export class MarketplaceSyncMonitorService {
       await job.remove();
     }
 
-    await this.repository.update(
-      'MarketplaceSyncJob',
-      { id: options.jobId, workspaceId: options.workspaceId },
+    await this.repository.updateJob(
+      options.jobId,
+      options.workspaceId,
       { status: SyncStatus.CANCELLED },
     );
 
@@ -344,7 +361,7 @@ export class MarketplaceSyncMonitorService {
   async getMetrics(
     workspaceId: string,
     module?: SyncModule,
-  ): Promise<SyncMonitorMetrics> {
+  ): Promise<ISyncMonitorMetrics> {
     return this.metricsService.getMetrics(workspaceId, module);
   }
 

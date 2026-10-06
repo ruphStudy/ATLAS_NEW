@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Worker, Job } from 'bullmq';
+import { ConfigurationService } from '@config/configuration.service';
 import { QUEUE_NAMES } from '@common/constants';
 import { MarketplaceHealthCheckJobPayload } from '../interfaces';
 import { MarketplaceProviderRegistry } from '../registry/marketplace-provider.registry';
@@ -18,9 +19,11 @@ export class MarketplaceHealthCheckWorker implements OnModuleInit {
   constructor(
     private readonly registry: MarketplaceProviderRegistry,
     private readonly healthMonitor: MarketplaceHealthMonitor,
+    private readonly configService: ConfigurationService,
   ) {}
 
   onModuleInit(): void {
+    const redis = this.configService.getRedisConfig();
     this.worker = new Worker<MarketplaceHealthCheckJobPayload>(
       QUEUE_NAMES.MARKETPLACE_PROVIDER_HEALTH_CHECK,
       async (job: Job<MarketplaceHealthCheckJobPayload>) => {
@@ -28,7 +31,7 @@ export class MarketplaceHealthCheckWorker implements OnModuleInit {
       },
       {
         concurrency: 5,
-        connection: { host: process.env['REDIS_HOST'] ?? 'localhost', port: Number(process.env['REDIS_PORT'] ?? 6379) },
+        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
       },
     );
 

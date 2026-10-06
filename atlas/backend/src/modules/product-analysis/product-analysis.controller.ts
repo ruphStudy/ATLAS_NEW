@@ -20,7 +20,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@modules/authentication/guards';
-import { WorkspaceId } from '@common/decorators/workspace.decorator';
+import { WorkspaceId } from '@common/decorators';
 import { ProductAnalysisService } from './product-analysis.service';
 import {
   CreateProductAnalysisDto,

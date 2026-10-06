@@ -374,7 +374,7 @@ export class PickingService {
           shortQuantity: newShortQty,
           stagingLocationId: lineDto.stagingLocationId ?? line['stagingLocationId'],
           scannedBarcodes,
-          metadata: { ...line['metadata'], ...lineDto.metadata },
+          metadata: { ...(line['metadata'] as Record<string, unknown> | undefined), ...lineDto.metadata },
         },
       });
 

@@ -19,13 +19,13 @@ import {
 
 export class CreateDashboardDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  dashboardKey: string;
+  dashboardKey!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
@@ -36,7 +36,7 @@ export class CreateDashboardDto {
   status?: DashboardStatus;
 
   @IsObject()
-  layout: IDashboardLayout;
+  layout!: IDashboardLayout;
 
   @IsOptional()
   @IsString()
@@ -73,7 +73,7 @@ export class CreateDashboardDto {
   metadata?: Record<string, any>;
 
   @IsString()
-  createdBy: string;
+  createdBy!: string;
 }
 
 export class UpdateDashboardDto {
@@ -122,43 +122,43 @@ export class UpdateDashboardDto {
 
 export class CloneDashboardDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  dashboardKey: string;
+  dashboardKey!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsString()
-  createdBy: string;
+  createdBy!: string;
 }
 
 export class DashboardResponseDto {
-  id: string;
-  workspaceId: string;
-  dashboardKey: string;
-  name: string;
+  id!: string;
+  workspaceId!: string;
+  dashboardKey!: string;
+  name!: string;
   description?: string;
-  status: DashboardStatus;
-  layout: IDashboardLayout;
+  status!: DashboardStatus;
+  layout!: IDashboardLayout;
   templateId?: string;
-  isTemplate: boolean;
+  isTemplate!: boolean;
   filters?: Record<string, any>;
   dateRange?: {
     start: Date;
     end: Date;
   };
-  refreshInterval: RefreshInterval;
+  refreshInterval!: RefreshInterval;
   permissions?: {
     roles?: string[];
     userIds?: string[];
   };
   metadata?: Record<string, any>;
-  version: number;
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+  version!: number;
+  createdBy!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
   publishedAt?: Date;
   archivedAt?: Date;
 }

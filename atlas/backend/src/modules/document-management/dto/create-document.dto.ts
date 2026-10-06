@@ -12,11 +12,11 @@ import { DocumentType, DocumentSourceType } from '../interfaces';
 
 export class CreateDocumentDto {
   @IsEnum(DocumentType)
-  documentType: DocumentType;
+  documentType!: DocumentType;
 
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsOptional()
@@ -44,16 +44,16 @@ export class CreateDocumentDto {
 
   @IsString()
   @IsNotEmpty()
-  fileName: string;
+  fileName!: string;
 
   @IsString()
   @IsNotEmpty()
-  mimeType: string;
+  mimeType!: string;
 
   /** Base64-encoded file content, stored via File Management. */
   @IsString()
   @IsNotEmpty()
-  contentBase64: string;
+  contentBase64!: string;
 
   @IsDateString()
   @IsOptional()

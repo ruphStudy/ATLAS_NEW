@@ -8,6 +8,7 @@ import {
 import { DiscoveryRepository } from './discovery.repository';
 import { DiscoveryQueue } from './jobs/discovery.queue';
 import { MarketplaceAdapterRegistry } from './adapters/adapter.registry';
+import { DiscoveryMode } from './interfaces';
 import type {
   IDiscoveryResult,
   IDiscoverySession,
@@ -35,7 +36,38 @@ export class DiscoveryService {
     dto: CreateDiscoverySessionDto,
     workspaceId: string,
   ): Promise<DiscoverySessionResponseDto> {
-    const marketplace = dto.marketplace.toUpperCase();
+    const mode = dto.mode ?? DiscoveryMode.KEYWORD;
+
+    // ASIN is a schema/DTO slot only — no provider implements it yet.
+    // Reject clearly here rather than let a session run with nothing to do
+    // and silently complete as an empty "success".
+    if (mode === DiscoveryMode.ASIN) {
+      throw new BadRequestException(
+        `Discovery mode '${mode}' is not implemented yet. Supported modes: KEYWORD, TREND_COLD_START.`,
+      );
+    }
+
+    if (mode === DiscoveryMode.TREND_COLD_START) {
+      // Marketplace-neutral by design (Prompt 6) — no adapter, no
+      // marketplace/country/keywords are meaningful here; the seed
+      // category set is fixed server-side (TREND_DISCOVERY_CONSTANTS).
+      const session = await this.discoveryRepository.createSession({
+        workspaceId,
+        marketplace: 'TREND',
+        country: 'GLOBAL',
+        categories: [],
+        keywords: [],
+        mode,
+        status: 'PENDING',
+      });
+
+      await this.discoveryQueue.enqueue({ sessionId: session.id, workspaceId });
+      this.logger.log(`Discovery session created: ${session.id} [TREND_COLD_START]`);
+      return this.toResponseDto(session);
+    }
+
+    // KEYWORD mode — unchanged.
+    const marketplace = dto.marketplace!.toUpperCase();
 
     if (!this.adapterRegistry.isSupported(marketplace)) {
       throw new BadRequestException(
@@ -48,14 +80,15 @@ export class DiscoveryService {
       marketplace,
       country: dto.country ?? 'US',
       categories: dto.categories ?? [],
-      keywords: dto.keywords,
+      keywords: dto.keywords ?? [],
+      mode,
       status: 'PENDING',
     });
 
     await this.discoveryQueue.enqueue({ sessionId: session.id, workspaceId });
 
     this.logger.log(
-      `Discovery session created: ${session.id} [${marketplace}/${session.country}] – ${dto.keywords.length} keywords`,
+      `Discovery session created: ${session.id} [${marketplace}/${session.country}] – ${dto.keywords?.length ?? 0} keywords`,
     );
 
     return this.toResponseDto(session);
@@ -137,8 +170,10 @@ export class DiscoveryService {
       country: s.country,
       categories: s.categories,
       keywords: s.keywords,
+      mode: s.mode,
       status: s.status,
       totalDiscovered: s.totalDiscovered,
+      newCandidates: s.newOpportunities,
       newOpportunities: s.newOpportunities,
       duplicatesSkipped: s.duplicatesSkipped,
       errorMessage: s.errorMessage,

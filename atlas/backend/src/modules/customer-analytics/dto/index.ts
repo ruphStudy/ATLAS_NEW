@@ -22,15 +22,15 @@ import {
 export class GetCustomerPerformanceDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(CustomerPeriod)
   @IsOptional()
@@ -97,11 +97,11 @@ export class GetCustomerPerformanceDto {
 export class GetCustomerTrendsDto extends GetCustomerPerformanceDto {
   @IsEnum(CustomerMetricType)
   @IsNotEmpty()
-  metricType: CustomerMetricType;
+  metricType!: CustomerMetricType;
 
   @IsEnum(CustomerPeriod)
   @IsNotEmpty()
-  period: CustomerPeriod;
+  period!: CustomerPeriod;
 
   @IsEnum(CustomerDimension)
   @IsOptional()
@@ -115,21 +115,21 @@ export class GetCustomerTrendsDto extends GetCustomerPerformanceDto {
 export class GetCustomerBreakdownDto extends GetCustomerPerformanceDto {
   @IsEnum(CustomerDimension)
   @IsNotEmpty()
-  dimension: CustomerDimension;
+  dimension!: CustomerDimension;
 }
 
 export class GetCustomerComparisonDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(CustomerPeriod)
   @IsOptional()
@@ -137,7 +137,7 @@ export class GetCustomerComparisonDto {
 
   @IsEnum(CustomerComparisonType)
   @IsNotEmpty()
-  comparisonType: CustomerComparisonType;
+  comparisonType!: CustomerComparisonType;
 
   @IsDate()
   @Type(() => Date)
@@ -161,19 +161,19 @@ export class GetCustomerComparisonDto {
 export class GetCustomerCohortDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  cohortStart: Date;
+  cohortStart!: Date;
 
   @IsDate()
   @Type(() => Date)
-  cohortEnd: Date;
+  cohortEnd!: Date;
 
   @IsEnum(CustomerPeriod)
   @IsNotEmpty()
-  cohortPeriod: CustomerPeriod;
+  cohortPeriod!: CustomerPeriod;
 
   @IsNumber()
   @IsOptional()
@@ -188,15 +188,15 @@ export class GetCustomerCohortDto {
 export class GetProductAffinityDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsArray()
   @IsString({ each: true })
@@ -220,7 +220,7 @@ export class GetProductAffinityDto {
 export class GetCustomerSegmentAlertsDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
@@ -253,31 +253,31 @@ export class GetCustomerSegmentAlertsDto {
 }
 
 export class CustomerPerformanceResponseDto implements ICustomerPerformance {
-  workspaceId: string;
-  period: CustomerPeriod;
-  startDate: Date;
-  endDate: Date;
-  segment: CustomerSegment;
+  workspaceId!: string;
+  period!: CustomerPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  segment!: CustomerSegment;
   marketplaceId?: string;
   marketplaceName?: string;
   accountId?: string;
   country?: string;
   region?: string;
-  countMetrics: ICustomerCountMetrics;
-  purchaseBehaviorMetrics: IPurchaseBehaviorMetrics;
-  returnRefundMetrics: IReturnRefundMetrics;
-  valueMetrics: ICustomerValueMetrics;
-  overallScore: number;
+  countMetrics!: ICustomerCountMetrics;
+  purchaseBehaviorMetrics!: IPurchaseBehaviorMetrics;
+  returnRefundMetrics!: IReturnRefundMetrics;
+  valueMetrics!: ICustomerValueMetrics;
+  overallScore!: number;
   metadata?: Record<string, any>;
 }
 
 export class CustomerTrendResponseDto implements ICustomerTrend {
-  workspaceId: string;
-  period: CustomerPeriod;
-  periodStart: Date;
-  periodEnd: Date;
-  metricType: CustomerMetricType;
-  value: number;
+  workspaceId!: string;
+  period!: CustomerPeriod;
+  periodStart!: Date;
+  periodEnd!: Date;
+  metricType!: CustomerMetricType;
+  value!: number;
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
@@ -287,43 +287,43 @@ export class CustomerTrendResponseDto implements ICustomerTrend {
 }
 
 export class CustomerBreakdownResponseDto implements ICustomerBreakdown {
-  workspaceId: string;
-  dimension: CustomerDimension;
-  dimensionValue: string;
+  workspaceId!: string;
+  dimension!: CustomerDimension;
+  dimensionValue!: string;
   dimensionLabel?: string;
-  period: CustomerPeriod;
-  startDate: Date;
-  endDate: Date;
-  countMetrics: ICustomerCountMetrics;
-  purchaseBehaviorMetrics: IPurchaseBehaviorMetrics;
-  returnRefundMetrics: IReturnRefundMetrics;
-  valueMetrics: ICustomerValueMetrics;
-  overallScore: number;
+  period!: CustomerPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  countMetrics!: ICustomerCountMetrics;
+  purchaseBehaviorMetrics!: IPurchaseBehaviorMetrics;
+  returnRefundMetrics!: IReturnRefundMetrics;
+  valueMetrics!: ICustomerValueMetrics;
+  overallScore!: number;
   rank?: number;
   metadata?: Record<string, any>;
 }
 
 export class CustomerComparisonResponseDto implements ICustomerComparison {
-  workspaceId: string;
-  comparisonType: CustomerComparisonType;
-  period: CustomerPeriod;
-  startDate: Date;
-  endDate: Date;
-  actualMetrics: {
+  workspaceId!: string;
+  comparisonType!: CustomerComparisonType;
+  period!: CustomerPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  actualMetrics!: {
     countMetrics: ICustomerCountMetrics;
     purchaseBehaviorMetrics: IPurchaseBehaviorMetrics;
     returnRefundMetrics: IReturnRefundMetrics;
     valueMetrics: ICustomerValueMetrics;
     overallScore: number;
   };
-  comparisonMetrics: {
+  comparisonMetrics!: {
     countMetrics: ICustomerCountMetrics;
     purchaseBehaviorMetrics: IPurchaseBehaviorMetrics;
     returnRefundMetrics: IReturnRefundMetrics;
     valueMetrics: ICustomerValueMetrics;
     overallScore: number;
   };
-  variance: {
+  variance!: {
     customerGrowthVariance: number;
     customerGrowthVariancePercent: number;
     retentionRatePoints: number;
@@ -339,12 +339,12 @@ export class CustomerComparisonResponseDto implements ICustomerComparison {
 }
 
 export class CustomerCohortResponseDto implements ICustomerCohort {
-  workspaceId: string;
-  cohortPeriod: CustomerPeriod;
-  cohortStart: Date;
-  cohortEnd: Date;
-  customersInCohort: number;
-  retentionByPeriod: Array<{
+  workspaceId!: string;
+  cohortPeriod!: CustomerPeriod;
+  cohortStart!: Date;
+  cohortEnd!: Date;
+  customersInCohort!: number;
+  retentionByPeriod!: Array<{
     period: number;
     periodLabel: string;
     activeCustomers: number;
@@ -355,16 +355,16 @@ export class CustomerCohortResponseDto implements ICustomerCohort {
 }
 
 export class ProductAffinityResponseDto implements IProductAffinity {
-  workspaceId: string;
-  productId: string;
+  workspaceId!: string;
+  productId!: string;
   productName?: string;
   categoryId?: string;
   categoryName?: string;
-  customerCount: number;
-  purchaseCount: number;
-  revenue: number;
-  affinityScore: number;
-  crossSellOpportunities: Array<{
+  customerCount!: number;
+  purchaseCount!: number;
+  revenue!: number;
+  affinityScore!: number;
+  crossSellOpportunities!: Array<{
     productId: string;
     productName?: string;
     coOccurrenceRate: number;
@@ -373,15 +373,15 @@ export class ProductAffinityResponseDto implements IProductAffinity {
 }
 
 export class CustomerSegmentAlertResponseDto implements ICustomerSegmentAlert {
-  workspaceId: string;
-  alertType: CustomerSegment;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  customerCount: number;
+  workspaceId!: string;
+  alertType!: CustomerSegment;
+  severity!: 'low' | 'medium' | 'high' | 'critical';
+  customerCount!: number;
   marketplaceId?: string;
   marketplaceName?: string;
   segment?: CustomerSegment;
-  reason: string;
-  details: Record<string, any>;
-  detectedAt: Date;
+  reason!: string;
+  details!: Record<string, any>;
+  detectedAt!: Date;
   metadata?: Record<string, any>;
 }

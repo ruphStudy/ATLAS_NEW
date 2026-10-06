@@ -3,16 +3,16 @@ import { AiExecutionMode, AiRoutingStrategy } from '../interfaces';
 
 export class ExecuteAiRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  useCase: string;
+  useCase!: string;
 
   @IsString()
-  capability: string;
+  capability!: string;
 
   @IsString()
-  prompt: string;
+  prompt!: string;
 
   @IsOptional()
   @IsObject()

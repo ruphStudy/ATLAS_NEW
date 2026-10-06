@@ -17,11 +17,11 @@ export class CreateFallbackConfigDto {
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
-  capability: string;
+  capability!: string;
 
   @IsString()
   @IsOptional()
@@ -37,11 +37,11 @@ export class CreateFallbackConfigDto {
 
   @IsString()
   @IsNotEmpty()
-  fallbackProvider: string;
+  fallbackProvider!: string;
 
   @IsString()
   @IsNotEmpty()
-  fallbackModel: string;
+  fallbackModel!: string;
 
   @IsInt()
   @IsOptional()

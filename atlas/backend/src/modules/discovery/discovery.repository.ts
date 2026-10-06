@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '@database/base.repository';
 import { PrismaService } from '@database/prisma.service';
-import type { IDiscoveryResult, IDiscoverySession, IDiscoveryStats } from './interfaces';
+import type {
+  IDiscoveryResult,
+  IDiscoverySession,
+  IDiscoveryStats,
+  IMarketplaceProductCandidate,
+} from './interfaces';
 import type { DiscoveryFilterDto } from './dto';
 
 /**
@@ -30,9 +35,15 @@ export class DiscoveryRepository extends BaseRepository {
     ] as Record<string, unknown>;
   }
 
-  private get opportunityModel(): Record<string, unknown> {
+  private get candidateModel(): Record<string, unknown> {
     return (this.prisma as unknown as Record<string, unknown>)[
-      'opportunity'
+      'marketplaceProductCandidate'
+    ] as Record<string, unknown>;
+  }
+
+  private get snapshotModel(): Record<string, unknown> {
+    return (this.prisma as unknown as Record<string, unknown>)[
+      'marketplaceSnapshot'
     ] as Record<string, unknown>;
   }
 
@@ -107,27 +118,73 @@ export class DiscoveryRepository extends BaseRepository {
     return results as IDiscoveryResult[];
   }
 
-  // ── Deduplication ────────────────────────────────────────────────
+  // ── MarketplaceProductCandidate / MarketplaceSnapshot ───────────────
+  //
+  // Global/shared, not workspace-scoped (Prompt 3 §5.B) — canonical
+  // identity is (marketplaceKey, country, externalProductId), enforced by
+  // a DB unique constraint so concurrent discovery workers upserting the
+  // same real product cannot create duplicate candidate rows.
 
-  async findExistingOpportunity(
-    workspaceId: string,
-    keyword: string,
-    marketplace: string,
-  ): Promise<{ id: string } | null> {
-    const findFirst = this.opportunityModel['findFirst'] as (
+  /**
+   * Upserts a candidate on its DB-enforced natural key. Returns the row and
+   * whether it was newly created (vs. an already-known product being
+   * rediscovered) so the caller can maintain accurate run counters.
+   */
+  async upsertCandidate(data: {
+    marketplaceKey: string;
+    country: string;
+    externalProductId: string;
+    title?: string | null;
+    marketplaceCategory?: string | null;
+  }): Promise<{ candidate: IMarketplaceProductCandidate; created: boolean }> {
+    const upsert = this.candidateModel['upsert'] as (args: unknown) => Promise<unknown>;
+    const where = {
+      marketplaceKey_country_externalProductId: {
+        marketplaceKey: data.marketplaceKey,
+        country: data.country,
+        externalProductId: data.externalProductId,
+      },
+    };
+
+    // The `created` flag below is best-effort (a pre-check, not the
+    // guarantee) — it can rarely double-count under a true concurrent race
+    // on the exact same product and only affects the session's display
+    // counters. Row-level duplicate protection is the DB unique constraint
+    // on (marketplaceKey, country, externalProductId), enforced by the
+    // atomic upsert itself regardless of this check's outcome.
+    const findUnique = this.candidateModel['findUnique'] as (
       args: unknown,
     ) => Promise<unknown>;
-    return (await findFirst({
-      where: { workspaceId, keyword, marketplace, deletedAt: null },
-      select: { id: true },
-    })) as { id: string } | null;
+    const existing = await findUnique({ where });
+
+    const candidate = (await upsert({
+      where,
+      create: {
+        marketplaceKey: data.marketplaceKey,
+        country: data.country,
+        externalProductId: data.externalProductId,
+        title: data.title ?? null,
+        marketplaceCategory: data.marketplaceCategory ?? null,
+      },
+      update: {
+        title: data.title ?? undefined,
+        marketplaceCategory: data.marketplaceCategory ?? undefined,
+      },
+    })) as IMarketplaceProductCandidate;
+
+    return { candidate, created: existing === null };
   }
 
-  async createOpportunityFromProduct(
-    data: Record<string, unknown>,
-  ): Promise<{ id: string }> {
-    const create = this.opportunityModel['create'] as (args: unknown) => Promise<unknown>;
-    return (await create({ data, select: { id: true } })) as { id: string };
+  async createSnapshot(data: {
+    candidateId: string;
+    salesRank?: number | null;
+    price?: number | null;
+    offerCount?: number | null;
+    source: string;
+    capturedAt: Date;
+  }): Promise<void> {
+    const create = this.snapshotModel['create'] as (args: unknown) => Promise<unknown>;
+    await create({ data });
   }
 
   // ── Stats ────────────────────────────────────────────────────────
@@ -153,7 +210,12 @@ export class DiscoveryRepository extends BaseRepository {
     }>;
 
     let totalDiscovered = 0;
-    let totalNewOpportunities = 0;
+    // Same underlying value, two names: `totalNewOpportunities` is kept only
+    // for historical API compatibility; `totalNewCandidates` is the
+    // correctly-named field new/updated consumers should use — Discovery
+    // counts newly discovered MarketplaceProductCandidate rows, not
+    // Opportunity rows (see DiscoverySession.newOpportunities in schema.prisma).
+    let totalNewCandidates = 0;
     let totalDuplicatesSkipped = 0;
     let runningSessions = 0;
     const byStatus: Record<string, number> = {};
@@ -161,7 +223,7 @@ export class DiscoveryRepository extends BaseRepository {
 
     for (const row of rows) {
       totalDiscovered += row.totalDiscovered;
-      totalNewOpportunities += row.newOpportunities;
+      totalNewCandidates += row.newOpportunities;
       totalDuplicatesSkipped += row.duplicatesSkipped;
       if (row.status === 'RUNNING') runningSessions++;
       byStatus[row.status] = (byStatus[row.status] ?? 0) + 1;
@@ -172,7 +234,8 @@ export class DiscoveryRepository extends BaseRepository {
       totalSessions: rows.length,
       runningSessions,
       totalDiscovered,
-      totalNewOpportunities,
+      totalNewCandidates,
+      totalNewOpportunities: totalNewCandidates,
       totalDuplicatesSkipped,
       byMarketplace,
       byStatus,

@@ -26,8 +26,8 @@ export const PICKING_CONSTANTS = {
       PickingStatus.IN_PROGRESS,
       PickingStatus.CANCELLED,
     ],
-    [PickingStatus.COMPLETED]: [],
-    [PickingStatus.CANCELLED]: [],
+    [PickingStatus.COMPLETED]: [] as PickingStatus[],
+    [PickingStatus.CANCELLED]: [] as PickingStatus[],
     [PickingStatus.FAILED]: [
       PickingStatus.PENDING,
       PickingStatus.ASSIGNED,

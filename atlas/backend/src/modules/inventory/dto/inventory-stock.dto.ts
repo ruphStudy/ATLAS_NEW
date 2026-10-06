@@ -6,6 +6,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '@common/dto/pagination.dto';
 import {
   InventoryOwnershipType,
@@ -33,6 +34,10 @@ export class ReceiveStockDto {
   @IsNumber()
   @Min(0.000001)
   quantity!: number;
+
+  @IsOptional()
+  @IsEnum(InventoryStockStatus)
+  status?: InventoryStockStatus;
 
   @IsOptional()
   @IsString()
@@ -594,7 +599,9 @@ export class InventoryTransactionResponseDto {
   quantityBefore?: number | null;
   quantityAfter?: number | null;
   uom!: string;
+  @ApiPropertyOptional({ enum: InventoryStockStatus, nullable: true })
   fromStatus?: InventoryStockStatus | null;
+  @ApiPropertyOptional({ enum: InventoryStockStatus, nullable: true })
   toStatus?: InventoryStockStatus | null;
   referenceType?: string | null;
   referenceId?: string | null;

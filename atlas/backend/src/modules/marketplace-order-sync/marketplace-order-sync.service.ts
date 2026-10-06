@@ -26,7 +26,7 @@ import { OrderSyncStateManager } from './state/order-sync-state.manager';
 import { OrderSyncRunner, OrderRunnerContext } from './runner/order-sync.runner';
 import { OrderSyncScheduler } from './scheduler/order-sync.scheduler';
 import { OrderSyncEventQueue } from './events/order-sync-events.queue';
-import { OrderSyncMetrics } from './metrics/order-sync.metrics';
+import { OrderSyncMetrics, MetricsSnapshot } from './metrics/order-sync.metrics';
 import { OrderSyncQueue } from './queue/order-sync.queue';
 import { MarketplaceProviderFactoryService } from '../marketplace-provider-factory/marketplace-provider-factory.service';
 import { MarketplaceCapability } from '../marketplace-provider/interfaces';
@@ -190,8 +190,8 @@ export class MarketplaceOrderSyncService {
       throw new BadRequestException({ message: 'No retryable failed items found for this job' });
     }
     const itemIds = request.itemIds?.length
-      ? failedItems.filter((i) => request.itemIds!.includes(i['externalId'] as string)).map((i) => i['externalId'] as string)
-      : failedItems.map((i) => i['externalId'] as string);
+      ? failedItems.filter((i: Record<string, unknown>) => request.itemIds!.includes(i['externalId'] as string)).map((i: Record<string, unknown>) => i['externalId'] as string)
+      : failedItems.map((i: Record<string, unknown>) => i['externalId'] as string);
 
     return this.startSync({
       workspaceId: request.workspaceId,
@@ -307,8 +307,8 @@ export class MarketplaceOrderSyncService {
     await this.scheduler.triggerNow(scheduleId);
   }
 
-  getMetrics(workspaceId: string, accountId: string) { return this.metrics.getSnapshot(workspaceId, accountId); }
-  getAllMetrics(workspaceId: string) { return this.metrics.getAllSnapshots(workspaceId); }
+  getMetrics(workspaceId: string, accountId: string): MetricsSnapshot { return this.metrics.getSnapshot(workspaceId, accountId); }
+  getAllMetrics(workspaceId: string): MetricsSnapshot[] { return this.metrics.getAllSnapshots(workspaceId); }
 
   private async requireJob(jobId: string, workspaceId: string): Promise<IOrderSyncJob> {
     const job = await this.repository.findJobById(jobId, workspaceId);

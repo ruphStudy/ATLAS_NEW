@@ -9,7 +9,7 @@ export class SetProviderRequirementDto {
 
   @IsString()
   @IsNotEmpty()
-  marketplaceKey: string;
+  marketplaceKey!: string;
 
   @IsString()
   @IsOptional()
@@ -17,7 +17,7 @@ export class SetProviderRequirementDto {
 
   @IsString()
   @IsNotEmpty()
-  requiredLocaleCode: string;
+  requiredLocaleCode!: string;
 
   @IsString()
   @IsOptional()

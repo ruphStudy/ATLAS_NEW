@@ -12,13 +12,13 @@ import { SyncModule, SyncStatus, SyncIssueType } from '../interfaces';
 
 export class GetSyncSnapshotQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(SyncModule)
-  module: SyncModule;
+  module!: SyncModule;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsOptional()
   @IsString()
@@ -27,7 +27,7 @@ export class GetSyncSnapshotQueryDto {
 
 export class ListSyncsQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsEnum(SyncModule)
@@ -68,13 +68,13 @@ export class ListSyncsQueryDto {
 
 export class GetSyncHistoryQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(SyncModule)
-  module: SyncModule;
+  module!: SyncModule;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsOptional()
   @IsString()
@@ -89,7 +89,7 @@ export class GetSyncHistoryQueryDto {
 
 export class GetItemFailuresQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
@@ -107,7 +107,7 @@ export class GetItemFailuresQueryDto {
 
 export class GetIssuesQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsEnum(SyncModule)
@@ -125,13 +125,13 @@ export class GetIssuesQueryDto {
 
 export class RetrySyncRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(SyncModule)
-  module: SyncModule;
+  module!: SyncModule;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsOptional()
   @IsString()
@@ -154,20 +154,20 @@ export class RetrySyncRequestDto {
 
 export class CancelSyncRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(SyncModule)
-  module: SyncModule;
+  module!: SyncModule;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsOptional()
   @IsString()
   accountId?: string;
 
   @IsString()
-  jobId: string;
+  jobId!: string;
 
   @IsOptional()
   @IsString()
@@ -180,118 +180,118 @@ export class CancelSyncRequestDto {
 }
 
 export class SyncSnapshotResponseDto {
-  workspaceId: string;
-  module: SyncModule;
-  provider: string;
+  workspaceId!: string;
+  module!: SyncModule;
+  provider!: string;
   accountId?: string;
-  status: SyncStatus;
+  status!: SyncStatus;
   jobId?: string;
   startedAt?: Date;
   completedAt?: Date;
   duration?: number;
-  itemsProcessed: number;
+  itemsProcessed!: number;
   itemsTotal?: number;
-  itemsFailed: number;
-  successRate: number;
+  itemsFailed!: number;
+  successRate!: number;
   throughput?: number;
   currentPage?: number;
   nextCursor?: string;
-  errorCount: number;
+  errorCount!: number;
   lastError?: string;
   lastErrorAt?: Date;
-  consecutiveFailures: number;
+  consecutiveFailures!: number;
   lastSuccessfulSyncAt?: Date;
   nextScheduledSyncAt?: Date;
 }
 
 export class SyncAggregateResponseDto {
-  snapshot: SyncSnapshotResponseDto;
+  snapshot!: SyncSnapshotResponseDto;
   queueHealth?: any;
   rateLimitStatus?: any;
-  recentHistory: any[];
-  activeIssues: any[];
+  recentHistory!: any[];
+  activeIssues!: any[];
 }
 
 export class SyncHistoryResponseDto {
-  workspaceId: string;
-  module: SyncModule;
-  provider: string;
+  workspaceId!: string;
+  module!: SyncModule;
+  provider!: string;
   accountId?: string;
-  jobId: string;
-  status: SyncStatus;
-  startedAt: Date;
+  jobId!: string;
+  status!: SyncStatus;
+  startedAt!: Date;
   completedAt?: Date;
   duration?: number;
-  itemsProcessed: number;
+  itemsProcessed!: number;
   itemsTotal?: number;
-  itemsFailed: number;
-  successRate: number;
+  itemsFailed!: number;
+  successRate!: number;
   errorSummary?: string;
   triggeredBy?: string;
 }
 
 export class ItemFailureResponseDto {
-  workspaceId: string;
-  module: SyncModule;
-  provider: string;
+  workspaceId!: string;
+  module!: SyncModule;
+  provider!: string;
   accountId?: string;
-  jobId: string;
-  itemId: string;
+  jobId!: string;
+  itemId!: string;
   externalId?: string;
   errorCode?: string;
-  errorMessage: string;
-  failedAt: Date;
-  retryCount: number;
-  isResolved: boolean;
+  errorMessage!: string;
+  failedAt!: Date;
+  retryCount!: number;
+  isResolved!: boolean;
 }
 
 export class IssueResponseDto {
-  workspaceId: string;
-  module: SyncModule;
-  provider: string;
+  workspaceId!: string;
+  module!: SyncModule;
+  provider!: string;
   accountId?: string;
-  type: SyncIssueType;
-  severity: string;
-  message: string;
-  detectedAt: Date;
+  type!: SyncIssueType;
+  severity!: string;
+  message!: string;
+  detectedAt!: Date;
   resolvedAt?: Date;
   metadata?: Record<string, any>;
 }
 
 export class SyncMetricsResponseDto {
-  workspaceId: string;
+  workspaceId!: string;
   module?: SyncModule;
-  totalJobs: number;
-  activeJobs: number;
-  completedJobs: number;
-  failedJobs: number;
-  cancelledJobs: number;
-  totalItemsProcessed: number;
-  totalItemsFailed: number;
-  overallSuccessRate: number;
+  totalJobs!: number;
+  activeJobs!: number;
+  completedJobs!: number;
+  failedJobs!: number;
+  cancelledJobs!: number;
+  totalItemsProcessed!: number;
+  totalItemsFailed!: number;
+  overallSuccessRate!: number;
   avgDuration?: number;
   avgThroughput?: number;
-  activeIssuesCount: number;
-  unresolvedFailuresCount: number;
-  stuckJobsCount: number;
-  delayedJobsCount: number;
-  consecutiveFailuresCount: number;
+  activeIssuesCount!: number;
+  unresolvedFailuresCount!: number;
+  stuckJobsCount!: number;
+  delayedJobsCount!: number;
+  consecutiveFailuresCount!: number;
 }
 
 export class ErrorSummaryResponseDto {
   errorCode?: string;
-  errorMessage: string;
-  count: number;
-  firstOccurrence: Date;
-  lastOccurrence: Date;
-  affectedItems: string[];
-  isRecoverable: boolean;
+  errorMessage!: string;
+  count!: number;
+  firstOccurrence!: Date;
+  lastOccurrence!: Date;
+  affectedItems!: string[];
+  isRecoverable!: boolean;
   suggestedAction?: string;
 }
 
 export class SyncActionResponseDto {
-  success: boolean;
-  message: string;
+  success!: boolean;
+  message!: string;
   jobId?: string;
   metadata?: Record<string, any>;
 }

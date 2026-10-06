@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { MarketplaceProviderFactory } from '../marketplace-provider-factory/marketplace-provider-factory.service';
-import { MarketplaceCapability } from '../marketplace-provider/interfaces/marketplace-provider.interface';
+import { MarketplaceProviderFactoryService } from '../marketplace-provider-factory/marketplace-provider-factory.service';
+import { MarketplaceCapability } from '../marketplace-provider/interfaces';
 import { ReportSyncRepository } from './repository/report-sync.repository';
 import { ReportSyncValidator } from './validator/report-sync.validator';
 import { ReportSyncStateManager } from './state/report-sync-state.manager';
@@ -23,7 +23,7 @@ import { ReportSyncEvent, ItemSyncStatus } from './interfaces';
 @Injectable()
 export class MarketplaceReportSyncService {
   constructor(
-    private readonly providerFactory: MarketplaceProviderFactory,
+    private readonly providerFactory: MarketplaceProviderFactoryService,
     private readonly repository: ReportSyncRepository,
     private readonly validator: ReportSyncValidator,
     private readonly stateManager: ReportSyncStateManager,
@@ -36,8 +36,14 @@ export class MarketplaceReportSyncService {
   async startSync(dto: StartReportSyncRequestDto) {
     this.validator.validateSyncRequest(dto);
 
-    const provider = await this.providerFactory.getProvider(dto.providerKey, dto.marketplaceKey);
-    if (!provider.hasCapability(MarketplaceCapability.SYNC_REPORTS)) {
+    try {
+      await this.providerFactory.resolve({
+        workspaceId: dto.workspaceId,
+        accountId: dto.accountId,
+        providerKey: dto.providerKey,
+        capability: MarketplaceCapability.SYNC_REPORTS,
+      });
+    } catch {
       throw new BadRequestException(
         `Provider ${dto.providerKey}/${dto.marketplaceKey} does not support report sync`,
       );

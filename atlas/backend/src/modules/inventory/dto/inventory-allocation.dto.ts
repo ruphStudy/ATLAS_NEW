@@ -8,6 +8,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '@common/dto/pagination.dto';
 import {
   InventoryAllocationLineStatus,
@@ -191,6 +192,7 @@ export class InventoryAllocationResponseDto {
   releasedQuantity!: number;
   shortageQuantity!: number;
   uom!: string;
+  @ApiPropertyOptional({ enum: InventoryOwnershipType, nullable: true })
   restrictOwnershipType?: InventoryOwnershipType | null;
   reallocationCount!: number;
   idempotencyKey?: string | null;
@@ -264,6 +266,7 @@ export class InventoryAllocationHistoryResponseDto {
   id!: string;
   allocationId!: string;
   workspaceId!: string;
+  @ApiPropertyOptional({ enum: InventoryAllocationStatus, nullable: true })
   fromStatus?: InventoryAllocationStatus | null;
   toStatus!: InventoryAllocationStatus;
   reason?: string | null;

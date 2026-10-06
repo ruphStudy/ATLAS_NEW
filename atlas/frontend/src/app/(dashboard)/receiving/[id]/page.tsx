@@ -80,7 +80,7 @@ export default function ReceivingDetailPage() {
     <div>
       <PageHeader
         title={receiving.receivingNumber}
-        breadcrumbs={[{ label: 'Receiving', href: '/dashboard/receiving' }, { label: receiving.receivingNumber }]}
+        breadcrumbs={[{ label: 'Receiving', href: '/receiving' }, { label: receiving.receivingNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={receiving.status} />
@@ -111,7 +111,7 @@ export default function ReceivingDetailPage() {
             {receiving.purchaseOrderId && (
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Purchase order</p>
-                <Link href={`/dashboard/purchase-orders/${receiving.purchaseOrderId}`} className="mt-0.5 inline-block text-sm text-primary hover:underline">
+                <Link href={`/purchase-orders/${receiving.purchaseOrderId}`} className="mt-0.5 inline-block text-sm text-primary hover:underline">
                   View PO
                 </Link>
               </div>
@@ -119,7 +119,7 @@ export default function ReceivingDetailPage() {
             {receiving.shipmentId && (
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Shipment</p>
-                <Link href={`/dashboard/shipments/${receiving.shipmentId}`} className="mt-0.5 inline-block text-sm text-primary hover:underline">
+                <Link href={`/shipments/${receiving.shipmentId}`} className="mt-0.5 inline-block text-sm text-primary hover:underline">
                   View shipment
                 </Link>
               </div>

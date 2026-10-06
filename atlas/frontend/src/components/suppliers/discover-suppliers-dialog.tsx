@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { FormField } from '@/components/ui/form-field';
 import { useCreateSupplierDiscoverySession, useSupportedSupplierProviders } from '@/hooks';
+import { ROUTES } from '@/constants';
 
 interface DiscoverSuppliersDialogProps {
   open: boolean;
@@ -36,7 +37,7 @@ export function DiscoverSuppliersDialog({ open, onOpenChange }: DiscoverSupplier
           onOpenChange(false);
           setKeyword('');
           setCategory('');
-          router.push(`/dashboard/suppliers?discoverySession=${session.id}`);
+          router.push(`${ROUTES.SUPPLIERS}?discoverySession=${session.id}`);
         },
       },
     );

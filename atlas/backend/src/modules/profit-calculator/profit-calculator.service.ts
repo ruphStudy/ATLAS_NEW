@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@database/prisma.service';
 import { ProfitCalculatorRepository } from './profit-calculator.repository';
-import { ProfitCalculatorQueue } from './jobs';
+import { ProfitCalculatorQueue } from './jobs/profit-calculator.queue';
 import { AmazonFbaProvider, AmazonFbmProvider } from './providers';
 import {
   CreateProfitCalculationDto,

@@ -1,3 +1,6 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
+import { PaginationDto } from '@common/dto/pagination.dto';
 import { AccountStatus, IMarketplaceAccount, IMarketplaceAccountHistory } from '../interfaces';
 
 // ── Request DTOs ──────────────────────────────────────────────
@@ -47,18 +50,37 @@ export class StatusTransitionRequestDto {
   updatedBy?: string | null;
 }
 
-export class AccountFilterQueryDto {
-  workspaceId!: string;
+/**
+ * Workspace identity is deliberately NOT a field here — the controller
+ * resolves it from the authenticated request context (@WorkspaceId()), the
+ * same pattern used by every other list endpoint in ATLAS. Never accept it
+ * from the client.
+ */
+export class AccountFilterQueryDto extends PaginationDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   providerKey?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   marketplaceKey?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   country?: string;
+
+  @ApiPropertyOptional({ enum: AccountStatus })
+  @IsOptional()
+  @IsEnum(AccountStatus)
   status?: AccountStatus;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
   isDefault?: boolean;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
 }
 
 // ── Response DTOs ─────────────────────────────────────────────

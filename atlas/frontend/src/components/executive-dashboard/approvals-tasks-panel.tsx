@@ -37,7 +37,7 @@ export function ApprovalsTasksPanel({
           ) : approvals.length === 0 ? (
             <EmptyState title="Nothing pending" description="You're all caught up." className="border-none py-6" />
           ) : (
-            <Link href="/dashboard/approval-workflow" className="block space-y-1">
+            <Link href="/approval-workflow" className="block space-y-1">
               {approvals.map((req) => (
                 <div key={req.id} className="flex items-center justify-between gap-2 rounded-[calc(var(--radius)-4px)] px-2 py-2 hover:bg-secondary">
                   <div className="min-w-0">

@@ -2,7 +2,7 @@ import { IsIn, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class DecideApprovalDto {
   @IsIn(['APPROVE', 'REJECT', 'REQUEST_CHANGES', 'DEFER'])
-  action: 'APPROVE' | 'REJECT' | 'REQUEST_CHANGES' | 'DEFER';
+  action!: 'APPROVE' | 'REJECT' | 'REQUEST_CHANGES' | 'DEFER';
 
   @IsString()
   @IsOptional()

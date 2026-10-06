@@ -25,6 +25,7 @@ import {
   OpportunityFilterDto,
   OpportunityListResponseDto,
   OpportunityResponseDto,
+  PromoteCandidateDto,
   UpdateOpportunityDto,
 } from './dto';
 import type { IOpportunityListResult } from './interfaces';
@@ -47,6 +48,23 @@ export class OpportunityController {
     @CurrentUser('workspaceId') workspaceId: string,
   ): Promise<OpportunityResponseDto> {
     return this.opportunityService.create(dto, workspaceId);
+  }
+
+  // ── POST /opportunities/promote ──────────────────────────────
+
+  @Post('promote')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Promote a MarketplaceProductCandidate into an Opportunity for the current workspace. Idempotent — promoting the same candidate again returns the existing Opportunity.',
+  })
+  @ApiResponse({ status: HttpStatus.OK, type: OpportunityResponseDto })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Candidate not found' })
+  promote(
+    @Body() dto: PromoteCandidateDto,
+    @CurrentUser('workspaceId') workspaceId: string,
+  ): Promise<OpportunityResponseDto> {
+    return this.opportunityService.promoteCandidate(dto.marketplaceProductCandidateId, workspaceId);
   }
 
   // ── GET /opportunities ───────────────────────────────────────

@@ -337,7 +337,7 @@ export class WarehouseService {
     const warehouse = await this.findOrFail(id, workspaceId);
 
     if (!warehouse['deletedAt']) {
-      throw new BusinessRuleException('Warehouse is not deleted', ErrorCode.INVALID_INPUT);
+      throw new BusinessRuleException('Warehouse is not deleted', ErrorCode.VALIDATION_FAILED);
     }
 
     const updated = await this.repository.restore(id);

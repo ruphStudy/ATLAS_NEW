@@ -25,7 +25,7 @@ import {
 @Injectable()
 export class MeeshoAdapter extends BaseAdapter {
   private readonly logger = new Logger(MeeshoAdapter.name);
-  private meeshoCredentials: IMeeshoCredentials;
+  private meeshoCredentials!: IMeeshoCredentials;
 
   constructor(
     private readonly apiClient: MeeshoApiClient,

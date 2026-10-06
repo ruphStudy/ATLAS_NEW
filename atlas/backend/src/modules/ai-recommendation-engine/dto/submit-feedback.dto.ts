@@ -12,11 +12,11 @@ import { AiRecommendationFeedbackType } from '../interfaces';
 export class SubmitFeedbackDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiRecommendationFeedbackType)
   @IsNotEmpty()
-  feedbackType: AiRecommendationFeedbackType;
+  feedbackType!: AiRecommendationFeedbackType;
 
   @IsString()
   @IsOptional()
@@ -24,7 +24,7 @@ export class SubmitFeedbackDto {
 
   @IsString()
   @IsNotEmpty()
-  userId: string;
+  userId!: string;
 
   @IsInt()
   @Min(1)

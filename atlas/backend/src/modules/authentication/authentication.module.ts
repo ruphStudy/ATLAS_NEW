@@ -10,6 +10,9 @@ import { AuthenticationRepository } from './authentication.repository';
 import { FailedLoginTracker } from './failed-login.tracker';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { TotpService } from './mfa/totp.service';
+import { MfaSecretEncryptor } from './mfa/mfa-secret.encryptor';
+import { MfaSecretDecryptor } from './mfa/mfa-secret.decryptor';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
     FailedLoginTracker,
     JwtStrategy,
     JwtRefreshStrategy,
+    TotpService,
+    MfaSecretEncryptor,
+    MfaSecretDecryptor,
   ],
   exports: [AuthenticationService, JwtModule],
 })

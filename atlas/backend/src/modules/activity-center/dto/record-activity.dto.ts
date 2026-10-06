@@ -4,10 +4,10 @@ import { ActivityActorType, ActivityOutcome } from '../interfaces';
 export class RecordActivityDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(ActivityActorType)
-  actorType: ActivityActorType;
+  actorType!: ActivityActorType;
 
   @IsString()
   @IsOptional()
@@ -20,11 +20,11 @@ export class RecordActivityDto {
   /** Free-form, dot-namespaced, source-module-defined (e.g. 'order.created') — not a fixed enum, config-driven like every other module's own *Event vocabulary. */
   @IsString()
   @IsNotEmpty()
-  action: string;
+  action!: string;
 
   @IsString()
   @IsNotEmpty()
-  sourceModule: string;
+  sourceModule!: string;
 
   @IsString()
   @IsOptional()
@@ -40,7 +40,7 @@ export class RecordActivityDto {
 
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsOptional()

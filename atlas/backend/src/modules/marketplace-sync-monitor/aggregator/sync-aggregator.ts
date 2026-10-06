@@ -9,8 +9,43 @@ import {
   IQueueHealth,
   IRateLimitStatus,
   ISyncHistory,
+  ISyncIssue,
   SyncAggregateData,
 } from '../interfaces';
+
+interface ISyncJobRecord {
+  id: string;
+  workspaceId?: string;
+  module?: string;
+  provider?: string;
+  accountId?: string;
+  status: string;
+  startedAt?: Date;
+  completedAt?: Date;
+  itemsProcessed?: number;
+  itemsTotal?: number;
+  itemsFailed?: number;
+  currentPage?: number;
+  nextCursor?: string;
+  errorCount?: number;
+  lastError?: string;
+  lastErrorAt?: Date;
+  consecutiveFailures?: number;
+  triggeredBy?: string;
+}
+
+interface ISyncScheduleRecord {
+  completedAt?: Date;
+  nextRunAt?: Date;
+}
+
+interface IRateLimitRecord {
+  isLimited: boolean;
+  limitResetAt?: Date;
+  requestsRemaining?: number;
+  requestsLimit?: number;
+  retryAfter?: number;
+}
 
 @Injectable()
 export class SyncAggregator {
@@ -60,7 +95,7 @@ export class SyncAggregator {
       queueHealth,
       rateLimitStatus,
       recentHistory: recentHistory.map((job) => this.mapToSyncHistory(job)),
-      activeIssues,
+      activeIssues: activeIssues as unknown as ISyncIssue[],
     };
   }
 
@@ -71,7 +106,7 @@ export class SyncAggregator {
     for (const module of modules) {
       const jobs = await this.repository.findJobsByStatus(
         workspaceId,
-        ['QUEUED', 'RUNNING', 'PAUSED', 'COMPLETED', 'FAILED'],
+        [SyncStatus.QUEUED, SyncStatus.RUNNING, SyncStatus.PAUSED, SyncStatus.COMPLETED, SyncStatus.FAILED],
         module,
       );
 
@@ -101,31 +136,31 @@ export class SyncAggregator {
     provider: string,
     accountId?: string,
   ): Promise<ISyncSnapshot> {
-    const activeJobs = await this.repository.findJobsByProvider(
+    const activeJobs = (await this.repository.findJobsByProvider(
       workspaceId,
       provider,
       accountId,
-    );
+    )) as unknown as ISyncJobRecord[];
 
     const currentJob = activeJobs.find(
       (job) =>
         job.module === module &&
-        ['QUEUED', 'RUNNING', 'PAUSED'].includes(job.status),
+        [SyncStatus.QUEUED, SyncStatus.RUNNING, SyncStatus.PAUSED].includes(job.status as SyncStatus),
     );
 
-    const lastSuccessfulSync = await this.repository.findLastSuccessfulSync(
+    const lastSuccessfulSync = (await this.repository.findLastSuccessfulSync(
       workspaceId,
       module,
       provider,
       accountId,
-    );
+    )) as unknown as ISyncScheduleRecord | null;
 
-    const nextScheduledSync = await this.repository.findNextScheduledSync(
+    const nextScheduledSync = (await this.repository.findNextScheduledSync(
       workspaceId,
       module,
       provider,
       accountId,
-    );
+    )) as unknown as ISyncScheduleRecord | null;
 
     const status = this.determineStatus(currentJob);
     const duration = this.calculateDuration(currentJob);
@@ -207,15 +242,12 @@ export class SyncAggregator {
     provider: string,
     accountId?: string,
   ): Promise<IRateLimitStatus | undefined> {
-    const rateLimitRecord = await this.repository.findUnique(
-      'MarketplaceRateLimit',
-      {
-        workspaceId,
-        provider,
-        accountId: accountId || '',
-        module,
-      },
-    );
+    const rateLimitRecord = (await this.repository.findRateLimitRecord(
+      workspaceId,
+      module,
+      provider,
+      accountId || '',
+    )) as unknown as IRateLimitRecord | null;
 
     if (!rateLimitRecord) return undefined;
 

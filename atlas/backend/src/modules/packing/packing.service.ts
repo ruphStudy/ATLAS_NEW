@@ -317,7 +317,7 @@ export class PackingService {
           packedQuantity: newPackedQty,
           packageId: lineDto.packageId ?? line['packageId'],
           scannedBarcodes,
-          metadata: { ...line['metadata'], ...lineDto.metadata },
+          metadata: { ...(line['metadata'] as Record<string, unknown> | undefined), ...lineDto.metadata },
         },
       });
 
@@ -400,7 +400,7 @@ export class PackingService {
       ...(dto.packingSlipUrl !== undefined && { packingSlipUrl: dto.packingSlipUrl }),
       ...(dto.evidenceUrls !== undefined && { evidenceUrls: dto.evidenceUrls }),
       ...(dto.shipmentReady !== undefined && { shipmentReady: dto.shipmentReady }),
-      ...(dto.metadata !== undefined && { metadata: { ...pkg['metadata'], ...dto.metadata } }),
+      ...(dto.metadata !== undefined && { metadata: { ...(pkg['metadata'] as Record<string, unknown> | undefined), ...dto.metadata } }),
     });
 
     if (dto.shipmentReady) {

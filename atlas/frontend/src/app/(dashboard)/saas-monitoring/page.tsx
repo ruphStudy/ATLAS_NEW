@@ -24,6 +24,7 @@ import {
 } from '@/hooks';
 import { formatDate } from '@/lib/utils';
 import type { SaasHealthIncidentStatus, SaasHealthModuleKey, SaasHealthStatus } from '@/types';
+import { PlatformAdminGuard } from '@/components/auth/platform-admin-guard';
 
 const MODULE_OPTIONS: { value: SaasHealthModuleKey; label: string }[] = [
   { value: 'SUBSCRIPTION_MANAGEMENT', label: 'Subscription Management' },
@@ -55,6 +56,14 @@ const INCIDENT_STATUS_OPTIONS: { value: SaasHealthIncidentStatus; label: string 
 ];
 
 export default function SaasMonitoringPage() {
+  return (
+    <PlatformAdminGuard>
+      <SaasMonitoringPageContent />
+    </PlatformAdminGuard>
+  );
+}
+
+function SaasMonitoringPageContent() {
   const platformSummary = usePlatformHealthSummary();
   const tenantSummary = useTenantHealthSummary();
   const checkAll = useCheckAllModules();

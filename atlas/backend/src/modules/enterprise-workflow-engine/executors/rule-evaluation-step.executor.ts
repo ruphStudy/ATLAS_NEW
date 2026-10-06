@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { BusinessRulesEngineService } from '@modules/business-rules-engine/business-rules-engine.service';
 import { RuleTriggerType } from '@modules/business-rules-engine/interfaces';
 import { IStepExecutionContext, IStepExecutionResult, IWorkflowStepExecutor, WorkflowStepStatus, WorkflowStepType } from '../interfaces';
@@ -14,7 +14,10 @@ import { IStepExecutionContext, IStepExecutionResult, IWorkflowStepExecutor, Wor
 export class RuleEvaluationStepExecutor implements IWorkflowStepExecutor {
   readonly stepType = WorkflowStepType.RULE_EVALUATION;
 
-  constructor(private readonly businessRulesEngineService: BusinessRulesEngineService) {}
+  constructor(
+    @Inject(forwardRef(() => BusinessRulesEngineService))
+    private readonly businessRulesEngineService: BusinessRulesEngineService,
+  ) {}
 
   async execute(ctx: IStepExecutionContext): Promise<IStepExecutionResult> {
     const { step, execution, userId } = ctx;

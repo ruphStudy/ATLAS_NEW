@@ -52,7 +52,7 @@ export class OrderSyncStateManager {
   }
 
   isTerminal(status: SyncJobStatus): boolean {
-    return MP_ORDER_SYNC_CONSTANTS.TERMINAL_STATUSES.includes(status);
+    return (MP_ORDER_SYNC_CONSTANTS.TERMINAL_STATUSES as readonly string[]).includes(status);
   }
 
   private buildKey(workspaceId: string, accountId: string, direction: SyncDirection): string {

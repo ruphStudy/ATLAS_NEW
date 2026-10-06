@@ -9,13 +9,13 @@ import { Type } from 'class-transformer';
 
 export class ExportDashboardDto {
   @IsString()
-  dashboardId: string;
+  dashboardId!: string;
 
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(['json', 'csv', 'pdf', 'xlsx'])
-  exportFormat: string;
+  exportFormat!: string;
 
   @IsOptional()
   @IsObject()
@@ -29,33 +29,33 @@ export class ExportDashboardDto {
   };
 
   @IsString()
-  createdBy: string;
+  createdBy!: string;
 }
 
 export class DashboardExportResponseDto {
-  id: string;
-  dashboardId: string;
-  workspaceId: string;
-  exportFormat: string;
+  id!: string;
+  dashboardId!: string;
+  workspaceId!: string;
+  exportFormat!: string;
   filters?: Record<string, any>;
   dateRange?: {
     start: Date;
     end: Date;
   };
   fileUrl?: string;
-  status: string;
-  createdBy: string;
-  createdAt: Date;
+  status!: string;
+  createdBy!: string;
+  createdAt!: Date;
 }
 
 export class DashboardVersionResponseDto {
-  id: string;
-  dashboardId: string;
-  version: number;
+  id!: string;
+  dashboardId!: string;
+  version!: number;
   layout: any;
   filters?: Record<string, any>;
-  widgets: any[];
+  widgets!: any[];
   changeDescription?: string;
-  createdBy: string;
-  createdAt: Date;
+  createdBy!: string;
+  createdAt!: Date;
 }

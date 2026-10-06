@@ -9,14 +9,14 @@ import {
 export class ValidateResponseDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsNotEmpty()
   response: unknown;
 
   @IsString()
   @IsNotEmpty()
-  responseType: string;
+  responseType!: string;
 
   @IsString()
   @IsOptional()

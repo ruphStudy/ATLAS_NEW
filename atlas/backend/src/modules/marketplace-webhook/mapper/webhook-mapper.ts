@@ -8,7 +8,7 @@ export class WebhookMapper {
     body: any,
     providerKey: string,
     marketplaceKey: string,
-  ): Partial<NormalizedWebhookPayload> {
+  ): NormalizedWebhookPayload {
     return {
       externalEventId: this.extractEventId(body, headers),
       externalWebhookId: this.extractWebhookId(body, headers),

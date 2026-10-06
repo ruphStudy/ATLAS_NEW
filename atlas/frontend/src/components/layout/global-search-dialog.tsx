@@ -100,7 +100,7 @@ export function GlobalSearchDialog() {
 
         <button
           onClick={() => {
-            const target = query.trim() ? `/dashboard/search?q=${encodeURIComponent(query.trim())}` : '/dashboard/search';
+            const target = query.trim() ? `/search?q=${encodeURIComponent(query.trim())}` : '/search';
             setOpen(false);
             setQuery('');
             router.push(target);

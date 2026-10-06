@@ -27,8 +27,8 @@ import {
   ApiEndpoint,
   AnalyticsApiEventType,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -78,10 +78,9 @@ export class AnalyticsApiService {
 
     let data: any;
     if (dto.dashboardId) {
-      data = await this.dashboardService.getDashboardById(dto.dashboardId, dto.workspaceId);
+      data = await this.dashboardService.getDashboard(dto.dashboardId, dto.workspaceId);
     } else {
-      const filter = { workspaceId: dto.workspaceId, page: 1, limit: 20 };
-      data = await this.dashboardService.getAllDashboards(filter);
+      data = await this.dashboardService.listDashboards(dto.workspaceId);
     }
 
     await this.repository.setCachedResponse(cacheKey, data, this.CACHE_TTL_MINUTES);
@@ -117,15 +116,16 @@ export class AnalyticsApiService {
 
     let data: any;
     if (dto.kpiId) {
-      data = await this.kpiService.getKpiById(dto.kpiId, dto.workspaceId);
+      data = await this.kpiService.getDefinitionById(dto.kpiId, dto.workspaceId);
     } else if (dto.kpiKeys && dto.kpiKeys.length > 0) {
-      data = await this.kpiService.bulkCalculate({
-        workspaceId: dto.workspaceId,
-        kpiKeys: dto.kpiKeys,
-      });
+      data = await Promise.all(
+        dto.kpiKeys.map((kpiKey) =>
+          this.kpiService.getDefinitionByKey(kpiKey, dto.workspaceId),
+        ),
+      );
     } else {
       const filter = { workspaceId: dto.workspaceId, page: 1, limit: 20 };
-      data = await this.kpiService.getAllKpis(filter);
+      data = await this.kpiService.getAllDefinitions(filter);
     }
 
     const duration = Date.now() - startTime;
@@ -162,14 +162,14 @@ export class AnalyticsApiService {
     let data: any;
 
     if (dto.reportId) {
-      data = await this.reportService.getReportById(dto.reportId, dto.workspaceId);
+      data = await this.reportService.getDefinitionById(dto.reportId, dto.workspaceId);
     } else {
       const filter = { 
         workspaceId: dto.workspaceId, 
         page: dto.pagination?.page ?? 1, 
         limit: dto.pagination?.limit ?? 20,
       };
-      data = await this.reportService.getAllReports(filter);
+      data = await this.reportService.getAllDefinitions(filter);
     }
 
     const duration = Date.now() - startTime;
@@ -321,13 +321,13 @@ export class AnalyticsApiService {
         let item: any;
         switch (dto.endpoint) {
           case ApiEndpoint.KPI:
-            item = await this.kpiService.getKpiById(resourceId, dto.workspaceId);
+            item = await this.kpiService.getDefinitionById(resourceId, dto.workspaceId);
             break;
           case ApiEndpoint.REPORT:
-            item = await this.reportService.getReportById(resourceId, dto.workspaceId);
+            item = await this.reportService.getDefinitionById(resourceId, dto.workspaceId);
             break;
           case ApiEndpoint.DASHBOARD:
-            item = await this.dashboardService.getDashboardById(resourceId, dto.workspaceId);
+            item = await this.dashboardService.getDashboard(resourceId, dto.workspaceId);
             break;
           case ApiEndpoint.FORECAST:
             item = await this.forecastService.getDefinitionById(resourceId, dto.workspaceId);

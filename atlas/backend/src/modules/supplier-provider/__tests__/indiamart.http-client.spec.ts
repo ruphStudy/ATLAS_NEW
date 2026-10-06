@@ -1,5 +1,5 @@
-import { IndiaMartHttpClient, IndiaMartHttpError } from '../indiamart/indiamart.http-client';
-import { ProviderErrorCode } from '../../../interfaces';
+import { IndiaMartHttpClient, IndiaMartHttpError } from '../adapters/providers/indiamart/indiamart.http-client';
+import { ProviderErrorCode } from '../interfaces';
 
 // ── Mock fetch globally ───────────────────────────────────────
 

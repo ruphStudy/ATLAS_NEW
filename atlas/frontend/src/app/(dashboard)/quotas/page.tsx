@@ -33,12 +33,21 @@ import {
 } from '@/hooks';
 import { formatDate } from '@/lib/utils';
 import type { CreateQuotaPolicyPayload, QuotaPolicyStatus, QuotaResetSchedule, QuotaScopeType } from '@/types';
+import { PlatformAdminGuard } from '@/components/auth/platform-admin-guard';
 
 const SCOPE_TYPES: QuotaScopeType[] = ['WORKSPACE', 'ORGANIZATION', 'USER', 'PLAN'];
 const POLICY_STATUSES: QuotaPolicyStatus[] = ['ACTIVE', 'DISABLED', 'ARCHIVED'];
 const RESET_SCHEDULES: QuotaResetSchedule[] = ['NEVER', 'DAILY', 'MONTHLY', 'ANNUAL', 'CUSTOM', 'BILLING_PERIOD'];
 
 export default function QuotasPage() {
+  return (
+    <PlatformAdminGuard>
+      <QuotasPageContent />
+    </PlatformAdminGuard>
+  );
+}
+
+function QuotasPageContent() {
   return (
     <div>
       <PageHeader title="Quotas" description="Resource quota policies, admin overrides and live quota checks." />

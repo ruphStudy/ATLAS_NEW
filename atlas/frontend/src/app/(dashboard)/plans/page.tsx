@@ -36,6 +36,7 @@ import {
 } from '@/hooks';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { CreatePlanPayload, Plan, PlanBillingCycle, PlanEntitlement, PlanLimit, PlanStatus, PlanType } from '@/types';
+import { PlatformAdminGuard } from '@/components/auth/platform-admin-guard';
 
 const PLAN_TYPES: PlanType[] = ['FREE', 'TRIAL', 'STANDARD', 'PREMIUM', 'ENTERPRISE', 'CUSTOM'];
 const PLAN_STATUSES: PlanStatus[] = ['DRAFT', 'PUBLISHED', 'DEPRECATED', 'ARCHIVED'];
@@ -46,6 +47,14 @@ function emptyCreatePayload(): CreatePlanPayload {
 }
 
 export default function PlansPage() {
+  return (
+    <PlatformAdminGuard>
+      <PlansPageContent />
+    </PlatformAdminGuard>
+  );
+}
+
+function PlansPageContent() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<PlanStatus | ''>('');
   const [type, setType] = useState<PlanType | ''>('');

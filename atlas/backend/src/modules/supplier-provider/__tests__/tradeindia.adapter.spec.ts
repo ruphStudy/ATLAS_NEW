@@ -1,26 +1,27 @@
-import { ProviderErrorNormalizer } from '../../../errors/provider-error-normalizer';
-import { SupplierProviderCredentialService } from '../../../credentials/supplier-provider-credential.service';
-import { AdapterCapabilityValidator } from '../../adapter-capability.validator';
-import { AdapterIdempotencyService } from '../../adapter-idempotency.service';
-import { AdapterRateLimitHandler } from '../../adapter-rate-limit.handler';
-import { AdapterHealthChecker } from '../../adapter-health.checker';
-import { AdapterMetricsRecorder } from '../../adapter-metrics.recorder';
-import { AdapterAuditLogger } from '../../adapter-audit.logger';
-import { TradeIndiaAdapter } from '../tradeindia/tradeindia.adapter';
-import { SupplierProviderCode, ProviderCapability, ProviderErrorCode } from '../../../interfaces';
-import { AdapterCapability, IntegrationStrategy } from '../../adapter.types';
+import { ProviderErrorNormalizer } from '../errors/provider-error-normalizer';
+import { SupplierProviderCredentialService } from '../credentials/supplier-provider-credential.service';
+import { AdapterCapabilityValidator } from '../adapters/adapter-capability.validator';
+import { AdapterIdempotencyService } from '../adapters/adapter-idempotency.service';
+import { AdapterRateLimitHandler } from '../adapters/adapter-rate-limit.handler';
+import { AdapterHealthChecker } from '../adapters/adapter-health.checker';
+import { AdapterMetricsRecorder } from '../adapters/adapter-metrics.recorder';
+import { AdapterAuditLogger } from '../adapters/adapter-audit.logger';
+import { TradeIndiaAdapter } from '../adapters/providers/tradeindia/tradeindia.adapter';
+import { SupplierProviderCode, ProviderCapability, ProviderErrorCode } from '../interfaces';
+import { AdapterCapability, IntegrationStrategy } from '../adapters/adapter.types';
 
 // ── Helpers ───────────────────────────────────────────────────
 
 function makeAdapter(prismaOverride?: Record<string, unknown>): TradeIndiaAdapter {
+  const metricsRecorder = new AdapterMetricsRecorder();
   return new TradeIndiaAdapter(
     new ProviderErrorNormalizer(),
     new SupplierProviderCredentialService(),
     new AdapterCapabilityValidator(),
     new AdapterIdempotencyService(),
     new AdapterRateLimitHandler(),
-    new AdapterHealthChecker(),
-    new AdapterMetricsRecorder(),
+    new AdapterHealthChecker(metricsRecorder),
+    metricsRecorder,
     new AdapterAuditLogger(),
     (prismaOverride ?? makePrismaMock()) as never,
   );
@@ -352,7 +353,7 @@ describe('TradeIndiaAdapter – unsupported capabilities', () => {
 describe('TradeIndiaAdapter – error normalization', () => {
   it('normalizes auth error as non-retryable', async () => {
     const adapter = makeAdapter();
-    const { TradeIndiaHttpError } = await import('../tradeindia/tradeindia.http-client');
+    const { TradeIndiaHttpError } = await import('../adapters/providers/tradeindia/tradeindia.http-client');
     jest.spyOn(adapter as never, 'resolveHttpClient').mockReturnValue(
       makeClient(jest.fn().mockRejectedValue(
         new TradeIndiaHttpError(ProviderErrorCode.AUTH_FAILED, 'Unauthorized', 401),
@@ -370,7 +371,7 @@ describe('TradeIndiaAdapter – error normalization', () => {
 
   it('normalizes rate limit error as retryable', async () => {
     const adapter = makeAdapter();
-    const { TradeIndiaHttpError } = await import('../tradeindia/tradeindia.http-client');
+    const { TradeIndiaHttpError } = await import('../adapters/providers/tradeindia/tradeindia.http-client');
     jest.spyOn(adapter as never, 'resolveHttpClient').mockReturnValue(
       makeClient(jest.fn().mockRejectedValue(
         new TradeIndiaHttpError(ProviderErrorCode.RATE_LIMITED, 'Too many requests', 429),

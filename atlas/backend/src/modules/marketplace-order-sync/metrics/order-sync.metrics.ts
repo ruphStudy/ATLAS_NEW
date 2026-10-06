@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IOrderSyncJob, SyncJobStatus } from '../interfaces';
 
-interface MetricsSnapshot {
+export interface MetricsSnapshot {
   workspaceId: string;
   accountId: string;
   totalJobs: number;

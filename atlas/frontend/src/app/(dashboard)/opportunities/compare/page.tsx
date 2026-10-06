@@ -31,7 +31,7 @@ export default function CompareOpportunitiesPage() {
 
   return (
     <div>
-      <PageHeader title="Compare opportunities" breadcrumbs={[{ label: 'Opportunities', href: '/dashboard/opportunities' }, { label: 'Compare' }]} />
+      <PageHeader title="Compare opportunities" breadcrumbs={[{ label: 'Opportunities', href: '/opportunities' }, { label: 'Compare' }]} />
 
       {ids.length === 0 ? (
         <EmptyState title="No opportunities selected" description="Select two or more opportunities from the list to compare them." />

@@ -13,16 +13,17 @@ import {
   ConnectionTestResult,
   ConnectionTestTrigger,
   IConnectionTestRecord,
-} from '../interfaces';
-import { ConnectionTestValidator } from '../validator/connection-test.validator';
-import { ConnectionTestResultManager } from '../result/connection-test-result.manager';
-import { ConnectionTestEventQueue } from '../events/connection-test-events.queue';
-import { ConnectionTestRunner } from '../runner/connection-test.runner';
-import { ConnectionTestRepository } from '../repository/connection-test.repository';
-import { MarketplaceProviderRegistry } from '../../marketplace-provider/registry/marketplace-provider.registry';
-import { MarketplaceHealthService } from '../../marketplace-health/marketplace-health.service';
-import { HealthCheckTrigger, MarketplaceHealthState, HealthConnectionStatus, HealthAuthStatus } from '../../marketplace-health/interfaces';
-import { MP_CONN_TEST_ERROR_CODES } from '../constants';
+} from './interfaces';
+import { ConnectionTestValidator } from './validator/connection-test.validator';
+import { ConnectionTestResultManager } from './result/connection-test-result.manager';
+import { ConnectionTestEventQueue } from './events/connection-test-events.queue';
+import { ConnectionTestRunner, RawConnectionTestResponse } from './runner/connection-test.runner';
+import { ConnectionTestRepository } from './repository/connection-test.repository';
+import { MarketplaceProviderRegistry } from '../marketplace-provider/registry/marketplace-provider.registry';
+import { MarketplaceProviderService } from '../marketplace-provider/marketplace-provider.service';
+import { MarketplaceHealthService } from '../marketplace-health/marketplace-health.service';
+import { HealthCheckTrigger, MarketplaceHealthState, HealthConnectionStatus, HealthAuthStatus } from '../marketplace-health/interfaces';
+import { MP_CONN_TEST_ERROR_CODES } from './constants';
 
 @Injectable()
 export class MarketplaceConnectionTestService {
@@ -35,6 +36,7 @@ export class MarketplaceConnectionTestService {
     private readonly runner: ConnectionTestRunner,
     private readonly repository: ConnectionTestRepository,
     private readonly registry: MarketplaceProviderRegistry,
+    private readonly providerService: MarketplaceProviderService,
     private readonly healthService: MarketplaceHealthService,
   ) {}
 
@@ -81,18 +83,39 @@ export class MarketplaceConnectionTestService {
 
     let result: ConnectionTestResult;
     try {
-      // Resolve adapter
+      // Fast-fail if the provider adapter isn't registered
       if (!this.registry.isRegistered(request.providerKey)) {
         throw new Error(`Provider '${request.providerKey}' is not registered`);
       }
-      const adapter = this.registry.get(request.providerKey);
+
+      const execute = async (): Promise<RawConnectionTestResponse> => {
+        // Reuses the existing config/credential decryption + adapter resolution
+        // pattern from MarketplaceProviderService/MarketplaceProviderManager —
+        // never a second credential mechanism. Falls back to workspace-level
+        // config when no accountId is given (same tiered resolution used
+        // elsewhere in marketplace-provider).
+        const health = await this.providerService.testConnection(
+          request.workspaceId,
+          request.providerKey,
+          request.accountId ?? undefined,
+        );
+
+        return {
+          providerKey: health.providerKey,
+          status: health.status,
+          latencyMs: health.latencyMs,
+          message: health.message ?? undefined,
+          connectionStatus: health.connectionStatus ?? undefined,
+          checkedAt: health.checkedAt,
+        };
+      };
 
       result = await this.runner.run({
         workspaceId: request.workspaceId,
         providerKey: request.providerKey,
         accountId: request.accountId,
         correlationId,
-        adapter,
+        execute,
         capabilityKey: request.capabilityKey,
         timeoutMs: request.timeoutMs,
         trigger,
@@ -215,7 +238,7 @@ export class MarketplaceConnectionTestService {
     trigger: ConnectionTestTrigger,
   ): ConnectionTestResult {
     const { ConnectionStatus, ConnectionAuthStatus, ConnectionCapabilityStatus, ConnectionErrorCategory } =
-      require('../interfaces') as typeof import('../interfaces');
+      require('./interfaces') as typeof import('./interfaces');
     return {
       correlationId,
       workspaceId: request.workspaceId,

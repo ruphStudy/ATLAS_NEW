@@ -112,7 +112,7 @@ export class MarketplaceCatalogSyncService {
       itemType: request.itemType ?? SyncItemType.ALL,
       trigger: request.trigger ?? SyncTrigger.MANUAL,
       conflictStrategy: request.conflictStrategy ?? ConflictStrategy.MARKETPLACE_WINS,
-      filterOptions: request.filterOptions ?? null,
+      filterOptions: (request.filterOptions ?? null) as unknown as Record<string, unknown> | null,
       scheduleId: request.scheduleId ?? null,
     });
 

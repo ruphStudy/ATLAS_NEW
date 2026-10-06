@@ -15,6 +15,11 @@ import {
   UserFacingErrorResponse,
 } from './interfaces';
 
+interface IErrorHistoryRow {
+  id: string;
+  occurrenceCount: number;
+}
+
 @Injectable()
 export class MarketplaceErrorNormalizerService {
   constructor(
@@ -166,7 +171,8 @@ export class MarketplaceErrorNormalizerService {
   }
 
   async searchErrors(criteria: ErrorSearchCriteria): Promise<IErrorHistory[]> {
-    return this.repository.searchErrors(criteria);
+    const errors = await this.repository.searchErrors(criteria);
+    return errors as unknown as IErrorHistory[];
   }
 
   async countErrors(criteria: ErrorSearchCriteria): Promise<number> {
@@ -179,17 +185,16 @@ export class MarketplaceErrorNormalizerService {
     startDate?: Date,
     endDate?: Date,
   ): Promise<IErrorHistory[]> {
-    return this.repository.findTopErrors(workspaceId, limit, startDate, endDate);
+    const errors = await this.repository.findTopErrors(workspaceId, limit, startDate, endDate);
+    return errors as unknown as IErrorHistory[];
   }
 
   async getErrorHistory(
     workspaceId: string,
     historyId: string,
   ): Promise<IErrorHistory | null> {
-    return this.repository.findUnique('MarketplaceErrorHistory', {
-      id: historyId,
-      workspaceId,
-    });
+    const history = await this.repository.findErrorHistoryById(historyId, workspaceId);
+    return history as unknown as IErrorHistory | null;
   }
 
   async getErrorOccurrences(
@@ -197,7 +202,8 @@ export class MarketplaceErrorNormalizerService {
     historyId: string,
     limit?: number,
   ): Promise<IErrorOccurrence[]> {
-    return this.repository.findErrorOccurrences(workspaceId, historyId, limit);
+    const occurrences = await this.repository.findErrorOccurrences(workspaceId, historyId, limit);
+    return occurrences as unknown as IErrorOccurrence[];
   }
 
   async resolveError(workspaceId: string, historyId: string): Promise<void> {
@@ -233,12 +239,12 @@ export class MarketplaceErrorNormalizerService {
       return;
     }
 
-    const existingHistory = await this.repository.findErrorHistory(
+    const existingHistory = (await this.repository.findErrorHistory(
       error.context.workspaceId,
       error.context.provider,
       error.code,
       error.providerError?.providerCode,
-    );
+    )) as unknown as IErrorHistoryRow | null;
 
     if (existingHistory) {
       await this.repository.incrementErrorOccurrence(
@@ -269,7 +275,7 @@ export class MarketplaceErrorNormalizerService {
         });
       }
     } else {
-      const history = await this.repository.createErrorHistory({
+      const history = (await this.repository.createErrorHistory({
         workspaceId: error.context.workspaceId,
         provider: error.context.provider,
         accountId: error.context.accountId,
@@ -285,7 +291,7 @@ export class MarketplaceErrorNormalizerService {
         requestId: error.providerError?.requestId,
         resourceId: error.context.resourceId,
         metadata: error.providerError?.metadata,
-      });
+      })) as unknown as IErrorHistoryRow;
 
       await this.repository.createErrorOccurrence({
         historyId: history.id,

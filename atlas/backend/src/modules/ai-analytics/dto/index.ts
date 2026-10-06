@@ -22,15 +22,15 @@ import {
 export class GetAiPerformanceDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(AiPeriod)
   @IsOptional()
@@ -121,11 +121,11 @@ export class GetAiPerformanceDto {
 export class GetAiTrendsDto extends GetAiPerformanceDto {
   @IsEnum(AiMetricType)
   @IsNotEmpty()
-  metricType: AiMetricType;
+  metricType!: AiMetricType;
 
   @IsEnum(AiPeriod)
   @IsNotEmpty()
-  period: AiPeriod;
+  period!: AiPeriod;
 
   @IsEnum(AiDimension)
   @IsOptional()
@@ -139,21 +139,21 @@ export class GetAiTrendsDto extends GetAiPerformanceDto {
 export class GetAiBreakdownDto extends GetAiPerformanceDto {
   @IsEnum(AiDimension)
   @IsNotEmpty()
-  dimension: AiDimension;
+  dimension!: AiDimension;
 }
 
 export class GetAiComparisonDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(AiPeriod)
   @IsOptional()
@@ -161,7 +161,7 @@ export class GetAiComparisonDto {
 
   @IsEnum(AiComparisonType)
   @IsNotEmpty()
-  comparisonType: AiComparisonType;
+  comparisonType!: AiComparisonType;
 
   @IsDate()
   @Type(() => Date)
@@ -189,7 +189,7 @@ export class GetAiComparisonDto {
 export class GetAiIssueAlertsDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
@@ -232,11 +232,11 @@ export class GetAiIssueAlertsDto {
 }
 
 export class AiPerformanceResponseDto implements IAiPerformance {
-  workspaceId: string;
-  period: AiPeriod;
-  startDate: Date;
-  endDate: Date;
-  performanceCategory: AiPerformanceCategory;
+  workspaceId!: string;
+  period!: AiPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  performanceCategory!: AiPerformanceCategory;
   providerKey?: string;
   modelKey?: string;
   capability?: string;
@@ -244,23 +244,23 @@ export class AiPerformanceResponseDto implements IAiPerformance {
   agentId?: string;
   workflowId?: string;
   feature?: string;
-  requestMetrics: IRequestMetrics;
-  usageCostMetrics: IUsageCostMetrics;
-  cacheMetrics: ICacheMetrics;
-  qualityMetrics: IQualityMetrics;
-  agentWorkflowMetrics: IAgentWorkflowMetrics;
-  decisionMetrics: IDecisionMetrics;
-  overallScore: number;
+  requestMetrics!: IRequestMetrics;
+  usageCostMetrics!: IUsageCostMetrics;
+  cacheMetrics!: ICacheMetrics;
+  qualityMetrics!: IQualityMetrics;
+  agentWorkflowMetrics!: IAgentWorkflowMetrics;
+  decisionMetrics!: IDecisionMetrics;
+  overallScore!: number;
   metadata?: Record<string, any>;
 }
 
 export class AiTrendResponseDto implements IAiTrend {
-  workspaceId: string;
-  period: AiPeriod;
-  periodStart: Date;
-  periodEnd: Date;
-  metricType: AiMetricType;
-  value: number;
+  workspaceId!: string;
+  period!: AiPeriod;
+  periodStart!: Date;
+  periodEnd!: Date;
+  metricType!: AiMetricType;
+  value!: number;
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
@@ -270,31 +270,31 @@ export class AiTrendResponseDto implements IAiTrend {
 }
 
 export class AiBreakdownResponseDto implements IAiBreakdown {
-  workspaceId: string;
-  dimension: AiDimension;
-  dimensionValue: string;
+  workspaceId!: string;
+  dimension!: AiDimension;
+  dimensionValue!: string;
   dimensionLabel?: string;
-  period: AiPeriod;
-  startDate: Date;
-  endDate: Date;
-  requestMetrics: IRequestMetrics;
-  usageCostMetrics: IUsageCostMetrics;
-  cacheMetrics: ICacheMetrics;
-  qualityMetrics: IQualityMetrics;
-  agentWorkflowMetrics: IAgentWorkflowMetrics;
-  decisionMetrics: IDecisionMetrics;
-  overallScore: number;
+  period!: AiPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  requestMetrics!: IRequestMetrics;
+  usageCostMetrics!: IUsageCostMetrics;
+  cacheMetrics!: ICacheMetrics;
+  qualityMetrics!: IQualityMetrics;
+  agentWorkflowMetrics!: IAgentWorkflowMetrics;
+  decisionMetrics!: IDecisionMetrics;
+  overallScore!: number;
   rank?: number;
   metadata?: Record<string, any>;
 }
 
 export class AiComparisonResponseDto implements IAiComparison {
-  workspaceId: string;
-  comparisonType: AiComparisonType;
-  period: AiPeriod;
-  startDate: Date;
-  endDate: Date;
-  actualMetrics: {
+  workspaceId!: string;
+  comparisonType!: AiComparisonType;
+  period!: AiPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  actualMetrics!: {
     requestMetrics: IRequestMetrics;
     usageCostMetrics: IUsageCostMetrics;
     cacheMetrics: ICacheMetrics;
@@ -303,7 +303,7 @@ export class AiComparisonResponseDto implements IAiComparison {
     decisionMetrics: IDecisionMetrics;
     overallScore: number;
   };
-  comparisonMetrics: {
+  comparisonMetrics!: {
     requestMetrics: IRequestMetrics;
     usageCostMetrics: IUsageCostMetrics;
     cacheMetrics: ICacheMetrics;
@@ -312,7 +312,7 @@ export class AiComparisonResponseDto implements IAiComparison {
     decisionMetrics: IDecisionMetrics;
     overallScore: number;
   };
-  variance: {
+  variance!: {
     costVariance: number;
     costVariancePercent: number;
     latencyVariance: number;
@@ -328,17 +328,17 @@ export class AiComparisonResponseDto implements IAiComparison {
 }
 
 export class AiIssueAlertResponseDto implements IAiIssueAlert {
-  workspaceId: string;
-  alertType: AiPerformanceCategory;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  workspaceId!: string;
+  alertType!: AiPerformanceCategory;
+  severity!: 'low' | 'medium' | 'high' | 'critical';
   providerKey?: string;
   modelKey?: string;
   capability?: string;
   agentId?: string;
   workflowId?: string;
   feature?: string;
-  reason: string;
-  details: Record<string, any>;
-  detectedAt: Date;
+  reason!: string;
+  details!: Record<string, any>;
+  detectedAt!: Date;
   metadata?: Record<string, any>;
 }

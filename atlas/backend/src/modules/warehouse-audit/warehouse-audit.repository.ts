@@ -199,25 +199,19 @@ export class WarehouseAuditRepository extends BaseRepository {
     ]);
 
     const byAction: Record<string, number> = {};
-    (byActionRaw as Array<{ actionType: string; _count: { _all: number } }>).forEach(
-      (item) => {
-        byAction[item.actionType] = item._count._all;
-      },
-    );
+    byActionRaw.forEach((item) => {
+      byAction[item.actionType] = item._count;
+    });
 
     const byOutcome: Record<string, number> = {};
-    (byOutcomeRaw as Array<{ outcome: string; _count: { _all: number } }>).forEach(
-      (item) => {
-        byOutcome[item.outcome] = item._count._all;
-      },
-    );
+    byOutcomeRaw.forEach((item) => {
+      byOutcome[item.outcome] = item._count;
+    });
 
     const byActor: Record<string, number> = {};
-    (byActorRaw as Array<{ actorType: string; _count: { _all: number } }>).forEach(
-      (item) => {
-        byActor[item.actorType] = item._count._all;
-      },
-    );
+    byActorRaw.forEach((item) => {
+      byActor[item.actorType] = item._count;
+    });
 
     return {
       totalAudits,

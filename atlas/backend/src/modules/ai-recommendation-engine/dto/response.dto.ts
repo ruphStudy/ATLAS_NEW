@@ -6,11 +6,11 @@ import {
 } from '../interfaces';
 
 export class RecommendationResponseDto {
-  id: string;
-  workspaceId: string;
-  status: AiRecommendationStatus;
-  recommendationType: AiRecommendationType;
-  strategy: AiRecommendationStrategy;
+  id!: string;
+  workspaceId!: string;
+  status!: AiRecommendationStatus;
+  recommendationType!: AiRecommendationType;
+  strategy!: AiRecommendationStrategy;
   orchestratorRequestId?: string | null;
   agentExecutionId?: string | null;
   workflowExecutionId?: string | null;
@@ -20,7 +20,7 @@ export class RecommendationResponseDto {
   useCase?: string | null;
   context?: string | null;
   userId?: string | null;
-  personalized: boolean;
+  personalized!: boolean;
   inputSnapshot: unknown;
   objectives: unknown;
   constraints: unknown;
@@ -43,105 +43,105 @@ export class RecommendationResponseDto {
   generationStartTime?: Date | null;
   generationEndTime?: Date | null;
   generationDuration?: number | null;
-  tags: string[];
+  tags!: string[];
   metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedRecommendationResponseDto {
-  data: RecommendationResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: RecommendationResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class RecommendationResultDto {
-  recommendationId: string;
-  status: AiRecommendationStatus;
-  items: RecommendationItemDto[];
+  recommendationId!: string;
+  status!: AiRecommendationStatus;
+  items!: RecommendationItemDto[];
   overallScore?: number;
   confidenceScore?: number;
   rationale?: string;
-  risks: RiskDto[];
-  alternatives: AlternativeDto[];
+  risks!: RiskDto[];
+  alternatives!: AlternativeDto[];
   supportingEvidence?: unknown;
 }
 
 export class RecommendationItemDto {
-  id: string;
+  id!: string;
   itemData: unknown;
   itemLabel?: string;
   itemType?: string;
-  rank: number;
-  score: number;
+  rank!: number;
+  score!: number;
   scores: unknown;
-  selected: boolean;
+  selected!: boolean;
   rationale?: string;
   pros: unknown;
   cons: unknown;
 }
 
 export class RiskDto {
-  type: string;
-  severity: string;
-  description: string;
+  type!: string;
+  severity!: string;
+  description!: string;
   mitigation?: string;
 }
 
 export class AlternativeDto {
-  itemId: string;
-  rank: number;
-  score: number;
-  reason: string;
+  itemId!: string;
+  rank!: number;
+  score!: number;
+  reason!: string;
 }
 
 export class StrategyResponseDto {
-  id: string;
+  id!: string;
   workspaceId?: string | null;
-  name: string;
-  recommendationType: string;
-  strategy: string;
+  name!: string;
+  recommendationType!: string;
+  strategy!: string;
   capability?: string | null;
   useCase?: string | null;
   strategyConfig: unknown;
   weights: unknown;
   thresholds: unknown;
-  priority: number;
-  enabled: boolean;
-  personalizationEnabled: boolean;
-  version: string;
-  tags: string[];
+  priority!: number;
+  enabled!: boolean;
+  personalizationEnabled!: boolean;
+  version!: string;
+  tags!: string[];
   metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class FeedbackResponseDto {
-  id: string;
-  recommendationId: string;
-  workspaceId: string;
-  feedbackType: AiRecommendationFeedbackType;
+  id!: string;
+  recommendationId!: string;
+  workspaceId!: string;
+  feedbackType!: AiRecommendationFeedbackType;
   itemId?: string | null;
-  userId: string;
+  userId!: string;
   rating?: number | null;
   comment?: string | null;
   metadata: unknown;
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class OutcomeResponseDto {
-  id: string;
-  recommendationId: string;
-  workspaceId: string;
+  id!: string;
+  recommendationId!: string;
+  workspaceId!: string;
   itemId?: string | null;
-  outcomeType: string;
-  success: boolean;
+  outcomeType!: string;
+  success!: boolean;
   actualResult?: unknown | null;
   expectedResult?: unknown | null;
   effectivenessScore?: number | null;
   notes?: string | null;
   metadata: unknown;
-  createdAt: Date;
+  createdAt!: Date;
 }

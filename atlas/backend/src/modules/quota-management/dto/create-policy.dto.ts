@@ -3,7 +3,7 @@ import { QuotaResetSchedule, QuotaScopeType } from '../interfaces';
 
 export class CreateQuotaPolicyDto {
   @IsEnum(QuotaScopeType)
-  scopeType: QuotaScopeType;
+  scopeType!: QuotaScopeType;
 
   /** Required for ORGANIZATION scope. */
   @IsString()
@@ -22,7 +22,7 @@ export class CreateQuotaPolicyDto {
 
   @IsString()
   @IsNotEmpty()
-  resourceKey: string;
+  resourceKey!: string;
 
   @IsString()
   @IsOptional()

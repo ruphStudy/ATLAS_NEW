@@ -4,22 +4,22 @@ import { SyncMode, ReportType, SyncStatus, ItemSyncStatus, ReportStatus } from '
 
 export class StartReportSyncRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsString()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
-  marketplaceKey: string;
+  marketplaceKey!: string;
 
   @IsEnum(ReportType)
-  reportType: ReportType;
+  reportType!: ReportType;
 
   @IsEnum(SyncMode)
-  mode: SyncMode;
+  mode!: SyncMode;
 
   @IsOptional()
   @IsDate()
@@ -56,10 +56,10 @@ export class StartReportSyncRequestDto {
 
 export class RetryFailedReportItemsRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  originalJobId: string;
+  originalJobId!: string;
 
   @IsOptional()
   @IsObject()
@@ -68,28 +68,28 @@ export class RetryFailedReportItemsRequestDto {
 
 export class CreateReportScheduleRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsString()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
-  marketplaceKey: string;
+  marketplaceKey!: string;
 
   @IsEnum(ReportType)
-  reportType: ReportType;
+  reportType!: ReportType;
 
   @IsEnum(SyncMode)
-  mode: SyncMode;
+  mode!: SyncMode;
 
   @IsString()
-  cronExpression: string;
+  cronExpression!: string;
 
   @IsBoolean()
-  isActive: boolean;
+  isActive!: boolean;
 
   @IsOptional()
   @IsObject()
@@ -213,28 +213,28 @@ export class ReportDocumentFilterQueryDto {
 }
 
 export class ReportSyncJobResponseDto {
-  id: string;
-  workspaceId: string;
-  accountId: string;
-  providerKey: string;
-  marketplaceKey: string;
-  reportType: ReportType;
-  mode: SyncMode;
-  status: SyncStatus;
+  id!: string;
+  workspaceId!: string;
+  accountId!: string;
+  providerKey!: string;
+  marketplaceKey!: string;
+  reportType!: ReportType;
+  mode!: SyncMode;
+  status!: SyncStatus;
   startDate?: Date;
   endDate?: Date;
   startedAt?: Date;
   completedAt?: Date;
-  totalReports: number;
-  processedReports: number;
-  successCount: number;
-  failedCount: number;
-  skippedCount: number;
+  totalReports!: number;
+  processedReports!: number;
+  successCount!: number;
+  failedCount!: number;
+  skippedCount!: number;
   cursor?: string;
   errorMessage?: string;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 
   static from(job: any): ReportSyncJobResponseDto {
     return {
@@ -265,28 +265,28 @@ export class ReportSyncJobResponseDto {
 }
 
 export class PaginatedReportSyncJobResponseDto {
-  items: ReportSyncJobResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  items!: ReportSyncJobResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class ReportScheduleResponseDto {
-  id: string;
-  workspaceId: string;
-  accountId: string;
-  providerKey: string;
-  marketplaceKey: string;
-  reportType: ReportType;
-  mode: SyncMode;
-  cronExpression: string;
-  isActive: boolean;
+  id!: string;
+  workspaceId!: string;
+  accountId!: string;
+  providerKey!: string;
+  marketplaceKey!: string;
+  reportType!: ReportType;
+  mode!: SyncMode;
+  cronExpression!: string;
+  isActive!: boolean;
   lastRunAt?: Date;
   nextRunAt?: Date;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 
   static from(schedule: any): ReportScheduleResponseDto {
     return {

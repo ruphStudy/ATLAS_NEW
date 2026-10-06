@@ -4,13 +4,13 @@ import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 export class UsageOverageDto {
   @IsString()
   @IsNotEmpty()
-  resourceKey: string;
+  resourceKey!: string;
 
   @IsNumber()
   @Min(0)
-  usageAmount: number;
+  usageAmount!: number;
 
   @IsNumber()
   @Min(0)
-  limit: number;
+  limit!: number;
 }

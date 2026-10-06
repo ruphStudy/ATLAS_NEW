@@ -7,6 +7,7 @@ import {
   OrderItemType,
   OrderSyncAdapter,
   OrderSyncEvent,
+  NormalizedOrderItem,
   SyncItemOperation,
   SyncItemStatus,
   SyncJobStatus,
@@ -202,7 +203,7 @@ export class OrderPuller {
     return id ? String(id) : null;
   }
 
-  private computeChecksum(normalized: Record<string, unknown>): string {
+  private computeChecksum(normalized: NormalizedOrderItem): string {
     const sorted = JSON.stringify(normalized, Object.keys(normalized).sort());
     return createHash('sha256').update(sorted).digest('hex');
   }

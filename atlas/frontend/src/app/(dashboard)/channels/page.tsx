@@ -88,7 +88,7 @@ export default function ChannelsPage() {
           </TableHeader>
           <TableBody>
             {data.items.map((channel) => (
-              <TableRow key={channel.id} clickable onClick={() => router.push(`/dashboard/channels/${channel.id}`)}>
+              <TableRow key={channel.id} clickable onClick={() => router.push(`/channels/${channel.id}`)}>
                 <TableCell>
                   <p className="text-sm font-medium text-foreground">{channel.name}</p>
                   <p className="text-xs text-muted-foreground">{channel.channelKey}</p>
@@ -112,7 +112,7 @@ export default function ChannelsPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={data.totalPages} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <RegisterChannelDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(c) => router.push(`/dashboard/channels/${c.id}`)} />
+      <RegisterChannelDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(c) => router.push(`/channels/${c.id}`)} />
     </div>
   );
 }

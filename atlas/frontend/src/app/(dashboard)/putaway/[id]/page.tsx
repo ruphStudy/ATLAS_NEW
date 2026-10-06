@@ -60,7 +60,7 @@ export default function PutawayTaskDetailPage() {
     <div>
       <PageHeader
         title={task.taskNumber}
-        breadcrumbs={[{ label: 'Putaway', href: '/dashboard/putaway' }, { label: task.taskNumber }]}
+        breadcrumbs={[{ label: 'Putaway', href: '/putaway' }, { label: task.taskNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={task.status} />

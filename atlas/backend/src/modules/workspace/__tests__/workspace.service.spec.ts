@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { WorkspaceStatus, WorkspacePlan } from '@prisma/client';
+import { WorkspaceStatus, WorkspacePlan, WorkspaceOnboardingStatus } from '@prisma/client';
 import { WorkspaceService } from '../workspace.service';
 import { WorkspaceRepository } from '../workspace.repository';
 import type { IWorkspace } from '../interfaces';
@@ -25,6 +25,12 @@ const MOCK_WORKSPACE: IWorkspace = {
   ownerId: OWNER_ID,
   status: WorkspaceStatus.ACTIVE,
   plan: WorkspacePlan.FREE,
+  organizationId: null,
+  onboardingStatus: WorkspaceOnboardingStatus.NOT_STARTED,
+  onboardingCompletedAt: null,
+  archivedAt: null,
+  suspendedAt: null,
+  suspendedReason: null,
   createdAt: new Date('2026-07-14T10:00:00.000Z'),
   updatedAt: new Date('2026-07-14T10:00:00.000Z'),
   deletedAt: null,

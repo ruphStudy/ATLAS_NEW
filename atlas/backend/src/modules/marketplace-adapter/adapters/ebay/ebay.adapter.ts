@@ -26,7 +26,7 @@ import {
 @Injectable()
 export class EbayAdapter extends BaseAdapter {
   private readonly logger = new Logger(EbayAdapter.name);
-  private ebayCredentials: IEbayCredentials;
+  private ebayCredentials!: IEbayCredentials;
   private defaultMarketplaceId: string = EBAY_MARKETPLACE_IDS.US;
 
   constructor(
@@ -49,8 +49,9 @@ export class EbayAdapter extends BaseAdapter {
       redirectUri: this.credentials.credentials.redirectUri,
     };
 
-    if (this.config.marketplaceId) {
-      this.defaultMarketplaceId = this.config.marketplaceId;
+    const marketplaceId = this.config.customSettings?.['marketplaceId'];
+    if (marketplaceId) {
+      this.defaultMarketplaceId = marketplaceId;
     }
 
     await this.authService.getAccessToken(this.ebayCredentials);
@@ -84,7 +85,7 @@ export class EbayAdapter extends BaseAdapter {
         AdapterCapability.RETURN_READ,
         AdapterCapability.PRICING_READ,
         AdapterCapability.PRICING_WRITE,
-        AdapterCapability.NOTIFICATION_READ,
+        AdapterCapability.WEBHOOK_MANAGEMENT,
         AdapterCapability.BATCH_OPERATIONS,
       ],
       supportedOperations: [

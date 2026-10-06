@@ -22,9 +22,9 @@ import {
   IContextSummaryResult,
   IConversationMessage,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -338,7 +338,10 @@ export class AiContextManagementService {
       maxTokens: sourceContext.maxTokens || undefined,
       windowSize: sourceContext.windowSize || undefined,
       tags: sourceContext.tags,
-      metadata: { ...sourceContext.metadata, branchedFrom: sourceContext.id },
+      metadata: {
+        ...(sourceContext.metadata as Record<string, unknown> | undefined),
+        branchedFrom: sourceContext.id,
+      },
     });
 
     await this.eventQueue.publish({

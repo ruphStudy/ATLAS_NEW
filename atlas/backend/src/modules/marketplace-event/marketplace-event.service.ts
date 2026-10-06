@@ -47,7 +47,7 @@ export class MarketplaceEventService {
       idempotencyKey: dto.idempotencyKey,
     });
 
-    if (!result.accepted) {
+    if (!result.accepted || !result.eventId) {
       throw new BadRequestException(result.reason);
     }
 

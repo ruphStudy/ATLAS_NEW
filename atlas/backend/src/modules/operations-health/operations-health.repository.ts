@@ -17,7 +17,7 @@ export class OperationsHealthRepository extends BaseRepository {
   }
 
   async findSnapshotsByWorkspace(workspaceId: string): Promise<IOperationsHealthSnapshot[]> {
-    return this.prisma.operationsHealthSnapshot.findMany({ where: { workspaceId } }) as Promise<IOperationsHealthSnapshot[]>;
+    return this.prisma.operationsHealthSnapshot.findMany({ where: { workspaceId } }) as unknown as Promise<IOperationsHealthSnapshot[]>;
   }
 
   /** Every workspace this module has ever checked — used to sweep all known workspaces on a scheduled run, without depending on the Workspace module. */
@@ -34,13 +34,13 @@ export class OperationsHealthRepository extends BaseRepository {
       where: { workspaceId_module: { workspaceId, module } },
       create: { workspaceId, module, ...data } as any,
       update: data as any,
-    }) as Promise<IOperationsHealthSnapshot>;
+    }) as unknown as Promise<IOperationsHealthSnapshot>;
   }
 
   // ── Incidents ────────────────────────────────────────────────────
 
   async createIncident(data: Partial<IOperationsHealthIncident>): Promise<IOperationsHealthIncident> {
-    return this.prisma.operationsHealthIncident.create({ data: data as any }) as Promise<IOperationsHealthIncident>;
+    return this.prisma.operationsHealthIncident.create({ data: data as any }) as unknown as Promise<IOperationsHealthIncident>;
   }
 
   async findOpenIncident(workspaceId: string, module: string): Promise<IOperationsHealthIncident | null> {
@@ -51,7 +51,7 @@ export class OperationsHealthRepository extends BaseRepository {
   }
 
   async updateIncident(id: string, data: Partial<IOperationsHealthIncident>): Promise<IOperationsHealthIncident> {
-    return this.prisma.operationsHealthIncident.update({ where: { id }, data: data as any }) as Promise<IOperationsHealthIncident>;
+    return this.prisma.operationsHealthIncident.update({ where: { id }, data: data as any }) as unknown as Promise<IOperationsHealthIncident>;
   }
 
   async findIncidentById(id: string): Promise<IOperationsHealthIncident | null> {
@@ -77,13 +77,13 @@ export class OperationsHealthRepository extends BaseRepository {
       this.prisma.operationsHealthIncident.count({ where: where as any }),
     ]);
 
-    return [data as IOperationsHealthIncident[], total];
+    return [data as unknown as IOperationsHealthIncident[], total];
   }
 
   // ── Check logs ───────────────────────────────────────────────────
 
   async createCheckLog(data: Partial<IOperationsHealthCheckLog>): Promise<IOperationsHealthCheckLog> {
-    return this.prisma.operationsHealthCheckLog.create({ data: data as any }) as Promise<IOperationsHealthCheckLog>;
+    return this.prisma.operationsHealthCheckLog.create({ data: data as any }) as unknown as Promise<IOperationsHealthCheckLog>;
   }
 
   async findCheckLogs(workspaceId: string, filter: CheckLogFilterDto): Promise<[IOperationsHealthCheckLog[], number]> {
@@ -104,6 +104,6 @@ export class OperationsHealthRepository extends BaseRepository {
       this.prisma.operationsHealthCheckLog.count({ where: where as any }),
     ]);
 
-    return [data as IOperationsHealthCheckLog[], total];
+    return [data as unknown as IOperationsHealthCheckLog[], total];
   }
 }

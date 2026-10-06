@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { isAxiosError } from 'axios';
 import { Plus } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState, QueryErrorState, UnauthorizedState } from '@/components/ui/states';
 import { ConnectMarketplaceAccountDialog } from '@/components/marketplace/connect-marketplace-account-dialog';
-import { useMarketplaceAccounts } from '@/hooks';
+import { useMarketplaceAccounts, useToast } from '@/hooks';
 import { formatDate } from '@/lib/utils';
 import type { MarketplaceAccountStatus } from '@/types';
 
@@ -29,8 +29,21 @@ const STATUS_OPTIONS: { value: MarketplaceAccountStatus; label: string }[] = [
   { value: 'ARCHIVED', label: 'Archived' },
 ];
 
+const AMAZON_CALLBACK_REASONS: Record<string, string> = {
+  denied: 'Authorization was cancelled or denied in Amazon Seller Central.',
+  tampered: 'The authorization request could not be verified. Please try connecting again.',
+  expired: 'The authorization request expired. Please try connecting again.',
+  malformed: 'The authorization request was invalid. Please try connecting again.',
+  no_code: 'Amazon did not return an authorization code. Please try again.',
+  exchange_failed: 'ATLAS could not exchange the authorization code with Amazon. Please try again.',
+  verification_failed: 'ATLAS could not verify the new connection with Amazon. Please try again.',
+  persist_failed: 'The connection succeeded but ATLAS could not save it. Please try again or contact support.',
+};
+
 export default function MarketplaceAccountsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const toast = useToast();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<MarketplaceAccountStatus | ''>('');
   const [page, setPage] = useState(1);
@@ -40,6 +53,21 @@ export default function MarketplaceAccountsPage() {
   const { data, isLoading, isError, error, refetch } = useMarketplaceAccounts({ search: search || undefined, status: status || undefined, page, limit });
   const isForbidden = isAxiosError(error) && error.response?.status === 403;
   const hasActiveFilters = !!search || !!status;
+
+  useEffect(() => {
+    const amazon = searchParams.get('amazon');
+    if (!amazon) return;
+
+    if (amazon === 'connected') {
+      toast.success('Amazon account connected');
+    } else if (amazon === 'error') {
+      const reason = searchParams.get('reason') ?? '';
+      toast.error('Could not connect Amazon', AMAZON_CALLBACK_REASONS[reason] ?? 'Please try again.');
+    }
+
+    router.replace('/marketplace-accounts');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   return (
     <div>
@@ -92,7 +120,7 @@ export default function MarketplaceAccountsPage() {
           </TableHeader>
           <TableBody>
             {data.items.map((account) => (
-              <TableRow key={account.id} clickable onClick={() => router.push(`/dashboard/marketplace-accounts/${account.id}`)}>
+              <TableRow key={account.id} clickable onClick={() => router.push(`/marketplace-accounts/${account.id}`)}>
                 <TableCell>
                   <p className="text-sm font-medium text-foreground">{account.accountName}</p>
                   <p className="text-xs text-muted-foreground">{account.externalAccountId}</p>
@@ -124,7 +152,7 @@ export default function MarketplaceAccountsPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={data.totalPages} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <ConnectMarketplaceAccountDialog open={connectOpen} onOpenChange={setConnectOpen} onCreated={(a) => router.push(`/dashboard/marketplace-accounts/${a.id}`)} />
+      <ConnectMarketplaceAccountDialog open={connectOpen} onOpenChange={setConnectOpen} onCreated={(a) => router.push(`/marketplace-accounts/${a.id}`)} />
     </div>
   );
 }

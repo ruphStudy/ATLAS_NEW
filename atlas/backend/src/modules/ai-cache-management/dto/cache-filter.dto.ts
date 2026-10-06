@@ -4,7 +4,7 @@ import { AiCacheScope, AiCacheStrategy, AiCacheStatus } from '../interfaces';
 export class CacheEntryFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiCacheScope)
   @IsOptional()

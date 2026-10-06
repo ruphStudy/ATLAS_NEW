@@ -4,7 +4,7 @@ import { InvoiceType } from '../interfaces';
 export class GenerateInvoiceDto {
   @IsString()
   @IsNotEmpty()
-  billingPeriodId: string;
+  billingPeriodId!: string;
 
   @IsEnum(InvoiceType)
   @IsOptional()

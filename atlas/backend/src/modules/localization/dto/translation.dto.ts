@@ -3,13 +3,13 @@ import { IsString, IsNotEmpty, IsOptional, IsObject, IsNumber } from 'class-vali
 export class SetTranslationDto {
   @IsString()
   @IsNotEmpty()
-  value: string;
+  value!: string;
 }
 
 export class ImportTranslationsDto {
   @IsObject()
   @IsNotEmpty()
-  translations: Record<string, string>;
+  translations!: Record<string, string>;
 }
 
 export class TranslateDto {
@@ -20,7 +20,7 @@ export class TranslateDto {
 
 export class TranslatePluralDto {
   @IsNumber()
-  count: number;
+  count!: number;
 
   @IsObject()
   @IsOptional()

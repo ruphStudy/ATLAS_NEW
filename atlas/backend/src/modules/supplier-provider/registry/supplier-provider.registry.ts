@@ -20,11 +20,7 @@ export class SupplierProviderRegistry implements ISupplierProviderRegistry {
   private readonly logger = new Logger(SupplierProviderRegistry.name);
   private readonly adapters = new Map<SupplierProviderCode, ISupplierProviderAdapter>();
 
-  constructor(adapters: ISupplierProviderAdapter[]) {
-    for (const adapter of adapters) {
-      this.register(adapter);
-    }
-  }
+  constructor() {}
 
   register(adapter: ISupplierProviderAdapter): void {
     this.adapters.set(adapter.metadata.code, adapter);

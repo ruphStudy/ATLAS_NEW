@@ -61,7 +61,7 @@ export class DiscoveryQueue implements OnModuleInit, OnModuleDestroy {
     }
 
     const job = await this.queue.add(DISCOVERY_CONSTANTS.JOB_NAME, data, {
-      jobId: `discovery:${data.sessionId}`, // idempotent per session
+      jobId: `discovery-${data.sessionId}`, // idempotent per session (BullMQ custom IDs cannot contain ':')
     });
 
     return job.id ?? null;

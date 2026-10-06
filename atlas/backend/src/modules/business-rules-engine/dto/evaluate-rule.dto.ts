@@ -4,7 +4,7 @@ import { RuleTriggerType } from '../interfaces';
 export class EvaluateRulesDto {
   @IsString()
   @IsNotEmpty()
-  module: string;
+  module!: string;
 
   @IsEnum(RuleTriggerType)
   @IsOptional()
@@ -23,7 +23,7 @@ export class EvaluateRulesDto {
   entityId?: string;
 
   @IsObject()
-  input: Record<string, unknown>;
+  input!: Record<string, unknown>;
 
   /** A repeat evaluate() call with the same key against the same rule replays its cached outcome instead of re-executing actions. */
   @IsString()

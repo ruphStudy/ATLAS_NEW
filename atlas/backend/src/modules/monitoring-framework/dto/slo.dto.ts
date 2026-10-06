@@ -4,19 +4,19 @@ import { MonitoringDimension, MonitoringSloStatus } from '../interfaces';
 
 export class CreateMonitoringSloDto {
   @IsString()
-  service: string;
+  service!: string;
 
   @IsEnum(MonitoringDimension)
-  dimension: MonitoringDimension;
+  dimension!: MonitoringDimension;
 
   @IsNumber()
-  targetValue: number;
+  targetValue!: number;
 
   @IsNumber()
-  warningThreshold: number;
+  warningThreshold!: number;
 
   @IsNumber()
-  criticalThreshold: number;
+  criticalThreshold!: number;
 
   @IsInt()
   @Min(1)

@@ -44,6 +44,7 @@ import {
 } from '@/hooks';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { AdminPlanChangeEffective, AdminSubscriptionStatus, PlanChangeDirection, SupportStatus, TenantRiskLevel } from '@/types';
+import { PlatformAdminGuard } from '@/components/auth/platform-admin-guard';
 
 const STATUS_OPTIONS = [
   { value: 'ACTIVE', label: 'Active' },
@@ -58,6 +59,14 @@ const RISK_TONE: Record<TenantRiskLevel, 'success' | 'warning' | 'danger'> = {
 };
 
 export default function PlatformTenantsPage() {
+  return (
+    <PlatformAdminGuard>
+      <PlatformTenantsPageContent />
+    </PlatformAdminGuard>
+  );
+}
+
+function PlatformTenantsPageContent() {
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);

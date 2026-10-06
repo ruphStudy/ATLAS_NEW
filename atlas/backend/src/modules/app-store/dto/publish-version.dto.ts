@@ -3,7 +3,7 @@ import { IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
 export class PublishVersionDto {
   @IsString()
   @IsNotEmpty()
-  versionString: string;
+  versionString!: string;
 
   @IsObject()
   @IsOptional()
@@ -13,7 +13,7 @@ export class PublishVersionDto {
 export class RollbackVersionDto {
   @IsString()
   @IsNotEmpty()
-  targetVersionId: string;
+  targetVersionId!: string;
 
   @IsString()
   @IsOptional()

@@ -73,5 +73,5 @@ export class UpdatePlanDto {
 
   @IsString()
   @IsNotEmpty()
-  changeReason: string;
+  changeReason!: string;
 }

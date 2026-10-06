@@ -36,6 +36,7 @@ import {
 } from '@/hooks';
 import { formatDate } from '@/lib/utils';
 import type { AuditRiskLevel, ImpersonationStatus, SaasIncidentStatus, SaasIncidentType, SaasSecurityIncident } from '@/types';
+import { PlatformAdminGuard } from '@/components/auth/platform-admin-guard';
 
 const RISK_TONE: Record<AuditRiskLevel, 'success' | 'warning' | 'danger'> = {
   NORMAL: 'success',
@@ -44,6 +45,14 @@ const RISK_TONE: Record<AuditRiskLevel, 'success' | 'warning' | 'danger'> = {
 };
 
 export default function SaasAuditPage() {
+  return (
+    <PlatformAdminGuard>
+      <SaasAuditPageContent />
+    </PlatformAdminGuard>
+  );
+}
+
+function SaasAuditPageContent() {
   return (
     <div>
       <PageHeader title="SaaS Audit" description="Cross-tenant audit trail, admin actions, impersonation sessions and security incidents." />

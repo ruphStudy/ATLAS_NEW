@@ -4,5 +4,5 @@ import { IsNotEmptyObject, IsObject } from 'class-validator';
 export class ConfigurePaymentCredentialsDto {
   @IsObject()
   @IsNotEmptyObject()
-  fields: Record<string, string>;
+  fields!: Record<string, string>;
 }

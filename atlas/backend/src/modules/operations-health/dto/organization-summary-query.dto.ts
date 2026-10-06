@@ -6,5 +6,5 @@ export class OrganizationSummaryQueryDto {
   @Transform(({ value }) => (typeof value === 'string' ? value.split(',').map((v) => v.trim()).filter(Boolean) : value))
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
-  workspaceIds: string[];
+  workspaceIds!: string[];
 }

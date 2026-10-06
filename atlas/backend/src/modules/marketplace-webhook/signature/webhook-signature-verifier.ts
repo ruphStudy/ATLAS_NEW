@@ -1,36 +1,40 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
-import { WebhookAdapter, WebhookVerificationResult } from '../interfaces';
+import { WebhookVerificationResult } from '../interfaces';
 
 @Injectable()
 export class WebhookSignatureVerifier {
   private readonly logger = new Logger(WebhookSignatureVerifier.name);
 
+  /**
+   * No per-provider adapter exposes signature verification (IWebhookOperations
+   * only covers register/unregister/list) — HMAC-SHA256 (falling back to
+   * SHA1) is the near-universal webhook signing scheme, so it's used
+   * directly rather than delegating to a provider-specific method that
+   * doesn't exist.
+   */
   verify(params: {
-    adapter: WebhookAdapter;
     payload: string | Buffer;
     signature: string;
     secret: string;
     timestamp?: string;
   }): WebhookVerificationResult {
     try {
-      const isValid = params.adapter.verifySignature({
-        payload: params.payload,
-        signature: params.signature,
-        secret: params.secret,
-        timestamp: params.timestamp,
-      });
+      const isValid =
+        this.verifyHmacSha256(params.payload, params.signature, params.secret) ||
+        this.verifyHmacSha1(params.payload, params.signature, params.secret);
 
       return {
         valid: isValid,
         reason: isValid ? undefined : 'Invalid signature',
       };
     } catch (error) {
-      this.logger.error(`Signature verification failed: ${error.message}`);
+      const err = error as Error;
+      this.logger.error(`Signature verification failed: ${err.message}`);
       return {
         valid: false,
-        reason: error.message,
-        errors: [error.message],
+        reason: err.message,
+        errors: [err.message],
       };
     }
   }

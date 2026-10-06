@@ -117,7 +117,7 @@ export class ModelResolutionDto {
 
 export class ModelConfigurationFilterDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()

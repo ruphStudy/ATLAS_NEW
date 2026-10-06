@@ -14,20 +14,20 @@ import { AiUsageQuotaScope, AiUsageQuotaPeriod, AiUsageQuotaUnit } from '../inte
 export class CreateUsageQuotaDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiUsageQuotaScope)
-  scope: AiUsageQuotaScope;
+  scope!: AiUsageQuotaScope;
 
   @IsEnum(AiUsageQuotaPeriod)
-  period: AiUsageQuotaPeriod;
+  period!: AiUsageQuotaPeriod;
 
   @IsEnum(AiUsageQuotaUnit)
-  unit: AiUsageQuotaUnit;
+  unit!: AiUsageQuotaUnit;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -39,7 +39,7 @@ export class CreateUsageQuotaDto {
 
   @IsInt()
   @Min(0)
-  limitAmount: number;
+  limitAmount!: number;
 
   @IsInt()
   @Min(0)

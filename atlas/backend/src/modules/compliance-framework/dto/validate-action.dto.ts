@@ -3,14 +3,14 @@ import { ComplianceAction, ComplianceSubjectType } from '../interfaces';
 
 export class ValidateComplianceDto {
   @IsEnum(ComplianceAction)
-  action: ComplianceAction;
+  action!: ComplianceAction;
 
   @IsEnum(ComplianceSubjectType)
-  subjectType: ComplianceSubjectType;
+  subjectType!: ComplianceSubjectType;
 
   @IsString()
   @IsNotEmpty()
-  subjectId: string;
+  subjectId!: string;
 
   @IsString()
   @IsOptional()

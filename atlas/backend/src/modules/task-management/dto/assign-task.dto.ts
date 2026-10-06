@@ -3,9 +3,9 @@ import { TaskAssigneeType } from '../interfaces';
 
 export class AssignTaskDto {
   @IsEnum(TaskAssigneeType)
-  assigneeType: TaskAssigneeType;
+  assigneeType!: TaskAssigneeType;
 
   @IsString()
   @IsNotEmpty()
-  assigneeRef: string;
+  assigneeRef!: string;
 }

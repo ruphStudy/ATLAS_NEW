@@ -72,6 +72,7 @@ export interface IListingPublication {
   publicationVersion: number;
 
   // Marketplace tracking
+  marketplaceAccountId?: string | null;
   marketplaceListingId?: string | null;
   marketplaceUrl?: string | null;
   marketplaceResponse?: unknown;
@@ -132,6 +133,8 @@ export interface PublishJobPayload {
   catalogProductId: string;
   workspaceId: string;
   marketplace: PublicationMarketplace;
+  /** Resolved at publish()-request time (before enqueueing) so an unresolvable account fails the API call synchronously, not the background job. Null for marketplaces that don't require one yet. */
+  marketplaceAccountId: string | null;
   trigger: PublishTrigger;
   triggeredBy?: string;
   retryCount?: number;

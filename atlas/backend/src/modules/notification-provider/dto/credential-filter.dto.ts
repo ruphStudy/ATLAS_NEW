@@ -5,7 +5,7 @@ import { NotificationProviderCredentialStatus } from '../interfaces';
 export class ProviderCredentialFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

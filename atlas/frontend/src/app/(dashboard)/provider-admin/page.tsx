@@ -13,12 +13,12 @@ interface HubCard {
 }
 
 const CARDS: HubCard[] = [
-  { title: 'Marketplace Providers', description: 'Marketplace provider registry, configuration, capabilities and account connections.', href: '/dashboard/marketplace-providers', icon: PlugZap },
-  { title: 'AI Providers', description: 'AI provider registry, configuration, credentials and rollout status.', href: '/dashboard/ai-providers', icon: Server },
-  { title: 'Payment Providers', description: 'Payment provider accounts, credentials, connection health and transactions.', href: '/dashboard/payment-providers', icon: Wallet },
-  { title: 'Supplier Providers', description: 'B2B supplier discovery provider registry and connection health.', href: '/dashboard/supplier-providers', icon: Building2 },
-  { title: 'Shipping Providers', description: 'Shipping and courier provider registry, service levels and connection health.', href: '/dashboard/shipping-providers', icon: Truck },
-  { title: 'Notification Providers', description: 'Notification provider registry, configuration, credentials and delivery activity.', href: '/dashboard/notification-providers', icon: Bell },
+  { title: 'Marketplace Providers', description: 'Marketplace provider registry, configuration, capabilities and account connections.', href: '/marketplace-providers', icon: PlugZap },
+  { title: 'AI Providers', description: 'AI provider registry, configuration, credentials and rollout status.', href: '/ai-providers', icon: Server },
+  { title: 'Payment Providers', description: 'Payment provider accounts, credentials, connection health and transactions.', href: '/payment-providers', icon: Wallet },
+  { title: 'Supplier Providers', description: 'B2B supplier discovery provider registry and connection health.', href: '/supplier-providers', icon: Building2 },
+  { title: 'Shipping Providers', description: 'Shipping and courier provider registry, service levels and connection health.', href: '/shipping-providers', icon: Truck },
+  { title: 'Notification Providers', description: 'Notification provider registry, configuration, credentials and delivery activity.', href: '/notification-providers', icon: Bell },
 ];
 
 export default function ProviderAdminHubPage() {

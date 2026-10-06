@@ -24,6 +24,10 @@ const MOCK_WORKSPACE_RESPONSE: WorkspaceResponseDto = {
   ownerId: OWNER_ID,
   status: WorkspaceStatus.ACTIVE,
   plan: WorkspacePlan.FREE,
+  organizationId: null,
+  archivedAt: null,
+  suspendedAt: null,
+  suspendedReason: null,
   createdAt: '2026-07-14T10:00:00.000Z',
   updatedAt: '2026-07-14T10:00:00.000Z',
 };

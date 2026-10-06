@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AiCostBudgetScope } from '@prisma/client';
 import { BaseRepository } from '@database/base.repository';
 import { PrismaService } from '@database/prisma.service';
 import {
@@ -396,9 +397,13 @@ export class AiCostTrackingRepository extends BaseRepository {
         enabled: true,
         deletedAt: null,
         OR: [
-          { scope: 'WORKSPACE' },
-          ...(params.feature ? [{ scope: 'FEATURE', feature: params.feature }] : []),
-          ...(params.projectId ? [{ scope: 'PROJECT', projectId: params.projectId }] : []),
+          { scope: AiCostBudgetScope.WORKSPACE },
+          ...(params.feature
+            ? [{ scope: AiCostBudgetScope.FEATURE, feature: params.feature }]
+            : []),
+          ...(params.projectId
+            ? [{ scope: AiCostBudgetScope.PROJECT, projectId: params.projectId }]
+            : []),
         ],
       },
     }) as Promise<IAiCostBudget[]>;

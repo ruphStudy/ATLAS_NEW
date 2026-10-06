@@ -8,11 +8,11 @@ import {
 export class ExecuteJobDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  jobId: string;
+  jobId!: string;
 
   @IsObject()
   @IsOptional()

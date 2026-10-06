@@ -127,7 +127,7 @@ export class AnalyticsApiController {
   async getReport(
     @Param('reportId') reportId: string,
     @Query('workspaceId') workspaceId: string,
-  ): Promise<ApiResponseDto<any>> {
+  ): Promise<ApiResponseDto<any> | AsyncOperationResponseDto> {
     return this.analyticsApiService.queryReport({ workspaceId, reportId }, ApiVersion.V1);
   }
 

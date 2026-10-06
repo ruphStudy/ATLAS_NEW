@@ -40,9 +40,13 @@ export function Sidebar() {
             <span className="text-base font-bold tracking-tight text-foreground whitespace-nowrap">ATLAS</span>
           </div>
         ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-brand shadow-sm mx-auto">
+          <button
+            onClick={toggleSidebar}
+            className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-brand shadow-sm transition-transform hover:scale-105"
+            aria-label="Expand sidebar"
+          >
             <span className="text-sm font-bold text-white">A</span>
-          </div>
+          </button>
         )}
 
         {!collapsed && (

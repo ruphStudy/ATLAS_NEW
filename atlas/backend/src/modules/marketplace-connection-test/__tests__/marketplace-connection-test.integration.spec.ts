@@ -59,21 +59,6 @@ class FakeConnectionTestRepository {
   get allRecords() { return this.history; }
 }
 
-// ── Fake Adapter ──────────────────────────────────────────────
-
-function makeAdapter(status: 'HEALTHY' | 'UNHEALTHY' = 'HEALTHY', latencyMs = 100) {
-  return {
-    metadata: { providerKey: 'AMAZON_SP' },
-    testConnection: jest.fn().mockResolvedValue({
-      providerKey: 'AMAZON_SP',
-      status,
-      latencyMs,
-      message: '',
-      checkedAt: new Date(),
-    }),
-  };
-}
-
 // ── Setup ─────────────────────────────────────────────────────
 
 function buildService(opts: {
@@ -85,15 +70,22 @@ function buildService(opts: {
   const eventQueue = { enqueue: jest.fn().mockResolvedValue(undefined), events: [] as Record<string, unknown>[] };
   eventQueue.enqueue.mockImplementation((p: Record<string, unknown>) => { eventQueue.events.push(p); return Promise.resolve(); });
 
-  const adapter = opts.adapterError
-    ? { metadata: { providerKey: 'AMAZON_SP' }, testConnection: jest.fn().mockRejectedValue(opts.adapterError) }
-    : makeAdapter(opts.adapterStatus ?? 'HEALTHY');
-
   const providers = opts.registeredProviders ?? ['AMAZON_SP', 'FLIPKART'];
   const registry = {
     isRegistered: jest.fn((k: string) => providers.includes(k.toUpperCase())),
-    get: jest.fn().mockReturnValue(adapter),
-    getActive: jest.fn().mockReturnValue(providers.map((p) => ({ ...adapter, metadata: { providerKey: p } }))),
+    getActive: jest.fn().mockReturnValue(providers.map((p) => ({ metadata: { providerKey: p } }))),
+  };
+
+  const providerService = {
+    testConnection: opts.adapterError
+      ? jest.fn().mockRejectedValue(opts.adapterError)
+      : jest.fn().mockResolvedValue({
+          providerKey: 'AMAZON_SP',
+          status: opts.adapterStatus ?? 'HEALTHY',
+          latencyMs: 100,
+          message: '',
+          checkedAt: new Date(),
+        }),
   };
 
   const healthService = { checkProvider: jest.fn().mockResolvedValue({}) };
@@ -108,6 +100,7 @@ function buildService(opts: {
     runner,
     repo as any,
     registry as any,
+    providerService as any,
     healthService as any,
   );
 

@@ -15,26 +15,26 @@ import {
 
 export class RegisterAnalyticsKpiDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  kpiKey: string;
+  kpiKey!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsEnum(AnalyticsEntityType)
-  entityType: AnalyticsEntityType;
+  entityType!: AnalyticsEntityType;
 
   @IsString()
-  metricKey: string;
+  metricKey!: string;
 
   @IsOptional()
   @IsNumber()
   targetValue?: number;
 
   @IsEnum(AnalyticsAggregation)
-  period: AnalyticsAggregation;
+  period!: AnalyticsAggregation;
 
   @IsOptional()
   @IsObject()
@@ -68,20 +68,20 @@ export class UpdateAnalyticsKpiDto {
 }
 
 export class AnalyticsKpiResponseDto {
-  id: string;
-  workspaceId: string;
-  kpiKey: string;
-  name: string;
-  entityType: AnalyticsEntityType;
-  metricKey: string;
+  id!: string;
+  workspaceId!: string;
+  kpiKey!: string;
+  name!: string;
+  entityType!: AnalyticsEntityType;
+  metricKey!: string;
   targetValue?: number;
   currentValue?: number;
   previousValue?: number;
   changePercent?: number;
-  period: AnalyticsAggregation;
-  isActive: boolean;
+  period!: AnalyticsAggregation;
+  isActive!: boolean;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
   lastCalculatedAt?: Date;
 }

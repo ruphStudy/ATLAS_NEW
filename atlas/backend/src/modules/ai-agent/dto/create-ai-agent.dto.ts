@@ -18,17 +18,17 @@ export class CreateAiAgentDto {
   workspaceId?: string;
 
   @IsString()
-  key: string;
+  key!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
   description?: string;
 
   @IsEnum(AiAgentType)
-  type: AiAgentType;
+  type!: AiAgentType;
 
   @IsOptional()
   @IsEnum(AiAgentStatus)
@@ -36,10 +36,10 @@ export class CreateAiAgentDto {
 
   @IsArray()
   @IsString({ each: true })
-  capabilities: string[];
+  capabilities!: string[];
 
   @IsString()
-  primaryCapability: string;
+  primaryCapability!: string;
 
   @IsOptional()
   @IsString()

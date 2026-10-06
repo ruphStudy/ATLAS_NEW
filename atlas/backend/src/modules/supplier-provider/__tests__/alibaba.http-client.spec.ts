@@ -1,5 +1,5 @@
-import { AlibabaHttpClient, AlibabaHttpError } from '../alibaba/alibaba.http-client';
-import { ProviderErrorCode } from '../../../interfaces';
+import { AlibabaHttpClient, AlibabaHttpError } from '../adapters/providers/alibaba/alibaba.http-client';
+import { ProviderErrorCode } from '../interfaces';
 
 // ── Mock fetch ────────────────────────────────────────────────
 const mockFetch = jest.fn();
@@ -36,7 +36,7 @@ describe('AlibabaHttpClient – request signing', () => {
     const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
     expect(url).toContain('eco.taobao.com');
     expect(init.method).toBe('POST');
-    expect(init.headers?.['Content-Type']).toContain('application/x-www-form-urlencoded');
+    expect((init.headers as Record<string, string> | undefined)?.['Content-Type']).toContain('application/x-www-form-urlencoded');
     expect(String(init.body)).toContain('method=alibaba.icbu.product.list');
   });
 

@@ -1,6 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { BullModule } from '@nestjs/bullmq';
 import { LoggerModule } from 'nestjs-pino';
 
 import { AppController } from './app.controller';
@@ -78,6 +80,7 @@ import { WebhookFrameworkModule } from '@modules/webhook-framework/webhook-frame
 import { OpportunityModule } from '@modules/opportunities/opportunity.module';
 import { DiscoveryModule } from '@modules/discovery/discovery.module';
 import { SupplierDiscoveryModule } from '@modules/supplier-discovery/supplier-discovery.module';
+import { ProductTaxonomyModule } from '@modules/product-taxonomy/product-taxonomy.module';
 import { SupplierVerificationModule } from '@modules/supplier-verification/supplier-verification.module';
 import { ProductAnalysisModule } from '@modules/product-analysis/product-analysis.module';
 import { CompetitionAnalysisModule } from '@modules/competition-analysis/competition-analysis.module';
@@ -176,7 +179,6 @@ import { ProfitAnalyticsModule } from '@modules/profit-analytics/profit-analytic
 import { ProductAnalyticsModule } from '@modules/product-analytics/product-analytics.module';
 import { SupplierAnalyticsModule } from '@modules/supplier-analytics/supplier-analytics.module';
 import { MarketplaceAnalyticsModule } from '@modules/marketplace-analytics/marketplace-analytics.module';
-import { InventoryAnalyticsModule } from '@modules/inventory-analytics/inventory-analytics.module';
 import { ProcurementAnalyticsModule } from '@modules/procurement-analytics/procurement-analytics.module';
 import { WarehouseAnalyticsModule } from '@modules/warehouse-analytics/warehouse-analytics.module';
 import { AiAnalyticsModule } from '@modules/ai-analytics/ai-analytics.module';
@@ -217,6 +219,23 @@ import { SaasHealthModule } from '@modules/saas-health/saas-health.module';
 @Module({
   imports: [
     ConfigurationModule,
+
+    EventEmitterModule.forRoot(),
+
+    BullModule.forRootAsync({
+      inject: [ConfigurationService],
+      useFactory: (config: ConfigurationService) => {
+        const redis = config.getRedisConfig();
+        return {
+          connection: {
+            host: redis.host,
+            port: redis.port,
+            password: redis.password,
+            db: redis.db,
+          },
+        };
+      },
+    }),
 
     LoggerModule.forRootAsync({
       inject: [ConfigurationService],
@@ -332,6 +351,7 @@ import { SaasHealthModule } from '@modules/saas-health/saas-health.module';
     OpportunityModule,
     DiscoveryModule,
     SupplierDiscoveryModule,
+    ProductTaxonomyModule,
     SupplierVerificationModule,
     ProductAnalysisModule,
     CompetitionAnalysisModule,
@@ -429,7 +449,6 @@ import { SaasHealthModule } from '@modules/saas-health/saas-health.module';
     ProductAnalyticsModule,
     SupplierAnalyticsModule,
     MarketplaceAnalyticsModule,
-    InventoryAnalyticsModule,
     ProcurementAnalyticsModule,
     WarehouseAnalyticsModule,
     AiAnalyticsModule,

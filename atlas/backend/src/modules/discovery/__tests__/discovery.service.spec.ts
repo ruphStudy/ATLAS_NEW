@@ -25,6 +25,7 @@ function buildSession(overrides: Record<string, unknown> = {}) {
     keywords: ['wireless earbuds', 'bluetooth speaker'],
     status: DiscoverySessionStatus.PENDING,
     totalDiscovered: 0,
+    newCandidates: 0,
     newOpportunities: 0,
     duplicatesSkipped: 0,
     errorMessage: null,
@@ -112,6 +113,52 @@ describe('DiscoveryService', () => {
         BadRequestException,
       );
       expect(repo.createSession).not.toHaveBeenCalled();
+    });
+
+    it('should still create a session when mode is omitted (KEYWORD mode unchanged)', async () => {
+      repo.createSession.mockResolvedValue(MOCK_SESSION as never);
+
+      await service.createSession(dto, WS_ID);
+
+      expect(repo.createSession).toHaveBeenCalledWith(
+        expect.objectContaining({ mode: 'KEYWORD' }),
+      );
+    });
+
+    it('should still create a session when mode is explicitly KEYWORD', async () => {
+      repo.createSession.mockResolvedValue(MOCK_SESSION as never);
+
+      await service.createSession({ ...dto, mode: 'KEYWORD' as never }, WS_ID);
+
+      expect(repo.createSession).toHaveBeenCalled();
+    });
+
+    it('should reject ASIN mode with BadRequestException instead of running an empty session', async () => {
+      await expect(
+        service.createSession({ ...dto, mode: 'ASIN' as never }, WS_ID),
+      ).rejects.toThrow(BadRequestException);
+      expect(repo.createSession).not.toHaveBeenCalled();
+      expect(queue.enqueue).not.toHaveBeenCalled();
+    });
+
+    it('should still reject ASIN mode with BadRequestException instead of running an empty session', async () => {
+      await expect(
+        service.createSession({ ...dto, mode: 'ASIN' as never }, WS_ID),
+      ).rejects.toThrow(BadRequestException);
+      expect(repo.createSession).not.toHaveBeenCalled();
+      expect(queue.enqueue).not.toHaveBeenCalled();
+    });
+
+    it('should accept TREND_COLD_START mode without requiring marketplace/country/keywords (Prompt 6)', async () => {
+      repo.createSession.mockResolvedValue(buildSession({ mode: 'TREND_COLD_START' }) as never);
+
+      await service.createSession({ mode: 'TREND_COLD_START' } as never, WS_ID);
+
+      expect(repo.createSession).toHaveBeenCalledWith(
+        expect.objectContaining({ workspaceId: WS_ID, mode: 'TREND_COLD_START' }),
+      );
+      expect(queue.enqueue).toHaveBeenCalled();
+      expect(registry.isSupported).not.toHaveBeenCalled();
     });
 
     it('should uppercase the marketplace code', async () => {
@@ -220,6 +267,7 @@ describe('DiscoveryService', () => {
         totalSessions: 5,
         runningSessions: 1,
         totalDiscovered: 50,
+        totalNewCandidates: 30,
         totalNewOpportunities: 30,
         totalDuplicatesSkipped: 20,
         byMarketplace: { AMAZON: 5 },
@@ -230,7 +278,7 @@ describe('DiscoveryService', () => {
       const result = await service.getStats(WS_ID);
 
       expect(result.totalSessions).toBe(5);
-      expect(result.totalNewOpportunities).toBe(30);
+      expect(result.totalNewCandidates).toBe(30);
     });
   });
 

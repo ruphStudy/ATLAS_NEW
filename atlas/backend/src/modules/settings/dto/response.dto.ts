@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   SettingValueType,
   SettingScope,
@@ -6,77 +7,78 @@ import {
 } from '../interfaces';
 
 export class SettingDefinitionResponseDto {
-  id: string;
-  key: string;
-  category: string;
-  label: string;
+  id!: string;
+  key!: string;
+  category!: string;
+  label!: string;
   description?: string | null;
-  valueType: SettingValueType;
+  valueType!: SettingValueType;
   defaultValue?: unknown;
-  enumOptions: string[];
-  allowedScopes: SettingScope[];
+  enumOptions!: string[];
+  allowedScopes!: SettingScope[];
   validationRules?: unknown;
   dependencies?: unknown;
   module?: string | null;
-  isSecretRef: boolean;
+  isSecretRef!: boolean;
   visibilityCondition?: unknown;
-  status: SettingDefinitionStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  status!: SettingDefinitionStatus;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedSettingDefinitionResponseDto {
-  data: SettingDefinitionResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: SettingDefinitionResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class SettingValueResponseDto {
-  id: string;
-  definitionKey: string;
-  scope: SettingScope;
+  id!: string;
+  definitionKey!: string;
+  scope!: SettingScope;
   workspaceId?: string | null;
   organizationId?: string | null;
   moduleKey?: string | null;
   userId?: string | null;
   value: unknown;
-  status: SettingValueStatus;
-  version: number;
+  status!: SettingValueStatus;
+  version!: number;
   effectiveFrom?: Date | null;
   effectiveTo?: Date | null;
   changeReason?: string | null;
   changedBy?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedSettingValueResponseDto {
-  data: SettingValueResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: SettingValueResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class SettingValueHistoryResponseDto {
-  id: string;
-  settingValueId: string;
-  definitionKey: string;
+  id!: string;
+  settingValueId!: string;
+  definitionKey!: string;
   fromValue?: unknown;
   toValue: unknown;
+  @ApiPropertyOptional({ enum: SettingValueStatus, nullable: true })
   fromStatus?: SettingValueStatus | null;
-  toStatus: SettingValueStatus;
-  version: number;
+  toStatus!: SettingValueStatus;
+  version!: number;
   changeReason?: string | null;
   changedBy?: string | null;
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class ResolvedSettingResponseDto {
-  key: string;
+  key!: string;
   value: unknown;
-  source: SettingScope | 'DEFAULT';
-  valueType: SettingValueType;
+  source!: SettingScope | 'DEFAULT';
+  valueType!: SettingValueType;
 }

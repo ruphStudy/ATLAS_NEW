@@ -6,7 +6,7 @@ export class CreateNamespaceDto {
   @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
     message: 'key must be a lowercase, hyphen-separated identifier (e.g. "notifications")',
   })
-  key: string;
+  key!: string;
 
   @IsString()
   @IsOptional()
@@ -23,7 +23,7 @@ export class CreateTranslationKeyDto {
   @Matches(/^[a-zA-Z0-9]+(\.[a-zA-Z0-9_-]+)*$/, {
     message: 'key must be a dot-separated identifier (e.g. "order.created.title")',
   })
-  key: string;
+  key!: string;
 
   @IsString()
   @IsOptional()

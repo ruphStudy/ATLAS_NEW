@@ -7,6 +7,7 @@ import { UsageTrackingModule } from '@modules/usage-tracking/usage-tracking.modu
 import { FeatureFlagsModule } from '@modules/feature-flags/feature-flags.module';
 import { RolesPermissionsModule } from '@modules/roles-permissions/roles-permissions.module';
 import { AuditLogsModule } from '@modules/audit-logs/audit-logs.module';
+import { UsersModule } from '@modules/users/users.module';
 import { TenantIsolationModule } from '@modules/tenant-isolation/tenant-isolation.module';
 import { AppStoreController } from './app-store.controller';
 import { AppStoreService } from './app-store.service';
@@ -40,6 +41,7 @@ import { AppStoreEventQueue, AppStoreEventWorker } from './jobs';
     FeatureFlagsModule,
     RolesPermissionsModule,
     AuditLogsModule,
+    UsersModule,
     TenantIsolationModule,
     BullModule.registerQueue({
       name: QUEUE_NAMES.APP_STORE_EVENTS,

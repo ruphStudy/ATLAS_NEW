@@ -4,12 +4,12 @@ import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class FeatureOverrideDto {
   @IsString()
   @IsNotEmpty()
-  flagKey: string;
+  flagKey!: string;
 
   @IsBoolean()
-  enabled: boolean;
+  enabled!: boolean;
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }

@@ -14,7 +14,7 @@ export class InvoiceManagementRepository extends BaseRepository {
   // ── Invoices ─────────────────────────────────────────────────────
 
   async create(data: Partial<IInvoice>): Promise<IInvoice> {
-    return this.prisma.invoice.create({ data: data as any }) as Promise<IInvoice>;
+    return this.prisma.invoice.create({ data: data as any }) as unknown as Promise<IInvoice>;
   }
 
   async findById(id: string): Promise<IInvoice | null> {
@@ -65,11 +65,11 @@ export class InvoiceManagementRepository extends BaseRepository {
       this.prisma.invoice.count({ where: where as any }),
     ]);
 
-    return [data as IInvoice[], total];
+    return [data as unknown as IInvoice[], total];
   }
 
   async update(id: string, data: Partial<IInvoice>): Promise<IInvoice> {
-    return this.prisma.invoice.update({ where: { id }, data: data as any }) as Promise<IInvoice>;
+    return this.prisma.invoice.update({ where: { id }, data: data as any }) as unknown as Promise<IInvoice>;
   }
 
   // ── Scheduler-callable sweeps (no active scheduler wired — mirrors Billing Engine / Subscription Management's approach) ──
@@ -77,13 +77,13 @@ export class InvoiceManagementRepository extends BaseRepository {
   async findDueForOverdue(before: Date): Promise<IInvoice[]> {
     return this.prisma.invoice.findMany({
       where: { status: { in: DUE_DATE_CHECK_STATUSES as any }, dueDate: { lte: before }, archivedAt: null },
-    }) as Promise<IInvoice[]>;
+    }) as unknown as Promise<IInvoice[]>;
   }
 
   async findForBillingSync(): Promise<IInvoice[]> {
     return this.prisma.invoice.findMany({
       where: { status: { in: SYNC_CHECK_STATUSES as any }, billingPeriodId: { not: null }, archivedAt: null },
-    }) as Promise<IInvoice[]>;
+    }) as unknown as Promise<IInvoice[]>;
   }
 
   // ── History ──────────────────────────────────────────────────────

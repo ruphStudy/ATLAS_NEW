@@ -1,20 +1,33 @@
 'use client';
 
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { isAxiosError } from 'axios';
-import { Loader2, RefreshCw, Trash2 } from 'lucide-react';
+import { Loader2, Pencil, RefreshCw, Trash2, X } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
+import { Select } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { QueryErrorState, UnauthorizedState } from '@/components/ui/states';
 import { ScoreBadge } from '@/components/product-intelligence/score-badge';
 import { AnalysisBlock } from '@/components/product-intelligence/analysis-block';
 import { ScoringPanel } from '@/components/product-intelligence/scoring-panel';
 import { ProfitCalculatorPanel } from '@/components/product-intelligence/profit-calculator-panel';
-import { useConfirm, useDeleteOpportunity, useLatestProductAnalysis, useOpportunity, useTriggerReanalysis } from '@/hooks';
+import { useConfirm, useDeleteOpportunity, useLatestProductAnalysis, useOpportunity, useTriggerReanalysis, useUpdateOpportunity } from '@/hooks';
+import type { OpportunityStatus } from '@/types';
+
+const STATUS_OPTIONS: { value: OpportunityStatus; label: string }[] = [
+  { value: 'DISCOVERED', label: 'Discovered' },
+  { value: 'ANALYZING', label: 'Analyzing' },
+  { value: 'VALIDATED', label: 'Validated' },
+  { value: 'IN_PROGRESS', label: 'In progress' },
+  { value: 'REJECTED', label: 'Rejected' },
+  { value: 'ARCHIVED', label: 'Archived' },
+];
 
 export default function OpportunityDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +36,10 @@ export default function OpportunityDetailPage() {
   const { data: analysis, isLoading: analysisLoading } = useLatestProductAnalysis(id);
   const reanalyze = useTriggerReanalysis(id);
   const deleteOpportunity = useDeleteOpportunity();
+  const updateOpportunity = useUpdateOpportunity(id);
   const confirm = useConfirm();
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [notesDraft, setNotesDraft] = useState('');
 
   const isForbidden = isAxiosError(error) && error.response?.status === 403;
   const isNotFound = isAxiosError(error) && error.response?.status === 404;
@@ -45,14 +61,35 @@ export default function OpportunityDetailPage() {
     if (ok) deleteOpportunity.mutate(opportunity.id);
   };
 
+  const handleStatusChange = (status: string) => {
+    updateOpportunity.mutate({ status: status as OpportunityStatus });
+  };
+
+  const startEditingNotes = () => {
+    setNotesDraft(opportunity.notes ?? '');
+    setIsEditingNotes(true);
+  };
+
+  const saveNotes = () => {
+    updateOpportunity.mutate({ notes: notesDraft }, { onSuccess: () => setIsEditingNotes(false) });
+  };
+
   return (
     <div>
       <PageHeader
         title={opportunity.keyword}
-        breadcrumbs={[{ label: 'Opportunities', href: '/dashboard/opportunities' }, { label: opportunity.keyword }]}
+        breadcrumbs={[{ label: 'Opportunities', href: '/opportunities' }, { label: opportunity.keyword }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={opportunity.status} />
+            <Select
+              className="w-40"
+              value={opportunity.status}
+              options={STATUS_OPTIONS}
+              disabled={updateOpportunity.isPending}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              aria-label="Change status"
+            />
             <Button variant="danger" onClick={handleDelete} disabled={deleteOpportunity.isPending}>
               <Trash2 className="h-4 w-4" />
               Delete
@@ -90,12 +127,34 @@ export default function OpportunityDetailPage() {
               <Field label="Recommendation" value={opportunity.recommendation ?? '—'} />
               <Field label="Created" value={new Date(opportunity.createdAt).toLocaleString()} />
               <Field label="Updated" value={new Date(opportunity.updatedAt).toLocaleString()} />
-              {opportunity.notes && (
-                <div className="sm:col-span-2">
+              <div className="sm:col-span-2">
+                <div className="flex items-center justify-between">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Notes</p>
-                  <p className="mt-0.5 text-sm text-foreground">{opportunity.notes}</p>
+                  {!isEditingNotes && (
+                    <button type="button" onClick={startEditingNotes} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                      <Pencil className="h-3 w-3" />
+                      Edit
+                    </button>
+                  )}
                 </div>
-              )}
+                {isEditingNotes ? (
+                  <div className="mt-1 space-y-2">
+                    <Textarea value={notesDraft} onChange={(e) => setNotesDraft(e.target.value)} rows={3} autoFocus />
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => setIsEditingNotes(false)} disabled={updateOpportunity.isPending}>
+                        <X className="h-3.5 w-3.5" />
+                        Cancel
+                      </Button>
+                      <Button size="sm" onClick={saveNotes} disabled={updateOpportunity.isPending}>
+                        {updateOpportunity.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                        Save
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-0.5 text-sm text-foreground">{opportunity.notes || '—'}</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

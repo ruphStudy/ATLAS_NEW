@@ -62,7 +62,7 @@ export class FlipkartAuthService {
       };
     } catch (error) {
       this.logger.error('Failed to generate Flipkart access token', error);
-      throw new Error('Flipkart token generation failed: ' + error.message);
+      throw new Error('Flipkart token generation failed: ' + (error as Error).message);
     }
   }
 

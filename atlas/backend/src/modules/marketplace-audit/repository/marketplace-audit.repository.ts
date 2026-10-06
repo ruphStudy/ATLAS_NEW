@@ -10,10 +10,28 @@ import {
   IActivitySearchCriteria,
 } from '../interfaces';
 
+interface IAuditActivityRecord {
+  module?: string;
+  action?: string;
+  status?: string;
+  entityType?: string;
+  entityId: string;
+  actor?: { type?: string; id?: string };
+}
+
 @Injectable()
 export class MarketplaceAuditRepository extends BaseRepository {
   constructor(prisma: PrismaService) {
     super(prisma);
+  }
+
+  private model(name: string) {
+    return (this.prisma as unknown as Record<string, unknown>)[name] as Record<string, unknown>;
+  }
+
+  private call<T>(model: string, method: string, args: unknown): Promise<T> {
+    const m = this.model(model);
+    return (m[method] as (a: unknown) => Promise<T>)(args);
   }
 
   async createActivity(data: {
@@ -37,16 +55,20 @@ export class MarketplaceAuditRepository extends BaseRepository {
     errorCode?: string;
     errorMessage?: string;
   }) {
-    return this.create('MarketplaceAuditActivity', {
-      ...data,
-      timestamp: new Date(),
+    return this.call<Record<string, unknown>>('marketplaceAuditActivity', 'create', {
+      data: {
+        ...data,
+        timestamp: new Date(),
+      },
     });
   }
 
   async findActivity(id: string, workspaceId: string) {
-    return this.findUnique('MarketplaceAuditActivity', {
-      id,
-      workspaceId,
+    return this.call<Record<string, unknown> | null>('marketplaceAuditActivity', 'findFirst', {
+      where: {
+        id,
+        workspaceId,
+      },
     });
   }
 
@@ -115,7 +137,10 @@ export class MarketplaceAuditRepository extends BaseRepository {
       options.skip = criteria.offset;
     }
 
-    return this.findMany('MarketplaceAuditActivity', where, options);
+    return this.call<Record<string, unknown>[]>('marketplaceAuditActivity', 'findMany', {
+      where,
+      ...options,
+    });
   }
 
   async countActivities(criteria: IActivitySearchCriteria) {
@@ -157,7 +182,7 @@ export class MarketplaceAuditRepository extends BaseRepository {
       }
     }
 
-    return this.count('MarketplaceAuditActivity', where);
+    return this.call<number>('marketplaceAuditActivity', 'count', { where });
   }
 
   async findEntityHistory(
@@ -166,31 +191,25 @@ export class MarketplaceAuditRepository extends BaseRepository {
     entityId: string,
     limit?: number,
   ) {
-    return this.findMany(
-      'MarketplaceAuditActivity',
-      {
+    return this.call<Record<string, unknown>[]>('marketplaceAuditActivity', 'findMany', {
+      where: {
         workspaceId,
         entityType,
         entityId,
       },
-      {
-        orderBy: { timestamp: 'desc' },
-        take: limit,
-      },
-    );
+      orderBy: { timestamp: 'desc' },
+      take: limit,
+    });
   }
 
   async findByCorrelationId(workspaceId: string, correlationId: string) {
-    return this.findMany(
-      'MarketplaceAuditActivity',
-      {
+    return this.call<Record<string, unknown>[]>('marketplaceAuditActivity', 'findMany', {
+      where: {
         workspaceId,
         correlationId,
       },
-      {
-        orderBy: { timestamp: 'asc' },
-      },
-    );
+      orderBy: { timestamp: 'asc' },
+    });
   }
 
   async findRecentActivitiesByActor(
@@ -201,9 +220,11 @@ export class MarketplaceAuditRepository extends BaseRepository {
   ) {
     const since = new Date(Date.now() - minutes * 60 * 1000);
 
-    const activities = await this.findMany('MarketplaceAuditActivity', {
-      workspaceId,
-      timestamp: { gte: since },
+    const activities = await this.call<IAuditActivityRecord[]>('marketplaceAuditActivity', 'findMany', {
+      where: {
+        workspaceId,
+        timestamp: { gte: since },
+      },
     });
 
     return activities.filter(
@@ -220,12 +241,14 @@ export class MarketplaceAuditRepository extends BaseRepository {
   ) {
     const since = new Date(Date.now() - minutes * 60 * 1000);
 
-    return this.findMany('MarketplaceAuditActivity', {
-      workspaceId,
-      entityType,
-      entityId,
-      status: ActivityStatus.FAILURE,
-      timestamp: { gte: since },
+    return this.call<Record<string, unknown>[]>('marketplaceAuditActivity', 'findMany', {
+      where: {
+        workspaceId,
+        entityType,
+        entityId,
+        status: ActivityStatus.FAILURE,
+        timestamp: { gte: since },
+      },
     });
   }
 
@@ -235,10 +258,12 @@ export class MarketplaceAuditRepository extends BaseRepository {
     reason: string;
     severity: string;
   }) {
-    return this.create('MarketplaceSuspiciousActivity', {
-      ...data,
-      detectedAt: new Date(),
-      isResolved: false,
+    return this.call<Record<string, unknown>>('marketplaceSuspiciousActivity', 'create', {
+      data: {
+        ...data,
+        detectedAt: new Date(),
+        isResolved: false,
+      },
     });
   }
 
@@ -251,20 +276,20 @@ export class MarketplaceAuditRepository extends BaseRepository {
       where.isResolved = isResolved;
     }
 
-    return this.findMany('MarketplaceSuspiciousActivity', where, {
+    return this.call<Record<string, unknown>[]>('marketplaceSuspiciousActivity', 'findMany', {
+      where,
       orderBy: { detectedAt: 'desc' },
     });
   }
 
   async resolveSuspiciousActivity(id: string, workspaceId: string) {
-    return this.update(
-      'MarketplaceSuspiciousActivity',
-      { id, workspaceId },
-      {
+    return this.call<Record<string, unknown>>('marketplaceSuspiciousActivity', 'update', {
+      where: { id, workspaceId },
+      data: {
         isResolved: true,
         resolvedAt: new Date(),
       },
-    );
+    });
   }
 
   async createRetentionPolicy(data: {
@@ -274,13 +299,15 @@ export class MarketplaceAuditRepository extends BaseRepository {
     archiveBeforeDelete: boolean;
     enabled: boolean;
   }) {
-    return this.create('MarketplaceAuditRetentionPolicy', data);
+    return this.call<Record<string, unknown>>('marketplaceAuditRetentionPolicy', 'create', { data });
   }
 
   async findRetentionPolicies(workspaceId: string) {
-    return this.findMany('MarketplaceAuditRetentionPolicy', {
-      workspaceId,
-      enabled: true,
+    return this.call<Record<string, unknown>[]>('marketplaceAuditRetentionPolicy', 'findMany', {
+      where: {
+        workspaceId,
+        enabled: true,
+      },
     });
   }
 
@@ -298,7 +325,7 @@ export class MarketplaceAuditRepository extends BaseRepository {
       where.module = module;
     }
 
-    return this.deleteMany('MarketplaceAuditActivity', where);
+    return this.call<{ count: number }>('marketplaceAuditActivity', 'deleteMany', { where });
   }
 
   async aggregateByModule(
@@ -306,11 +333,13 @@ export class MarketplaceAuditRepository extends BaseRepository {
     startDate: Date,
     endDate: Date,
   ) {
-    const activities = await this.findMany('MarketplaceAuditActivity', {
-      workspaceId,
-      timestamp: {
-        gte: startDate,
-        lte: endDate,
+    const activities = await this.call<IAuditActivityRecord[]>('marketplaceAuditActivity', 'findMany', {
+      where: {
+        workspaceId,
+        timestamp: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
     });
 
@@ -329,11 +358,13 @@ export class MarketplaceAuditRepository extends BaseRepository {
     startDate: Date,
     endDate: Date,
   ) {
-    const activities = await this.findMany('MarketplaceAuditActivity', {
-      workspaceId,
-      timestamp: {
-        gte: startDate,
-        lte: endDate,
+    const activities = await this.call<IAuditActivityRecord[]>('marketplaceAuditActivity', 'findMany', {
+      where: {
+        workspaceId,
+        timestamp: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
     });
 
@@ -352,11 +383,13 @@ export class MarketplaceAuditRepository extends BaseRepository {
     startDate: Date,
     endDate: Date,
   ) {
-    const activities = await this.findMany('MarketplaceAuditActivity', {
-      workspaceId,
-      timestamp: {
-        gte: startDate,
-        lte: endDate,
+    const activities = await this.call<IAuditActivityRecord[]>('marketplaceAuditActivity', 'findMany', {
+      where: {
+        workspaceId,
+        timestamp: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
     });
 
@@ -371,11 +404,13 @@ export class MarketplaceAuditRepository extends BaseRepository {
   }
 
   async aggregateByActor(workspaceId: string, startDate: Date, endDate: Date) {
-    const activities = await this.findMany('MarketplaceAuditActivity', {
-      workspaceId,
-      timestamp: {
-        gte: startDate,
-        lte: endDate,
+    const activities = await this.call<IAuditActivityRecord[]>('marketplaceAuditActivity', 'findMany', {
+      where: {
+        workspaceId,
+        timestamp: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
     });
 
@@ -397,11 +432,13 @@ export class MarketplaceAuditRepository extends BaseRepository {
     endDate: Date,
     limit: number = 10,
   ) {
-    const activities = await this.findMany('MarketplaceAuditActivity', {
-      workspaceId,
-      timestamp: {
-        gte: startDate,
-        lte: endDate,
+    const activities = await this.call<IAuditActivityRecord[]>('marketplaceAuditActivity', 'findMany', {
+      where: {
+        workspaceId,
+        timestamp: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
     });
 

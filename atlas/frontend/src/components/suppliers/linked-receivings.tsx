@@ -35,7 +35,7 @@ export function LinkedReceivings({ purchaseOrderId, shipmentId, supplierId }: Li
           {data.items.map((r) => (
             <li key={r.id} className="rounded-[var(--radius)] border border-border p-2 text-sm">
               <div className="flex items-center justify-between">
-                <Link href={`/dashboard/receiving/${r.id}`} className="font-medium text-foreground hover:underline">
+                <Link href={`/receiving/${r.id}`} className="font-medium text-foreground hover:underline">
                   {r.receivingNumber}
                 </Link>
                 <StatusBadge status={r.status} />

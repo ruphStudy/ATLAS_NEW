@@ -25,19 +25,19 @@ import {
 export class CacheKeyDto implements ICacheKey {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(CacheEntryType)
   @IsNotEmpty()
-  entryType: CacheEntryType;
+  entryType!: CacheEntryType;
 
   @IsString()
   @IsNotEmpty()
-  resourceId: string;
+  resourceId!: string;
 
   @IsObject()
   @IsNotEmpty()
-  scopes: Record<CacheScope, string>;
+  scopes!: Record<CacheScope, string>;
 
   @IsObject()
   @IsOptional()
@@ -58,19 +58,19 @@ export class CacheKeyDto implements ICacheKey {
 export class SetCacheDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(CacheEntryType)
   @IsNotEmpty()
-  entryType: CacheEntryType;
+  entryType!: CacheEntryType;
 
   @IsString()
   @IsNotEmpty()
-  resourceId: string;
+  resourceId!: string;
 
   @IsObject()
   @IsNotEmpty()
-  scopes: Record<CacheScope, string>;
+  scopes!: Record<CacheScope, string>;
 
   @IsObject()
   @IsOptional()
@@ -112,19 +112,19 @@ export class SetCacheDto {
 export class GetCacheDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(CacheEntryType)
   @IsNotEmpty()
-  entryType: CacheEntryType;
+  entryType!: CacheEntryType;
 
   @IsString()
   @IsNotEmpty()
-  resourceId: string;
+  resourceId!: string;
 
   @IsObject()
   @IsNotEmpty()
-  scopes: Record<CacheScope, string>;
+  scopes!: Record<CacheScope, string>;
 
   @IsObject()
   @IsOptional()
@@ -149,11 +149,11 @@ export class GetCacheDto {
 export class InvalidateCacheDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(InvalidationTrigger)
   @IsNotEmpty()
-  trigger: InvalidationTrigger;
+  trigger!: InvalidationTrigger;
 
   @IsString()
   @IsOptional()
@@ -185,12 +185,12 @@ export class InvalidateCacheDto {
 export class WarmCacheDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsArray()
   @IsEnum(CacheEntryType, { each: true })
   @IsNotEmpty()
-  entryTypes: CacheEntryType[];
+  entryTypes!: CacheEntryType[];
 
   @IsArray()
   @IsString({ each: true })
@@ -209,7 +209,7 @@ export class WarmCacheDto {
 export class CacheMetricsFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(CacheEntryType)
   @IsOptional()
@@ -227,63 +227,63 @@ export class CacheMetricsFilterDto {
 }
 
 export class CacheEntryResponseDto implements ICacheEntry {
-  id: string;
-  workspaceId: string;
-  cacheKey: string;
-  entryType: CacheEntryType;
-  resourceId: string;
-  scopes: Record<CacheScope, string>;
+  id!: string;
+  workspaceId!: string;
+  cacheKey!: string;
+  entryType!: CacheEntryType;
+  resourceId!: string;
+  scopes!: Record<CacheScope, string>;
   data: any;
-  version: string;
-  ttlSeconds: number;
-  expiresAt: Date;
+  version!: string;
+  ttlSeconds!: number;
+  expiresAt!: Date;
   staleAt?: Date;
-  hitCount: number;
+  hitCount!: number;
   lastAccessedAt?: Date;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class CacheInvalidationResponseDto implements ICacheInvalidation {
-  id: string;
-  workspaceId: string;
-  trigger: InvalidationTrigger;
+  id!: string;
+  workspaceId!: string;
+  trigger!: InvalidationTrigger;
   pattern?: string;
   entryTypes?: CacheEntryType[];
   scopes?: Record<CacheScope, string>;
   resourceIds?: string[];
-  invalidatedCount: number;
+  invalidatedCount!: number;
   triggeredBy?: string;
   metadata?: Record<string, any>;
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class CacheMetricsResponseDto implements ICacheMetrics {
-  id: string;
-  workspaceId: string;
+  id!: string;
+  workspaceId!: string;
   entryType?: CacheEntryType;
-  periodStart: Date;
-  periodEnd: Date;
-  hitCount: number;
-  missCount: number;
-  staleReadCount: number;
-  refreshCount: number;
-  evictionCount: number;
-  hitRate: number;
+  periodStart!: Date;
+  periodEnd!: Date;
+  hitCount!: number;
+  missCount!: number;
+  staleReadCount!: number;
+  refreshCount!: number;
+  evictionCount!: number;
+  hitRate!: number;
   avgLatencySavedMs?: number;
   estimatedCostSaved?: number;
   metadata?: Record<string, any>;
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class CacheStatsResponseDto {
-  workspaceId: string;
-  totalEntries: number;
-  totalHits: number;
-  totalMisses: number;
-  hitRate: number;
-  entriesByType: Record<CacheEntryType, number>;
-  expiringCount: number;
-  staleCount: number;
+  workspaceId!: string;
+  totalEntries!: number;
+  totalHits!: number;
+  totalMisses!: number;
+  hitRate!: number;
+  entriesByType!: Record<CacheEntryType, number>;
+  expiringCount!: number;
+  staleCount!: number;
 }

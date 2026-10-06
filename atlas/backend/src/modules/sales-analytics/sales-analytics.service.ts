@@ -214,7 +214,10 @@ export class SalesAnalyticsService {
   }
 
   async createSavedView(dto: CreateSavedViewDto): Promise<SavedViewResponseDto> {
-    const view = await this.repository.createSavedView(dto);
+    const view = await this.repository.createSavedView({
+      ...dto,
+      isDefault: dto.isDefault ?? false,
+    });
 
     await this.eventQueue.publish({
       event: SalesAnalyticsEventType.VIEW_SAVED,

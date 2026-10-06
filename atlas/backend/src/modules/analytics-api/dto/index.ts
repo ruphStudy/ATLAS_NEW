@@ -28,7 +28,7 @@ import {
 export class ApiFilterDto implements IApiFilter {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -76,7 +76,7 @@ export class ApiFilterDto implements IApiFilter {
 export class ApiDimensionDto implements IApiDimension {
   @IsString()
   @IsNotEmpty()
-  field: string;
+  field!: string;
 
   @IsString()
   @IsOptional()
@@ -90,11 +90,11 @@ export class ApiDimensionDto implements IApiDimension {
 export class ApiMetricDto implements IApiMetric {
   @IsString()
   @IsNotEmpty()
-  field: string;
+  field!: string;
 
   @IsEnum(['sum', 'avg', 'count', 'min', 'max'])
   @IsNotEmpty()
-  aggregation: 'sum' | 'avg' | 'count' | 'min' | 'max';
+  aggregation!: 'sum' | 'avg' | 'count' | 'min' | 'max';
 
   @IsString()
   @IsOptional()
@@ -104,11 +104,11 @@ export class ApiMetricDto implements IApiMetric {
 export class ApiSortDto implements IApiSort {
   @IsString()
   @IsNotEmpty()
-  field: string;
+  field!: string;
 
   @IsEnum(['asc', 'desc'])
   @IsNotEmpty()
-  order: 'asc' | 'desc';
+  order!: 'asc' | 'desc';
 }
 
 export class ApiPaginationDto implements IApiPagination {
@@ -132,7 +132,7 @@ export class ApiPaginationDto implements IApiPagination {
 export class DashboardQueryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -155,7 +155,7 @@ export class DashboardQueryDto {
 export class KpiQueryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -187,7 +187,7 @@ export class KpiQueryDto {
 export class ReportQueryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -233,11 +233,11 @@ export class ReportQueryDto {
 export class AnalyticsQueryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  analysisType: string;
+  analysisType!: string;
 
   @ValidateNested()
   @Type(() => ApiFilterDto)
@@ -269,7 +269,7 @@ export class AnalyticsQueryDto {
 export class ForecastQueryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -293,7 +293,7 @@ export class ForecastQueryDto {
 export class InsightQueryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -325,19 +325,19 @@ export class InsightQueryDto {
 export class ExportRequestDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(ApiEndpoint)
   @IsNotEmpty()
-  endpoint: ApiEndpoint;
+  endpoint!: ApiEndpoint;
 
   @IsString()
   @IsNotEmpty()
-  resourceId: string;
+  resourceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  format: string;
+  format!: string;
 
   @ValidateNested()
   @Type(() => ApiFilterDto)
@@ -348,26 +348,26 @@ export class ExportRequestDto {
 export class AsyncOperationStatusDto {
   @IsString()
   @IsNotEmpty()
-  operationId: string;
+  operationId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 }
 
 export class BulkQueryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(ApiEndpoint)
   @IsNotEmpty()
-  endpoint: ApiEndpoint;
+  endpoint!: ApiEndpoint;
 
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty()
-  resourceIds: string[];
+  resourceIds!: string[];
 
   @ValidateNested()
   @Type(() => ApiFilterDto)
@@ -378,23 +378,23 @@ export class BulkQueryDto {
 export class DrillDownQueryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(ApiEndpoint)
   @IsNotEmpty()
-  endpoint: ApiEndpoint;
+  endpoint!: ApiEndpoint;
 
   @IsString()
   @IsNotEmpty()
-  resourceId: string;
+  resourceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  dimension: string;
+  dimension!: string;
 
   @IsString()
   @IsNotEmpty()
-  value: string;
+  value!: string;
 
   @ValidateNested()
   @Type(() => ApiFilterDto)
@@ -408,21 +408,21 @@ export class DrillDownQueryDto {
 }
 
 export class AsyncOperationResponseDto implements IAsyncOperation {
-  id: string;
-  workspaceId: string;
-  endpoint: ApiEndpoint;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  id!: string;
+  workspaceId!: string;
+  endpoint!: ApiEndpoint;
+  status!: 'pending' | 'processing' | 'completed' | 'failed';
   progress?: number;
   resultUrl?: string;
   error?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  expiresAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
+  expiresAt!: Date;
 }
 
 export class ApiResponseDto<T> {
-  version: ApiVersion;
-  data: T;
+  version!: ApiVersion;
+  data!: T;
   meta?: {
     page?: number;
     limit?: number;

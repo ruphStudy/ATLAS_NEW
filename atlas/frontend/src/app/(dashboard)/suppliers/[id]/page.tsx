@@ -33,6 +33,7 @@ import {
   useUpdateSupplierStatus,
 } from '@/hooks';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { ROUTES } from '@/constants';
 import type { SupplierStatus } from '@/types';
 
 const STATUS_OPTIONS: { value: SupplierStatus; label: string }[] = [
@@ -70,7 +71,7 @@ export default function SupplierDetailPage() {
 
   const handleDelete = async () => {
     const ok = await confirm({ title: 'Delete this supplier?', description: 'This cannot be undone.', confirmLabel: 'Delete', variant: 'danger' });
-    if (ok) deleteSupplier.mutate(supplier.id, { onSuccess: () => router.push('/dashboard/suppliers') });
+    if (ok) deleteSupplier.mutate(supplier.id, { onSuccess: () => router.push(ROUTES.SUPPLIERS) });
   };
 
   const handleStatusChange = async (next: SupplierStatus) => {
@@ -83,7 +84,7 @@ export default function SupplierDetailPage() {
     <div>
       <PageHeader
         title={supplier.name}
-        breadcrumbs={[{ label: 'Suppliers', href: '/dashboard/suppliers' }, { label: supplier.name }]}
+        breadcrumbs={[{ label: 'Suppliers', href: ROUTES.SUPPLIERS }, { label: supplier.name }]}
         actions={
           <div className="flex items-center gap-2">
             <TierBadge tier={supplier.tier} />
@@ -348,7 +349,7 @@ function RfqsTab({ supplierId }: { supplierId: string }) {
         {data.items.map((rfq) => (
           <TableRow key={rfq.id} clickable>
             <TableCell>
-              <Link href={`/dashboard/rfqs/${rfq.id}`} className="text-sm font-medium text-foreground hover:underline">
+              <Link href={`/rfqs/${rfq.id}`} className="text-sm font-medium text-foreground hover:underline">
                 {rfq.title}
               </Link>
               <p className="text-xs text-muted-foreground">{rfq.rfqNumber}</p>
@@ -385,7 +386,7 @@ function PurchaseOrdersTab({ supplierId }: { supplierId: string }) {
         {data.items.map((po) => (
           <TableRow key={po.id} clickable>
             <TableCell>
-              <Link href={`/dashboard/purchase-orders/${po.id}`} className="text-sm font-medium text-foreground hover:underline">
+              <Link href={`/purchase-orders/${po.id}`} className="text-sm font-medium text-foreground hover:underline">
                 {po.poNumber}
               </Link>
             </TableCell>
@@ -420,7 +421,7 @@ function ShipmentsTab({ supplierId }: { supplierId: string }) {
         {data.items.map((s) => (
           <TableRow key={s.id} clickable>
             <TableCell>
-              <Link href={`/dashboard/shipments/${s.id}`} className="text-sm font-medium text-foreground hover:underline">
+              <Link href={`/shipments/${s.id}`} className="text-sm font-medium text-foreground hover:underline">
                 {s.shipmentNumber}
               </Link>
             </TableCell>
@@ -455,7 +456,7 @@ function QualityTab({ supplierId }: { supplierId: string }) {
         {data.data.map((qi) => (
           <TableRow key={qi.id} clickable>
             <TableCell>
-              <Link href={`/dashboard/quality-inspections/${qi.id}`} className="text-sm font-medium text-foreground hover:underline">
+              <Link href={`/quality-inspections/${qi.id}`} className="text-sm font-medium text-foreground hover:underline">
                 {qi.inspectionNumber}
               </Link>
             </TableCell>

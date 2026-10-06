@@ -10,7 +10,17 @@ export class DiscoveryStatsDto {
   @ApiProperty({ example: 340 })
   totalDiscovered: number = 0;
 
-  @ApiProperty({ example: 210 })
+  @ApiProperty({
+    example: 210,
+    description: 'Newly discovered MarketplaceProductCandidate rows across all sessions — the correct field to use.',
+  })
+  totalNewCandidates: number = 0;
+
+  /** @deprecated Same value as `totalNewCandidates` — kept for historical API compatibility only. */
+  @ApiProperty({
+    example: 210,
+    description: 'Deprecated — identical value to `totalNewCandidates`. Do not treat as a count of created Opportunities.',
+  })
   totalNewOpportunities: number = 0;
 
   @ApiProperty({ example: 130 })

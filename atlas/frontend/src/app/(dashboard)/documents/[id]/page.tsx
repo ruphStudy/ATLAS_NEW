@@ -85,7 +85,7 @@ export default function DocumentDetailPage() {
     <div>
       <PageHeader
         title={doc.title}
-        breadcrumbs={[{ label: 'Documents', href: '/dashboard/documents' }, { label: doc.title }]}
+        breadcrumbs={[{ label: 'Documents', href: '/documents' }, { label: doc.title }]}
         actions={
           <>
             <StatusBadge status={doc.status} />

@@ -13,5 +13,5 @@ export class RefundPaymentDto {
 
   @IsString()
   @IsNotEmpty()
-  idempotencyKey: string;
+  idempotencyKey!: string;
 }

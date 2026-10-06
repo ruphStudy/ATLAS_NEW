@@ -31,10 +31,11 @@ import {
   IAnalyticsConfiguration,
   IAnalyticsQuery,
   IAnalyticsQueryResult,
+  IAnalyticsFilter,
   AnalyticsEventType,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -294,7 +295,7 @@ export class AnalyticsFoundationService {
       entityType: dto.entityType,
       metrics: dto.metrics,
       dimensions: dto.dimensions,
-      filters: dto.filters,
+      filters: dto.filters as unknown as IAnalyticsFilter[] | undefined,
       aggregation: dto.aggregation,
       startDate: dto.startDate,
       endDate: dto.endDate,

@@ -100,7 +100,7 @@ export default function FBAShipmentDetailPage() {
     <div>
       <PageHeader
         title={shipment.shipmentNumber}
-        breadcrumbs={[{ label: 'FBA Shipments', href: '/dashboard/fba-shipments' }, { label: shipment.shipmentNumber }]}
+        breadcrumbs={[{ label: 'FBA Shipments', href: '/fba-shipments' }, { label: shipment.shipmentNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={shipment.status} />

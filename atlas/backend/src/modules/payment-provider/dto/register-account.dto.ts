@@ -3,12 +3,12 @@ import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Matches } 
 export class RegisterPaymentProviderAccountDto {
   @IsString()
   @IsNotEmpty()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
   @IsNotEmpty()
   @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, { message: 'accountHandle must be a lowercase, hyphen-separated identifier (e.g. "primary")' })
-  accountHandle: string;
+  accountHandle!: string;
 
   @IsString()
   @IsOptional()

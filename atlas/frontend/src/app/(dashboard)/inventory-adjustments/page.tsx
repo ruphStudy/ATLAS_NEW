@@ -92,7 +92,7 @@ export default function InventoryAdjustmentsPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((adj) => (
-              <TableRow key={adj.id} clickable onClick={() => router.push(`/dashboard/inventory-adjustments/${adj.id}`)}>
+              <TableRow key={adj.id} clickable onClick={() => router.push(`/inventory-adjustments/${adj.id}`)}>
                 <TableCell className="text-sm capitalize text-foreground">{adj.type.toLowerCase().replace(/_/g, ' ')}</TableCell>
                 <TableCell>
                   <StatusBadge status={adj.status} />
@@ -110,7 +110,7 @@ export default function InventoryAdjustmentsPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={data.totalPages} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateAdjustmentDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(a) => router.push(`/dashboard/inventory-adjustments/${a.id}`)} />
+      <CreateAdjustmentDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(a) => router.push(`/inventory-adjustments/${a.id}`)} />
     </div>
   );
 }

@@ -20,7 +20,7 @@ export class TriggerBackupDto {
 
 export class BackupEventTriggerDto {
   @IsString()
-  policyId: string;
+  policyId!: string;
 
   @IsString()
   @IsOptional()

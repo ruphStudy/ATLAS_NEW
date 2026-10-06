@@ -14,16 +14,16 @@ import { AnalyticsEntityType } from '../interfaces';
 
 export class RegisterAnalyticsEntityDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AnalyticsEntityType)
-  entityType: AnalyticsEntityType;
+  entityType!: AnalyticsEntityType;
 
   @IsString()
-  entityKey: string;
+  entityKey!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
@@ -57,14 +57,14 @@ export class UpdateAnalyticsEntityDto {
 }
 
 export class AnalyticsEntityResponseDto {
-  id: string;
-  workspaceId: string;
-  entityType: AnalyticsEntityType;
-  entityKey: string;
-  name: string;
+  id!: string;
+  workspaceId!: string;
+  entityType!: AnalyticsEntityType;
+  entityKey!: string;
+  name!: string;
   description?: string;
   metadata?: Record<string, any>;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  isActive!: boolean;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

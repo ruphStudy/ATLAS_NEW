@@ -86,7 +86,7 @@ export default function AiContentStudioPage() {
             </TableHeader>
             <TableBody>
               {data.data.map((p) => (
-                <TableRow key={p.id} clickable onClick={() => router.push(`/dashboard/ai-content-studio/${p.id}`)}>
+                <TableRow key={p.id} clickable onClick={() => router.push(`/ai-content-studio/${p.id}`)}>
                   <TableCell className="text-sm font-medium text-foreground">{p.productName}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">{p.catalogSku}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{p.brand ?? '—'}</TableCell>

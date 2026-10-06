@@ -17,7 +17,7 @@ export class PaymentCustomerDto {
 export class PaymentMethodInputDto {
   @IsString()
   @IsNotEmpty()
-  type: string;
+  type!: string;
 
   /** A provider-issued token/payment-method-id — never a raw card/PAN/CVV. */
   @IsString()
@@ -33,15 +33,15 @@ export class CreatePaymentDto {
 
   @IsNumber()
   @Min(0.01)
-  amount: number;
+  amount!: number;
 
   @IsString()
   @Matches(/^[A-Z]{3}$/, { message: 'currency must be a 3-letter ISO 4217 code' })
-  currency: string;
+  currency!: string;
 
   @IsString()
   @IsNotEmpty()
-  idempotencyKey: string;
+  idempotencyKey!: string;
 
   @IsObject()
   @IsOptional()

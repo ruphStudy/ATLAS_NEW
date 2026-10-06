@@ -30,9 +30,9 @@ import {
   WarehouseSyncConflictStrategy,
   WarehouseSyncEvent,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -104,7 +104,7 @@ export class WarehouseSyncService {
 
     const config = (await this.repository.createConfiguration(
       data,
-    )) as IWarehouseSyncConfiguration;
+    )) as unknown as IWarehouseSyncConfiguration;
 
     return config;
   }
@@ -119,8 +119,8 @@ export class WarehouseSyncService {
     const updated = (await this.repository.updateConfiguration(
       id,
       workspaceId,
-      dto,
-    )) as IWarehouseSyncConfiguration;
+      dto as unknown as Record<string, unknown>,
+    )) as unknown as IWarehouseSyncConfiguration;
 
     return updated;
   }
@@ -141,7 +141,7 @@ export class WarehouseSyncService {
         ErrorCode.RESOURCE_NOT_FOUND,
       );
     }
-    return config as IWarehouseSyncConfiguration;
+    return config as unknown as IWarehouseSyncConfiguration;
   }
 
   async findAllConfigurations(
@@ -158,7 +158,7 @@ export class WarehouseSyncService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: data as WarehouseSyncConfigurationResponseDto[],
+      data: data as unknown as WarehouseSyncConfigurationResponseDto[],
       total,
       page,
       limit,
@@ -217,7 +217,7 @@ export class WarehouseSyncService {
       triggeredBy: dto.triggeredBy ?? triggeredBy,
     };
 
-    const job = (await this.repository.createJob(jobData)) as IWarehouseSyncJob;
+    const job = (await this.repository.createJob(jobData)) as unknown as IWarehouseSyncJob;
 
     await this.createHistoryEntry(
       job.id,
@@ -387,7 +387,7 @@ export class WarehouseSyncService {
     const updated = (await this.repository.updateJob(id, workspaceId, {
       status: WarehouseSyncStatus.PAUSED,
       pausedAt: new Date(),
-    })) as IWarehouseSyncJob;
+    })) as unknown as IWarehouseSyncJob;
 
     await this.createHistoryEntry(
       id,
@@ -425,7 +425,7 @@ export class WarehouseSyncService {
     const updated = (await this.repository.updateJob(id, workspaceId, {
       status: WarehouseSyncStatus.RUNNING,
       pausedAt: null,
-    })) as IWarehouseSyncJob;
+    })) as unknown as IWarehouseSyncJob;
 
     await this.createHistoryEntry(
       id,
@@ -470,7 +470,7 @@ export class WarehouseSyncService {
     const updated = (await this.repository.updateJob(id, workspaceId, {
       status: WarehouseSyncStatus.CANCELLED,
       cancelledAt: new Date(),
-    })) as IWarehouseSyncJob;
+    })) as unknown as IWarehouseSyncJob;
 
     await this.createHistoryEntry(
       id,
@@ -498,7 +498,7 @@ export class WarehouseSyncService {
         ErrorCode.RESOURCE_NOT_FOUND,
       );
     }
-    return job as IWarehouseSyncJob;
+    return job as unknown as IWarehouseSyncJob;
   }
 
   async findAllJobs(
@@ -512,7 +512,7 @@ export class WarehouseSyncService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: data as WarehouseSyncJobResponseDto[],
+      data: data as unknown as WarehouseSyncJobResponseDto[],
       total,
       page,
       limit,
@@ -556,7 +556,7 @@ export class WarehouseSyncService {
       resolvedBy: dto.resolvedBy ?? resolvedBy,
       resolutionAction: dto.resolutionAction,
       resolutionNotes: dto.resolutionNotes,
-    })) as IWarehouseSyncConflict;
+    })) as unknown as IWarehouseSyncConflict;
 
     await this.eventQueue.publish({
       event: WarehouseSyncEvent.CONFLICT_RESOLVED,
@@ -580,7 +580,7 @@ export class WarehouseSyncService {
         ErrorCode.RESOURCE_NOT_FOUND,
       );
     }
-    return conflict as IWarehouseSyncConflict;
+    return conflict as unknown as IWarehouseSyncConflict;
   }
 
   async findAllConflicts(
@@ -597,7 +597,7 @@ export class WarehouseSyncService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: data as WarehouseSyncConflictResponseDto[],
+      data: data as unknown as WarehouseSyncConflictResponseDto[],
       total,
       page,
       limit,

@@ -5,10 +5,10 @@ import { PlanChangeDirection, PlanChangeEffective } from '@modules/subscription-
 export class AssignPlanDto {
   @IsString()
   @IsNotEmpty()
-  planKey: string;
+  planKey!: string;
 
   @IsEnum(PlanChangeDirection)
-  changeType: PlanChangeDirection;
+  changeType!: PlanChangeDirection;
 
   @IsEnum(PlanChangeEffective)
   @IsOptional()
@@ -16,5 +16,5 @@ export class AssignPlanDto {
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }

@@ -1,0 +1,33 @@
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  // Enable React strict mode for development warnings
+  reactStrictMode: true,
+
+  // Disable X-Powered-By header
+  poweredByHeader: false,
+
+  // Compress responses
+  compress: true,
+
+  // Image optimization domains
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.amazonaws.com',
+      },
+    ],
+  },
+
+  // Environment variables exposed to the browser
+  // Prefix with NEXT_PUBLIC_
+  env: {},
+
+  // Experimental features
+  experimental: {},
+
+  // Redirect / rewrites can be added here when needed
+};
+
+export default nextConfig;

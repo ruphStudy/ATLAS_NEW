@@ -15,8 +15,10 @@ import {
 } from '../constants';
 
 /**
- * Raw adapter test response shape.
- * Adapters return this from testConnection().
+ * Normalized test response shape produced by the caller's `execute` callback
+ * (e.g. mapped from MarketplaceHealthResult after resolving the real adapter's
+ * testConnection(context, credentials) call) — kept adapter-shape-agnostic so
+ * this runner only depends on retry/classification concerns.
  */
 export interface RawConnectionTestResponse {
   providerKey: string;
@@ -44,7 +46,7 @@ export class ConnectionTestRunner {
     providerKey: string;
     accountId?: string | null;
     correlationId: string;
-    adapter: { testConnection: (accountId?: string) => Promise<RawConnectionTestResponse> };
+    execute: () => Promise<RawConnectionTestResponse>;
     capabilityKey?: string | null;
     timeoutMs?: number | null;
     trigger?: ConnectionTestTrigger | null;
@@ -56,7 +58,7 @@ export class ConnectionTestRunner {
     while (retries <= MP_CONN_TEST_CONSTANTS.MAX_RETRIES) {
       try {
         const raw = await this.withTimeout(
-          opts.adapter.testConnection(opts.accountId ?? undefined),
+          opts.execute(),
           timeoutMs,
         );
         const responseTimeMs = Date.now() - start;

@@ -1,3 +1,5 @@
+import { Type } from '@nestjs/common';
+
 export enum AdapterCapability {
   CATALOG_READ = 'CATALOG_READ',
   CATALOG_WRITE = 'CATALOG_WRITE',
@@ -160,10 +162,7 @@ export interface IAdapterCapabilities {
   supportedCapabilities: AdapterCapability[];
   supportedOperations: AdapterOperation[];
   rateLimits?: {
-    [operation: string]: {
-      maxRequests: number;
-      windowMs: number;
-    };
+    [operation: string]: IThrottleConfig;
   };
   batchSizes?: {
     [operation: string]: number;
@@ -353,8 +352,8 @@ export interface IAdapter
 }
 
 export interface IAdapterRegistry {
-  register(provider: string, adapter: new () => IAdapter): void;
-  get(provider: string): new () => IAdapter | undefined;
+  register(provider: string, adapter: Type<IAdapter>): void;
+  get(provider: string): Type<IAdapter> | undefined;
   has(provider: string): boolean;
   list(): string[];
 }
@@ -392,10 +391,14 @@ export interface IRetryConfig {
   backoffMultiplier?: number;
 }
 
-export interface IThrottleConfig {
-  maxRequests: number;
-  windowMs: number;
-}
+/**
+ * Accepts either shape already in use across this module:
+ * - `{ maxRequests, windowMs }` — the fixed-window form `AdapterHttpClient.applyThrottle` operates on directly.
+ * - `{ rate, burst }` — the requests-per-second/burst-capacity form declared by each provider's
+ *   per-resource rate-limit constants (e.g. `AMAZON_RATE_LIMITS.ORDERS`); normalized to the fixed-window
+ *   form at the point of use (see `AdapterHttpClient.resolveThrottleWindow`).
+ */
+export type IThrottleConfig = { maxRequests: number; windowMs: number } | { rate: number; burst: number };
 
 export interface IRequestTrace {
   requestId: string;

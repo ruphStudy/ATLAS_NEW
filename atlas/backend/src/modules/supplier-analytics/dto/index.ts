@@ -19,15 +19,15 @@ import {
 export class GetSupplierPerformanceDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(SupplierPeriod)
   @IsOptional()
@@ -91,43 +91,43 @@ export class GetSupplierPerformanceDto {
 export class GetSupplierTrendsDto extends GetSupplierPerformanceDto {
   @IsString()
   @IsNotEmpty()
-  supplierId: string;
+  supplierId!: string;
 
   @IsEnum(SupplierMetricType)
   @IsNotEmpty()
-  metricType: SupplierMetricType;
+  metricType!: SupplierMetricType;
 
   @IsEnum(SupplierPeriod)
   @IsNotEmpty()
-  period: SupplierPeriod;
+  period!: SupplierPeriod;
 }
 
 export class GetSupplierBreakdownDto extends GetSupplierPerformanceDto {
   @IsEnum(SupplierDimension)
   @IsNotEmpty()
-  dimension: SupplierDimension;
+  dimension!: SupplierDimension;
 }
 
 export class GetSupplierComparisonDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  supplierId: string;
+  supplierId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(SupplierComparisonType)
   @IsNotEmpty()
-  comparisonType: SupplierComparisonType;
+  comparisonType!: SupplierComparisonType;
 
   @IsDate()
   @Type(() => Date)
@@ -147,15 +147,15 @@ export class GetSupplierComparisonDto {
 export class GetSupplierRankingDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(SupplierPeriod)
   @IsOptional()
@@ -171,63 +171,63 @@ export class GetSupplierRankingDto {
 }
 
 export class SupplierQuotationMetricsResponseDto implements ISupplierQuotationMetrics {
-  rfqSent: number;
-  quotationsReceived: number;
-  responseRate: number;
-  averagePriceCompetitiveness: number;
-  averageMoq: number;
-  averageLeadTime: number;
-  favorablePaymentTermsPercent: number;
+  rfqSent!: number;
+  quotationsReceived!: number;
+  responseRate!: number;
+  averagePriceCompetitiveness!: number;
+  averageMoq!: number;
+  averageLeadTime!: number;
+  favorablePaymentTermsPercent!: number;
 }
 
 export class SupplierProcurementMetricsResponseDto implements ISupplierProcurementMetrics {
-  purchaseOrderCount: number;
-  totalPurchaseOrderValue: number;
-  fulfillmentRate: number;
-  onTimeDispatchRate: number;
-  onTimeDeliveryRate: number;
-  averageDeliveryDays: number;
+  purchaseOrderCount!: number;
+  totalPurchaseOrderValue!: number;
+  fulfillmentRate!: number;
+  onTimeDispatchRate!: number;
+  onTimeDeliveryRate!: number;
+  averageDeliveryDays!: number;
 }
 
 export class SupplierQualityMetricsResponseDto implements ISupplierQualityMetrics {
-  inspectionsCompleted: number;
-  qualityScore: number;
-  defectRate: number;
-  rejectionRate: number;
-  inspectionFailureRate: number;
-  returnRate: number;
-  returnImpactAmount: number;
+  inspectionsCompleted!: number;
+  qualityScore!: number;
+  defectRate!: number;
+  rejectionRate!: number;
+  inspectionFailureRate!: number;
+  returnRate!: number;
+  returnImpactAmount!: number;
 }
 
 export class SupplierPerformanceResponseDto implements ISupplierPerformance {
-  workspaceId: string;
-  supplierId: string;
-  supplierName: string;
+  workspaceId!: string;
+  supplierId!: string;
+  supplierName!: string;
   providerKey?: string;
   category?: string;
   country?: string;
-  performanceCategory: SupplierPerformanceCategory;
-  quotationMetrics: ISupplierQuotationMetrics;
-  procurementMetrics: ISupplierProcurementMetrics;
-  qualityMetrics: ISupplierQualityMetrics;
-  overallScore: number;
+  performanceCategory!: SupplierPerformanceCategory;
+  quotationMetrics!: ISupplierQuotationMetrics;
+  procurementMetrics!: ISupplierProcurementMetrics;
+  qualityMetrics!: ISupplierQualityMetrics;
+  overallScore!: number;
   rank?: number;
-  period: SupplierPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
+  period!: SupplierPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class SupplierTrendResponseDto implements ISupplierTrend {
-  workspaceId: string;
-  supplierId: string;
-  supplierName: string;
-  period: SupplierPeriod;
-  periodStart: Date;
-  periodEnd: Date;
-  metricType: SupplierMetricType;
-  value: number;
+  workspaceId!: string;
+  supplierId!: string;
+  supplierName!: string;
+  period!: SupplierPeriod;
+  periodStart!: Date;
+  periodEnd!: Date;
+  metricType!: SupplierMetricType;
+  value!: number;
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
@@ -235,40 +235,40 @@ export class SupplierTrendResponseDto implements ISupplierTrend {
 }
 
 export class SupplierBreakdownResponseDto implements ISupplierBreakdown {
-  workspaceId: string;
-  dimension: SupplierDimension;
-  dimensionValue: string;
+  workspaceId!: string;
+  dimension!: SupplierDimension;
+  dimensionValue!: string;
   dimensionLabel?: string;
-  period: SupplierPeriod;
-  startDate: Date;
-  endDate: Date;
-  quotationMetrics: ISupplierQuotationMetrics;
-  procurementMetrics: ISupplierProcurementMetrics;
-  qualityMetrics: ISupplierQualityMetrics;
-  overallScore: number;
+  period!: SupplierPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  quotationMetrics!: ISupplierQuotationMetrics;
+  procurementMetrics!: ISupplierProcurementMetrics;
+  qualityMetrics!: ISupplierQualityMetrics;
+  overallScore!: number;
   rank?: number;
-  currency: string;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class SupplierComparisonResponseDto implements ISupplierComparison {
-  workspaceId: string;
-  supplierId: string;
-  supplierName: string;
-  comparisonType: SupplierComparisonType;
-  actualMetrics: {
+  workspaceId!: string;
+  supplierId!: string;
+  supplierName!: string;
+  comparisonType!: SupplierComparisonType;
+  actualMetrics!: {
     quotationMetrics: ISupplierQuotationMetrics;
     procurementMetrics: ISupplierProcurementMetrics;
     qualityMetrics: ISupplierQualityMetrics;
     overallScore: number;
   };
-  comparisonMetrics: {
+  comparisonMetrics!: {
     quotationMetrics: ISupplierQuotationMetrics;
     procurementMetrics: ISupplierProcurementMetrics;
     qualityMetrics: ISupplierQualityMetrics;
     overallScore: number;
   };
-  variance: {
+  variance!: {
     responseRatePoints: number;
     priceCompetitivenessPoints: number;
     fulfillmentRatePoints: number;
@@ -277,27 +277,27 @@ export class SupplierComparisonResponseDto implements ISupplierComparison {
     defectRatePoints: number;
     overallScorePoints: number;
   };
-  period: SupplierPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
+  period!: SupplierPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class SupplierRankingResponseDto implements ISupplierRanking {
-  workspaceId: string;
-  supplierId: string;
-  supplierName: string;
+  workspaceId!: string;
+  supplierId!: string;
+  supplierName!: string;
   category?: string;
-  overallScore: number;
-  rank: number;
-  quotationScore: number;
-  procurementScore: number;
-  qualityScore: number;
+  overallScore!: number;
+  rank!: number;
+  quotationScore!: number;
+  procurementScore!: number;
+  qualityScore!: number;
   verificationScore?: number;
   riskScore?: number;
-  period: SupplierPeriod;
-  startDate: Date;
-  endDate: Date;
+  period!: SupplierPeriod;
+  startDate!: Date;
+  endDate!: Date;
   metadata?: Record<string, any>;
 }

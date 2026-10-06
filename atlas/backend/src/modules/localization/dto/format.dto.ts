@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsOptional, IsNumber, IsArray, IsDateString } fro
 export class FormatDateDto {
   @IsDateString()
   @IsNotEmpty()
-  date: string;
+  date!: string;
 
   @IsString()
   @IsOptional()
@@ -12,7 +12,7 @@ export class FormatDateDto {
 
 export class FormatNumberDto {
   @IsNumber()
-  value: number;
+  value!: number;
 
   @IsString()
   @IsOptional()
@@ -21,7 +21,7 @@ export class FormatNumberDto {
 
 export class FormatCurrencyDto {
   @IsNumber()
-  value: number;
+  value!: number;
 
   @IsString()
   @IsOptional()
@@ -35,7 +35,7 @@ export class FormatCurrencyDto {
 export class ParseNumberDto {
   @IsString()
   @IsNotEmpty()
-  value: string;
+  value!: string;
 
   @IsString()
   @IsOptional()
@@ -45,7 +45,7 @@ export class ParseNumberDto {
 export class SortLocaleAwareDto {
   @IsArray()
   @IsString({ each: true })
-  items: string[];
+  items!: string[];
 
   @IsString()
   @IsOptional()

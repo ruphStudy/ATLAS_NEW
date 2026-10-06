@@ -25,15 +25,16 @@ import {
   AiQueueStatus,
   AiQueueJobStatus,
   AiQueueJobPriority,
+  AiQueueRoutingStrategy,
   AiQueueEvent,
   IEnqueueJobResult,
   IJobProcessingResult,
   IQueueStatsResult,
   IRetryBackoffConfig,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -65,7 +66,7 @@ export class AiQueueManagementService {
       displayName: dto.displayName,
       description: dto.description,
       status: AiQueueStatus.ACTIVE,
-      routingStrategy: dto.routingStrategy || 'PRIORITY',
+      routingStrategy: dto.routingStrategy || AiQueueRoutingStrategy.PRIORITY,
       routingConfig: dto.routingConfig || null,
       concurrency: dto.concurrency ?? 10,
       rateLimit: dto.rateLimit,
@@ -91,7 +92,7 @@ export class AiQueueManagementService {
     await this.eventQueue.publish({
       event: AiQueueEvent.QUEUE_CREATED,
       queueId: queue.id,
-      workspaceId: queue.workspaceId,
+      workspaceId: queue.workspaceId ?? undefined,
     });
 
     return queue;
@@ -108,7 +109,7 @@ export class AiQueueManagementService {
     await this.eventQueue.publish({
       event: AiQueueEvent.QUEUE_UPDATED,
       queueId: updated.id,
-      workspaceId: updated.workspaceId,
+      workspaceId: updated.workspaceId ?? undefined,
     });
 
     return updated;
@@ -124,7 +125,7 @@ export class AiQueueManagementService {
     await this.eventQueue.publish({
       event: AiQueueEvent.QUEUE_PAUSED,
       queueId: paused.id,
-      workspaceId: paused.workspaceId,
+      workspaceId: paused.workspaceId ?? undefined,
     });
 
     return paused as IAiQueue;
@@ -140,7 +141,7 @@ export class AiQueueManagementService {
     await this.eventQueue.publish({
       event: AiQueueEvent.QUEUE_RESUMED,
       queueId: resumed.id,
-      workspaceId: resumed.workspaceId,
+      workspaceId: resumed.workspaceId ?? undefined,
     });
 
     this.startProcessing(resumed.id);
@@ -158,7 +159,7 @@ export class AiQueueManagementService {
     await this.eventQueue.publish({
       event: AiQueueEvent.QUEUE_DRAINED,
       queueId: drained.id,
-      workspaceId: drained.workspaceId,
+      workspaceId: drained.workspaceId ?? undefined,
     });
 
     return drained as IAiQueue;
@@ -176,7 +177,7 @@ export class AiQueueManagementService {
     await this.eventQueue.publish({
       event: AiQueueEvent.QUEUE_STOPPED,
       queueId: stopped.id,
-      workspaceId: stopped.workspaceId,
+      workspaceId: stopped.workspaceId ?? undefined,
     });
 
     return stopped as IAiQueue;
@@ -467,7 +468,7 @@ export class AiQueueManagementService {
         });
 
         await this.repository.updateQueueJob(job.id, {
-          agentExecutionId: agentResult.id,
+          agentExecutionId: agentResult.executionId,
         });
 
         return {

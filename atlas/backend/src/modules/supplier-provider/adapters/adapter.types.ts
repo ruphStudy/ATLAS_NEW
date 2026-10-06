@@ -129,11 +129,7 @@ export interface AdapterAuditEvent {
 
 // ── Supported Regions ─────────────────────────────────────────
 
-export interface SupportedRegion {
-  code: string;       // ISO 3166-1 alpha-2 country code
-  displayName: string;
-  currencyCodes: string[];
-}
+export type SupportedRegion = string;
 
 // ── Adapter Metadata ──────────────────────────────────────────
 

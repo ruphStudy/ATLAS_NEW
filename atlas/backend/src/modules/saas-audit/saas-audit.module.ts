@@ -5,6 +5,7 @@ import { QUEUE_NAMES } from '@common/constants';
 import { AuditLogsModule } from '@modules/audit-logs/audit-logs.module';
 import { SaasAdministrationModule } from '@modules/saas-administration/saas-administration.module';
 import { WorkspaceModule } from '@modules/workspace/workspace.module';
+import { UsersModule } from '@modules/users/users.module';
 import { TenantIsolationModule } from '@modules/tenant-isolation/tenant-isolation.module';
 import { StorageModule } from '../../storage/storage.module';
 import { SaasAuditController } from './saas-audit.controller';
@@ -38,6 +39,7 @@ import { SaasAuditEventQueue, SaasAuditEventWorker } from './jobs';
     AuditLogsModule,
     SaasAdministrationModule,
     WorkspaceModule,
+    UsersModule,
     TenantIsolationModule,
     StorageModule,
     BullModule.registerQueue({

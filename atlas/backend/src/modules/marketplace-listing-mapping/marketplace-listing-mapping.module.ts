@@ -48,6 +48,7 @@ import {
   ],
   exports: [
     MarketplaceListingMappingService,
+    MarketplaceListingMappingRepository,
     MarketplaceMappingRegistry,
     MarketplaceMappingFactory,
     TransformationEngine,

@@ -8,9 +8,9 @@ export class CreateAuditArchiveDto {
 
   @IsString()
   @IsNotEmpty()
-  fromDate: string;
+  fromDate!: string;
 
   @IsString()
   @IsNotEmpty()
-  toDate: string;
+  toDate!: string;
 }

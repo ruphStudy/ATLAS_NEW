@@ -13,7 +13,7 @@ export class PlanManagementRepository extends BaseRepository {
   // ── Plans ────────────────────────────────────────────────────────
 
   async create(data: Partial<IPlan>): Promise<IPlan> {
-    return this.prisma.plan.create({ data: data as any }) as Promise<IPlan>;
+    return this.prisma.plan.create({ data: data as any }) as unknown as Promise<IPlan>;
   }
 
   async findById(id: string): Promise<IPlan | null> {
@@ -36,11 +36,11 @@ export class PlanManagementRepository extends BaseRepository {
   }
 
   async findAllVersionsByCode(code: string): Promise<IPlan[]> {
-    return this.prisma.plan.findMany({ where: { code }, orderBy: { version: 'asc' } }) as Promise<IPlan[]>;
+    return this.prisma.plan.findMany({ where: { code }, orderBy: { version: 'asc' } }) as unknown as Promise<IPlan[]>;
   }
 
   async findPublishedByCode(code: string): Promise<IPlan[]> {
-    return this.prisma.plan.findMany({ where: { code, status: PlanStatus.PUBLISHED } }) as Promise<IPlan[]>;
+    return this.prisma.plan.findMany({ where: { code, status: PlanStatus.PUBLISHED } }) as unknown as Promise<IPlan[]>;
   }
 
   async findAll(filter: PlanFilterDto): Promise<[IPlan[], number]> {
@@ -71,11 +71,11 @@ export class PlanManagementRepository extends BaseRepository {
       this.prisma.plan.count({ where: where as any }),
     ]);
 
-    return [data as IPlan[], total];
+    return [data as unknown as IPlan[], total];
   }
 
   async update(id: string, data: Partial<IPlan>): Promise<IPlan> {
-    return this.prisma.plan.update({ where: { id }, data: data as any }) as Promise<IPlan>;
+    return this.prisma.plan.update({ where: { id }, data: data as any }) as unknown as Promise<IPlan>;
   }
 
   // ── History ──────────────────────────────────────────────────────

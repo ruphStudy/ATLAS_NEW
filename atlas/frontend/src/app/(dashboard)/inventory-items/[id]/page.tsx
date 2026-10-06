@@ -79,7 +79,7 @@ export default function InventoryItemDetailPage() {
   actions.push({
     label: 'Delete permanently',
     icon: Trash2,
-    onSelect: () => deleteItem.mutate(item.id, { onSuccess: () => router.push('/dashboard/inventory-items') }),
+    onSelect: () => deleteItem.mutate(item.id, { onSuccess: () => router.push('/inventory-items') }),
     destructive: true,
   });
 
@@ -87,7 +87,7 @@ export default function InventoryItemDetailPage() {
     <div>
       <PageHeader
         title={item.name}
-        breadcrumbs={[{ label: 'Inventory Items', href: '/dashboard/inventory-items' }, { label: item.name }]}
+        breadcrumbs={[{ label: 'Inventory Items', href: '/inventory-items' }, { label: item.name }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={item.status} />

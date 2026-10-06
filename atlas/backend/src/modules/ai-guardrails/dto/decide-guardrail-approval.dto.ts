@@ -3,7 +3,7 @@ import { GuardrailApprovalStatus } from '../interfaces';
 
 export class DecideGuardrailApprovalDto {
   @IsIn([GuardrailApprovalStatus.APPROVED, GuardrailApprovalStatus.REJECTED])
-  decision: GuardrailApprovalStatus.APPROVED | GuardrailApprovalStatus.REJECTED;
+  decision!: GuardrailApprovalStatus.APPROVED | GuardrailApprovalStatus.REJECTED;
 
   @IsString()
   @IsOptional()
@@ -11,5 +11,5 @@ export class DecideGuardrailApprovalDto {
 
   @IsString()
   @IsNotEmpty()
-  decidedBy: string;
+  decidedBy!: string;
 }

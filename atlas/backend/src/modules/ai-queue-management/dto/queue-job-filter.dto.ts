@@ -13,7 +13,7 @@ import { AiQueueJobStatus, AiQueueJobPriority } from '../interfaces';
 export class QueueJobFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

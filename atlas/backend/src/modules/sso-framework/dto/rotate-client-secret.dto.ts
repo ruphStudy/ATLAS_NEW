@@ -4,5 +4,5 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class RotateSsoClientSecretDto {
   @IsString()
   @IsNotEmpty()
-  clientSecret: string;
+  clientSecret!: string;
 }

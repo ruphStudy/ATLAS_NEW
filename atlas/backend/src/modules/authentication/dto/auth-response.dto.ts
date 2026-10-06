@@ -2,34 +2,37 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AuthUserDto {
   @ApiProperty({ example: 'uuid' })
-  id: string;
+  id!: string;
 
   @ApiProperty({ example: 'john@acmecorp.com' })
-  email: string;
+  email!: string;
 
   @ApiProperty({ example: 'John' })
-  firstName: string;
+  firstName!: string;
 
   @ApiProperty({ example: 'Doe' })
-  lastName: string;
+  lastName!: string;
 
   @ApiProperty({ example: 'OWNER' })
-  role: string;
+  role!: string;
 
   @ApiProperty({ example: 'workspace-uuid' })
-  workspaceId: string;
+  workspaceId!: string;
 
   @ApiProperty({ example: 'ACTIVE' })
-  status: string;
+  status!: string;
+
+  @ApiProperty({ example: false, description: 'True ATLAS-staff cross-tenant access — distinct from the workspace-scoped `role` above.' })
+  isPlatformAdmin!: boolean;
 }
 
 export class AuthResponseDto {
   @ApiProperty({ description: 'Short-lived JWT access token' })
-  accessToken: string;
+  accessToken!: string;
 
   @ApiProperty({ description: 'Long-lived JWT refresh token used for token rotation' })
-  refreshToken: string;
+  refreshToken!: string;
 
   @ApiProperty({ type: AuthUserDto })
-  user: AuthUserDto;
+  user!: AuthUserDto;
 }

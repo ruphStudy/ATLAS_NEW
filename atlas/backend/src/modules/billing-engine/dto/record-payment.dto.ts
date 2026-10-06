@@ -4,7 +4,7 @@ import { IsDateString, IsNumber, IsObject, IsOptional, IsPositive } from 'class-
 export class RecordPaymentDto {
   @IsNumber()
   @IsPositive()
-  amount: number;
+  amount!: number;
 
   @IsDateString()
   @IsOptional()

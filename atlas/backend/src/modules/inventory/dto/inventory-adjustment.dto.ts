@@ -9,6 +9,7 @@ import {
   IsUrl,
   ValidateNested,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '@common/dto/pagination.dto';
 import {
   InventoryAdjustmentStatus,
@@ -173,7 +174,9 @@ export class InventoryAdjustmentResponseDto {
   locationId?: string | null;
   batchId?: string | null;
   serialId?: string | null;
+  @ApiPropertyOptional({ enum: InventoryStockStatus, nullable: true })
   fromStatus?: InventoryStockStatus | null;
+  @ApiPropertyOptional({ enum: InventoryStockStatus, nullable: true })
   toStatus?: InventoryStockStatus | null;
   quantity?: number | null;
   quantityDelta?: number | null;
@@ -273,6 +276,7 @@ export class InventoryAdjustmentHistoryResponseDto {
   id!: string;
   adjustmentId!: string;
   workspaceId!: string;
+  @ApiPropertyOptional({ enum: InventoryAdjustmentStatus, nullable: true })
   fromStatus?: InventoryAdjustmentStatus | null;
   toStatus!: InventoryAdjustmentStatus;
   reason?: string | null;

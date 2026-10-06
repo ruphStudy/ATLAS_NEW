@@ -55,9 +55,9 @@ export default function PurchaseOperationsDashboardPage() {
               items={pendingRfqs.data?.items}
               emptyLabel="No RFQs awaiting response"
               renderItem={(rfq: NonNullable<typeof pendingRfqs.data>['items'][number]) => (
-                <Row key={rfq.id} href={`/dashboard/rfqs/${rfq.id}`} title={rfq.title} subtitle={rfq.rfqNumber} status={rfq.status} />
+                <Row key={rfq.id} href={`/rfqs/${rfq.id}`} title={rfq.title} subtitle={rfq.rfqNumber} status={rfq.status} />
               )}
-              viewAllHref="/dashboard/rfqs"
+              viewAllHref="/rfqs"
             />
           </CardContent>
         </Card>
@@ -74,10 +74,10 @@ export default function PurchaseOperationsDashboardPage() {
             ) : (
               <ul className="space-y-2">
                 {(pendingProcurementApprovals.data?.items ?? []).map((p) => (
-                  <Row key={p.id} href={`/dashboard/procurement/${p.id}`} title={p.procurementNumber} subtitle="Procurement" status={p.status} />
+                  <Row key={p.id} href={`/procurement/${p.id}`} title={p.procurementNumber} subtitle="Procurement" status={p.status} />
                 ))}
                 {(pendingPoApprovals.data?.items ?? []).map((po) => (
-                  <Row key={po.id} href={`/dashboard/purchase-orders/${po.id}`} title={po.poNumber} subtitle="Purchase order" status={po.status} />
+                  <Row key={po.id} href={`/purchase-orders/${po.id}`} title={po.poNumber} subtitle="Purchase order" status={po.status} />
                 ))}
               </ul>
             )}
@@ -94,9 +94,9 @@ export default function PurchaseOperationsDashboardPage() {
               items={shipmentExceptions.data?.items}
               emptyLabel="No delayed or lost shipments"
               renderItem={(s: NonNullable<typeof shipmentExceptions.data>['items'][number]) => (
-                <Row key={s.id} href={`/dashboard/shipments/${s.id}`} title={s.shipmentNumber} subtitle={s.carrier ?? undefined} status={s.status} />
+                <Row key={s.id} href={`/shipments/${s.id}`} title={s.shipmentNumber} subtitle={s.carrier ?? undefined} status={s.status} />
               )}
-              viewAllHref="/dashboard/shipments"
+              viewAllHref="/shipments"
             />
           </CardContent>
         </Card>
@@ -111,9 +111,9 @@ export default function PurchaseOperationsDashboardPage() {
               items={qualityExceptions.data?.data}
               emptyLabel="No failed or rejected inspections"
               renderItem={(qi: NonNullable<typeof qualityExceptions.data>['data'][number]) => (
-                <Row key={qi.id} href={`/dashboard/quality-inspections/${qi.id}`} title={qi.inspectionNumber} subtitle={qi.inspectionType.replace(/_/g, ' ')} status={qi.status} />
+                <Row key={qi.id} href={`/quality-inspections/${qi.id}`} title={qi.inspectionNumber} subtitle={qi.inspectionType.replace(/_/g, ' ')} status={qi.status} />
               )}
-              viewAllHref="/dashboard/quality-inspections"
+              viewAllHref="/quality-inspections"
             />
           </CardContent>
         </Card>

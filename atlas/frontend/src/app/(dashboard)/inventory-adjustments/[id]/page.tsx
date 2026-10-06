@@ -67,7 +67,7 @@ export default function InventoryAdjustmentDetailPage() {
     <div>
       <PageHeader
         title={`Adjustment · ${adjustment.type.replace(/_/g, ' ')}`}
-        breadcrumbs={[{ label: 'Adjustments', href: '/dashboard/inventory-adjustments' }, { label: adjustment.id }]}
+        breadcrumbs={[{ label: 'Adjustments', href: '/inventory-adjustments' }, { label: adjustment.id }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={adjustment.status} />

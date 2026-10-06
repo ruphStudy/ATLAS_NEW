@@ -7,14 +7,14 @@ import {
 export class CreateJobDependencyDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  jobId: string;
+  jobId!: string;
 
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty()
-  dependsOnJobIds: string[];
+  dependsOnJobIds!: string[];
 }

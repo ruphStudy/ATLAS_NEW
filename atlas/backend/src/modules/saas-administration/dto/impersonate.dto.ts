@@ -3,9 +3,9 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class StartImpersonationDto {
   @IsString()
   @IsNotEmpty()
-  targetUserId: string;
+  targetUserId!: string;
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }

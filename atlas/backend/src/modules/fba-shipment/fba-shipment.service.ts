@@ -31,9 +31,9 @@ import {
   IFBAReceivingDiscrepancy,
 } from './interfaces';
 import { ALLOWED_STATUS_TRANSITIONS, FBA_SHIPMENT_PREFIX } from './constants';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { BusinessRuleException } from '@common/exceptions';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -118,7 +118,7 @@ export class FBAShipmentService {
         : undefined,
     };
 
-    const shipment = (await this.repository.create(data)) as IFBAShipment;
+    const shipment = (await this.repository.create(data)) as unknown as IFBAShipment;
 
     await this.createHistoryEntry(
       shipment.id,
@@ -187,7 +187,7 @@ export class FBAShipmentService {
       shipmentPlanUrl: dto.shipmentPlanUrl,
       plannedAt: new Date(),
       metadata: { ...shipment.metadata, ...dto.metadata },
-    })) as IFBAShipment;
+    })) as unknown as IFBAShipment;
 
     await this.createHistoryEntry(
       id,
@@ -228,7 +228,7 @@ export class FBAShipmentService {
       approvedAt: new Date(),
       approvedBy: dto.approvedBy ?? approvedBy,
       notes: dto.notes ?? shipment.notes,
-    })) as IFBAShipment;
+    })) as unknown as IFBAShipment;
 
     await this.createHistoryEntry(
       id,
@@ -270,7 +270,7 @@ export class FBAShipmentService {
       transferId: dto.transferId ?? shipment.transferId,
       reservationId: dto.reservationId ?? shipment.reservationId,
       preparedAt: new Date(),
-    })) as IFBAShipment;
+    })) as unknown as IFBAShipment;
 
     await this.createHistoryEntry(
       id,
@@ -312,7 +312,7 @@ export class FBAShipmentService {
       dispatchedAt: new Date(),
       dispatchedBy: dto.dispatchedBy ?? dispatchedBy,
       metadata: { ...shipment.metadata, ...dto.metadata },
-    })) as IFBAShipment;
+    })) as unknown as IFBAShipment;
 
     await this.createHistoryEntry(
       id,
@@ -348,7 +348,7 @@ export class FBAShipmentService {
       trackingReferences: dto.trackingReferences ?? shipment.trackingReferences,
       externalReferences: dto.externalReferences ?? shipment.externalReferences,
       metadata: { ...shipment.metadata, ...dto.metadata },
-    })) as IFBAShipment;
+    })) as unknown as IFBAShipment;
 
     return updated;
   }
@@ -381,7 +381,7 @@ export class FBAShipmentService {
       id,
       workspaceId,
       updateData,
-    )) as IFBAShipment;
+    )) as unknown as IFBAShipment;
 
     await this.createHistoryEntry(
       id,
@@ -455,7 +455,7 @@ export class FBAShipmentService {
       id,
       workspaceId,
       updateData,
-    )) as IFBAShipment;
+    )) as unknown as IFBAShipment;
 
     return updated;
   }
@@ -478,7 +478,7 @@ export class FBAShipmentService {
       closedAt: new Date(),
       closedBy: dto.closedBy ?? closedBy,
       notes: dto.notes ?? shipment.notes,
-    })) as IFBAShipment;
+    })) as unknown as IFBAShipment;
 
     await this.createHistoryEntry(
       id,
@@ -519,7 +519,7 @@ export class FBAShipmentService {
       cancelReason: dto.cancelReason,
       cancelledBy: dto.cancelledBy ?? cancelledBy,
       cancelledAt: new Date(),
-    })) as IFBAShipment;
+    })) as unknown as IFBAShipment;
 
     await this.createHistoryEntry(
       id,
@@ -584,7 +584,7 @@ export class FBAShipmentService {
       condition: dto.condition ?? 'NEW',
       conditionNote: dto.conditionNote,
       metadata: dto.metadata ?? {},
-    })) as IFBAShipmentItem;
+    })) as unknown as IFBAShipmentItem;
 
     await this.repository.update(id, workspaceId, {
       totalUnits: shipment.totalUnits + dto.requestedQuantity,
@@ -622,8 +622,8 @@ export class FBAShipmentService {
     const updated = (await this.repository.updateItem(
       itemId,
       workspaceId,
-      dto,
-    )) as IFBAShipmentItem;
+      dto as unknown as Record<string, unknown>,
+    )) as unknown as IFBAShipmentItem;
 
     await this.eventQueue.publish({
       event: FBAShipmentEvent.ITEM_UPDATED,
@@ -663,7 +663,7 @@ export class FBAShipmentService {
       weight: dto.weight?.weight,
       weightUnit: dto.weight?.weightUnit ?? 'kg',
       metadata: dto.metadata ?? {},
-    })) as IFBAShipmentBox;
+    })) as unknown as IFBAShipmentBox;
 
     await this.repository.update(id, workspaceId, {
       totalBoxes: shipment.totalBoxes + 1,
@@ -764,7 +764,7 @@ export class FBAShipmentService {
       externalReference: dto.externalReference,
       evidenceUrls: [],
       metadata: dto.metadata ?? {},
-    })) as IFBAReceivingDiscrepancy;
+    })) as unknown as IFBAReceivingDiscrepancy;
 
     await this.eventQueue.publish({
       event: FBAShipmentEvent.DISCREPANCY_RECORDED,
@@ -811,7 +811,7 @@ export class FBAShipmentService {
         reconciliationNotes: dto.reconciliationNotes,
         adjustmentId: dto.adjustmentId,
       },
-    )) as IFBAReceivingDiscrepancy;
+    )) as unknown as IFBAReceivingDiscrepancy;
 
     await this.eventQueue.publish({
       event: FBAShipmentEvent.DISCREPANCY_RECONCILED,
@@ -836,7 +836,7 @@ export class FBAShipmentService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: data as FBAShipmentResponseDto[],
+      data: data as unknown as FBAShipmentResponseDto[],
       total,
       page,
       limit,
@@ -852,7 +852,7 @@ export class FBAShipmentService {
         ErrorCode.RESOURCE_NOT_FOUND,
       );
     }
-    return shipment as IFBAShipment;
+    return shipment as unknown as IFBAShipment;
   }
 
   async findByNumber(
@@ -866,19 +866,19 @@ export class FBAShipmentService {
         ErrorCode.RESOURCE_NOT_FOUND,
       );
     }
-    return shipment as IFBAShipment;
+    return shipment as unknown as IFBAShipment;
   }
 
   async getItems(id: string, workspaceId: string): Promise<IFBAShipmentItem[]> {
     await this.findById(id, workspaceId);
     const items = await this.repository.findItemsByShipment(id, workspaceId);
-    return items as IFBAShipmentItem[];
+    return items as unknown as IFBAShipmentItem[];
   }
 
   async getBoxes(id: string, workspaceId: string): Promise<IFBAShipmentBox[]> {
     await this.findById(id, workspaceId);
     const boxes = await this.repository.findBoxesByShipment(id, workspaceId);
-    return boxes as IFBAShipmentBox[];
+    return boxes as unknown as IFBAShipmentBox[];
   }
 
   async getDiscrepancies(
@@ -890,7 +890,7 @@ export class FBAShipmentService {
       id,
       workspaceId,
     );
-    return discrepancies as IFBAReceivingDiscrepancy[];
+    return discrepancies as unknown as IFBAReceivingDiscrepancy[];
   }
 
   private validateStatusTransition(

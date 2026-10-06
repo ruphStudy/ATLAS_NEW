@@ -17,7 +17,7 @@ export class CreatePricingConfigDto {
 
   @IsString()
   @IsNotEmpty()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
   @IsOptional()

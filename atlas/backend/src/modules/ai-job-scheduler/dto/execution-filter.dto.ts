@@ -13,7 +13,7 @@ import { AiJobStatus } from '../interfaces';
 export class ExecutionFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

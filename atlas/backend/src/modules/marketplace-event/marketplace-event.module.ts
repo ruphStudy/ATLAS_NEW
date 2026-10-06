@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { DatabaseModule } from '../../database/database.module';
+import { QUEUE_NAMES } from '../../common/constants';
 
 import { EventRepository } from './repository/event.repository';
 import { EventValidator } from './validator/event.validator';
@@ -15,7 +17,15 @@ import { MarketplaceEventController } from './marketplace-event.controller';
 import { EventProcessingWorker } from './workers/event-processing.worker';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [
+    DatabaseModule,
+    BullModule.registerQueue({
+      name: QUEUE_NAMES.MARKETPLACE_EVENT_LIFECYCLE,
+    }),
+    BullModule.registerQueue({
+      name: QUEUE_NAMES.MARKETPLACE_EVENT_PROCESSING,
+    }),
+  ],
   controllers: [MarketplaceEventController],
   providers: [
     EventRepository,

@@ -8,11 +8,11 @@ export class LoginDto {
   @Transform(({ value }) =>
     typeof value === 'string' ? value.toLowerCase().trim() : value,
   )
-  email: string;
+  email!: string;
 
   @ApiProperty({ example: 'Str0ng!Pass' })
   @IsString()
   @IsNotEmpty({ message: 'password must not be empty' })
   @MaxLength(128)
-  password: string;
+  password!: string;
 }

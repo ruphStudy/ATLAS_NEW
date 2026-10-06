@@ -4,15 +4,15 @@ import { AiCacheScope } from '../interfaces';
 export class CacheInvalidateDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 
   @IsString()
   @IsNotEmpty()
-  triggerType: string;
+  triggerType!: string;
 
   @IsString()
   @IsOptional()

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@database/prisma.service';
 import { CompetitionAnalysisRepository } from './competition-analysis.repository';
-import { CompetitionAnalysisQueue } from './jobs';
+import { CompetitionAnalysisQueue } from './jobs/competition-analysis.queue';
 import { AmazonSearchProvider } from './providers';
 import {
   CreateCompetitionAnalysisDto,

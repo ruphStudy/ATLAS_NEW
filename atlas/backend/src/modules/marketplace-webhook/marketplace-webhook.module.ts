@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { DatabaseModule } from '../../database/database.module';
+import { QUEUE_NAMES } from '@common/constants';
 import { MarketplaceProviderModule } from '../marketplace-provider/marketplace-provider.module';
-import { MarketplaceProviderFactoryModule } from '../marketplace-provider-factory/marketplace-provider-factory.module';
+import { MarketplaceAdapterModule } from '../marketplace-adapter/marketplace-adapter.module';
 
 import { WebhookRepository } from './repository/webhook.repository';
 import { WebhookValidator } from './validator/webhook.validator';
@@ -20,7 +22,11 @@ import { WebhookProcessingWorker } from './workers/webhook-processing.worker';
   imports: [
     DatabaseModule,
     MarketplaceProviderModule,
-    MarketplaceProviderFactoryModule,
+    MarketplaceAdapterModule,
+    BullModule.registerQueue(
+      { name: QUEUE_NAMES.MARKETPLACE_WEBHOOK_EVENTS },
+      { name: QUEUE_NAMES.MARKETPLACE_WEBHOOK_PROCESSING },
+    ),
   ],
   controllers: [MarketplaceWebhookController],
   providers: [

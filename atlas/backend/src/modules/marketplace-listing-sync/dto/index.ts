@@ -1,5 +1,6 @@
 import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ConflictStrategy,
   IListingSyncJob,
@@ -123,6 +124,7 @@ export class ListingSyncJobResponseDto {
   skippedItems!: number;
   errorCode?: string | null;
   errorMessage?: string | null;
+  @ApiPropertyOptional({ enum: ConflictStrategy, nullable: true })
   conflictStrategy?: ConflictStrategy | null;
   filterOptions?: Record<string, unknown> | null;
   metadata?: Record<string, unknown> | null;
@@ -156,6 +158,7 @@ export class ListingScheduleResponseDto {
   direction!: SyncDirection;
   scope!: SyncScope;
   itemType!: ListingItemType;
+  @ApiPropertyOptional({ enum: ConflictStrategy, nullable: true })
   conflictStrategy?: ConflictStrategy | null;
   intervalMs!: number;
   enabled!: boolean;

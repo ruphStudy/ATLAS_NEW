@@ -25,7 +25,7 @@ export class PriceSyncScheduler {
           await this.triggerSync(schedule);
         }
       } catch (error) {
-        this.logger.error(`Failed to process schedule ${schedule.id}: ${error.message}`);
+        this.logger.error(`Failed to process schedule ${schedule.id}: ${(error as Error).message}`);
       }
     }
   }

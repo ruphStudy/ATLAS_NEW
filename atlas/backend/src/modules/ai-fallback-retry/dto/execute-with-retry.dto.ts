@@ -8,11 +8,11 @@ import {
 export class ExecuteWithRetryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  capability: string;
+  capability!: string;
 
   @IsString()
   @IsOptional()
@@ -20,11 +20,11 @@ export class ExecuteWithRetryDto {
 
   @IsString()
   @IsNotEmpty()
-  provider: string;
+  provider!: string;
 
   @IsString()
   @IsNotEmpty()
-  model: string;
+  model!: string;
 
   @IsNotEmpty()
   requestPayload: unknown;

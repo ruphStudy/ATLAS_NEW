@@ -7,11 +7,11 @@ export class CreateRoleDto {
   @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
     message: 'key must be a lowercase, hyphen-separated identifier (e.g. "regional-manager")',
   })
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -19,7 +19,7 @@ export class CreateRoleDto {
 
   /** Only WORKSPACE/ORGANIZATION/CUSTOM may be created via the API — SYSTEM roles are bootstrap-only. */
   @IsEnum(RoleType)
-  type: RoleType;
+  type!: RoleType;
 
   @IsString()
   @IsOptional()

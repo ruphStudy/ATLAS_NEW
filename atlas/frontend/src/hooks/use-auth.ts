@@ -22,7 +22,8 @@ export function useLogin(redirectTo?: string) {
     mutationFn: (payload: LoginRequest) => authService.login(payload),
     onSuccess: (data) => {
       setSession(data);
-      router.push(redirectTo && redirectTo.startsWith('/') ? redirectTo : ROUTES.DASHBOARD);
+      const defaultRoute = data.user.isPlatformAdmin ? ROUTES.PLATFORM_ADMIN : ROUTES.DASHBOARD;
+      router.push(redirectTo && redirectTo.startsWith('/') ? redirectTo : defaultRoute);
     },
   });
 }
@@ -35,7 +36,7 @@ export function useRegister() {
     mutationFn: (payload: RegisterRequest) => authService.register(payload),
     onSuccess: (data) => {
       setSession(data);
-      router.push(ROUTES.DASHBOARD);
+      router.push(data.user.isPlatformAdmin ? ROUTES.PLATFORM_ADMIN : ROUTES.DASHBOARD);
     },
   });
 }

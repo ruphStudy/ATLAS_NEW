@@ -17,7 +17,7 @@ import {
   OpenAiCapability,
   OpenAiExecutionMode,
 } from './interfaces';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
+import { BusinessRuleException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()

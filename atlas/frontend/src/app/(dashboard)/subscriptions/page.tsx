@@ -34,6 +34,7 @@ import {
 } from '@/hooks';
 import { formatDate } from '@/lib/utils';
 import type { CreateSubscriptionPayload, PlanChangeDirection, PlanChangeEffective, SubscriptionBillingCycle, SubscriptionScope, SubscriptionStatus, SubscriptionType } from '@/types';
+import { PlatformAdminGuard } from '@/components/auth/platform-admin-guard';
 
 const SCOPES: SubscriptionScope[] = ['ORGANIZATION', 'WORKSPACE'];
 const TYPES: SubscriptionType[] = ['TRIAL', 'PAID', 'INTERNAL', 'CUSTOM', 'ENTERPRISE'];
@@ -43,6 +44,14 @@ const CHANGE_DIRECTIONS: PlanChangeDirection[] = ['UPGRADE', 'DOWNGRADE', 'LATER
 const CHANGE_EFFECTIVE: PlanChangeEffective[] = ['IMMEDIATE', 'END_OF_PERIOD'];
 
 export default function SubscriptionsPage() {
+  return (
+    <PlatformAdminGuard>
+      <SubscriptionsPageContent />
+    </PlatformAdminGuard>
+  );
+}
+
+function SubscriptionsPageContent() {
   const [scope, setScope] = useState<SubscriptionScope | ''>('');
   const [status, setStatus] = useState<SubscriptionStatus | ''>('');
   const [type, setType] = useState<SubscriptionType | ''>('');

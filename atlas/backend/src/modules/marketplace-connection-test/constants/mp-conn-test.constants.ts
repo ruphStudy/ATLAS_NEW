@@ -57,6 +57,12 @@ export const ERROR_CLASSIFICATION: Array<{
     retryable: false,
   },
   {
+    patterns: ['no credentials configured', 'credentials missing', 'credential not found'],
+    code: MP_CONN_TEST_ERROR_CODES.CREDENTIALS_MISSING,
+    category: ConnectionErrorCategory.CONFIGURATION,
+    retryable: false,
+  },
+  {
     patterns: ['unsupported capability', 'capability not supported', 'not supported'],
     code: MP_CONN_TEST_ERROR_CODES.UNSUPPORTED_CAPABILITY,
     category: ConnectionErrorCategory.UNSUPPORTED_CAPABILITY,

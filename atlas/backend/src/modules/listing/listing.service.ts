@@ -216,7 +216,7 @@ export class ListingService {
       listingId: id,
       catalogProductId: record['catalogProductId'] as string,
       workspaceId,
-      marketplace,
+      marketplace: record['marketplace'] as ListingMarketplace,
       event: ListingEvent.UPDATED,
       triggeredBy: userId,
     });

@@ -4,7 +4,7 @@ import { IsString, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
 export class SetLocaleAvailabilityDto {
   @IsString()
   @IsNotEmpty()
-  localeCode: string;
+  localeCode!: string;
 
   /** Omit for a global default that applies across every workspace. */
   @IsString()

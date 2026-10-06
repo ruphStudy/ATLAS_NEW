@@ -1,16 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IListingSyncSchedule } from '../interfaces';
+import { IListingSyncSchedule, IListingSyncJob, ListingSyncRequest, SyncTrigger } from '../interfaces';
 import { ListingSyncRepository } from '../repository/listing-sync.repository';
 
 @Injectable()
 export class ListingSyncScheduler {
   private readonly logger = new Logger(ListingSyncScheduler.name);
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
-  private service: { startSync: (req: unknown) => Promise<unknown> } | null = null;
+  private service: { startSync: (req: ListingSyncRequest) => Promise<IListingSyncJob> } | null = null;
 
   constructor(private readonly repository: ListingSyncRepository) {}
 
-  setService(service: { startSync: (req: unknown) => Promise<unknown> }): void {
+  setService(service: { startSync: (req: ListingSyncRequest) => Promise<IListingSyncJob> }): void {
     this.service = service;
   }
 
@@ -54,10 +54,10 @@ export class ListingSyncScheduler {
           direction: schedule.direction,
           scope: schedule.scope,
           itemType: schedule.itemType,
-          conflictStrategy: schedule.conflictStrategy,
+          conflictStrategy: schedule.conflictStrategy ?? undefined,
           filterOptions: schedule.filterOptions,
           scheduleId: schedule.id,
-          trigger: 'SCHEDULED',
+          trigger: SyncTrigger.SCHEDULED,
         });
       }
 

@@ -3,10 +3,10 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 export class OverageRateDto {
   @IsString()
   @IsNotEmpty()
-  resourceKey: string;
+  resourceKey!: string;
 
   @IsNumber()
-  rate: number;
+  rate!: number;
 
   @IsString()
   @IsOptional()

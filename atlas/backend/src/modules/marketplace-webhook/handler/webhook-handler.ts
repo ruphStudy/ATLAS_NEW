@@ -10,7 +10,6 @@ import {
   NormalizedWebhookPayload,
   WebhookLifecycleEvent,
   WebhookDeliveryStatus,
-  WebhookAdapter,
 } from '../interfaces';
 
 @Injectable()
@@ -35,17 +34,18 @@ export class WebhookHandler {
     headers: Record<string, string>;
     body: any;
     rawBody: string | Buffer;
-    adapter: WebhookAdapter;
   }): Promise<{ accepted: boolean; deliveryId?: string; reason?: string }> {
     try {
       // Validate payload size
       this.validator.validatePayloadSize(params.body);
 
       // Normalize webhook payload
-      const normalized = params.adapter.normalizePayload({
-        headers: params.headers,
-        body: params.body,
-      });
+      const normalized = this.mapper.normalizeInbound(
+        params.headers,
+        params.body,
+        params.providerKey,
+        params.marketplaceKey,
+      );
 
       // Find webhook configuration
       const config = await this.repository.getConfigByExternalId(
@@ -67,7 +67,6 @@ export class WebhookHandler {
       // Verify signature if secret exists
       if (config.secret && normalized.signature) {
         const verification = this.signatureVerifier.verify({
-          adapter: params.adapter,
           payload: params.rawBody,
           signature: normalized.signature,
           secret: config.secret,
@@ -143,8 +142,9 @@ export class WebhookHandler {
 
       return { accepted: true, deliveryId: delivery.id };
     } catch (error) {
-      this.logger.error(`Failed to handle incoming webhook: ${error.message}`, error.stack);
-      
+      const err = error as Error;
+      this.logger.error(`Failed to handle incoming webhook: ${err.message}`, err.stack);
+
       if (error instanceof UnauthorizedException) {
         return { accepted: false, reason: error.message };
       }
@@ -153,7 +153,7 @@ export class WebhookHandler {
         event: WebhookLifecycleEvent.WEBHOOK_REJECTED,
         workspaceId: params.workspaceId,
         accountId: params.accountId,
-        data: { error: error.message },
+        data: { error: err.message },
       });
 
       return { accepted: false, reason: 'Internal error processing webhook' };
@@ -198,18 +198,19 @@ export class WebhookHandler {
         data: { event: params.payload.event },
       });
     } catch (error) {
-      this.logger.error(`Failed to process webhook delivery ${params.deliveryId}: ${error.message}`);
+      const err = error as Error;
+      this.logger.error(`Failed to process webhook delivery ${params.deliveryId}: ${err.message}`);
 
       // Update delivery status to failed
       await this.stateManager.updateDeliveryStatus(
         params.deliveryId,
         params.workspaceId,
         WebhookDeliveryStatus.FAILED,
-        error.message,
+        err.message,
       );
 
       // Mark webhook as error
-      await this.stateManager.markWebhookError(params.webhookConfigId, params.workspaceId, error.message);
+      await this.stateManager.markWebhookError(params.webhookConfigId, params.workspaceId, err.message);
 
       // Publish failed event
       await this.eventQueue.publish({
@@ -218,7 +219,7 @@ export class WebhookHandler {
         accountId: params.accountId,
         webhookConfigId: params.webhookConfigId,
         deliveryId: params.deliveryId,
-        data: { error: error.message, event: params.payload.event },
+        data: { error: err.message, event: params.payload.event },
       });
 
       throw error;

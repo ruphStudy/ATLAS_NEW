@@ -16,7 +16,7 @@ import {
 
 export class WarehouseAuditLogFilterDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()

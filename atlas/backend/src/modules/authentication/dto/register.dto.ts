@@ -14,21 +14,21 @@ export class RegisterDto {
   @MinLength(2)
   @MaxLength(50)
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  firstName: string;
+  firstName!: string;
 
   @ApiProperty({ example: 'Doe', description: 'Last name (2–50 characters)' })
   @IsString()
   @MinLength(2)
   @MaxLength(50)
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  lastName: string;
+  lastName!: string;
 
   @ApiProperty({ example: 'john@acmecorp.com', description: 'Valid email address' })
   @IsEmail({}, { message: 'email must be a valid email address' })
   @Transform(({ value }) =>
     typeof value === 'string' ? value.toLowerCase().trim() : value,
   )
-  email: string;
+  email!: string;
 
   @ApiProperty({
     example: 'Str0ng!Passw0rd',
@@ -44,12 +44,12 @@ export class RegisterDto {
     message:
       'password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
   })
-  password: string;
+  password!: string;
 
   @ApiProperty({ example: 'Acme Corp', description: 'Workspace / company name (2–100 characters)' })
   @IsString()
   @MinLength(2)
   @MaxLength(100)
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  workspaceName: string;
+  workspaceName!: string;
 }

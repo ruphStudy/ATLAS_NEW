@@ -4,10 +4,10 @@ import { ActivityActorType, ActivityOutcome, AuditActionCategory, AuditRiskLevel
 export class RecordAuditLogDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(ActivityActorType)
-  actorType: ActivityActorType;
+  actorType!: ActivityActorType;
 
   @IsString()
   @IsOptional()
@@ -24,14 +24,14 @@ export class RecordAuditLogDto {
   /** Free-form, dot-namespaced, source-module-defined (e.g. 'order.updated'). */
   @IsString()
   @IsNotEmpty()
-  action: string;
+  action!: string;
 
   @IsEnum(AuditActionCategory)
-  actionCategory: AuditActionCategory;
+  actionCategory!: AuditActionCategory;
 
   @IsString()
   @IsNotEmpty()
-  module: string;
+  module!: string;
 
   @IsString()
   @IsOptional()

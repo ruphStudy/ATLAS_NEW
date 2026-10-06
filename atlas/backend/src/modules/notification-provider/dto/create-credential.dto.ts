@@ -3,19 +3,19 @@ import { IsString, IsNotEmpty, IsOptional, IsObject, IsDateString } from 'class-
 export class CreateProviderCredentialDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  channel: string;
+  channel!: string;
 
   @IsString()
   @IsNotEmpty()
-  credentialSetName: string;
+  credentialSetName!: string;
 
   @IsString()
   @IsOptional()
@@ -24,7 +24,7 @@ export class CreateProviderCredentialDto {
   /** Plaintext field bag (e.g. { apiKey, apiSecret }) — encrypted before persisting, never stored or returned as-is. */
   @IsObject()
   @IsNotEmpty()
-  fields: Record<string, string>;
+  fields!: Record<string, string>;
 
   @IsDateString()
   @IsOptional()

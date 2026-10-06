@@ -12,7 +12,7 @@ import { Type } from 'class-transformer';
 export class PricingConfigFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

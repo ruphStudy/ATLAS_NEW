@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsOptional, IsInt, IsBoolean } from 'class-valida
 export class CreateChecklistItemDto {
   @IsString()
   @IsNotEmpty()
-  text: string;
+  text!: string;
 
   @IsInt()
   @IsOptional()

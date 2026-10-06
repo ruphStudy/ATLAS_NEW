@@ -3,9 +3,9 @@ import { IsString, IsNotEmpty } from 'class-validator';
 export class LinkEntityDto {
   @IsString()
   @IsNotEmpty()
-  entityType: string;
+  entityType!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityId: string;
+  entityId!: string;
 }

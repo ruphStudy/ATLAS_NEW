@@ -15,11 +15,11 @@ import { QueueType, JobState, JobPriority, BackoffStrategy } from '../interfaces
 
 export class JobBackoffDto {
   @IsEnum(BackoffStrategy)
-  type: BackoffStrategy;
+  type!: BackoffStrategy;
 
   @IsNumber()
   @Min(0)
-  delay: number;
+  delay!: number;
 }
 
 export class JobOptionsDto {
@@ -66,23 +66,23 @@ export class JobOptionsDto {
 
 export class AddJobRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsOptional()
   @IsString()
   accountId?: string;
 
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsString()
-  type: string;
+  type!: string;
 
   @IsObject()
-  data: Record<string, any>;
+  data!: Record<string, any>;
 
   @IsOptional()
   @IsObject()
@@ -96,10 +96,10 @@ export class AddJobRequestDto {
 
 export class BulkJobItemDto {
   @IsString()
-  type: string;
+  type!: string;
 
   @IsObject()
-  data: Record<string, any>;
+  data!: Record<string, any>;
 
   @IsOptional()
   @ValidateNested()
@@ -109,33 +109,33 @@ export class BulkJobItemDto {
 
 export class AddBulkJobsRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsOptional()
   @IsString()
   accountId?: string;
 
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BulkJobItemDto)
-  jobs: BulkJobItemDto[];
+  jobs!: BulkJobItemDto[];
 }
 
 export class RetryJobRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsString()
-  jobId: string;
+  jobId!: string;
 
   @IsOptional()
   @Type(() => Boolean)
@@ -149,13 +149,13 @@ export class RetryJobRequestDto {
 
 export class CancelJobRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsString()
-  jobId: string;
+  jobId!: string;
 
   @IsOptional()
   @IsString()
@@ -169,7 +169,7 @@ export class CancelJobRequestDto {
 
 export class RecoverStaleJobsRequestDto {
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsOptional()
   @IsString()
@@ -177,44 +177,44 @@ export class RecoverStaleJobsRequestDto {
 
   @IsNumber()
   @Min(1)
-  olderThanMinutes: number;
+  olderThanMinutes!: number;
 }
 
 export class ListJobsQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsEnum(JobState)
-  state: JobState;
+  state!: JobState;
 }
 
 export class GetJobQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsString()
-  jobId: string;
+  jobId!: string;
 }
 
 export class PauseQueueRequestDto {
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 }
 
 export class ResumeQueueRequestDto {
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 }
 
 export class DrainQueueRequestDto {
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsOptional()
   @Type(() => Boolean)
@@ -224,71 +224,71 @@ export class DrainQueueRequestDto {
 
 export class CleanQueueRequestDto {
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsNumber()
   @Min(0)
-  grace: number;
+  grace!: number;
 
   @IsNumber()
   @Min(1)
-  limit: number;
+  limit!: number;
 
   @IsEnum(['completed', 'failed'])
-  type: 'completed' | 'failed';
+  type!: 'completed' | 'failed';
 }
 
 export class GetErrorSummaryQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsDateString()
-  startDate: string;
+  startDate!: string;
 
   @IsDateString()
-  endDate: string;
+  endDate!: string;
 }
 
 export class RateLimitConfigDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsOptional()
   @IsString()
   accountId?: string;
 
   @IsEnum(QueueType)
-  queueType: QueueType;
+  queueType!: QueueType;
 
   @IsNumber()
   @Min(1)
-  maxConcurrent: number;
+  maxConcurrent!: number;
 
   @IsNumber()
   @Min(1)
-  maxPerMinute: number;
+  maxPerMinute!: number;
 
   @IsNumber()
   @Min(1)
-  maxPerHour: number;
+  maxPerHour!: number;
 
   @Type(() => Boolean)
   @IsBoolean()
-  isEnabled: boolean;
+  isEnabled!: boolean;
 }
 
 export class ReprocessDeadLetterJobRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  deadLetterJobId: string;
+  deadLetterJobId!: string;
 
   @IsOptional()
   @ValidateNested()
@@ -297,59 +297,59 @@ export class ReprocessDeadLetterJobRequestDto {
 }
 
 export class JobInfoResponseDto {
-  id: string;
-  queueName: string;
-  queueType: QueueType;
-  workspaceId: string;
-  provider: string;
+  id!: string;
+  queueName!: string;
+  queueType!: QueueType;
+  workspaceId!: string;
+  provider!: string;
   accountId?: string;
-  state: JobState;
-  priority: number;
-  attempts: number;
-  maxAttempts: number;
+  state!: JobState;
+  priority!: number;
+  attempts!: number;
+  maxAttempts!: number;
   progress?: number;
   data: any;
   failedReason?: string;
   stacktrace?: string[];
-  addedAt: Date;
+  addedAt!: Date;
   processedAt?: Date;
   finishedAt?: Date;
   delay?: number;
-  timestamp: Date;
+  timestamp!: Date;
 }
 
 export class QueueMetricsResponseDto {
-  queueName: string;
-  queueType: QueueType;
-  status: string;
-  waiting: number;
-  active: number;
-  delayed: number;
-  completed: number;
-  failed: number;
-  paused: number;
-  isPaused: boolean;
+  queueName!: string;
+  queueType!: QueueType;
+  status!: string;
+  waiting!: number;
+  active!: number;
+  delayed!: number;
+  completed!: number;
+  failed!: number;
+  paused!: number;
+  isPaused!: boolean;
   concurrency?: number;
   throughput?: number;
   avgProcessingTime?: number;
   avgWaitTime?: number;
   errorRate?: number;
   lastJobAt?: Date;
-  healthScore: number;
+  healthScore!: number;
 }
 
 export class QueueHealthResponseDto {
-  queueName: string;
-  isHealthy: boolean;
-  status: string;
-  issues: string[];
-  metrics: QueueMetricsResponseDto;
-  checkedAt: Date;
+  queueName!: string;
+  isHealthy!: boolean;
+  status!: string;
+  issues!: string[];
+  metrics!: QueueMetricsResponseDto;
+  checkedAt!: Date;
 }
 
 export class QueueOperationResponseDto {
-  success: boolean;
-  message: string;
+  success!: boolean;
+  message!: string;
   queueName?: string;
   jobId?: string;
   jobIds?: string[];
@@ -357,39 +357,39 @@ export class QueueOperationResponseDto {
 }
 
 export class AggregatedMetricsResponseDto {
-  queueType: QueueType;
-  totalJobs: number;
-  waitingJobs: number;
-  activeJobs: number;
-  delayedJobs: number;
-  completedJobs: number;
-  failedJobs: number;
-  cancelledJobs: number;
+  queueType!: QueueType;
+  totalJobs!: number;
+  waitingJobs!: number;
+  activeJobs!: number;
+  delayedJobs!: number;
+  completedJobs!: number;
+  failedJobs!: number;
+  cancelledJobs!: number;
   avgProcessingTime?: number;
   avgWaitTime?: number;
   throughput?: number;
-  errorRate: number;
-  healthScore: number;
+  errorRate!: number;
+  healthScore!: number;
 }
 
 export class ErrorSummaryResponseDto {
-  errorType: string;
-  errorMessage: string;
-  count: number;
-  firstOccurrence: Date;
-  lastOccurrence: Date;
-  affectedJobs: string[];
-  isRecoverable: boolean;
+  errorType!: string;
+  errorMessage!: string;
+  count!: number;
+  firstOccurrence!: Date;
+  lastOccurrence!: Date;
+  affectedJobs!: string[];
+  isRecoverable!: boolean;
 }
 
 export class JobHistoryResponseDto {
-  jobId: string;
-  queueName: string;
-  queueType: QueueType;
-  workspaceId: string;
-  state: JobState;
-  event: string;
+  jobId!: string;
+  queueName!: string;
+  queueType!: QueueType;
+  workspaceId!: string;
+  state!: JobState;
+  event!: string;
   message?: string;
   metadata?: Record<string, any>;
-  timestamp: Date;
+  timestamp!: Date;
 }

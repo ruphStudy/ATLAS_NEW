@@ -5,7 +5,7 @@ import { OverageRateDto } from './overage-rate.dto';
 
 export class CreateBillingRuleDto {
   @IsEnum(BillingRuleScope)
-  scope: BillingRuleScope;
+  scope!: BillingRuleScope;
 
   /** Required for TENANT scope when not the caller's own workspace context — otherwise resolved from the caller. */
   @IsString()

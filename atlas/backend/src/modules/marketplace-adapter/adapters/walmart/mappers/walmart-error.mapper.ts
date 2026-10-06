@@ -67,7 +67,7 @@ export class WalmartErrorMapper {
   }
 
   private isRetryable(errorCode: string, statusCode?: number): boolean {
-    const retryableCodes = [
+    const retryableCodes: string[] = [
       WALMART_ERROR_CODES.RATE_LIMIT_EXCEEDED,
       WALMART_ERROR_CODES.INTERNAL_ERROR,
       WALMART_ERROR_CODES.SERVICE_UNAVAILABLE,

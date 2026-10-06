@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { AiDescriptionStatus, AiProvider, DescriptionSection, GenerationTone } from '../interfaces';
 
 export class AiDescriptionHistoryResponseDto {
@@ -7,6 +8,7 @@ export class AiDescriptionHistoryResponseDto {
   fromStatus!: AiDescriptionStatus;
   toStatus!: AiDescriptionStatus;
   version!: number;
+  @ApiPropertyOptional({ enum: DescriptionSection, isArray: true, nullable: true })
   sectionsRegenerated?: DescriptionSection[] | null;
   reason?: string | null;
   changedBy?: string | null;

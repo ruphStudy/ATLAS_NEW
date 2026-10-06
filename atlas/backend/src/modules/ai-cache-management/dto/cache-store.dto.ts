@@ -4,11 +4,11 @@ import { AiCacheScope, AiCacheStrategy } from '../interfaces';
 export class CacheStoreDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  capability: string;
+  capability!: string;
 
   @IsString()
   @IsOptional()
@@ -16,11 +16,11 @@ export class CacheStoreDto {
 
   @IsString()
   @IsNotEmpty()
-  provider: string;
+  provider!: string;
 
   @IsString()
   @IsNotEmpty()
-  model: string;
+  model!: string;
 
   @IsString()
   @IsOptional()
@@ -55,15 +55,15 @@ export class CacheStoreDto {
 
   @IsNumber()
   @IsNotEmpty()
-  tokensUsed: number;
+  tokensUsed!: number;
 
   @IsNumber()
   @IsNotEmpty()
-  cost: number;
+  cost!: number;
 
   @IsNumber()
   @IsNotEmpty()
-  latencyMs: number;
+  latencyMs!: number;
 
   @IsEnum(AiCacheScope)
   @IsOptional()

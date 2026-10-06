@@ -1,0 +1,61 @@
+export class FBAShipmentResponseDto {
+  id!: string;
+  workspaceId!: string;
+  shipmentNumber!: string;
+  status!: string;
+  shipmentType!: string;
+  marketplaceAccountId!: string;
+  warehouseId!: string;
+  externalShipmentId?: string | null;
+  externalShipmentName?: string | null;
+  externalPlanId?: string | null;
+  destinationFCId?: string | null;
+  destinationFCName?: string | null;
+  destinationAddress?: Record<string, unknown> | null;
+  labelType?: string | null;
+  carrierType?: string | null;
+  carrierName?: string | null;
+  carrierId?: string | null;
+  serviceType?: string | null;
+  isCasePacked!: boolean;
+  isPartial!: boolean;
+  totalUnits!: number;
+  shippedUnits!: number;
+  receivedUnits!: number;
+  totalBoxes!: number;
+  shippedBoxes!: number;
+  packingTaskId?: string | null;
+  dispatchTaskId?: string | null;
+  transferId?: string | null;
+  reservationId?: string | null;
+  plannedAt?: Date | null;
+  approvedAt?: Date | null;
+  preparedAt?: Date | null;
+  dispatchedAt?: Date | null;
+  shippedAt?: Date | null;
+  deliveredAt?: Date | null;
+  checkedInAt?: Date | null;
+  receivingStartedAt?: Date | null;
+  receivedAt?: Date | null;
+  closedAt?: Date | null;
+  trackingReferences!: unknown[];
+  externalReferences!: unknown[];
+  documents!: unknown[];
+  errors!: unknown[];
+  priority!: number;
+  notes?: string | null;
+  metadata!: Record<string, unknown>;
+  createdAt!: Date;
+  updatedAt!: Date;
+  items?: unknown[];
+  boxes?: unknown[];
+  discrepancies?: unknown[];
+}
+
+export class PaginatedFBAShipmentResponseDto {
+  data!: FBAShipmentResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
+}

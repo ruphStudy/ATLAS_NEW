@@ -144,7 +144,7 @@ export class DisasterRecoveryValidator {
       const result = await provider.validateIntegrity(descriptor);
       await this.repository.upsertBackupRecord(record.providerKey, record.externalRef, {
         integrityStatus: result.valid ? DrBackupIntegrityStatus.VALID : DrBackupIntegrityStatus.CORRUPT,
-        restoreEligible: result.valid && record.freshnessStatus !== DrBackupFreshnessStatus.EXPIRED,
+        restoreEligible: result.valid,
       });
       if (!result.valid) {
         return { eligible: false, targetType, reason: result.message ?? 'Backup integrity check failed', backupRecordId: record.id };

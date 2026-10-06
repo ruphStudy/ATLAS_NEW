@@ -1,0 +1,23 @@
+import { Injectable } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { QUEUE_NAMES } from '@common/constants';
+import { IRolesPermissionsEventPayload } from '../interfaces';
+
+@Injectable()
+export class RolesPermissionsEventQueue {
+  constructor(
+    @InjectQueue(QUEUE_NAMES.ROLES_PERMISSIONS_EVENTS)
+    private readonly queue: Queue,
+  ) {}
+
+  async publish(payload: IRolesPermissionsEventPayload): Promise<void> {
+    await this.queue.add(payload.event, payload, {
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 2000,
+      },
+    });
+  }
+}

@@ -25,15 +25,15 @@ import {
 export class GetFinancialPerformanceDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @Type(() => Date)
   @IsDate()
-  startDate: Date;
+  startDate!: Date;
 
   @Type(() => Date)
   @IsDate()
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(FinancialPeriod)
   @IsOptional()
@@ -135,21 +135,21 @@ export class GetFinancialPerformanceDto {
 export class GetFinancialTrendsDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @Type(() => Date)
   @IsDate()
-  startDate: Date;
+  startDate!: Date;
 
   @Type(() => Date)
   @IsDate()
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(FinancialMetricType)
-  metricType: FinancialMetricType;
+  metricType!: FinancialMetricType;
 
   @IsEnum(FinancialPeriod)
-  period: FinancialPeriod;
+  period!: FinancialPeriod;
 
   @IsString()
   @IsOptional()
@@ -172,18 +172,18 @@ export class GetFinancialTrendsDto {
 export class GetFinancialBreakdownDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @Type(() => Date)
   @IsDate()
-  startDate: Date;
+  startDate!: Date;
 
   @Type(() => Date)
   @IsDate()
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(FinancialDimension)
-  dimension: FinancialDimension;
+  dimension!: FinancialDimension;
 
   @IsEnum(FinancialPeriod)
   @IsOptional()
@@ -215,18 +215,18 @@ export class GetFinancialBreakdownDto {
 export class GetFinancialComparisonDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @Type(() => Date)
   @IsDate()
-  startDate: Date;
+  startDate!: Date;
 
   @Type(() => Date)
   @IsDate()
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(FinancialComparisonType)
-  comparisonType: FinancialComparisonType;
+  comparisonType!: FinancialComparisonType;
 
   @IsEnum(FinancialPeriod)
   @IsOptional()
@@ -258,7 +258,7 @@ export class GetFinancialComparisonDto {
 export class GetFinancialAlertsDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @Type(() => Date)
   @IsDate()
@@ -297,11 +297,11 @@ export class GetFinancialAlertsDto {
 }
 
 export class FinancialPerformanceResponseDto implements IFinancialPerformance {
-  workspaceId: string;
-  period: FinancialPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
+  workspaceId!: string;
+  period!: FinancialPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
   productId?: string;
   productSku?: string;
   categoryId?: string;
@@ -316,41 +316,41 @@ export class FinancialPerformanceResponseDto implements IFinancialPerformance {
   costBreakdown: any;
   cashFlowMetrics: any;
   settlementMetrics: any;
-  healthStatus: FinancialHealthStatus;
-  overallScore: number;
+  healthStatus!: FinancialHealthStatus;
+  overallScore!: number;
 }
 
 export class FinancialTrendResponseDto implements IFinancialTrend {
-  period: Date;
-  metricValue: number;
-  metricType: FinancialMetricType;
-  currency: string;
+  period!: Date;
+  metricValue!: number;
+  metricType!: FinancialMetricType;
+  currency!: string;
   normalizedValue?: number;
   changeFromPrevious?: number;
   changeFromPreviousPercent?: number;
 }
 
 export class FinancialBreakdownResponseDto implements IFinancialBreakdown {
-  dimensionValue: string;
+  dimensionValue!: string;
   dimensionLabel?: string;
-  revenue: number;
-  grossProfit: number;
-  netProfit: number;
-  margin: number;
-  totalCost: number;
-  orderCount: number;
-  contribution: number;
-  contributionPercent: number;
-  healthStatus: FinancialHealthStatus;
+  revenue!: number;
+  grossProfit!: number;
+  netProfit!: number;
+  margin!: number;
+  totalCost!: number;
+  orderCount!: number;
+  contribution!: number;
+  contributionPercent!: number;
+  healthStatus!: FinancialHealthStatus;
 }
 
 export class FinancialComparisonResponseDto implements IFinancialComparison {
-  workspaceId: string;
-  comparisonType: FinancialComparisonType;
-  period: FinancialPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
+  workspaceId!: string;
+  comparisonType!: FinancialComparisonType;
+  period!: FinancialPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
   actualMetrics: any;
   comparisonMetrics: any;
   variance: any;
@@ -359,12 +359,12 @@ export class FinancialComparisonResponseDto implements IFinancialComparison {
 }
 
 export class FinancialAlertResponseDto implements IFinancialAlert {
-  id: string;
-  workspaceId: string;
-  alertType: FinancialAnalyticsEventType;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  message: string;
-  detectedAt: Date;
+  id!: string;
+  workspaceId!: string;
+  alertType!: FinancialAnalyticsEventType;
+  severity!: 'low' | 'medium' | 'high' | 'critical';
+  message!: string;
+  detectedAt!: Date;
   productId?: string;
   productSku?: string;
   marketplaceId?: string;
@@ -372,6 +372,6 @@ export class FinancialAlertResponseDto implements IFinancialAlert {
   amount?: number;
   currency?: string;
   metadata?: Record<string, any>;
-  resolved: boolean;
+  resolved!: boolean;
   resolvedAt?: Date;
 }

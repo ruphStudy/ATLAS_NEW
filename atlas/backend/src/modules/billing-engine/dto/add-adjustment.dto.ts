@@ -8,13 +8,13 @@ export class AddAdjustmentDto {
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   /** Positive to charge more, negative to discount/credit. */
   @IsNumber()
-  amount: number;
+  amount!: number;
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }

@@ -5,7 +5,7 @@ import { NotificationProviderConfigStatus } from '../interfaces';
 export class ProviderConfigFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

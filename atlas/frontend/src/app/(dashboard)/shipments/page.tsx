@@ -90,7 +90,7 @@ export default function ShipmentsPage() {
           </TableHeader>
           <TableBody>
             {data.items.map((s) => (
-              <TableRow key={s.id} clickable onClick={() => router.push(`/dashboard/shipments/${s.id}`)}>
+              <TableRow key={s.id} clickable onClick={() => router.push(`/shipments/${s.id}`)}>
                 <TableCell>
                   <p className="text-sm font-medium text-foreground">{s.shipmentNumber}</p>
                   {s.isPartial && <p className="text-xs text-muted-foreground">Partial shipment</p>}
@@ -111,7 +111,7 @@ export default function ShipmentsPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={Math.ceil(data.total / limit)} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateShipmentDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(s) => router.push(`/dashboard/shipments/${s.id}`)} />
+      <CreateShipmentDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(s) => router.push(`/shipments/${s.id}`)} />
     </div>
   );
 }

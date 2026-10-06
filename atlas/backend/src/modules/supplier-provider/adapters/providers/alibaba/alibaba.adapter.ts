@@ -209,7 +209,7 @@ export class AlibabaAdapter extends BaseSupplierAdapter {
   ): AsyncIterable<AtlasSupplier> {
     const context = this.buildRequestContext(request.workspaceId, AdapterCapability.SEARCH_SUPPLIERS);
     this.capabilityValidator.validateCapability(this.adapterMetadata, AdapterCapability.SEARCH_SUPPLIERS);
-    this.logRequest(context, request.params as Record<string, unknown>);
+    this.logRequest(context, request.params as unknown as Record<string, unknown>);
 
     const client = await this.resolveHttpClient(request.workspaceId);
     const page = request.pagination?.page ?? 1;
@@ -248,7 +248,7 @@ export class AlibabaAdapter extends BaseSupplierAdapter {
     const start = Date.now();
     const context = this.buildRequestContext(request.workspaceId, AdapterCapability.SEARCH_PRODUCTS);
     this.capabilityValidator.validateCapability(this.adapterMetadata, AdapterCapability.SEARCH_PRODUCTS);
-    this.logRequest(context, request.params as Record<string, unknown>);
+    this.logRequest(context, request.params as unknown as Record<string, unknown>);
 
     try {
       const client = await this.resolveHttpClient(request.workspaceId);
@@ -290,7 +290,7 @@ export class AlibabaAdapter extends BaseSupplierAdapter {
     const start = Date.now();
     const context = this.buildRequestContext(request.workspaceId, AdapterCapability.GET_SUPPLIER_DETAILS);
     this.capabilityValidator.validateCapability(this.adapterMetadata, AdapterCapability.GET_SUPPLIER_DETAILS);
-    this.logRequest(context, request.params as Record<string, unknown>);
+    this.logRequest(context, request.params as unknown as Record<string, unknown>);
 
     try {
       const client = await this.resolveHttpClient(request.workspaceId);
@@ -323,7 +323,7 @@ export class AlibabaAdapter extends BaseSupplierAdapter {
     const start = Date.now();
     const context = this.buildRequestContext(request.workspaceId, AdapterCapability.GET_PRODUCT_DETAILS);
     this.capabilityValidator.validateCapability(this.adapterMetadata, AdapterCapability.GET_PRODUCT_DETAILS);
-    this.logRequest(context, request.params as Record<string, unknown>);
+    this.logRequest(context, request.params as unknown as Record<string, unknown>);
 
     try {
       const client = await this.resolveHttpClient(request.workspaceId);
@@ -409,7 +409,7 @@ export class AlibabaAdapter extends BaseSupplierAdapter {
     const start = Date.now();
     const context = this.buildRequestContext(request.workspaceId, AdapterCapability.DOWNLOAD_CATALOG);
     this.capabilityValidator.validateCapability(this.adapterMetadata, AdapterCapability.DOWNLOAD_CATALOG);
-    this.logRequest(context, request.params as Record<string, unknown>);
+    this.logRequest(context, request.params as unknown as Record<string, unknown>);
 
     try {
       const client = await this.resolveHttpClient(request.workspaceId);

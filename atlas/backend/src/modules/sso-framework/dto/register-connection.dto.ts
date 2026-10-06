@@ -4,14 +4,14 @@ import { SsoProtocol, SsoScopeType } from '../interfaces';
 export class RegisterSsoConnectionDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
   @IsEnum(SsoScopeType)
-  scopeType: SsoScopeType;
+  scopeType!: SsoScopeType;
 
   /** Required for ORGANIZATION scope. */
   @IsString()
@@ -19,12 +19,12 @@ export class RegisterSsoConnectionDto {
   organizationId?: string;
 
   @IsEnum(SsoProtocol)
-  protocol: SsoProtocol;
+  protocol!: SsoProtocol;
 
   @IsArray()
   @IsString({ each: true })
   @ArrayMinSize(1)
-  domains: string[];
+  domains!: string[];
 
   @IsArray()
   @IsString({ each: true })

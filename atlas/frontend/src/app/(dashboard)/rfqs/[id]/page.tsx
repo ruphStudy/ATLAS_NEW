@@ -69,7 +69,7 @@ export default function RfqDetailPage() {
 
   const handleDelete = async () => {
     const ok = await confirm({ title: 'Delete this RFQ?', description: 'This cannot be undone.', confirmLabel: 'Delete', variant: 'danger' });
-    if (ok) deleteRfq.mutate(rfq.id, { onSuccess: () => router.push('/dashboard/rfqs') });
+    if (ok) deleteRfq.mutate(rfq.id, { onSuccess: () => router.push('/rfqs') });
   };
 
   const handleClose = async () => {
@@ -81,7 +81,7 @@ export default function RfqDetailPage() {
     <div>
       <PageHeader
         title={rfq.title}
-        breadcrumbs={[{ label: 'RFQs', href: '/dashboard/rfqs' }, { label: rfq.title }]}
+        breadcrumbs={[{ label: 'RFQs', href: '/rfqs' }, { label: rfq.title }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={rfq.status} />

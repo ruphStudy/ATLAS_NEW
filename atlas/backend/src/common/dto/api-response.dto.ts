@@ -27,7 +27,7 @@ export class ApiResponseDto<T> {
   @ApiProperty({ example: 'Success' })
   message: string = 'Success';
 
-  @ApiProperty()
+  @ApiProperty({ type: Object })
   data!: T;
 
   @ApiPropertyOptional({ type: () => PaginationMetaDto })

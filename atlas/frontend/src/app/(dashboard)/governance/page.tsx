@@ -36,7 +36,7 @@ export default function GovernancePage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <GovernanceCard title="High-risk approval requests" href="/dashboard/approval-workflow" loading={recentRequests.isLoading} empty={highRiskRequests.length === 0} emptyLabel="No high-risk requests among recent activity">
+        <GovernanceCard title="High-risk approval requests" href="/approval-workflow" loading={recentRequests.isLoading} empty={highRiskRequests.length === 0} emptyLabel="No high-risk requests among recent activity">
           {highRiskRequests.slice(0, 5).map((r) => (
             <li key={r.id} className="flex items-center justify-between border-b border-border py-2 text-sm last:border-0">
               <div>
@@ -48,7 +48,7 @@ export default function GovernancePage() {
           ))}
         </GovernanceCard>
 
-        <GovernanceCard title="Expired approval requests" href="/dashboard/approval-workflow" loading={expiredApprovals.isLoading} empty={(expiredApprovals.data?.data ?? []).length === 0} emptyLabel="No expired approvals">
+        <GovernanceCard title="Expired approval requests" href="/approval-workflow" loading={expiredApprovals.isLoading} empty={(expiredApprovals.data?.data ?? []).length === 0} emptyLabel="No expired approvals">
           {(expiredApprovals.data?.data ?? []).map((r) => (
             <li key={r.id} className="flex items-center justify-between border-b border-border py-2 text-sm last:border-0">
               <div>
@@ -60,7 +60,7 @@ export default function GovernancePage() {
           ))}
         </GovernanceCard>
 
-        <GovernanceCard title="Failed workflow executions" href="/dashboard/enterprise-workflow-engine" loading={failedWorkflows.isLoading} empty={(failedWorkflows.data?.data ?? []).length === 0} emptyLabel="No failed workflow executions">
+        <GovernanceCard title="Failed workflow executions" href="/enterprise-workflow-engine" loading={failedWorkflows.isLoading} empty={(failedWorkflows.data?.data ?? []).length === 0} emptyLabel="No failed workflow executions">
           {(failedWorkflows.data?.data ?? []).map((e) => (
             <li key={e.id} className="flex items-center justify-between border-b border-border py-2 text-sm last:border-0">
               <div>
@@ -74,7 +74,7 @@ export default function GovernancePage() {
 
         <GovernanceCard
           title="Blocked / policy-violating rule executions"
-          href="/dashboard/business-rules"
+          href="/business-rules"
           loading={blockedRules.isLoading}
           empty={(blockedRules.data?.data ?? []).length === 0 && (failedRules.data?.total ?? 0) === 0}
           emptyLabel="No policy violations recorded"
@@ -90,7 +90,7 @@ export default function GovernancePage() {
           ))}
         </GovernanceCard>
 
-        <GovernanceCard title="Expired compliance records" href="/dashboard/compliance" loading={expiredCompliance.isLoading} empty={(expiredCompliance.data?.data ?? []).length === 0} emptyLabel="No expired compliance records">
+        <GovernanceCard title="Expired compliance records" href="/compliance" loading={expiredCompliance.isLoading} empty={(expiredCompliance.data?.data ?? []).length === 0} emptyLabel="No expired compliance records">
           {(expiredCompliance.data?.data ?? []).map((rec) => (
             <li key={rec.id} className="flex items-center justify-between border-b border-border py-2 text-sm last:border-0">
               <div>
@@ -102,7 +102,7 @@ export default function GovernancePage() {
           ))}
         </GovernanceCard>
 
-        <GovernanceCard title="Changes-requested approvals" href="/dashboard/approval-workflow" loading={changesRequested.isLoading} empty={(changesRequested.data?.total ?? 0) === 0} emptyLabel="Nothing awaiting resubmission">
+        <GovernanceCard title="Changes-requested approvals" href="/approval-workflow" loading={changesRequested.isLoading} empty={(changesRequested.data?.total ?? 0) === 0} emptyLabel="Nothing awaiting resubmission">
           <li className="py-2 text-sm text-muted-foreground">{changesRequested.data?.total ?? 0} request(s) awaiting resubmission after changes were requested.</li>
         </GovernanceCard>
       </div>

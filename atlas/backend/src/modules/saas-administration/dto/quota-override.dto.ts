@@ -4,7 +4,7 @@ import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-
 export class QuotaOverrideDto {
   @IsString()
   @IsNotEmpty()
-  resourceKey: string;
+  resourceKey!: string;
 
   @IsNumber()
   @IsOptional()
@@ -12,7 +12,7 @@ export class QuotaOverrideDto {
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 
   @IsDateString()
   @IsOptional()

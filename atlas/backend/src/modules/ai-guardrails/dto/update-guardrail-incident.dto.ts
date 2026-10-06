@@ -3,7 +3,7 @@ import { GuardrailIncidentStatus } from '../interfaces';
 
 export class UpdateGuardrailIncidentDto {
   @IsEnum(GuardrailIncidentStatus)
-  status: GuardrailIncidentStatus;
+  status!: GuardrailIncidentStatus;
 
   @IsString()
   @IsOptional()

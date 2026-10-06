@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
-import { IDashboardEvent } from './interfaces';
+import { IDashboardEvent } from '../interfaces';
 
 @Injectable()
 export class DashboardFrameworkEventQueue {

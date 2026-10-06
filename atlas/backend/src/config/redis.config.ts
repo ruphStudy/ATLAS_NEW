@@ -11,5 +11,9 @@ export const redisConfig = registerAs(
       10,
     ),
     password: process.env[ENV_KEYS.REDIS_PASSWORD] ?? undefined,
+    db: parseInt(
+      process.env[ENV_KEYS.REDIS_DB] ?? String(CONFIG_DEFAULTS.REDIS_DB),
+      10,
+    ),
   }),
 );

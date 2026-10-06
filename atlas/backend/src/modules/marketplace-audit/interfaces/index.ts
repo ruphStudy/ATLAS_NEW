@@ -171,6 +171,7 @@ export interface IAuditEvent {
 }
 
 export interface IRetentionPolicy {
+  id: string;
   workspaceId: string;
   module?: ActivityModule;
   retentionDays: number;

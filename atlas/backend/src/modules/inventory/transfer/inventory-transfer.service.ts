@@ -92,9 +92,9 @@ export class InventoryTransferService {
       [InventoryTransferStatus.PARTIALLY_RECEIVED]: [
         InventoryTransferStatus.RECEIVED,
         InventoryTransferStatus.PARTIALLY_RECEIVED,
+        InventoryTransferStatus.REVERSED,
       ],
       [InventoryTransferStatus.RECEIVED]: [InventoryTransferStatus.REVERSED],
-      [InventoryTransferStatus.PARTIALLY_RECEIVED]: [InventoryTransferStatus.REVERSED],
       [InventoryTransferStatus.CANCELLED]: [],
       [InventoryTransferStatus.REVERSED]: [],
     };
@@ -171,7 +171,7 @@ export class InventoryTransferService {
     await this.warehouseService.findById(dto.destinationWarehouseId, workspaceId);
 
     if (dto.lines.length === 0) {
-      throw new BusinessRuleException('Transfer must have at least one line', ErrorCode.INVALID_INPUT);
+      throw new BusinessRuleException('Transfer must have at least one line', ErrorCode.VALIDATION_FAILED);
     }
 
     const transferNumber = await this.repository.generateTransferNumber(workspaceId);

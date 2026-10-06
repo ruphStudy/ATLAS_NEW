@@ -68,6 +68,7 @@ import {
   useWorkspaceMembers,
 } from '@/hooks';
 import { formatDate } from '@/lib/utils';
+import { ROUTES } from '@/constants';
 import type { CreateWarehousePayload, WarehouseType, WorkspaceMemberRole } from '@/types';
 
 type StepId =
@@ -364,7 +365,7 @@ function StepDetail({ step, isComplete, skipped, toggleSkip, workspaceId, data, 
     case 'organization':
       return (
         <StepShell {...shellProps}>
-          <DeepLinkAction href="/dashboard/settings" label="Manage organization profile" />
+          <DeepLinkAction href="/settings" label="Manage organization profile" />
         </StepShell>
       );
 
@@ -375,9 +376,9 @@ function StepDetail({ step, isComplete, skipped, toggleSkip, workspaceId, data, 
       return (
         <StepShell {...shellProps}>
           <div className="flex flex-wrap gap-2">
-            <DeepLinkAction href="/dashboard/multi-country" label="Multi-Country Hub" />
-            <DeepLinkAction href="/dashboard/regional-settings" label="Regional settings" />
-            <DeepLinkAction href="/dashboard/currencies" label="Currencies" />
+            <DeepLinkAction href="/multi-country" label="Multi-Country Hub" />
+            <DeepLinkAction href="/regional-settings" label="Regional settings" />
+            <DeepLinkAction href="/currencies" label="Currencies" />
           </div>
         </StepShell>
       );
@@ -385,7 +386,7 @@ function StepDetail({ step, isComplete, skipped, toggleSkip, workspaceId, data, 
     case 'brand':
       return (
         <StepShell {...shellProps}>
-          <DeepLinkAction href="/dashboard/multi-brand" label="Manage brands" />
+          <DeepLinkAction href="/multi-brand" label="Manage brands" />
         </StepShell>
       );
 
@@ -404,14 +405,14 @@ function StepDetail({ step, isComplete, skipped, toggleSkip, workspaceId, data, 
     case 'notification':
       return (
         <StepShell {...shellProps}>
-          <DeepLinkAction href="/dashboard/notification-providers" label="Configure notifications" />
+          <DeepLinkAction href="/notification-providers" label="Configure notifications" />
         </StepShell>
       );
 
     case 'payment':
       return (
         <StepShell {...shellProps}>
-          <DeepLinkAction href="/dashboard/payment-providers" label="Configure payment providers" />
+          <DeepLinkAction href="/payment-providers" label="Configure payment providers" />
         </StepShell>
       );
 
@@ -427,21 +428,21 @@ function StepDetail({ step, isComplete, skipped, toggleSkip, workspaceId, data, 
     case 'first-product':
       return (
         <StepShell {...shellProps}>
-          <DeepLinkAction href="/dashboard/products" label="Add your first product" />
+          <DeepLinkAction href="/products" label="Add your first product" />
         </StepShell>
       );
 
     case 'first-supplier':
       return (
         <StepShell {...shellProps}>
-          <DeepLinkAction href="/dashboard/suppliers" label="Add your first supplier" />
+          <DeepLinkAction href={ROUTES.SUPPLIERS} label="Add your first supplier" />
         </StepShell>
       );
 
     case 'first-listing':
       return (
         <StepShell {...shellProps}>
-          <DeepLinkAction href="/dashboard/ai-content-studio" label="Generate your first listing" />
+          <DeepLinkAction href="/ai-content-studio" label="Generate your first listing" />
         </StepShell>
       );
 
@@ -470,7 +471,7 @@ function WorkspaceStep(props: { step: StepDef; complete: boolean; skippedNow: bo
           Create workspace
         </Button>
       </div>
-      <DeepLinkAction href="/dashboard/workspaces" label="Manage workspaces" />
+      <DeepLinkAction href="/workspaces" label="Manage workspaces" />
     </StepShell>
   );
 }
@@ -522,7 +523,7 @@ function WarehouseStep(props: { step: StepDef; complete: boolean; skippedNow: bo
         {create.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         Add warehouse
       </Button>
-      <DeepLinkAction href="/dashboard/warehouses" label="Manage warehouses" />
+      <DeepLinkAction href="/warehouses" label="Manage warehouses" />
     </StepShell>
   );
 }
@@ -549,9 +550,9 @@ function MarketplaceStep(props: {
       )}
 
       <div className="flex flex-wrap gap-2">
-        <DeepLinkAction href="/dashboard/marketplace-accounts" label="Connect a marketplace account" />
-        <DeepLinkAction href="/dashboard/marketplace-providers" label="Marketplace providers" />
-        <DeepLinkAction href="/dashboard/marketplace-connection-tests" label="Connection test history" />
+        <DeepLinkAction href="/marketplace-accounts" label="Connect a marketplace account" />
+        <DeepLinkAction href="/marketplace-providers" label="Marketplace providers" />
+        <DeepLinkAction href="/marketplace-connection-tests" label="Connection test history" />
       </div>
 
       <div className="rounded-[var(--radius)] border border-border bg-secondary/30 p-4">
@@ -629,7 +630,7 @@ function SupplierProviderStep(props: {
           })}
         </div>
       )}
-      <DeepLinkAction href="/dashboard/supplier-providers" label="View supplier providers" />
+      <DeepLinkAction href="/supplier-providers" label="View supplier providers" />
     </StepShell>
   );
 }
@@ -661,8 +662,8 @@ function AiProviderStep(props: {
         Default model: {defaultModel ? <span className="text-foreground">{defaultModel.displayName}</span> : 'not set'}
       </p>
       <div className="flex flex-wrap gap-2">
-        <DeepLinkAction href="/dashboard/ai-providers" label="Configure AI providers" />
-        <DeepLinkAction href="/dashboard/ai-models" label="Choose default model" />
+        <DeepLinkAction href="/ai-providers" label="Configure AI providers" />
+        <DeepLinkAction href="/ai-models" label="Choose default model" />
       </div>
     </StepShell>
   );
@@ -691,9 +692,9 @@ function TaxComplianceStep(props: {
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
-        <DeepLinkAction href="/dashboard/gst-vat" label="Manage GST/VAT" />
-        <DeepLinkAction href="/dashboard/tax" label="Tax engine" />
-        <DeepLinkAction href="/dashboard/compliance" label="Compliance checklist" />
+        <DeepLinkAction href="/gst-vat" label="Manage GST/VAT" />
+        <DeepLinkAction href="/tax" label="Tax engine" />
+        <DeepLinkAction href="/compliance" label="Compliance checklist" />
       </div>
     </StepShell>
   );
@@ -729,8 +730,8 @@ function TeamStep(props: { step: StepDef; complete: boolean; skippedNow: boolean
         <p className="text-xs text-muted-foreground">Need finer-grained permissions? Assign a custom role after inviting via Roles & Permissions.</p>
       )}
       <div className="flex flex-wrap gap-2">
-        <DeepLinkAction href="/dashboard/users" label="Manage users" />
-        <DeepLinkAction href="/dashboard/roles-permissions" label="Roles & permissions" />
+        <DeepLinkAction href="/users" label="Manage users" />
+        <DeepLinkAction href="/roles-permissions" label="Roles & permissions" />
       </div>
     </StepShell>
   );
@@ -749,7 +750,7 @@ function PlanStep(props: { step: StepDef; complete: boolean; skippedNow: boolean
       ) : (
         <p className="text-sm text-muted-foreground">No active subscription found for this workspace.</p>
       )}
-      <DeepLinkAction href="/dashboard/billing" label="Manage billing & plan" />
+      <DeepLinkAction href="/billing" label="Manage billing & plan" />
     </StepShell>
   );
 }

@@ -46,7 +46,7 @@ export class JobManager {
         return {
           success: false,
           message: 'Duplicate job prevented by idempotency key',
-          jobId: existingJob.id,
+          jobId: existingJob.id as string,
           metadata: { reason: 'DUPLICATE_IDEMPOTENCY_KEY' },
         };
       }
@@ -177,7 +177,7 @@ export class JobManager {
     const jobInfos: IJobInfo[] = [];
 
     for (const metadata of jobs) {
-      const job = await queue.getJob(metadata.id);
+      const job = await queue.getJob(metadata.id as string);
       if (job) {
         jobInfos.push(this.mapToJobInfo(job, metadata));
       }
@@ -311,10 +311,10 @@ export class JobManager {
       Date.now() - criteria.olderThanMinutes * 60 * 1000,
     );
 
-    const staleJobs = await this.repository.findStaleJobs(
+    const staleJobs = (await this.repository.findStaleJobs(
       criteria.queueType,
       thresholdDate,
-    );
+    )) as unknown as Array<{ id: string; workspaceId: string }>;
 
     const filteredJobs = criteria.workspaceId
       ? staleJobs.filter((job) => job.workspaceId === criteria.workspaceId)
@@ -423,7 +423,7 @@ export class JobManager {
       progress: job.progress as number,
       data: job.data,
       failedReason: job.failedReason,
-      stacktrace: job.stacktrace,
+      stacktrace: job.stacktrace ?? undefined,
       addedAt: new Date(job.timestamp),
       processedAt: job.processedOn ? new Date(job.processedOn) : undefined,
       finishedAt: job.finishedOn ? new Date(job.finishedOn) : undefined,

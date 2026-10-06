@@ -5,9 +5,9 @@ import {
   mapIndiaMartSupplierValidation,
   mapIndiaMartProductValidation,
   mapIndiaMartCatalog,
-} from '../indiamart/indiamart.mappers';
-import { SupplierProviderCode } from '../../../interfaces';
-import { IndiaMartRawSupplier, IndiaMartRawProduct, IndiaMartRawLeadResponse, IndiaMartRawCatalog } from '../indiamart/indiamart.types';
+} from '../adapters/providers/indiamart/indiamart.mappers';
+import { SupplierProviderCode } from '../interfaces';
+import { IndiaMartRawSupplier, IndiaMartRawProduct, IndiaMartRawLeadResponse, IndiaMartRawCatalog } from '../adapters/providers/indiamart/indiamart.types';
 
 // ── Fixtures ──────────────────────────────────────────────────
 

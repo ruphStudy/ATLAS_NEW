@@ -44,34 +44,34 @@ export class ExecutionLogFilterDto {
 }
 
 export class ExecutionLogResponseDto {
-  id: string;
-  requestId: string;
-  workspaceId: string;
-  provider: string;
-  modelKey: string;
-  capability: string;
-  useCase: string;
-  status: string;
-  startTime: Date;
+  id!: string;
+  requestId!: string;
+  workspaceId!: string;
+  provider!: string;
+  modelKey!: string;
+  capability!: string;
+  useCase!: string;
+  status!: string;
+  startTime!: Date;
   endTime?: Date | null;
   latency?: number | null;
   inputTokens?: number | null;
   outputTokens?: number | null;
   totalTokens?: number | null;
   cost?: number | null;
-  attemptNumber: number;
-  fallbackUsed: boolean;
+  attemptNumber!: number;
+  fallbackUsed!: boolean;
   errorCode?: string | null;
   errorMessage?: string | null;
   routingStrategy?: string | null;
-  metadata: Record<string, unknown>;
-  createdAt: Date;
+  metadata!: Record<string, unknown>;
+  createdAt!: Date;
 }
 
 export class PaginatedExecutionLogResponseDto {
-  data: ExecutionLogResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: ExecutionLogResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }

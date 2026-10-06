@@ -4,8 +4,6 @@ import {
   CapabilityValidationResult,
   CapabilityStatus,
   CapabilitySupportLevel,
-  MarketplaceAccountStatus,
-  MarketplaceProviderStatus,
 } from '../interfaces';
 
 // Re-import account/provider status from foundation
@@ -16,8 +14,8 @@ import {
 
 // Re-export to avoid drift
 export {
-  FoundationAccountStatus as MarketplaceAccountStatus,
-  FoundationProviderStatus as MarketplaceProviderStatus,
+  MarketplaceAccountStatus,
+  MarketplaceProviderStatus,
 } from '../../marketplace-provider/interfaces';
 
 import { IMarketplaceCapabilityDefinition, IMarketplaceProviderCapabilityDeclaration } from '../interfaces';

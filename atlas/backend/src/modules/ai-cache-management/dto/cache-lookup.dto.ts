@@ -4,11 +4,11 @@ import { AiCacheScope, AiCacheStrategy } from '../interfaces';
 export class CacheLookupDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  capability: string;
+  capability!: string;
 
   @IsString()
   @IsOptional()
@@ -16,11 +16,11 @@ export class CacheLookupDto {
 
   @IsString()
   @IsNotEmpty()
-  provider: string;
+  provider!: string;
 
   @IsString()
   @IsNotEmpty()
-  model: string;
+  model!: string;
 
   @IsString()
   @IsOptional()

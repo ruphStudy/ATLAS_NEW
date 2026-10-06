@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IDependencyIssue,
   IModuleBreakdownEntry,
@@ -8,78 +9,79 @@ import {
 } from '../interfaces';
 
 export class TenantHealthResultResponseDto {
-  workspaceId: string;
-  level: SaasHealthLevel;
-  healthScore: number;
-  moduleBreakdown: IModuleBreakdownEntry[];
-  cascadingImpacts: IDependencyIssue[];
-  dependencyIssues: IDependencyIssue[];
-  safeSummary: string;
+  workspaceId!: string;
+  level!: SaasHealthLevel;
+  healthScore!: number;
+  moduleBreakdown!: IModuleBreakdownEntry[];
+  cascadingImpacts!: IDependencyIssue[];
+  dependencyIssues!: IDependencyIssue[];
+  safeSummary!: string;
 }
 
 export class PlatformHealthResultResponseDto {
-  level: SaasHealthLevel;
-  averageHealthScore: number;
-  tenantsEvaluated: number;
-  levelBreakdown: Record<string, number>;
+  level!: SaasHealthLevel;
+  averageHealthScore!: number;
+  tenantsEvaluated!: number;
+  levelBreakdown!: Record<string, number>;
 }
 
 export class OrganizationHealthResultResponseDto {
-  organizationId: string;
-  level: SaasHealthLevel;
-  averageHealthScore: number;
-  tenants: TenantHealthResultResponseDto[];
+  organizationId!: string;
+  level!: SaasHealthLevel;
+  averageHealthScore!: number;
+  tenants!: TenantHealthResultResponseDto[];
 }
 
 export class SaasHealthAggregateIncidentResponseDto {
-  id: string;
-  workspaceId: string;
-  severity: SaasHealthLevel;
-  status: SaasHealthAggregateIncidentStatus;
-  triggerSummary: string;
-  affectedModules: string[];
-  cascadingFrom: string[];
-  openedAt: Date;
+  id!: string;
+  workspaceId!: string;
+  severity!: SaasHealthLevel;
+  status!: SaasHealthAggregateIncidentStatus;
+  triggerSummary!: string;
+  affectedModules!: string[];
+  cascadingFrom!: string[];
+  openedAt!: Date;
   resolvedAt?: Date | null;
   durationMs?: number | null;
 }
 
 export class PaginatedSaasHealthAggregateIncidentResponseDto {
-  data: SaasHealthAggregateIncidentResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: SaasHealthAggregateIncidentResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class SaasHealthEvaluationLogResponseDto {
-  id: string;
-  workspaceId: string;
-  level: SaasHealthLevel;
+  id!: string;
+  workspaceId!: string;
+  level!: SaasHealthLevel;
+  @ApiPropertyOptional({ enum: SaasHealthLevel, nullable: true })
   previousLevel?: SaasHealthLevel | null;
-  trigger: SaasHealthEvaluationTrigger;
-  healthScore: number;
-  moduleBreakdown: IModuleBreakdownEntry[];
+  trigger!: SaasHealthEvaluationTrigger;
+  healthScore!: number;
+  moduleBreakdown!: IModuleBreakdownEntry[];
   safeSummary?: string | null;
-  evaluatedAt: Date;
+  evaluatedAt!: Date;
 }
 
 export class PaginatedSaasHealthEvaluationLogResponseDto {
-  data: SaasHealthEvaluationLogResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: SaasHealthEvaluationLogResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class MaintenanceWindowResponseDto {
-  id: string;
-  workspaceId: string | null;
-  module: string | null;
-  reason: string;
-  startAt: Date;
-  endAt: Date;
-  state: SaasHealthMaintenanceState;
-  cancelledAt: Date | null;
-  createdAt: Date;
+  id!: string;
+  workspaceId!: string | null;
+  module!: string | null;
+  reason!: string;
+  startAt!: Date;
+  endAt!: Date;
+  state!: SaasHealthMaintenanceState;
+  cancelledAt!: Date | null;
+  createdAt!: Date;
 }

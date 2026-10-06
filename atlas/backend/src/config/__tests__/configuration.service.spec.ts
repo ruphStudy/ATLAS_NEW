@@ -31,6 +31,7 @@ const MOCK_REDIS_CONFIG: IRedisConfig = {
   host: 'localhost',
   port: 6379,
   password: undefined,
+  db: 0,
 };
 
 const MOCK_JWT_CONFIG: IJwtConfig = {

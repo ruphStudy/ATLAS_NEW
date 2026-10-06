@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { DatabaseModule } from '../../database/database.module';
+import { QUEUE_NAMES } from '@common/constants';
 import { MarketplaceAdapterController } from './marketplace-adapter.controller';
 import { MarketplaceAdapterService } from './marketplace-adapter.service';
 import { AdapterRegistry } from './registry/adapter.registry';
@@ -9,7 +11,10 @@ import { ResponseNormalizer } from './normalizer/response.normalizer';
 import { AdapterHealthChecker } from './health/adapter-health.checker';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [
+    DatabaseModule,
+    BullModule.registerQueue({ name: QUEUE_NAMES.MARKETPLACE_ADAPTER_EVENTS }),
+  ],
   controllers: [MarketplaceAdapterController],
   providers: [
     MarketplaceAdapterService,

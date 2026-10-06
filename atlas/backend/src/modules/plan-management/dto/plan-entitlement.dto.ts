@@ -3,11 +3,11 @@ import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class PlanEntitlementDto {
   @IsString()
   @IsNotEmpty()
-  module: string;
+  module!: string;
 
   @IsString()
   @IsNotEmpty()
-  feature: string;
+  feature!: string;
 
   @IsString()
   @IsOptional()
@@ -18,7 +18,7 @@ export class PlanEntitlementDto {
   resource?: string;
 
   @IsBoolean()
-  included: boolean;
+  included!: boolean;
 
   @IsOptional()
   value?: unknown;

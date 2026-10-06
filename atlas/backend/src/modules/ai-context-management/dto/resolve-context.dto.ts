@@ -7,7 +7,7 @@ import {
 export class ResolveContextDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

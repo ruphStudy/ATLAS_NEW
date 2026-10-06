@@ -96,7 +96,7 @@ export default function RfqsPage() {
           </TableHeader>
           <TableBody>
             {data.items.map((rfq) => (
-              <TableRow key={rfq.id} clickable onClick={() => router.push(`/dashboard/rfqs/${rfq.id}`)}>
+              <TableRow key={rfq.id} clickable onClick={() => router.push(`/rfqs/${rfq.id}`)}>
                 <TableCell>
                   <p className="text-sm font-medium text-foreground">{rfq.title}</p>
                   <p className="text-xs text-muted-foreground">{rfq.rfqNumber}</p>
@@ -118,7 +118,7 @@ export default function RfqsPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={Math.ceil(data.total / limit)} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateRfqDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(rfq) => router.push(`/dashboard/rfqs/${rfq.id}`)} />
+      <CreateRfqDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(rfq) => router.push(`/rfqs/${rfq.id}`)} />
     </div>
   );
 }

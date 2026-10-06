@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IMarketplaceSchema,
   ICategoryMapping,
@@ -193,6 +194,7 @@ export class MappingConfigResponseDto {
 // ── Pagination ────────────────────────────────────────────────
 
 export class PaginatedResponseDto<T> {
+  @ApiProperty({ type: Object, isArray: true })
   data!: T[];
   total!: number;
   page!: number;

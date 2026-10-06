@@ -17,11 +17,11 @@ export class CreateValidatorConfigDto {
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
-  validationType: string;
+  validationType!: string;
 
   @IsString()
   @IsOptional()

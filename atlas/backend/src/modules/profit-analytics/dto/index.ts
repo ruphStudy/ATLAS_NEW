@@ -21,15 +21,15 @@ import {
 export class GetProfitSummaryDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsEnum(ProfitPeriod)
   @IsOptional()
@@ -93,17 +93,17 @@ export class GetProfitSummaryDto {
 export class GetProfitTrendsDto extends GetProfitSummaryDto {
   @IsEnum(ProfitMetricType)
   @IsNotEmpty()
-  metricType: ProfitMetricType;
+  metricType!: ProfitMetricType;
 
   @IsEnum(ProfitPeriod)
   @IsNotEmpty()
-  period: ProfitPeriod;
+  period!: ProfitPeriod;
 }
 
 export class GetProfitBreakdownDto extends GetProfitSummaryDto {
   @IsEnum(ProfitDimension)
   @IsNotEmpty()
-  dimension: ProfitDimension;
+  dimension!: ProfitDimension;
 
   @IsNumber()
   @IsOptional()
@@ -121,19 +121,19 @@ export class GetProfitBreakdownDto extends GetProfitSummaryDto {
 export class GetProfitComparisonDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  currentStartDate: Date;
+  currentStartDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  currentEndDate: Date;
+  currentEndDate!: Date;
 
   @IsEnum(ProfitComparisonType)
   @IsNotEmpty()
-  comparisonType: ProfitComparisonType;
+  comparisonType!: ProfitComparisonType;
 
   @IsDate()
   @Type(() => Date)
@@ -163,7 +163,7 @@ export class GetProfitComparisonDto {
 export class GetProfitabilityAnalysisDto extends GetProfitSummaryDto {
   @IsEnum(ProfitabilityCategory)
   @IsNotEmpty()
-  profitabilityCategory: ProfitabilityCategory;
+  profitabilityCategory!: ProfitabilityCategory;
 
   @IsNumber()
   @IsOptional()
@@ -191,35 +191,35 @@ export class GetProfitLeakageDto extends GetProfitSummaryDto {
 export class CreateProfitTargetDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  targetKey: string;
+  targetKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(ProfitMetricType)
   @IsNotEmpty()
-  metricType: ProfitMetricType;
+  metricType!: ProfitMetricType;
 
   @IsNumber()
   @IsNotEmpty()
-  targetValue: number;
+  targetValue!: number;
 
   @IsEnum(ProfitPeriod)
   @IsNotEmpty()
-  period: ProfitPeriod;
+  period!: ProfitPeriod;
 
   @IsDate()
   @Type(() => Date)
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
-  endDate: Date;
+  endDate!: Date;
 
   @IsOptional()
   dimensions?: Record<string, any>;
@@ -230,7 +230,7 @@ export class CreateProfitTargetDto {
 
   @IsString()
   @IsNotEmpty()
-  createdBy: string;
+  createdBy!: string;
 }
 
 export class UpdateProfitTargetDto {
@@ -261,49 +261,49 @@ export class UpdateProfitTargetDto {
 }
 
 export class ProfitComponentsResponseDto implements IProfitComponents {
-  revenue: number;
-  grossSales: number;
-  netSales: number;
-  productCost: number;
-  landedCost: number;
-  marketplaceFees: number;
-  fulfillmentFees: number;
-  shippingCost: number;
-  taxAmount: number;
-  advertisingCost: number;
-  discounts: number;
-  returns: number;
-  refunds: number;
-  otherCosts: number;
+  revenue!: number;
+  grossSales!: number;
+  netSales!: number;
+  productCost!: number;
+  landedCost!: number;
+  marketplaceFees!: number;
+  fulfillmentFees!: number;
+  shippingCost!: number;
+  taxAmount!: number;
+  advertisingCost!: number;
+  discounts!: number;
+  returns!: number;
+  refunds!: number;
+  otherCosts!: number;
 }
 
 export class ProfitSummaryResponseDto implements IProfitSummary {
-  workspaceId: string;
-  period: ProfitPeriod;
-  startDate: Date;
-  endDate: Date;
-  components: IProfitComponents;
-  grossProfit: number;
-  netProfit: number;
-  grossMargin: number;
-  netMargin: number;
-  roi: number;
-  contributionMargin: number;
-  profitPerUnit: number;
-  profitPerOrder: number;
-  unitsSold: number;
-  orderCount: number;
-  currency: string;
+  workspaceId!: string;
+  period!: ProfitPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  components!: IProfitComponents;
+  grossProfit!: number;
+  netProfit!: number;
+  grossMargin!: number;
+  netMargin!: number;
+  roi!: number;
+  contributionMargin!: number;
+  profitPerUnit!: number;
+  profitPerOrder!: number;
+  unitsSold!: number;
+  orderCount!: number;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class ProfitTrendResponseDto implements IProfitTrend {
-  workspaceId: string;
-  period: ProfitPeriod;
-  periodStart: Date;
-  periodEnd: Date;
-  metricType: ProfitMetricType;
-  value: number;
+  workspaceId!: string;
+  period!: ProfitPeriod;
+  periodStart!: Date;
+  periodEnd!: Date;
+  metricType!: ProfitMetricType;
+  value!: number;
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
@@ -312,32 +312,32 @@ export class ProfitTrendResponseDto implements IProfitTrend {
 }
 
 export class ProfitBreakdownResponseDto implements IProfitBreakdown {
-  workspaceId: string;
-  dimension: ProfitDimension;
-  dimensionValue: string;
+  workspaceId!: string;
+  dimension!: ProfitDimension;
+  dimensionValue!: string;
   dimensionLabel?: string;
-  period: ProfitPeriod;
-  startDate: Date;
-  endDate: Date;
-  components: IProfitComponents;
-  grossProfit: number;
-  netProfit: number;
-  grossMargin: number;
-  netMargin: number;
-  roi: number;
-  contributionMargin: number;
+  period!: ProfitPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  components!: IProfitComponents;
+  grossProfit!: number;
+  netProfit!: number;
+  grossMargin!: number;
+  netMargin!: number;
+  roi!: number;
+  contributionMargin!: number;
   sharePercent?: number;
   rank?: number;
-  unitsSold: number;
-  orderCount: number;
-  currency: string;
+  unitsSold!: number;
+  orderCount!: number;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class ProfitComparisonResponseDto implements IProfitComparison {
-  workspaceId: string;
-  comparisonType: ProfitComparisonType;
-  currentPeriod: {
+  workspaceId!: string;
+  comparisonType!: ProfitComparisonType;
+  currentPeriod!: {
     startDate: Date;
     endDate: Date;
     grossProfit: number;
@@ -348,7 +348,7 @@ export class ProfitComparisonResponseDto implements IProfitComparison {
     contributionMargin: number;
     revenue: number;
   };
-  comparisonPeriod: {
+  comparisonPeriod!: {
     startDate: Date;
     endDate: Date;
     grossProfit: number;
@@ -359,7 +359,7 @@ export class ProfitComparisonResponseDto implements IProfitComparison {
     contributionMargin: number;
     revenue: number;
   };
-  variance: {
+  variance!: {
     grossProfitAmount: number;
     grossProfitPercent: number;
     netProfitAmount: number;
@@ -371,87 +371,87 @@ export class ProfitComparisonResponseDto implements IProfitComparison {
     revenueAmount: number;
     revenuePercent: number;
   };
-  currency: string;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class ProfitabilityAnalysisResponseDto implements IProfitabilityAnalysis {
-  workspaceId: string;
-  productId: string;
-  sku: string;
-  productName: string;
+  workspaceId!: string;
+  productId!: string;
+  sku!: string;
+  productName!: string;
   category?: string;
   supplier?: string;
   marketplace?: string;
-  profitabilityCategory: ProfitabilityCategory;
-  grossProfit: number;
-  netProfit: number;
-  grossMargin: number;
-  netMargin: number;
-  roi: number;
-  revenue: number;
-  totalCost: number;
-  unitsSold: number;
-  orderCount: number;
-  profitPerUnit: number;
-  profitShare: number;
+  profitabilityCategory!: ProfitabilityCategory;
+  grossProfit!: number;
+  netProfit!: number;
+  grossMargin!: number;
+  netMargin!: number;
+  roi!: number;
+  revenue!: number;
+  totalCost!: number;
+  unitsSold!: number;
+  orderCount!: number;
+  profitPerUnit!: number;
+  profitShare!: number;
   rank?: number;
-  currency: string;
-  period: ProfitPeriod;
-  startDate: Date;
-  endDate: Date;
+  currency!: string;
+  period!: ProfitPeriod;
+  startDate!: Date;
+  endDate!: Date;
   metadata?: Record<string, any>;
 }
 
 export class ProfitLeakageResponseDto implements IProfitLeakage {
-  workspaceId: string;
-  leakageType: LeakageType;
-  dimension: ProfitDimension;
-  dimensionValue: string;
+  workspaceId!: string;
+  leakageType!: LeakageType;
+  dimension!: ProfitDimension;
+  dimensionValue!: string;
   dimensionLabel?: string;
-  leakageAmount: number;
-  leakagePercent: number;
-  expectedAmount: number;
-  actualAmount: number;
-  impactOnProfit: number;
-  impactOnMargin: number;
-  period: ProfitPeriod;
-  startDate: Date;
-  endDate: Date;
-  currency: string;
+  leakageAmount!: number;
+  leakagePercent!: number;
+  expectedAmount!: number;
+  actualAmount!: number;
+  impactOnProfit!: number;
+  impactOnMargin!: number;
+  period!: ProfitPeriod;
+  startDate!: Date;
+  endDate!: Date;
+  currency!: string;
   metadata?: Record<string, any>;
 }
 
 export class ProfitTargetResponseDto implements IProfitTarget {
-  id: string;
-  workspaceId: string;
-  targetKey: string;
-  name: string;
-  metricType: ProfitMetricType;
-  targetValue: number;
-  period: ProfitPeriod;
-  startDate: Date;
-  endDate: Date;
+  id!: string;
+  workspaceId!: string;
+  targetKey!: string;
+  name!: string;
+  metricType!: ProfitMetricType;
+  targetValue!: number;
+  period!: ProfitPeriod;
+  startDate!: Date;
+  endDate!: Date;
   dimensions?: Record<string, any>;
   currency?: string;
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdBy!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class ProfitTargetPerformanceResponseDto implements IProfitTargetPerformance {
-  targetId: string;
-  workspaceId: string;
-  targetKey: string;
-  name: string;
-  metricType: ProfitMetricType;
-  targetValue: number;
-  actualValue: number;
-  variance: number;
-  variancePercent: number;
-  achievementPercent: number;
-  period: ProfitPeriod;
-  startDate: Date;
-  endDate: Date;
+  targetId!: string;
+  workspaceId!: string;
+  targetKey!: string;
+  name!: string;
+  metricType!: ProfitMetricType;
+  targetValue!: number;
+  actualValue!: number;
+  variance!: number;
+  variancePercent!: number;
+  achievementPercent!: number;
+  period!: ProfitPeriod;
+  startDate!: Date;
+  endDate!: Date;
   currency?: string;
 }

@@ -2,10 +2,10 @@
 // Marketplace Inventory Synchronization – Core Interfaces & Enums
 // =============================================================
 
-import { SyncDirection, SyncScope, SyncTrigger, SyncJobStatus, SyncItemStatus, SyncItemOperation, ConflictStrategy } from '../../marketplace-catalog-sync/interfaces';
+import { SyncDirection, SyncScope, SyncTrigger, SyncJobStatus, SyncItemStatus, SyncItemOperation, ConflictStrategy, ExternalRefStatus } from '../../marketplace-catalog-sync/interfaces';
 
 // Re-export shared enums for convenience
-export { SyncDirection, SyncScope, SyncTrigger, SyncJobStatus, SyncItemStatus, SyncItemOperation, ConflictStrategy };
+export { SyncDirection, SyncScope, SyncTrigger, SyncJobStatus, SyncItemStatus, SyncItemOperation, ConflictStrategy, ExternalRefStatus };
 
 // ── Inventory Item Type ───────────────────────────────────────
 

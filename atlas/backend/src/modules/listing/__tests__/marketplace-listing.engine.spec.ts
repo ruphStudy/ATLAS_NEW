@@ -51,7 +51,7 @@ function makeSchema(): Record<string, unknown> {
 
 function makeTransformResult(ok = true): Record<string, unknown> {
   return {
-    status: ok ? TransformationStatus.SUCCESS : TransformationStatus.FAILED,
+    status: ok ? TransformationStatus.COMPLETED : TransformationStatus.FAILED,
     marketplaceKey: 'AMAZON',
     country: 'US',
     transformedData: { title: 'Test Product Title', brand: 'TestBrand' },
@@ -151,7 +151,7 @@ describe('MarketplaceListingEngine', () => {
           { marketplaceKey: 'AMAZON', country: 'US' },
           { marketplaceKey: 'FLIPKART', country: 'IN' },
         ],
-        { workspaceId: 'ws1' },
+        'ws1',
       );
 
       expect(results).toHaveLength(2);

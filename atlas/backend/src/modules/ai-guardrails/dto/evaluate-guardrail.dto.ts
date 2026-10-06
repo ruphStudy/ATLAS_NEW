@@ -12,10 +12,10 @@ import { GuardrailStage } from '../interfaces';
 export class EvaluateGuardrailDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(GuardrailStage)
-  stage: GuardrailStage;
+  stage!: GuardrailStage;
 
   @IsString()
   @IsOptional()

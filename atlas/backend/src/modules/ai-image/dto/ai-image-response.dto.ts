@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { AiImageProvider, AiImageStatus, ImageType } from '../interfaces';
 
 export class AiImageHistoryResponseDto {
@@ -7,6 +8,7 @@ export class AiImageHistoryResponseDto {
   fromStatus!: AiImageStatus;
   toStatus!: AiImageStatus;
   version!: number;
+  @ApiPropertyOptional({ enum: ImageType, isArray: true, nullable: true })
   imageTypesRegenerated?: ImageType[] | null;
   reason?: string | null;
   changedBy?: string | null;

@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BaseAdapter } from '../../adapter/base.adapter';
-import { WalmartApiClient } from '../client/walmart-api.client';
-import { WalmartAuthService } from '../auth/walmart-auth.service';
-import { WalmartRequestMapper } from '../mappers/walmart-request.mapper';
-import { WalmartResponseMapper } from '../mappers/walmart-response.mapper';
-import { WalmartErrorMapper } from '../mappers/walmart-error.mapper';
-import { WalmartAdapterEventQueue } from '../events/walmart-adapter-event.queue';
+import { WalmartApiClient } from './client/walmart-api.client';
+import { WalmartAuthService } from './auth/walmart-auth.service';
+import { WalmartRequestMapper } from './mappers/walmart-request.mapper';
+import { WalmartResponseMapper } from './mappers/walmart-response.mapper';
+import { WalmartErrorMapper } from './mappers/walmart-error.mapper';
+import { WalmartAdapterEventQueue } from './events/walmart-adapter-event.queue';
 import { ResponseNormalizer } from '../../normalizer/response.normalizer';
 import {
   IAdapterCapabilities,
@@ -16,16 +16,16 @@ import {
   AdapterOperation,
   ApiVersion,
 } from '../../interfaces';
-import { IWalmartCredentials } from '../interfaces/walmart.interfaces';
+import { IWalmartCredentials } from './interfaces/walmart.interfaces';
 import {
   WALMART_API_PATHS,
   WALMART_RATE_LIMITS,
-} from '../constants/walmart.constants';
+} from './constants/walmart.constants';
 
 @Injectable()
 export class WalmartAdapter extends BaseAdapter {
   private readonly logger = new Logger(WalmartAdapter.name);
-  private walmartCredentials: IWalmartCredentials;
+  private walmartCredentials!: IWalmartCredentials;
 
   constructor(
     private readonly apiClient: WalmartApiClient,

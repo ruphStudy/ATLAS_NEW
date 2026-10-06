@@ -4,6 +4,7 @@ import { ConfigurationService } from '@config/index';
 import { QUEUE_NAMES } from '@common/constants';
 import {
   PublicationEvent,
+  PublicationMarketplace,
   PublicationStatus,
   PublishJobPayload,
   SyncStatus,
@@ -12,6 +13,13 @@ import { MarketplaceAdapterEngine } from '../engine/marketplace-adapter.engine';
 import { ListingPublisherRepository } from '../listing-publisher.repository';
 import { PublicationEventQueue } from './publication-event.queue';
 import { LISTING_PUBLISHER_CONSTANTS } from '../constants';
+import { ListingService } from '../../listing/listing.service';
+import { ListingStatus } from '../../listing/interfaces';
+
+const PUBLISHABLE_LISTING_STATUSES: ListingStatus[] = [
+  ListingStatus.APPROVED,
+  ListingStatus.PUBLISHED,
+];
 
 @Injectable()
 export class PublishWorker implements OnModuleInit, OnModuleDestroy {
@@ -23,6 +31,7 @@ export class PublishWorker implements OnModuleInit, OnModuleDestroy {
     private readonly adapterEngine: MarketplaceAdapterEngine,
     private readonly repository: ListingPublisherRepository,
     private readonly eventQueue: PublicationEventQueue,
+    private readonly listingService: ListingService,
   ) {}
 
   onModuleInit(): void {
@@ -81,16 +90,54 @@ export class PublishWorker implements OnModuleInit, OnModuleDestroy {
 
       const existingMarketplaceListingId = record['marketplaceListingId'] as string | null;
 
+      // Real listing content — workspace-scoped; throws if the listing
+      // doesn't exist or belongs to a different workspace.
+      const listing = await this.listingService.findById(payload.listingId, workspaceId);
+      if (!PUBLISHABLE_LISTING_STATUSES.includes(listing.status)) {
+        throw new Error(
+          `Listing ${payload.listingId} is not publishable (status: ${listing.status})`,
+        );
+      }
+      if (!listing.content?.title || !listing.content?.pricing) {
+        throw new Error(
+          `Listing ${payload.listingId} has no title/pricing content to publish`,
+        );
+      }
+
+      const listingContent: Record<string, unknown> = {
+        title: listing.content.title,
+        description: listing.content.description ?? undefined,
+        pricing: listing.content.pricing,
+        price: {
+          amount: listing.content.pricing.sellingPrice,
+          currencyCode: listing.content.pricing.currency,
+        },
+      };
+
+      if (marketplace === PublicationMarketplace.AMAZON) {
+        const sku = await this.repository.findCatalogProductSku(
+          payload.catalogProductId,
+          workspaceId,
+        );
+        if (!sku) {
+          throw new Error(
+            `Catalog product ${payload.catalogProductId} has no SKU — cannot publish to Amazon`,
+          );
+        }
+        listingContent.sku = sku;
+      }
+
       // Validate before publishing
-      const validation = await this.adapterEngine.validate(marketplace, {});
+      const validation = await this.adapterEngine.validate(marketplace, listingContent);
       if (!validation.valid) {
         throw new Error(`Marketplace validation failed: ${validation.errors.join(', ')}`);
       }
 
       const result = await this.adapterEngine.publish(
         marketplace,
-        {},
+        listingContent,
         existingMarketplaceListingId,
+        { workspaceId, marketplaceAccountId: payload.marketplaceAccountId },
       );
 
       if (!result.success) {

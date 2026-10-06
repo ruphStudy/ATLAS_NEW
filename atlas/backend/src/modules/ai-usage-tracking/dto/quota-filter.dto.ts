@@ -5,7 +5,7 @@ import { AiUsageQuotaScope, AiUsageQuotaPeriod, AiUsageQuotaUnit } from '../inte
 export class QuotaFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiUsageQuotaScope)
   @IsOptional()

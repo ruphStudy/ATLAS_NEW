@@ -4,7 +4,7 @@ import { UsageRecordSource } from '../interfaces';
 export class RecordUsageDto {
   @IsString()
   @IsNotEmpty()
-  module: string;
+  module!: string;
 
   @IsString()
   @IsOptional()
@@ -13,15 +13,15 @@ export class RecordUsageDto {
   /** Open vocabulary — matches Plan Management's `IPlanLimit.resourceKey` (e.g. 'API_CALLS', 'STORAGE_GB'), never enum-constrained. */
   @IsString()
   @IsNotEmpty()
-  resourceKey: string;
+  resourceKey!: string;
 
   @IsNumber()
   @Min(0)
-  quantity: number;
+  quantity!: number;
 
   @IsString()
   @IsNotEmpty()
-  unit: string;
+  unit!: string;
 
   @IsEnum(UsageRecordSource)
   @IsOptional()

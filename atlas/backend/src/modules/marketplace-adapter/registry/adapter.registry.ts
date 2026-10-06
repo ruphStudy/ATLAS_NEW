@@ -1,18 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Type } from '@nestjs/common';
 import { IAdapter, IAdapterRegistry } from '../interfaces';
 
 @Injectable()
 export class AdapterRegistry implements IAdapterRegistry {
-  private adapters: Map<string, new () => IAdapter> = new Map();
+  private adapters: Map<string, Type<IAdapter>> = new Map();
 
-  register(provider: string, adapter: new () => IAdapter): void {
+  register(provider: string, adapter: Type<IAdapter>): void {
     if (this.adapters.has(provider)) {
       throw new Error(`Adapter for provider ${provider} already registered`);
     }
     this.adapters.set(provider, adapter);
   }
 
-  get(provider: string): new () => IAdapter | undefined {
+  get(provider: string): Type<IAdapter> | undefined {
     return this.adapters.get(provider);
   }
 

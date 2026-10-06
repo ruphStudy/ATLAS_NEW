@@ -13,14 +13,14 @@ interface HubCard {
 }
 
 const CARDS: HubCard[] = [
-  { title: 'Marketplace Health', description: 'Live sync status, active issues and retry/cancel controls across all sync modules.', href: '/dashboard/marketplace-health', icon: HeartPulse },
-  { title: 'Sync History & Failures', description: 'Sync run history, item-level failures, normalized error summaries and issue detection.', href: '/dashboard/marketplace-sync-history', icon: History },
-  { title: 'Webhooks', description: 'Inbound webhook subscriptions with marketplace providers and delivery history.', href: '/dashboard/marketplace-webhooks', icon: Webhook },
-  { title: 'Event Processing', description: 'Normalized event queue — pending, failed, reprocess and cancel actions.', href: '/dashboard/marketplace-events', icon: Radio },
-  { title: 'Queue Management', description: 'Job queues, dead-letter jobs and rate-limit controls across sync, webhook and event queues.', href: '/dashboard/marketplace-queues', icon: ListChecks },
-  { title: 'Error Center', description: 'Normalized error taxonomy — search, top errors and category/severity aggregates.', href: '/dashboard/marketplace-errors', icon: AlertOctagon },
-  { title: 'Connection Tests', description: 'Authentication, reachability and capability connection-test results.', href: '/dashboard/marketplace-connection-tests', icon: Plug },
-  { title: 'Activity & Audit', description: 'Provider and account activity timeline, searchable audit trail and suspicious-activity alerts.', href: '/dashboard/marketplace-activity', icon: Activity },
+  { title: 'Marketplace Health', description: 'Live sync status, active issues and retry/cancel controls across all sync modules.', href: '/marketplace-health', icon: HeartPulse },
+  { title: 'Sync History & Failures', description: 'Sync run history, item-level failures, normalized error summaries and issue detection.', href: '/marketplace-sync-history', icon: History },
+  { title: 'Webhooks', description: 'Inbound webhook subscriptions with marketplace providers and delivery history.', href: '/marketplace-webhooks', icon: Webhook },
+  { title: 'Event Processing', description: 'Normalized event queue — pending, failed, reprocess and cancel actions.', href: '/marketplace-events', icon: Radio },
+  { title: 'Queue Management', description: 'Job queues, dead-letter jobs and rate-limit controls across sync, webhook and event queues.', href: '/marketplace-queues', icon: ListChecks },
+  { title: 'Error Center', description: 'Normalized error taxonomy — search, top errors and category/severity aggregates.', href: '/marketplace-errors', icon: AlertOctagon },
+  { title: 'Connection Tests', description: 'Authentication, reachability and capability connection-test results.', href: '/marketplace-connection-tests', icon: Plug },
+  { title: 'Activity & Audit', description: 'Provider and account activity timeline, searchable audit trail and suspicious-activity alerts.', href: '/marketplace-activity', icon: Activity },
 ];
 
 export default function MarketplaceOperationsHubPage() {

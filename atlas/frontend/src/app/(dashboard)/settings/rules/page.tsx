@@ -62,7 +62,7 @@ export default function BusinessRulesPage() {
         title="Business Rules"
         description="Conditions, actions, priorities and execution order for automated decisions."
         actions={
-          <Button size="sm" onClick={() => router.push('/dashboard/settings/rules/new')}>
+          <Button size="sm" onClick={() => router.push('/settings/rules/new')}>
             <Plus className="h-3.5 w-3.5" />
             New rule
           </Button>
@@ -114,7 +114,7 @@ export default function BusinessRulesPage() {
             </TableHeader>
             <TableBody>
               {rows.map((r: Rule) => (
-                <TableRow key={r.id} className="cursor-pointer" onClick={() => router.push(`/dashboard/settings/rules/${r.id}`)}>
+                <TableRow key={r.id} className="cursor-pointer" onClick={() => router.push(`/settings/rules/${r.id}`)}>
                   <TableCell>
                     <p className="text-sm font-medium text-foreground">{r.name}</p>
                     <p className="font-mono text-xs text-muted-foreground">{r.key}</p>

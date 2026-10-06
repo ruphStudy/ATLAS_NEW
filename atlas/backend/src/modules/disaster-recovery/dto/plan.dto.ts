@@ -4,10 +4,10 @@ import { DrPlanStatus, DrRecoveryScope } from '../interfaces';
 
 export class CreateDrRecoveryPlanDto {
   @IsString()
-  key: string;
+  key!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -18,11 +18,11 @@ export class CreateDrRecoveryPlanDto {
   policyId?: string;
 
   @IsEnum(DrRecoveryScope)
-  scope: DrRecoveryScope;
+  scope!: DrRecoveryScope;
 
   @IsArray()
   @IsString({ each: true })
-  targets: string[];
+  targets!: string[];
 
   /** Explicit runbook — `IWorkflowStageDefinition[]` passed straight through to `EnterpriseWorkflowEngineService.createDefinition`. When omitted, a default BACKUP_DISCOVERY → VALIDATE_BACKUP → RESTORE_TARGET → HEALTH_CHECK sequence is generated per target. */
   @IsArray()

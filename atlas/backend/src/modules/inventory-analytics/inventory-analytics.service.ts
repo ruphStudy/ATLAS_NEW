@@ -44,7 +44,7 @@ export class InventoryAnalyticsService {
   async getDashboardSummary(
     dto: DashboardFilterDto,
   ): Promise<DashboardSummaryResponseDto> {
-    const cacheKey = this.buildCacheKey('dashboard', dto);
+    const cacheKey = this.buildCacheKey('dashboard', dto as unknown as Record<string, unknown>);
     
     const cached = await this.repository.getCachedDashboard(
       dto.workspaceId,
@@ -53,7 +53,7 @@ export class InventoryAnalyticsService {
 
     if (cached) {
       this.logger.debug(`Returning cached dashboard for ${dto.workspaceId}`);
-      return cached as IDashboardSummary;
+      return cached as unknown as IDashboardSummary;
     }
 
     const startDate = dto.startDate ? new Date(dto.startDate) : undefined;

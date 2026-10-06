@@ -1,0 +1,34 @@
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Queue } from 'bullmq';
+import { QUEUE_NAMES } from '@common/constants';
+import { BrandEventPayload } from '../interfaces';
+import { MULTI_BRAND_EVENT_QUEUE_CONFIG } from '../constants';
+
+@Injectable()
+export class MultiBrandEventQueue implements OnModuleDestroy {
+  private readonly logger = new Logger(MultiBrandEventQueue.name);
+  private readonly queue: Queue<BrandEventPayload>;
+
+  constructor() {
+    this.queue = new Queue<BrandEventPayload>(QUEUE_NAMES.MULTI_BRAND_EVENTS, {
+      defaultJobOptions: {
+        attempts: MULTI_BRAND_EVENT_QUEUE_CONFIG.ATTEMPTS,
+        backoff: { type: 'exponential', delay: MULTI_BRAND_EVENT_QUEUE_CONFIG.BACKOFF_MS },
+        removeOnComplete: MULTI_BRAND_EVENT_QUEUE_CONFIG.REMOVE_ON_COMPLETE,
+        removeOnFail: MULTI_BRAND_EVENT_QUEUE_CONFIG.REMOVE_ON_FAIL,
+      },
+    });
+  }
+
+  async enqueue(payload: BrandEventPayload): Promise<void> {
+    try {
+      await this.queue.add(payload.event, payload);
+    } catch (err) {
+      this.logger.warn(`Failed to enqueue multi-brand event '${payload.event}': ${(err as Error).message}`);
+    }
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    await this.queue.close();
+  }
+}

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { ProviderInstance, ProviderInstanceCacheEntry, ProviderInstanceState } from '../interfaces';
 import { MP_FACTORY_CONSTANTS } from '../constants';
 
@@ -18,7 +18,7 @@ export class MarketplaceProviderInstanceCache {
   private readonly store = new Map<string, ProviderInstanceCacheEntry>();
   private readonly maxEntries: number;
 
-  constructor(maxEntries = MP_FACTORY_CONSTANTS.INSTANCE_CACHE_MAX_ENTRIES) {
+  constructor(@Optional() maxEntries: number = MP_FACTORY_CONSTANTS.INSTANCE_CACHE_MAX_ENTRIES) {
     this.maxEntries = maxEntries;
   }
 

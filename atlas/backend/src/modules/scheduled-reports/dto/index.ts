@@ -47,7 +47,7 @@ export class ScheduleRecipientDto implements IScheduleRecipient {
 export class ScheduleConfigDto implements IScheduleConfig {
   @IsEnum(ScheduleType)
   @IsNotEmpty()
-  type: ScheduleType;
+  type!: ScheduleType;
 
   @IsEnum(ScheduleFrequency)
   @IsOptional()
@@ -64,12 +64,12 @@ export class ScheduleConfigDto implements IScheduleConfig {
 
   @IsString()
   @IsNotEmpty()
-  timezone: string;
+  timezone!: string;
 
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  startDate: Date;
+  startDate!: Date;
 
   @IsDate()
   @Type(() => Date)
@@ -91,12 +91,12 @@ export class DeliveryConfigDto implements IDeliveryConfig {
   @IsArray()
   @IsEnum(DeliveryMethod, { each: true })
   @IsNotEmpty()
-  methods: DeliveryMethod[];
+  methods!: DeliveryMethod[];
 
   @IsArray()
   @IsEnum(OutputFormat, { each: true })
   @IsNotEmpty()
-  outputFormats: OutputFormat[];
+  outputFormats!: OutputFormat[];
 
   @IsString()
   @IsOptional()
@@ -122,15 +122,15 @@ export class DeliveryConfigDto implements IDeliveryConfig {
 export class CreateReportScheduleDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  scheduleKey: string;
+  scheduleKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -138,12 +138,12 @@ export class CreateReportScheduleDto {
 
   @IsString()
   @IsNotEmpty()
-  reportDefinitionId: string;
+  reportDefinitionId!: string;
 
   @ValidateNested()
   @Type(() => ScheduleConfigDto)
   @IsNotEmpty()
-  scheduleConfig: ScheduleConfigDto;
+  scheduleConfig!: ScheduleConfigDto;
 
   @IsArray()
   @IsOptional()
@@ -165,12 +165,12 @@ export class CreateReportScheduleDto {
   @ValidateNested({ each: true })
   @Type(() => ScheduleRecipientDto)
   @IsNotEmpty()
-  recipients: ScheduleRecipientDto[];
+  recipients!: ScheduleRecipientDto[];
 
   @ValidateNested()
   @Type(() => DeliveryConfigDto)
   @IsNotEmpty()
-  deliveryConfig: DeliveryConfigDto;
+  deliveryConfig!: DeliveryConfigDto;
 
   @IsString()
   @IsOptional()
@@ -292,11 +292,11 @@ export class UpdateReportScheduleDto {
 export class ExecuteScheduleDto {
   @IsString()
   @IsNotEmpty()
-  scheduleId: string;
+  scheduleId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsBoolean()
   @IsOptional()
@@ -310,7 +310,7 @@ export class ExecuteScheduleDto {
 export class ScheduleFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -347,7 +347,7 @@ export class ScheduleFilterDto {
 export class ExecutionFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -392,14 +392,14 @@ export class ExecutionFilterDto {
 }
 
 export class ReportScheduleResponseDto implements IReportSchedule {
-  id: string;
-  workspaceId: string;
-  scheduleKey: string;
-  name: string;
+  id!: string;
+  workspaceId!: string;
+  scheduleKey!: string;
+  name!: string;
   description?: string;
-  reportDefinitionId: string;
-  status: ScheduleStatus;
-  scheduleConfig: IScheduleConfig;
+  reportDefinitionId!: string;
+  status!: ScheduleStatus;
+  scheduleConfig!: IScheduleConfig;
   reportFilters?: any[];
   reportDateRange?: {
     start: Date;
@@ -407,48 +407,48 @@ export class ReportScheduleResponseDto implements IReportSchedule {
     presetKey?: string;
   };
   reportParameters?: Record<string, any>;
-  recipients: IScheduleRecipient[];
-  deliveryConfig: IDeliveryConfig;
+  recipients!: IScheduleRecipient[];
+  deliveryConfig!: IDeliveryConfig;
   locale?: string;
-  enabled: boolean;
-  paused: boolean;
+  enabled!: boolean;
+  paused!: boolean;
   nextRunAt?: Date;
   lastRunAt?: Date;
   lastRunStatus?: ExecutionStatus;
-  executionCount: number;
-  successCount: number;
-  failureCount: number;
-  maxRetries: number;
-  retryBackoff: {
+  executionCount!: number;
+  successCount!: number;
+  failureCount!: number;
+  maxRetries!: number;
+  retryBackoff!: {
     type: 'fixed' | 'exponential';
     initialDelayMs: number;
     maxDelayMs: number;
     multiplier?: number;
   };
-  allowConcurrentExecution: boolean;
-  idempotencyEnabled: boolean;
+  allowConcurrentExecution!: boolean;
+  idempotencyEnabled!: boolean;
   metadata?: Record<string, any>;
   createdBy?: string;
   updatedBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
   deletedAt?: Date;
 }
 
 export class ScheduleExecutionResponseDto implements IScheduleExecution {
-  id: string;
-  scheduleId: string;
-  workspaceId: string;
-  reportDefinitionId: string;
-  scheduleKey: string;
-  status: ExecutionStatus;
-  scheduledAt: Date;
+  id!: string;
+  scheduleId!: string;
+  workspaceId!: string;
+  reportDefinitionId!: string;
+  scheduleKey!: string;
+  status!: ExecutionStatus;
+  scheduledAt!: Date;
   startedAt?: Date;
   completedAt?: Date;
   duration?: number;
-  attemptNumber: number;
-  isManual: boolean;
-  isMissedRunRecovery: boolean;
+  attemptNumber!: number;
+  isManual!: boolean;
+  isMissedRunRecovery!: boolean;
   generationStartedAt?: Date;
   generationCompletedAt?: Date;
   generationDuration?: number;
@@ -468,22 +468,22 @@ export class ScheduleExecutionResponseDto implements IScheduleExecution {
   errorStack?: string;
   retriedAt?: Date;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedScheduleResponseDto {
-  data: ReportScheduleResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: ReportScheduleResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class PaginatedExecutionResponseDto {
-  data: ScheduleExecutionResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: ScheduleExecutionResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }

@@ -67,7 +67,7 @@ export default function PackingPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((t) => (
-              <TableRow key={t.id} clickable onClick={() => router.push(`/dashboard/packing/${t.id}`)}>
+              <TableRow key={t.id} clickable onClick={() => router.push(`/packing/${t.id}`)}>
                 <TableCell className="text-sm font-medium text-foreground">{t.taskNumber}</TableCell>
                 <TableCell>
                   <StatusBadge status={t.status} />

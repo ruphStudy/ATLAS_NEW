@@ -4,14 +4,14 @@ import { ApiKeyScopeType } from '../interfaces';
 export class CreateApiKeyDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
   @IsEnum(ApiKeyScopeType)
-  scopeType: ApiKeyScopeType;
+  scopeType!: ApiKeyScopeType;
 
   /** Required for ORGANIZATION scope. */
   @IsString()

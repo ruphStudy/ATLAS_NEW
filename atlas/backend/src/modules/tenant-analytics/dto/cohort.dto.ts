@@ -5,5 +5,5 @@ export class CohortQueryDto {
   @IsString()
   @IsNotEmpty()
   @Matches(/^\d{4}-\d{2}$/)
-  cohortMonth: string;
+  cohortMonth!: string;
 }

@@ -17,10 +17,10 @@ import {
 export class CreateNotificationDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(NotificationTargetType)
-  targetType: NotificationTargetType;
+  targetType!: NotificationTargetType;
 
   @ValidateIf((dto) => dto.targetType === NotificationTargetType.USER)
   @IsString()
@@ -51,11 +51,11 @@ export class CreateNotificationDto {
 
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsNotEmpty()
-  message: string;
+  message!: string;
 
   @IsString()
   @IsOptional()

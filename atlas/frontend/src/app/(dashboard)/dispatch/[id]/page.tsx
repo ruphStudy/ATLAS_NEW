@@ -77,7 +77,7 @@ export default function DispatchTaskDetailPage() {
     <div>
       <PageHeader
         title={task.taskNumber}
-        breadcrumbs={[{ label: 'Dispatch', href: '/dashboard/dispatch' }, { label: task.taskNumber }]}
+        breadcrumbs={[{ label: 'Dispatch', href: '/dispatch' }, { label: task.taskNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={task.status} />

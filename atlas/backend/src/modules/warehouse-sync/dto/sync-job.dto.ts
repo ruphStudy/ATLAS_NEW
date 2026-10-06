@@ -3,7 +3,7 @@ import { WarehouseSyncType, WarehouseSyncConflictStrategy } from '../interfaces'
 
 export class TriggerSyncJobDto {
   @IsString()
-  configurationId: string;
+  configurationId!: string;
 
   @IsEnum(WarehouseSyncType)
   @IsOptional()
@@ -42,7 +42,7 @@ export class CancelSyncJobDto {
 
 export class ResolveConflictDto {
   @IsString()
-  conflictId: string;
+  conflictId!: string;
 
   @IsEnum(WarehouseSyncConflictStrategy)
   @IsOptional()

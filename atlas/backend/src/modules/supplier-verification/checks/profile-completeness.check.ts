@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CHECK_NAMES } from '../../constants';
-import type { ICheckResult, ISupplierForVerification, IVerificationCheck } from '../../interfaces';
+import { CHECK_NAMES } from '../constants';
+import type { ICheckResult, ISupplierForVerification, IVerificationCheck } from '../interfaces';
 
 const REQUIRED_FIELDS: Array<keyof ISupplierForVerification> = [
   'name', 'country', 'contactEmail', 'contactPhone', 'website', 'city',

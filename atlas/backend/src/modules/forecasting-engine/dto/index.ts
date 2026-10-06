@@ -30,15 +30,15 @@ import {
 export class CreateForecastDefinitionDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  definitionKey: string;
+  definitionKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -46,33 +46,33 @@ export class CreateForecastDefinitionDto {
 
   @IsEnum(ForecastType)
   @IsNotEmpty()
-  forecastType: ForecastType;
+  forecastType!: ForecastType;
 
   @IsEnum(ForecastScope)
   @IsNotEmpty()
-  scope: ForecastScope;
+  scope!: ForecastScope;
 
   @IsString()
   @IsNotEmpty()
-  scopeId: string;
+  scopeId!: string;
 
   @IsEnum(ForecastStrategy)
   @IsNotEmpty()
-  strategy: ForecastStrategy;
+  strategy!: ForecastStrategy;
 
   @IsEnum(ForecastHorizon)
   @IsNotEmpty()
-  horizon: ForecastHorizon;
+  horizon!: ForecastHorizon;
 
   @IsNumber()
   @IsNotEmpty()
   @Min(1)
-  periodsAhead: number;
+  periodsAhead!: number;
 
   @IsNumber()
   @IsNotEmpty()
   @Min(1)
-  historicalPeriods: number;
+  historicalPeriods!: number;
 
   @IsBoolean()
   @IsOptional()
@@ -204,11 +204,11 @@ export class UpdateForecastDefinitionDto {
 export class GenerateForecastDto {
   @IsString()
   @IsNotEmpty()
-  definitionId: string;
+  definitionId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(ForecastTrigger)
   @IsOptional()
@@ -226,21 +226,21 @@ export class GenerateForecastDto {
 export class BacktestForecastDto {
   @IsString()
   @IsNotEmpty()
-  definitionId: string;
+  definitionId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  testPeriodStart: Date;
+  testPeriodStart!: Date;
 
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  testPeriodEnd: Date;
+  testPeriodEnd!: Date;
 
   @IsString()
   @IsOptional()
@@ -250,12 +250,12 @@ export class BacktestForecastDto {
 export class BulkGenerateForecastDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty()
-  definitionIds: string[];
+  definitionIds!: string[];
 
   @IsString()
   @IsOptional()
@@ -265,7 +265,7 @@ export class BulkGenerateForecastDto {
 export class DefinitionFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(ForecastType)
   @IsOptional()
@@ -305,7 +305,7 @@ export class DefinitionFilterDto {
 export class ExecutionFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()
@@ -341,48 +341,48 @@ export class ExecutionFilterDto {
 }
 
 export class ForecastDefinitionResponseDto implements IForecastDefinition {
-  id: string;
-  workspaceId: string;
-  definitionKey: string;
-  name: string;
+  id!: string;
+  workspaceId!: string;
+  definitionKey!: string;
+  name!: string;
   description?: string;
-  forecastType: ForecastType;
-  scope: ForecastScope;
-  scopeId: string;
-  strategy: ForecastStrategy;
-  horizon: ForecastHorizon;
-  periodsAhead: number;
-  historicalPeriods: number;
-  includeSeasonality: boolean;
-  includeTrends: boolean;
-  includePromotions: boolean;
-  includeExternalSignals: boolean;
-  confidenceLevel: number;
-  autoRefresh: boolean;
+  forecastType!: ForecastType;
+  scope!: ForecastScope;
+  scopeId!: string;
+  strategy!: ForecastStrategy;
+  horizon!: ForecastHorizon;
+  periodsAhead!: number;
+  historicalPeriods!: number;
+  includeSeasonality!: boolean;
+  includeTrends!: boolean;
+  includePromotions!: boolean;
+  includeExternalSignals!: boolean;
+  confidenceLevel!: number;
+  autoRefresh!: boolean;
   refreshIntervalHours?: number;
   accuracyThreshold?: number;
-  version: number;
-  enabled: boolean;
+  version!: number;
+  enabled!: boolean;
   metadata?: Record<string, any>;
   createdBy?: string;
   updatedBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class ForecastExecutionResponseDto implements IForecastExecution {
-  id: string;
-  definitionId: string;
-  workspaceId: string;
-  definitionKey: string;
-  forecastType: ForecastType;
-  scope: ForecastScope;
-  scopeId: string;
-  strategy: ForecastStrategy;
-  status: ForecastStatus;
-  trigger: ForecastTrigger;
-  forecastStart: Date;
-  forecastEnd: Date;
+  id!: string;
+  definitionId!: string;
+  workspaceId!: string;
+  definitionKey!: string;
+  forecastType!: ForecastType;
+  scope!: ForecastScope;
+  scopeId!: string;
+  strategy!: ForecastStrategy;
+  status!: ForecastStatus;
+  trigger!: ForecastTrigger;
+  forecastStart!: Date;
+  forecastEnd!: Date;
   startedAt?: Date;
   completedAt?: Date;
   duration?: number;
@@ -391,59 +391,59 @@ export class ForecastExecutionResponseDto implements IForecastExecution {
   errorCode?: string;
   errorMessage?: string;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class ForecastResultResponseDto implements IForecastResult {
-  id: string;
-  executionId: string;
-  definitionId: string;
-  workspaceId: string;
-  forecastType: ForecastType;
-  scope: ForecastScope;
-  scopeId: string;
-  strategy: ForecastStrategy;
-  horizon: ForecastHorizon;
-  generatedAt: Date;
-  dataPoints: any[];
+  id!: string;
+  executionId!: string;
+  definitionId!: string;
+  workspaceId!: string;
+  forecastType!: ForecastType;
+  scope!: ForecastScope;
+  scopeId!: string;
+  strategy!: ForecastStrategy;
+  horizon!: ForecastHorizon;
+  generatedAt!: Date;
+  dataPoints!: any[];
   assumptions: any;
   dataQuality: any;
-  version: number;
+  version!: number;
   metadata?: Record<string, any>;
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class BacktestResultResponseDto implements IBacktestResult {
-  id: string;
-  definitionId: string;
-  executionId: string;
-  workspaceId: string;
-  testPeriodStart: Date;
-  testPeriodEnd: Date;
-  strategy: ForecastStrategy;
-  metrics: {
+  id!: string;
+  definitionId!: string;
+  executionId!: string;
+  workspaceId!: string;
+  testPeriodStart!: Date;
+  testPeriodEnd!: Date;
+  strategy!: ForecastStrategy;
+  metrics!: {
     mae: number;
     mape: number;
     rmse: number;
     accuracy: number;
   };
   metadata?: Record<string, any>;
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class PaginatedDefinitionResponseDto {
-  data: ForecastDefinitionResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: ForecastDefinitionResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class PaginatedExecutionResponseDto {
-  data: ForecastExecutionResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: ForecastExecutionResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }

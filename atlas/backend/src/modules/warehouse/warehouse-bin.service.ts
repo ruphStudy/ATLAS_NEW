@@ -430,7 +430,7 @@ export class WarehouseBinService {
     const bin = await this.findOrFail(id, warehouseId, workspaceId);
 
     if (!bin['deletedAt']) {
-      throw new BusinessRuleException('Bin is not deleted', ErrorCode.INVALID_INPUT);
+      throw new BusinessRuleException('Bin is not deleted', ErrorCode.VALIDATION_FAILED);
     }
 
     const updated = await this.repository.restore(id);

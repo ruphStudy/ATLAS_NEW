@@ -80,7 +80,7 @@ export default function InventoryTransfersPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((t) => (
-              <TableRow key={t.id} clickable onClick={() => router.push(`/dashboard/inventory-transfers/${t.id}`)}>
+              <TableRow key={t.id} clickable onClick={() => router.push(`/inventory-transfers/${t.id}`)}>
                 <TableCell className="text-sm font-medium text-foreground">{t.transferNumber}</TableCell>
                 <TableCell>
                   <StatusBadge status={t.status} />
@@ -97,7 +97,7 @@ export default function InventoryTransfersPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={data.totalPages} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateTransferDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(t) => router.push(`/dashboard/inventory-transfers/${t.id}`)} />
+      <CreateTransferDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(t) => router.push(`/inventory-transfers/${t.id}`)} />
     </div>
   );
 }

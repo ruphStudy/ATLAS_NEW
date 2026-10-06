@@ -46,6 +46,7 @@ export class AuthenticationRepository extends BaseRepository {
           passwordHash: params.passwordHash,
           role: 'OWNER',
           status: 'ACTIVE',
+          passwordChangedAt: new Date(),
         },
       });
     });
@@ -62,6 +63,36 @@ export class AuthenticationRepository extends BaseRepository {
     await this.prisma.user.update({
       where: { id: userId },
       data: { lastLoginAt: new Date() },
+    });
+  }
+
+  /** Rotates the password and, in the same write, clears the stored refresh-token hash — every existing refresh session is invalidated (forced re-login), the minimal session-invalidation the current architecture (one refresh-token hash per user) supports without a broader redesign. */
+  async updatePassword(userId: string, passwordHash: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash, passwordChangedAt: new Date(), refreshTokenHash: null },
+    });
+  }
+
+  /** Stores an encrypted, not-yet-verified TOTP secret (setup step) — `mfaEnabled` stays false until `enableMfa()`. */
+  async setPendingMfaSecret(userId: string, encryptedSecret: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { mfaSecret: encryptedSecret },
+    });
+  }
+
+  async enableMfa(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { mfaEnabled: true, mfaEnabledAt: new Date() },
+    });
+  }
+
+  async disableMfa(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { mfaEnabled: false, mfaEnabledAt: null, mfaSecret: null },
     });
   }
 }

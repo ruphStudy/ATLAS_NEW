@@ -9,11 +9,11 @@ export class ApproveDocumentDto {
 export class RejectDocumentDto {
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }
 
 export class RequestDocumentRevisionDto {
   @IsString()
   @IsNotEmpty()
-  notes: string;
+  notes!: string;
 }

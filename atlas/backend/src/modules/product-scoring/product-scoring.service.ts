@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@database/prisma.service';
 import { ProductScoringRepository } from './product-scoring.repository';
-import { ProductScoringQueue } from './jobs';
+import { ProductScoringQueue } from './jobs/product-scoring.queue';
 import { ScoringEngine } from './engine';
 import {
   CreateProductScoringDto,

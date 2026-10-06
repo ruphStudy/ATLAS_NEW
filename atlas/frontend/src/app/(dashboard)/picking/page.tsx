@@ -79,7 +79,7 @@ export default function PickingPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((t) => (
-              <TableRow key={t.id} clickable onClick={() => router.push(`/dashboard/picking/${t.id}`)}>
+              <TableRow key={t.id} clickable onClick={() => router.push(`/picking/${t.id}`)}>
                 <TableCell className="text-sm font-medium text-foreground">{t.taskNumber}</TableCell>
                 <TableCell className="text-sm capitalize text-muted-foreground">{t.pickingType.toLowerCase()}</TableCell>
                 <TableCell>

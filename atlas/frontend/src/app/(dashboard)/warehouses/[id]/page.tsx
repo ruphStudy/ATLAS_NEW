@@ -72,7 +72,7 @@ export default function WarehouseDetailPage() {
 
   const handleDelete = async () => {
     const ok = await confirm({ title: 'Delete this warehouse?', description: 'This cannot be undone.', confirmLabel: 'Delete', variant: 'danger' });
-    if (ok) deleteWarehouse.mutate(warehouse.id, { onSuccess: () => router.push('/dashboard/warehouses') });
+    if (ok) deleteWarehouse.mutate(warehouse.id, { onSuccess: () => router.push('/warehouses') });
   };
 
   const actions: ActionMenuItem[] = [];
@@ -97,7 +97,7 @@ export default function WarehouseDetailPage() {
     <div>
       <PageHeader
         title={warehouse.name}
-        breadcrumbs={[{ label: 'Warehouses', href: '/dashboard/warehouses' }, { label: warehouse.name }]}
+        breadcrumbs={[{ label: 'Warehouses', href: '/warehouses' }, { label: warehouse.name }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={warehouse.status} />

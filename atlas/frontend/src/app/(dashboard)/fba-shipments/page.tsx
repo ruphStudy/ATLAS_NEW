@@ -88,7 +88,7 @@ export default function FBAShipmentsPage() {
           </TableHeader>
           <TableBody>
             {data.items.map((s) => (
-              <TableRow key={s.id} clickable onClick={() => router.push(`/dashboard/fba-shipments/${s.id}`)}>
+              <TableRow key={s.id} clickable onClick={() => router.push(`/fba-shipments/${s.id}`)}>
                 <TableCell className="text-sm font-medium text-foreground">{s.shipmentNumber}</TableCell>
                 <TableCell>
                   <StatusBadge status={s.status} />

@@ -30,7 +30,7 @@ export class StartSyncRequestDto {
 }
 
 export class SyncJobFilterQueryDto {
-  @IsOptional() @IsString() workspaceId?: string;
+  @IsString() workspaceId!: string;
   @IsOptional() @IsString() accountId?: string;
   @IsOptional() @IsEnum(SyncJobStatus) status?: SyncJobStatus;
   @IsOptional() @IsEnum(SyncDirection) direction?: SyncDirection;

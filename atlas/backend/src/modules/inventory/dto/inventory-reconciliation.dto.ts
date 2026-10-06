@@ -10,6 +10,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '@common/dto/pagination.dto';
 import {
   InventoryReconciliationClassification,
@@ -348,6 +349,7 @@ export class InventoryReconciliationHistoryResponseDto {
   id!: string;
   runId!: string;
   workspaceId!: string;
+  @ApiPropertyOptional({ enum: InventoryReconciliationStatus, nullable: true })
   fromStatus?: InventoryReconciliationStatus | null;
   toStatus!: InventoryReconciliationStatus;
   reason?: string | null;
@@ -374,6 +376,7 @@ export class InventoryReconciliationLineHistoryResponseDto {
   id!: string;
   lineId!: string;
   workspaceId!: string;
+  @ApiPropertyOptional({ enum: InventoryReconciliationFindingStatus, nullable: true })
   fromStatus?: InventoryReconciliationFindingStatus | null;
   toStatus!: InventoryReconciliationFindingStatus;
   reason?: string | null;

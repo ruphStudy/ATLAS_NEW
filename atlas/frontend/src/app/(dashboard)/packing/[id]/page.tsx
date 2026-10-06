@@ -98,7 +98,7 @@ export default function PackingTaskDetailPage() {
     <div>
       <PageHeader
         title={task.taskNumber}
-        breadcrumbs={[{ label: 'Packing', href: '/dashboard/packing' }, { label: task.taskNumber }]}
+        breadcrumbs={[{ label: 'Packing', href: '/packing' }, { label: task.taskNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={task.status} />

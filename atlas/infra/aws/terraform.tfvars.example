@@ -1,0 +1,23 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is gitignored —
+# never commit it. Nothing in this file is a secret VALUE (real secrets are
+# populated post-apply via AWS CLI, see README) — only identifiers/config.
+
+aws_region  = "ap-south-1"
+environment = "staging"
+
+# ── TLS — pick ONE ──
+# Option A: you already have a cert
+# acm_certificate_arn = "arn:aws:acm:ap-south-1:123456789012:certificate/xxxxxxxx"
+# Option B: you own a Route53 public hosted zone for the domain
+# route53_zone_id = "Z0123456789ABCDEF"
+# domain_name     = "api-staging.example.com"
+
+# ── Non-sensitive app config ──
+amazon_sp_api_client_id      = ""
+amazon_sp_api_application_id = ""
+amazon_sp_api_redirect_uri   = ""
+cors_origins                 = "https://staging.example.com"
+
+# ── Optional ──
+enable_waf               = false
+alarm_notification_email = ""

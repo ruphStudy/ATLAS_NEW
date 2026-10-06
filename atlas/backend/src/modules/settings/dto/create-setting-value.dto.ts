@@ -4,10 +4,10 @@ import { SettingScope } from '../interfaces';
 export class CreateSettingValueDto {
   @IsString()
   @IsNotEmpty()
-  definitionKey: string;
+  definitionKey!: string;
 
   @IsEnum(SettingScope)
-  scope: SettingScope;
+  scope!: SettingScope;
 
   /** Required when scope=MODULE. */
   @IsString()

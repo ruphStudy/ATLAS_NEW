@@ -7,11 +7,11 @@ import {
 export class AcceptRecommendationDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  acceptedBy: string;
+  acceptedBy!: string;
 
   @IsString()
   @IsOptional()
@@ -25,11 +25,11 @@ export class AcceptRecommendationDto {
 export class RejectRecommendationDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  rejectedBy: string;
+  rejectedBy!: string;
 
   @IsString()
   @IsOptional()
@@ -39,11 +39,11 @@ export class RejectRecommendationDto {
 export class DismissRecommendationDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  dismissedBy: string;
+  dismissedBy!: string;
 
   @IsString()
   @IsOptional()
@@ -53,11 +53,11 @@ export class DismissRecommendationDto {
 export class DeferRecommendationDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  deferredBy: string;
+  deferredBy!: string;
 
   @IsString()
   @IsOptional()

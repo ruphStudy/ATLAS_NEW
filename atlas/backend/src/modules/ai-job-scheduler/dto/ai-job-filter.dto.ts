@@ -13,7 +13,7 @@ import { AiJobType, AiJobTaskType, AiJobStatus, AiJobPriority } from '../interfa
 export class AiJobFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

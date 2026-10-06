@@ -155,8 +155,9 @@ export class EventHandler {
 
       return { accepted: true, eventId: eventRecord.id };
     } catch (error) {
-      this.logger.error(`Failed to handle incoming event: ${error.message}`, error.stack);
-      return { accepted: false, reason: error.message };
+      const err = error as Error;
+      this.logger.error(`Failed to handle incoming event: ${err.message}`, err.stack);
+      return { accepted: false, reason: err.message };
     }
   }
 
@@ -218,7 +219,7 @@ export class EventHandler {
         });
       } else {
         // Mark as failed
-        await this.stateManager.markFailed(params.eventId, params.workspaceId, result.error);
+        await this.stateManager.markFailed(params.eventId, params.workspaceId, result.error ?? 'Unknown error');
 
         await this.lifecycleQueue.publish({
           event: EventLifecycleEvent.EVENT_FAILED,
@@ -234,7 +235,7 @@ export class EventHandler {
         }
       }
     } catch (error) {
-      this.logger.error(`Failed to process event ${params.eventId}: ${error.message}`);
+      this.logger.error(`Failed to process event ${params.eventId}: ${(error as Error).message}`);
       throw error;
     }
   }

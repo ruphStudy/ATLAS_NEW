@@ -251,7 +251,7 @@ export class PutawayService {
           destinationBinId: lineDto.destinationBinId ?? line['destinationBinId'],
           overrideReason: lineDto.overrideReason ?? line['overrideReason'],
           scannedBarcodes,
-          metadata: { ...line['metadata'], ...lineDto.metadata },
+          metadata: { ...(line['metadata'] as Record<string, unknown> | undefined), ...lineDto.metadata },
         },
       });
 

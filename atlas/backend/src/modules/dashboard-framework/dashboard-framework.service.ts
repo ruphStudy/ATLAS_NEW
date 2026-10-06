@@ -26,8 +26,8 @@ import {
   DashboardEventType,
   RefreshInterval,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -259,7 +259,7 @@ export class DashboardFrameworkService {
 
     const restored = await this.repository.updateDashboard(id, {
       status: DashboardStatus.DRAFT,
-      archivedAt: null,
+      archivedAt: undefined,
     });
 
     await this.eventQueue.publish({

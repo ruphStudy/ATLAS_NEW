@@ -1,18 +1,18 @@
 export class MonitoringSloResponseDto {
-  id: string;
+  id!: string;
   workspaceId?: string | null;
   organizationId?: string | null;
-  service: string;
-  dimension: string;
-  targetValue: number;
-  warningThreshold: number;
-  criticalThreshold: number;
-  windowMinutes: number;
-  version: number;
-  status: string;
+  service!: string;
+  dimension!: string;
+  targetValue!: number;
+  warningThreshold!: number;
+  criticalThreshold!: number;
+  windowMinutes!: number;
+  version!: number;
+  status!: string;
   metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 
   static from(raw: Record<string, unknown>): MonitoringSloResponseDto {
     const dto = new MonitoringSloResponseDto();
@@ -22,11 +22,11 @@ export class MonitoringSloResponseDto {
 }
 
 export class PaginatedMonitoringSloResponseDto {
-  data: MonitoringSloResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
+  data!: MonitoringSloResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  hasMore!: boolean;
 
   static from(items: Record<string, unknown>[], total: number, page: number, limit: number): PaginatedMonitoringSloResponseDto {
     const dto = new PaginatedMonitoringSloResponseDto();
@@ -40,20 +40,20 @@ export class PaginatedMonitoringSloResponseDto {
 }
 
 export class MonitoringAlertRuleResponseDto {
-  id: string;
+  id!: string;
   workspaceId?: string | null;
   sloId?: string | null;
-  sourceKey: string;
+  sourceKey!: string;
   service?: string | null;
   dimension?: string | null;
-  conditionField: string;
-  conditionOperator: string;
+  conditionField!: string;
+  conditionOperator!: string;
   conditionValue: unknown;
-  severity: string;
-  cooldownMinutes: number;
-  status: string;
+  severity!: string;
+  cooldownMinutes!: number;
+  status!: string;
   lastTriggeredAt?: Date | null;
-  createdAt: Date;
+  createdAt!: Date;
 
   static from(raw: Record<string, unknown>): MonitoringAlertRuleResponseDto {
     const dto = new MonitoringAlertRuleResponseDto();
@@ -63,11 +63,11 @@ export class MonitoringAlertRuleResponseDto {
 }
 
 export class PaginatedMonitoringAlertRuleResponseDto {
-  data: MonitoringAlertRuleResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
+  data!: MonitoringAlertRuleResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  hasMore!: boolean;
 
   static from(items: Record<string, unknown>[], total: number, page: number, limit: number): PaginatedMonitoringAlertRuleResponseDto {
     const dto = new PaginatedMonitoringAlertRuleResponseDto();
@@ -81,16 +81,16 @@ export class PaginatedMonitoringAlertRuleResponseDto {
 }
 
 export class MonitoringIncidentResponseDto {
-  id: string;
+  id!: string;
   workspaceId?: string | null;
-  sourceKeys: string[];
+  sourceKeys!: string[];
   service?: string | null;
-  severity: string;
-  status: string;
+  severity!: string;
+  status!: string;
   correlationId?: string | null;
-  title: string;
+  title!: string;
   description?: string | null;
-  openedAt: Date;
+  openedAt!: Date;
   acknowledgedAt?: Date | null;
   acknowledgedBy?: string | null;
   resolvedAt?: Date | null;
@@ -106,11 +106,11 @@ export class MonitoringIncidentResponseDto {
 }
 
 export class PaginatedMonitoringIncidentResponseDto {
-  data: MonitoringIncidentResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
+  data!: MonitoringIncidentResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  hasMore!: boolean;
 
   static from(items: Record<string, unknown>[], total: number, page: number, limit: number): PaginatedMonitoringIncidentResponseDto {
     const dto = new PaginatedMonitoringIncidentResponseDto();

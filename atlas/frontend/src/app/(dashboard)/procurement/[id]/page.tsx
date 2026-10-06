@@ -29,6 +29,7 @@ import {
   useSubmitProcurementForApproval,
 } from '@/hooks';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { ROUTES } from '@/constants';
 
 export default function ProcurementDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -61,7 +62,7 @@ export default function ProcurementDetailPage() {
 
   const handleDelete = async () => {
     const ok = await confirm({ title: 'Delete this procurement?', description: 'This cannot be undone.', confirmLabel: 'Delete', variant: 'danger' });
-    if (ok) deleteProcurement.mutate(procurement.id, { onSuccess: () => router.push('/dashboard/procurement') });
+    if (ok) deleteProcurement.mutate(procurement.id, { onSuccess: () => router.push('/procurement') });
   };
 
   const actions: ActionMenuItem[] = [];
@@ -93,7 +94,7 @@ export default function ProcurementDetailPage() {
     <div>
       <PageHeader
         title={procurement.procurementNumber}
-        breadcrumbs={[{ label: 'Procurement', href: '/dashboard/procurement' }, { label: procurement.procurementNumber }]}
+        breadcrumbs={[{ label: 'Procurement', href: '/procurement' }, { label: procurement.procurementNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={procurement.status} />
@@ -119,7 +120,7 @@ export default function ProcurementDetailPage() {
             {procurement.rfqId && (
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Source RFQ</p>
-                <Link href={`/dashboard/rfqs/${procurement.rfqId}`} className="mt-0.5 inline-block text-sm text-primary hover:underline">
+                <Link href={`/rfqs/${procurement.rfqId}`} className="mt-0.5 inline-block text-sm text-primary hover:underline">
                   View RFQ
                 </Link>
               </div>
@@ -127,7 +128,7 @@ export default function ProcurementDetailPage() {
             {procurement.supplierId && (
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Supplier</p>
-                <Link href={`/dashboard/suppliers/${procurement.supplierId}`} className="mt-0.5 inline-block text-sm text-primary hover:underline">
+                <Link href={`${ROUTES.SUPPLIERS}/${procurement.supplierId}`} className="mt-0.5 inline-block text-sm text-primary hover:underline">
                   View supplier
                 </Link>
               </div>
@@ -212,7 +213,7 @@ function LinkedPurchaseOrders({ procurementId }: { procurementId: string }) {
     <ul className="space-y-2">
       {data.items.map((po) => (
         <li key={po.id} className="flex items-center justify-between rounded-[var(--radius)] border border-border p-2 text-sm">
-          <Link href={`/dashboard/purchase-orders/${po.id}`} className="font-medium text-foreground hover:underline">
+          <Link href={`/purchase-orders/${po.id}`} className="font-medium text-foreground hover:underline">
             {po.poNumber}
           </Link>
           <StatusBadge status={po.status} />

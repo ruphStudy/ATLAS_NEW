@@ -4,6 +4,7 @@ import { DatabaseModule } from '@database/database.module';
 import { QUEUE_NAMES } from '@common/constants';
 import { SettingsModule } from '@modules/settings/settings.module';
 import { AuditLogsModule } from '@modules/audit-logs/audit-logs.module';
+import { UsersModule } from '@modules/users/users.module';
 import { TenantIsolationModule } from '@modules/tenant-isolation/tenant-isolation.module';
 import { PlanManagementController } from './plan-management.controller';
 import { PlanManagementService } from './plan-management.service';
@@ -26,6 +27,7 @@ import { PlanManagementEventQueue, PlanManagementEventWorker } from './jobs';
     DatabaseModule,
     SettingsModule,
     AuditLogsModule,
+    UsersModule,
     TenantIsolationModule,
     BullModule.registerQueue({
       name: QUEUE_NAMES.PLAN_MANAGEMENT_EVENTS,

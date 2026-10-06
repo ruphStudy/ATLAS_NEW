@@ -18,6 +18,7 @@ import { TierBadge } from '@/components/suppliers/tier-badge';
 import { DiscoverSuppliersDialog } from '@/components/suppliers/discover-suppliers-dialog';
 import { SupplierFormDialog } from '@/components/suppliers/supplier-form-dialog';
 import { useSuppliers } from '@/hooks';
+import { ROUTES } from '@/constants';
 import type { SupplierStatus } from '@/types';
 
 const STATUS_OPTIONS: { value: SupplierStatus; label: string }[] = [
@@ -61,7 +62,7 @@ export default function SuppliersPage() {
         actions={
           <div className="flex items-center gap-2">
             {selected.length >= 2 && (
-              <Button variant="outline" onClick={() => router.push(`/dashboard/suppliers/compare?ids=${selected.join(',')}`)}>
+              <Button variant="outline" onClick={() => router.push(`${ROUTES.SUPPLIERS_COMPARE}?ids=${selected.join(',')}`)}>
                 Compare ({selected.length})
               </Button>
             )}
@@ -133,7 +134,7 @@ export default function SuppliersPage() {
           </TableHeader>
           <TableBody>
             {data.items.map((supplier) => (
-              <TableRow key={supplier.id} clickable onClick={() => router.push(`/dashboard/suppliers/${supplier.id}`)}>
+              <TableRow key={supplier.id} clickable onClick={() => router.push(`${ROUTES.SUPPLIERS}/${supplier.id}`)}>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <Checkbox checked={selected.includes(supplier.id)} onChange={() => toggleSelected(supplier.id)} />
                 </TableCell>
@@ -176,7 +177,7 @@ export default function SuppliersPage() {
       )}
 
       <DiscoverSuppliersDialog open={discoverOpen} onOpenChange={setDiscoverOpen} />
-      <SupplierFormDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(s) => router.push(`/dashboard/suppliers/${s.id}`)} />
+      <SupplierFormDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(s) => router.push(`${ROUTES.SUPPLIERS}/${s.id}`)} />
     </div>
   );
 }

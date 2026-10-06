@@ -7,7 +7,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { BulkPublishItem, PublicationMarketplace, PublishTrigger } from '../interfaces';
+import { PublicationMarketplace, PublishTrigger } from '../interfaces';
 
 export class PublishListingDto {
   @IsString()
@@ -19,6 +19,16 @@ export class PublishListingDto {
   @IsEnum(PublicationMarketplace)
   marketplace!: PublicationMarketplace;
 
+  /**
+   * Which connected MarketplaceAccount (seller account) to publish through.
+   * Required for AMAZON when the workspace has more than one active Amazon
+   * account with no unambiguous default — omit only when a single/default
+   * account makes the choice deterministic.
+   */
+  @IsOptional()
+  @IsString()
+  marketplaceAccountId?: string;
+
   @IsOptional()
   @IsDateString()
   scheduledAt?: string;
@@ -28,7 +38,7 @@ export class PublishListingDto {
   notes?: string;
 }
 
-export class BulkPublishItemDto implements BulkPublishItem {
+export class BulkPublishItemDto {
   @IsString()
   listingId!: string;
 

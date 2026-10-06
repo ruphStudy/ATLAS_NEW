@@ -17,6 +17,7 @@ const MOCK_AUTH_RESPONSE: AuthResponseDto = {
     role: 'OWNER',
     workspaceId: 'ws-uuid',
     status: 'ACTIVE',
+    isPlatformAdmin: false,
   },
 };
 

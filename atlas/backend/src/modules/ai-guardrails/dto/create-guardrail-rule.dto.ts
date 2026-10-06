@@ -25,20 +25,20 @@ export class CreateGuardrailRuleDto {
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
   @IsEnum(GuardrailStage)
-  stage: GuardrailStage;
+  stage!: GuardrailStage;
 
   @IsEnum(GuardrailViolationCategory)
-  category: GuardrailViolationCategory;
+  category!: GuardrailViolationCategory;
 
   @IsEnum(GuardrailCheckType)
-  checkType: GuardrailCheckType;
+  checkType!: GuardrailCheckType;
 
   @IsString()
   @IsOptional()
@@ -58,7 +58,7 @@ export class CreateGuardrailRuleDto {
 
   @IsObject()
   @IsNotEmpty()
-  config: Record<string, unknown>;
+  config!: Record<string, unknown>;
 
   @IsEnum(GuardrailSeverity)
   @IsOptional()

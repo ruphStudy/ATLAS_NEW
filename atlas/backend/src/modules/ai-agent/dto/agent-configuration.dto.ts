@@ -9,13 +9,13 @@ import {
 
 export class CreateAgentConfigurationDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  agentId: string;
+  agentId!: string;
 
   @IsString()
-  useCase: string;
+  useCase!: string;
 
   @IsOptional()
   @IsString()

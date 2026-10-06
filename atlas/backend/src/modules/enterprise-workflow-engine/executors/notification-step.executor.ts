@@ -27,7 +27,7 @@ export class NotificationStepExecutor implements IWorkflowStepExecutor {
       targetUserIds: config.targetUserIds as string[] | undefined,
       type: config.type as NotificationType | undefined,
       category: (config.category as string) ?? WORKFLOW_ENGINE_MODULE,
-      priority: (config.priority as NotificationPriority) ?? NotificationPriority.MEDIUM,
+      priority: (config.priority as NotificationPriority) ?? NotificationPriority.NORMAL,
       title: (config.title as string) ?? step.name,
       message: config.message as string,
       sourceModule: WORKFLOW_ENGINE_MODULE,

@@ -3,7 +3,7 @@ import { FeatureFlagScopeType, IFeatureFlagTargetingRules } from '../interfaces'
 
 export class CreateFeatureFlagOverrideDto {
   @IsEnum(FeatureFlagScopeType)
-  scope: FeatureFlagScopeType;
+  scope!: FeatureFlagScopeType;
 
   /** Required for ORGANIZATION scope. */
   @IsString()

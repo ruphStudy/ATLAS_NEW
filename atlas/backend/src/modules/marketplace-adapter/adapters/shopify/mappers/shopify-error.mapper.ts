@@ -90,7 +90,7 @@ export class ShopifyErrorMapper {
   }
 
   private isRetryable(errorCode: string, statusCode?: number): boolean {
-    const retryableCodes = [
+    const retryableCodes: string[] = [
       SHOPIFY_ERROR_CODES.THROTTLED,
       SHOPIFY_ERROR_CODES.INTERNAL_SERVER_ERROR,
       SHOPIFY_ERROR_CODES.SERVICE_UNAVAILABLE,

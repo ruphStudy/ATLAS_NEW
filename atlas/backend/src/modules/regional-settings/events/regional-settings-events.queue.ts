@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Queue } from 'bullmq';
+import { ConfigurationService } from '@config/configuration.service';
 import { QUEUE_NAMES } from '@common/constants';
 import { RegionalSettingsEventPayload } from '../interfaces';
 import { REGIONAL_SETTINGS_EVENT_QUEUE_CONFIG } from '../constants';
@@ -7,10 +8,12 @@ import { REGIONAL_SETTINGS_EVENT_QUEUE_CONFIG } from '../constants';
 @Injectable()
 export class RegionalSettingsEventQueue implements OnModuleDestroy {
   private readonly logger = new Logger(RegionalSettingsEventQueue.name);
-  private readonly queue: Queue<RegionalSettingsEventPayload>;
+  private readonly queue: Queue;
 
-  constructor() {
-    this.queue = new Queue<RegionalSettingsEventPayload>(QUEUE_NAMES.REGIONAL_SETTINGS_EVENTS, {
+  constructor(configService: ConfigurationService) {
+    const redis = configService.getRedisConfig();
+    this.queue = new Queue(QUEUE_NAMES.REGIONAL_SETTINGS_EVENTS, {
+      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
       defaultJobOptions: {
         attempts: REGIONAL_SETTINGS_EVENT_QUEUE_CONFIG.ATTEMPTS,
         backoff: { type: 'exponential', delay: REGIONAL_SETTINGS_EVENT_QUEUE_CONFIG.BACKOFF_MS },

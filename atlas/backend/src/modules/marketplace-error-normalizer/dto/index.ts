@@ -68,7 +68,7 @@ export class NormalizeErrorRequestDto {
 
 export class SearchErrorsQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @IsString()
@@ -122,7 +122,7 @@ export class SearchErrorsQueryDto {
 
 export class GetTopErrorsQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsOptional()
   @Type(() => Number)
@@ -141,31 +141,31 @@ export class GetTopErrorsQueryDto {
 
 export class ResolveErrorRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  historyId: string;
+  historyId!: string;
 }
 
 export class GetAggregatedErrorsQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDateString()
-  startDate: string;
+  startDate!: string;
 
   @IsDateString()
-  endDate: string;
+  endDate!: string;
 }
 
 export class NormalizedErrorResponseDto {
-  code: UniversalErrorCode;
-  category: ErrorCategory;
-  severity: ErrorSeverity;
-  type: ErrorType;
-  message: string;
+  code!: UniversalErrorCode;
+  category!: ErrorCategory;
+  severity!: ErrorSeverity;
+  type!: ErrorType;
+  message!: string;
   userMessage?: string;
-  isRetryable: boolean;
+  isRetryable!: boolean;
   retryAfter?: number;
   providerError?: {
     providerCode?: string;
@@ -184,27 +184,27 @@ export class NormalizedErrorResponseDto {
     operation?: string;
     resourceId?: string;
   };
-  timestamp: Date;
+  timestamp!: Date;
 }
 
 export class ErrorClassificationResponseDto {
-  isTransient: boolean;
-  isPermanent: boolean;
-  isDuplicate: boolean;
-  isConflict: boolean;
-  isPartialSuccess: boolean;
-  recommendedAction: string;
+  isTransient!: boolean;
+  isPermanent!: boolean;
+  isDuplicate!: boolean;
+  isConflict!: boolean;
+  isPartialSuccess!: boolean;
+  recommendedAction!: string;
 }
 
 export class SafeErrorResponseDto {
-  code: string;
-  message: string;
-  category: string;
-  severity: string;
-  isRetryable: boolean;
+  code!: string;
+  message!: string;
+  category!: string;
+  severity!: string;
+  isRetryable!: boolean;
   retryAfter?: number;
   requestId?: string;
-  timestamp: Date;
+  timestamp!: Date;
 }
 
 export class InternalErrorResponseDto extends SafeErrorResponseDto {
@@ -216,66 +216,66 @@ export class InternalErrorResponseDto extends SafeErrorResponseDto {
 }
 
 export class UserFacingErrorResponseDto {
-  message: string;
-  code: string;
-  canRetry: boolean;
+  message!: string;
+  code!: string;
+  canRetry!: boolean;
   suggestedAction?: string;
 }
 
 export class ErrorHistoryResponseDto {
-  id: string;
-  workspaceId: string;
-  provider: string;
+  id!: string;
+  workspaceId!: string;
+  provider!: string;
   accountId?: string;
   module?: string;
   operation?: string;
-  errorCode: UniversalErrorCode;
-  errorCategory: ErrorCategory;
-  errorSeverity: ErrorSeverity;
-  errorMessage: string;
+  errorCode!: UniversalErrorCode;
+  errorCategory!: ErrorCategory;
+  errorSeverity!: ErrorSeverity;
+  errorMessage!: string;
   providerCode?: string;
   providerMessage?: string;
   httpStatus?: number;
   requestId?: string;
   resourceId?: string;
-  occurrenceCount: number;
-  firstOccurredAt: Date;
-  lastOccurredAt: Date;
-  isResolved: boolean;
+  occurrenceCount!: number;
+  firstOccurredAt!: Date;
+  lastOccurredAt!: Date;
+  isResolved!: boolean;
   resolvedAt?: Date;
   metadata?: Record<string, any>;
 }
 
 export class ErrorOccurrenceResponseDto {
-  historyId: string;
-  workspaceId: string;
-  errorCode: UniversalErrorCode;
-  timestamp: Date;
+  historyId!: string;
+  workspaceId!: string;
+  errorCode!: UniversalErrorCode;
+  timestamp!: Date;
   context?: Record<string, any>;
 }
 
 export class ErrorAggregationByCategoryResponseDto {
-  category: ErrorCategory;
-  count: number;
-  occurrences: number;
+  category!: ErrorCategory;
+  count!: number;
+  occurrences!: number;
 }
 
 export class ErrorAggregationBySeverityResponseDto {
-  severity: ErrorSeverity;
-  count: number;
-  occurrences: number;
+  severity!: ErrorSeverity;
+  count!: number;
+  occurrences!: number;
 }
 
 export class ItemErrorResponseDto {
-  itemId: string;
+  itemId!: string;
   externalId?: string;
-  error: NormalizedErrorResponseDto;
+  error!: NormalizedErrorResponseDto;
 }
 
 export class BulkErrorResponseDto {
-  totalItems: number;
-  successCount: number;
-  failureCount: number;
-  errors: ItemErrorResponseDto[];
-  partialSuccess: boolean;
+  totalItems!: number;
+  successCount!: number;
+  failureCount!: number;
+  errors!: ItemErrorResponseDto[];
+  partialSuccess!: boolean;
 }

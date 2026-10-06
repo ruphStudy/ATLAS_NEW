@@ -20,19 +20,19 @@ import {
   IMarketplaceProviderCapabilityDeclaration,
   MarketplaceCapabilityMatrix,
   MarketplaceCapabilityMatrixRequest,
-} from '../interfaces';
-import { MarketplaceCapabilityRepository } from '../repository/marketplace-capability.repository';
-import { MarketplaceCapabilityRegistry } from '../registry/marketplace-capability.registry';
-import { MarketplaceCapabilityCache } from '../cache/marketplace-capability.cache';
-import { MarketplaceCapabilityValidator } from '../validator/marketplace-capability.validator';
-import { MarketplaceCapabilityResolver } from '../resolver/marketplace-capability.resolver';
-import { MarketplaceCapabilityVersionManager } from '../version/marketplace-capability-version.manager';
-import { MarketplaceCapabilityCompatibilityManager } from '../compatibility/marketplace-capability-compatibility.manager';
-import { MarketplaceCapabilityMatrixBuilder } from '../matrix/marketplace-capability-matrix.builder';
-import { MarketplaceCapabilityAudit } from '../audit/marketplace-capability.audit';
-import { MarketplaceCapabilityEventQueue } from '../events/marketplace-capability-events.queue';
-import { MarketplaceCapabilityMetrics } from '../metrics/marketplace-capability.metrics';
-import { MP_CAPABILITY_CONSTANTS, MP_CAPABILITY_ERROR_CODES } from '../constants';
+} from './interfaces';
+import { MarketplaceCapabilityRepository } from './repository/marketplace-capability.repository';
+import { MarketplaceCapabilityRegistry } from './registry/marketplace-capability.registry';
+import { MarketplaceCapabilityCache } from './cache/marketplace-capability.cache';
+import { MarketplaceCapabilityValidator } from './validator/marketplace-capability.validator';
+import { MarketplaceCapabilityResolver } from './resolver/marketplace-capability.resolver';
+import { MarketplaceCapabilityVersionManager } from './version/marketplace-capability-version.manager';
+import { MarketplaceCapabilityCompatibilityManager } from './compatibility/marketplace-capability-compatibility.manager';
+import { MarketplaceCapabilityMatrixBuilder } from './matrix/marketplace-capability-matrix.builder';
+import { MarketplaceCapabilityAudit } from './audit/marketplace-capability.audit';
+import { MarketplaceCapabilityEventQueue } from './events/marketplace-capability-events.queue';
+import { MarketplaceCapabilityMetrics } from './metrics/marketplace-capability.metrics';
+import { MP_CAPABILITY_CONSTANTS, MP_CAPABILITY_ERROR_CODES } from './constants';
 import {
   CreateCapabilityDto,
   UpdateCapabilityDto,
@@ -42,7 +42,7 @@ import {
   DeclarationResponseDto,
   PaginatedCapabilityResponseDto,
   CreateCapabilityOverrideDto,
-} from '../dto';
+} from './dto';
 
 @Injectable()
 export class MarketplaceCapabilityService implements OnModuleInit {

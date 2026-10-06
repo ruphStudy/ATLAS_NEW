@@ -59,6 +59,7 @@ import {
 } from '@/hooks';
 import { formatDate } from '@/lib/utils';
 import type { AppInstallationStatus, AppListing, AppListingStatus, AppPricingModel, AppPublisherType, AppVersion, PluginActivationStatus, RegisterAppListingPayload } from '@/types';
+import { PlatformAdminGuard } from '@/components/auth/platform-admin-guard';
 
 const PUBLISHER_OPTIONS: { value: AppPublisherType; label: string }[] = [
   { value: 'FIRST_PARTY', label: 'First party' },
@@ -83,6 +84,14 @@ const LISTING_STATUS_OPTIONS: { value: AppListingStatus; label: string }[] = [
 ];
 
 export default function AppStorePage() {
+  return (
+    <PlatformAdminGuard>
+      <AppStorePageContent />
+    </PlatformAdminGuard>
+  );
+}
+
+function AppStorePageContent() {
   return (
     <div>
       <PageHeader title="App Store & Plugins" description="Browse the app catalog, manage installations, plugin activations and platform catalog approvals." />

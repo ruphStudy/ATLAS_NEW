@@ -13,15 +13,15 @@ import { AiQueueJobPriority } from '../interfaces';
 export class EnqueueJobDto {
   @IsString()
   @IsNotEmpty()
-  queueName: string;
+  queueName!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  jobType: string;
+  jobType!: string;
 
   @IsObject()
   @IsNotEmpty()

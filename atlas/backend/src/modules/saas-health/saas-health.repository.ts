@@ -23,11 +23,11 @@ export class SaasHealthRepository extends BaseRepository {
   }
 
   async findAllSnapshots(): Promise<ISaasHealthAggregateSnapshot[]> {
-    return this.prisma.saasHealthAggregateSnapshot.findMany({}) as Promise<ISaasHealthAggregateSnapshot[]>;
+    return this.prisma.saasHealthAggregateSnapshot.findMany({}) as unknown as Promise<ISaasHealthAggregateSnapshot[]>;
   }
 
   async findSnapshotsByWorkspaceIds(workspaceIds: string[]): Promise<ISaasHealthAggregateSnapshot[]> {
-    return this.prisma.saasHealthAggregateSnapshot.findMany({ where: { workspaceId: { in: workspaceIds } } }) as Promise<ISaasHealthAggregateSnapshot[]>;
+    return this.prisma.saasHealthAggregateSnapshot.findMany({ where: { workspaceId: { in: workspaceIds } } }) as unknown as Promise<ISaasHealthAggregateSnapshot[]>;
   }
 
   /** Every workspace this module has ever evaluated — used to sweep all known tenants on a scheduled run, without depending on the Workspace module. */
@@ -41,7 +41,7 @@ export class SaasHealthRepository extends BaseRepository {
       where: { workspaceId },
       create: { workspaceId, ...data } as any,
       update: data as any,
-    }) as Promise<ISaasHealthAggregateSnapshot>;
+    }) as unknown as Promise<ISaasHealthAggregateSnapshot>;
   }
 
   // ── Aggregate incidents ──────────────────────────────────────────
@@ -87,7 +87,7 @@ export class SaasHealthRepository extends BaseRepository {
   // ── Evaluation logs ──────────────────────────────────────────────
 
   async createEvaluationLog(data: Partial<ISaasHealthEvaluationLog>): Promise<ISaasHealthEvaluationLog> {
-    return this.prisma.saasHealthEvaluationLog.create({ data: data as any }) as Promise<ISaasHealthEvaluationLog>;
+    return this.prisma.saasHealthEvaluationLog.create({ data: data as any }) as unknown as Promise<ISaasHealthEvaluationLog>;
   }
 
   async findEvaluationLogs(workspaceId: string, filter: SaasHealthEvaluationLogFilterDto): Promise<[ISaasHealthEvaluationLog[], number]> {
@@ -100,7 +100,7 @@ export class SaasHealthRepository extends BaseRepository {
       this.prisma.saasHealthEvaluationLog.count({ where: { workspaceId } }),
     ]);
 
-    return [data as ISaasHealthEvaluationLog[], total];
+    return [data as unknown as ISaasHealthEvaluationLog[], total];
   }
 
   // ── Maintenance windows ──────────────────────────────────────────

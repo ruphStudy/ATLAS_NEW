@@ -4,11 +4,11 @@ import { AppPricingModel, AppPublisherType } from '../interfaces';
 export class RegisterAppListingDto {
   @IsString()
   @IsNotEmpty()
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -16,10 +16,10 @@ export class RegisterAppListingDto {
 
   @IsString()
   @IsNotEmpty()
-  category: string;
+  category!: string;
 
   @IsEnum(AppPublisherType)
-  publisherType: AppPublisherType;
+  publisherType!: AppPublisherType;
 
   @IsString()
   @IsOptional()
@@ -35,7 +35,7 @@ export class RegisterAppListingDto {
   organizationId?: string;
 
   @IsEnum(AppPricingModel)
-  pricingModel: AppPricingModel;
+  pricingModel!: AppPricingModel;
 
   /** `Plan.code` (Plan Management) this app is entitlement-gated by, if any. */
   @IsString()
@@ -69,5 +69,5 @@ export class RegisterAppListingDto {
   /** The initial version to create alongside the listing (DRAFT). */
   @IsString()
   @IsNotEmpty()
-  initialVersion: string;
+  initialVersion!: string;
 }

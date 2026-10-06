@@ -3,19 +3,19 @@ import { IsString, IsNotEmpty, IsOptional, IsNumber, IsObject } from 'class-vali
 export class StartApprovalRequestDto {
   @IsString()
   @IsNotEmpty()
-  definitionKey: string;
+  definitionKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityType: string;
+  entityType!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityId: string;
+  entityId!: string;
 
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsNumber()
   @IsOptional()

@@ -18,17 +18,19 @@ import {
   AdapterStatus,
   ApiVersion,
   HttpMethod,
+  IThrottleConfig,
+  IAdapterError,
 } from '../interfaces';
 
 export class AdapterConfigDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsEnum(ApiVersion)
   @IsOptional()
@@ -68,19 +70,19 @@ export class AdapterConfigDto {
 
 export class AdapterCredentialsDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsString()
-  credentialType: string;
+  credentialType!: string;
 
   @IsObject()
-  credentials: Record<string, any>;
+  credentials!: Record<string, any>;
 
   @IsDate()
   @Type(() => Date)
@@ -90,19 +92,19 @@ export class AdapterCredentialsDto {
 
 export class RequestContextDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsEnum(AdapterOperation)
-  operation: AdapterOperation;
+  operation!: AdapterOperation;
 
   @IsString()
-  requestId: string;
+  requestId!: string;
 
   @IsString()
   @IsOptional()
@@ -142,25 +144,25 @@ export class PaginationParamsDto {
 export class InitializeAdapterRequestDto {
   @ValidateNested()
   @Type(() => AdapterConfigDto)
-  config: AdapterConfigDto;
+  config!: AdapterConfigDto;
 
   @ValidateNested()
   @Type(() => AdapterCredentialsDto)
-  credentials: AdapterCredentialsDto;
+  credentials!: AdapterCredentialsDto;
 }
 
 export class ExecuteOperationRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsEnum(AdapterOperation)
-  operation: AdapterOperation;
+  operation!: AdapterOperation;
 
   @IsObject()
   @IsOptional()
@@ -178,35 +180,35 @@ export class ExecuteOperationRequestDto {
 
 export class GetCapabilitiesQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 }
 
 export class HealthCheckQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 }
 
 export class ConnectionTestQueryDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  provider: string;
+  provider!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 }
 
 export class ListAdaptersQueryDto {
@@ -220,7 +222,7 @@ export class ListAdaptersQueryDto {
 }
 
 export class AdapterResponseDto<T = any> {
-  success: boolean;
+  success!: boolean;
   data?: T;
   error?: {
     code: string;
@@ -257,15 +259,12 @@ export class AdapterResponseDto<T = any> {
 }
 
 export class AdapterCapabilitiesResponseDto {
-  provider: string;
-  apiVersion: ApiVersion;
-  supportedCapabilities: AdapterCapability[];
-  supportedOperations: AdapterOperation[];
+  provider!: string;
+  apiVersion!: ApiVersion;
+  supportedCapabilities!: AdapterCapability[];
+  supportedOperations!: AdapterOperation[];
   rateLimits?: {
-    [operation: string]: {
-      maxRequests: number;
-      windowMs: number;
-    };
+    [operation: string]: IThrottleConfig;
   };
   batchSizes?: {
     [operation: string]: number;
@@ -277,8 +276,8 @@ export class AdapterCapabilitiesResponseDto {
 }
 
 export class AdapterHealthCheckResponseDto {
-  status: AdapterStatus;
-  lastChecked: Date;
+  status!: AdapterStatus;
+  lastChecked!: Date;
   responseTime?: number;
   errors?: Array<{
     code: string;
@@ -288,27 +287,24 @@ export class AdapterHealthCheckResponseDto {
 }
 
 export class AdapterConnectionTestResponseDto {
-  success: boolean;
-  provider: string;
-  accountId: string;
-  testedAt: Date;
-  responseTime: number;
+  success!: boolean;
+  provider!: string;
+  accountId!: string;
+  testedAt!: Date;
+  responseTime!: number;
   capabilities?: AdapterCapabilitiesResponseDto;
-  error?: {
-    code: string;
-    message: string;
-  };
+  error?: IAdapterError;
 }
 
 export class RegisteredAdapterDto {
-  provider: string;
-  registered: boolean;
+  provider!: string;
+  registered!: boolean;
 }
 
 export class ActiveAdapterDto {
-  provider: string;
-  accountId: string;
-  workspaceId: string;
-  status: AdapterStatus;
-  initializedAt: Date;
+  provider!: string;
+  accountId!: string;
+  workspaceId!: string;
+  status!: AdapterStatus;
+  initializedAt!: Date;
 }

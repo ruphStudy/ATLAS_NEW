@@ -52,17 +52,19 @@ export class MarketplaceAuditService {
       errorMessage: options.errorMessage,
     });
 
+    const typedActivity = activity as unknown as IActivityRecord;
+
     await this.eventQueue.publish({
       eventType: 'audit.recorded',
       workspaceId: options.workspaceId,
       provider: options.provider,
       accountId: options.accountId,
-      activity: activity as IActivityRecord,
+      activity: typedActivity,
       timestamp: new Date(),
     });
 
     const suspiciousActivity = await this.suspiciousActivityDetector.detect(
-      activity as IActivityRecord,
+      typedActivity,
     );
 
     if (suspiciousActivity) {
@@ -73,7 +75,7 @@ export class MarketplaceAuditService {
         workspaceId: options.workspaceId,
         provider: options.provider,
         accountId: options.accountId,
-        activity: activity as IActivityRecord,
+        activity: typedActivity,
         metadata: {
           suspiciousActivity,
         },
@@ -81,13 +83,14 @@ export class MarketplaceAuditService {
       });
     }
 
-    return activity as IActivityRecord;
+    return typedActivity;
   }
 
   async searchActivities(
     criteria: IActivitySearchCriteria,
   ): Promise<IActivityRecord[]> {
-    return this.repository.searchActivities(criteria);
+    const activities = await this.repository.searchActivities(criteria);
+    return activities as unknown as IActivityRecord[];
   }
 
   async countActivities(criteria: IActivitySearchCriteria): Promise<number> {
@@ -98,7 +101,8 @@ export class MarketplaceAuditService {
     id: string,
     workspaceId: string,
   ): Promise<IActivityRecord | null> {
-    return this.repository.findActivity(id, workspaceId);
+    const activity = await this.repository.findActivity(id, workspaceId);
+    return activity as unknown as IActivityRecord | null;
   }
 
   async getEntityHistory(
@@ -107,12 +111,13 @@ export class MarketplaceAuditService {
     entityId: string,
     limit?: number,
   ): Promise<IEntityHistory> {
-    const activities = await this.repository.findEntityHistory(
+    const activitiesRaw = await this.repository.findEntityHistory(
       workspaceId,
       entityType,
       entityId,
       limit,
     );
+    const activities = activitiesRaw as unknown as IActivityRecord[];
 
     const totalCount = await this.repository.countActivities({
       workspaceId,
@@ -126,7 +131,7 @@ export class MarketplaceAuditService {
       entityType,
       entityId,
       entityName,
-      activities: activities as IActivityRecord[],
+      activities,
       totalCount,
     };
   }
@@ -139,7 +144,7 @@ export class MarketplaceAuditService {
     accountId?: string,
     limit?: number,
   ): Promise<IActivityTimeline> {
-    const activities = await this.repository.searchActivities({
+    const activitiesRaw = await this.repository.searchActivities({
       workspaceId,
       provider,
       accountId,
@@ -149,6 +154,7 @@ export class MarketplaceAuditService {
       sortBy: 'timestamp',
       sortOrder: 'desc',
     });
+    const activities = activitiesRaw as unknown as IActivityRecord[];
 
     const totalCount = await this.repository.countActivities({
       workspaceId,
@@ -164,7 +170,7 @@ export class MarketplaceAuditService {
       accountId,
       startDate,
       endDate,
-      activities: activities as IActivityRecord[],
+      activities,
       totalCount,
     };
   }
@@ -173,7 +179,8 @@ export class MarketplaceAuditService {
     workspaceId: string,
     correlationId: string,
   ): Promise<IActivityRecord[]> {
-    return this.repository.findByCorrelationId(workspaceId, correlationId);
+    const activities = await this.repository.findByCorrelationId(workspaceId, correlationId);
+    return activities as unknown as IActivityRecord[];
   }
 
   async getStatistics(
@@ -228,7 +235,8 @@ export class MarketplaceAuditService {
     workspaceId: string,
     isResolved?: boolean,
   ): Promise<ISuspiciousActivity[]> {
-    return this.repository.findSuspiciousActivities(workspaceId, isResolved);
+    const activities = await this.repository.findSuspiciousActivities(workspaceId, isResolved);
+    return activities as unknown as ISuspiciousActivity[];
   }
 
   async resolveSuspiciousActivity(
@@ -239,19 +247,22 @@ export class MarketplaceAuditService {
   }
 
   async createRetentionPolicy(
-    policy: IRetentionPolicy,
+    policy: Omit<IRetentionPolicy, 'id'>,
   ): Promise<IRetentionPolicy> {
-    return this.repository.createRetentionPolicy(policy);
+    const created = await this.repository.createRetentionPolicy(policy);
+    return created as unknown as IRetentionPolicy;
   }
 
   async getRetentionPolicies(
     workspaceId: string,
   ): Promise<IRetentionPolicy[]> {
-    return this.repository.findRetentionPolicies(workspaceId);
+    const policies = await this.repository.findRetentionPolicies(workspaceId);
+    return policies as unknown as IRetentionPolicy[];
   }
 
   async applyRetentionPolicies(workspaceId: string): Promise<void> {
-    const policies = await this.repository.findRetentionPolicies(workspaceId);
+    const policiesRaw = await this.repository.findRetentionPolicies(workspaceId);
+    const policies = policiesRaw as unknown as IRetentionPolicy[];
 
     for (const policy of policies) {
       const cutoffDate = new Date();

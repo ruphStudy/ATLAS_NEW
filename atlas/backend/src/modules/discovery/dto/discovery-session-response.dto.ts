@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { DiscoverySessionStatus } from '../interfaces';
+import { DiscoveryMode, DiscoverySessionStatus } from '../interfaces';
 
 export class DiscoverySessionResponseDto {
   @ApiProperty({ example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' })
@@ -20,13 +20,28 @@ export class DiscoverySessionResponseDto {
   @ApiProperty({ example: ['wireless earbuds', 'bluetooth speaker'] })
   keywords: string[] = [];
 
+  @ApiProperty({ enum: DiscoveryMode, example: DiscoveryMode.KEYWORD })
+  mode: DiscoveryMode = DiscoveryMode.KEYWORD;
+
   @ApiProperty({ enum: DiscoverySessionStatus, example: DiscoverySessionStatus.PENDING })
   status: DiscoverySessionStatus = DiscoverySessionStatus.PENDING;
 
   @ApiProperty({ example: 12 })
   totalDiscovered: number = 0;
 
-  @ApiProperty({ example: 8 })
+  @ApiProperty({
+    example: 8,
+    description:
+      'Newly discovered MarketplaceProductCandidate rows this run — the correct field to use. Discovery no longer auto-creates Opportunity records.',
+  })
+  newCandidates: number = 0;
+
+  /** @deprecated Same value as `newCandidates`, under the pre-Prompt-4 name — kept only for existing API consumers. Do not treat as a count of created Opportunities. */
+  @ApiProperty({
+    example: 8,
+    description:
+      'Deprecated — identical value to `newCandidates`. Kept for historical API compatibility only; new/updated consumers should read `newCandidates`.',
+  })
   newOpportunities: number = 0;
 
   @ApiProperty({ example: 4 })

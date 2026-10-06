@@ -10,39 +10,39 @@ import {
 
 export class SubmitEventRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  accountId: string;
+  accountId!: string;
 
   @IsString()
-  providerKey: string;
+  providerKey!: string;
 
   @IsString()
-  marketplaceKey: string;
+  marketplaceKey!: string;
 
   @IsString()
-  externalEventId: string;
+  externalEventId!: string;
 
   @IsEnum(MarketplaceEventType)
-  eventType: MarketplaceEventType;
+  eventType!: MarketplaceEventType;
 
   @IsString()
-  providerEventType: string;
+  providerEventType!: string;
 
   @IsEnum(EventSource)
-  source: EventSource;
+  source!: EventSource;
 
   @IsDate()
   @Type(() => Date)
-  occurredAt: Date;
+  occurredAt!: Date;
 
   @IsOptional()
   @IsNumber()
   version?: number;
 
   @IsObject()
-  payload: Record<string, any>;
+  payload!: Record<string, any>;
 
   @IsOptional()
   @IsObject()
@@ -105,42 +105,42 @@ export class EventFilterQueryDto {
 
 export class ReprocessEventRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  eventId: string;
+  eventId!: string;
 }
 
 export class CancelEventRequestDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  eventId: string;
+  eventId!: string;
 }
 
 export class MarketplaceEventResponseDto {
-  id: string;
-  workspaceId: string;
-  accountId: string;
-  providerKey: string;
-  marketplaceKey: string;
-  externalEventId: string;
-  eventType: MarketplaceEventType;
-  category: EventCategory;
-  source: EventSource;
-  priority: EventPriority;
-  status: EventStatus;
+  id!: string;
+  workspaceId!: string;
+  accountId!: string;
+  providerKey!: string;
+  marketplaceKey!: string;
+  externalEventId!: string;
+  eventType!: MarketplaceEventType;
+  category!: EventCategory;
+  source!: EventSource;
+  priority!: EventPriority;
+  status!: EventStatus;
   version?: number;
-  occurredAt: Date;
-  receivedAt: Date;
+  occurredAt!: Date;
+  receivedAt!: Date;
   processedAt?: Date;
-  attemptCount: number;
-  maxAttempts: number;
+  attemptCount!: number;
+  maxAttempts!: number;
   errorMessage?: string;
   metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 
   static from(event: any): MarketplaceEventResponseDto {
     return {
@@ -170,9 +170,9 @@ export class MarketplaceEventResponseDto {
 }
 
 export class PaginatedMarketplaceEventResponseDto {
-  items: MarketplaceEventResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  items!: MarketplaceEventResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }

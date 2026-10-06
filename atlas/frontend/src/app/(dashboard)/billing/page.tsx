@@ -13,13 +13,13 @@ import { useBillingPeriods, useEffectiveSubscription, useResourceUsageSummary } 
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 const SECTIONS = [
-  { href: '/dashboard/billing/plans', icon: Layers, title: 'Plans', description: 'Browse the plan catalog, compare features, limits and pricing.' },
-  { href: '/dashboard/billing/subscription', icon: CreditCard, title: 'Subscription', description: 'Current subscription, lifecycle history and plan-change actions.' },
-  { href: '/dashboard/billing/invoices', icon: Receipt, title: 'Invoices', description: 'Invoice history, tax breakdown, payment references and downloads.' },
-  { href: '/dashboard/billing/payments', icon: Wallet, title: 'Payment Providers', description: 'Connected payment accounts, health, transactions and refunds.' },
-  { href: '/dashboard/billing/usage', icon: Gauge, title: 'Usage', description: 'Metered resource usage vs. plan allowance, overage and forecast.' },
-  { href: '/dashboard/billing/quota', icon: ShieldCheck, title: 'Quota', description: 'Quota policies, overrides, grace limits and enforcement checks.' },
-  { href: '/dashboard/billing/licenses', icon: KeyRound, title: 'Licenses', description: 'License status, activations, expiry and feature entitlements.' },
+  { href: '/billing/plans', icon: Layers, title: 'Plans', description: 'Browse the plan catalog, compare features, limits and pricing.' },
+  { href: '/billing/subscription', icon: CreditCard, title: 'Subscription', description: 'Current subscription, lifecycle history and plan-change actions.' },
+  { href: '/billing/invoices', icon: Receipt, title: 'Invoices', description: 'Invoice history, tax breakdown, payment references and downloads.' },
+  { href: '/billing/payments', icon: Wallet, title: 'Payment Providers', description: 'Connected payment accounts, health, transactions and refunds.' },
+  { href: '/billing/usage', icon: Gauge, title: 'Usage', description: 'Metered resource usage vs. plan allowance, overage and forecast.' },
+  { href: '/billing/quota', icon: ShieldCheck, title: 'Quota', description: 'Quota policies, overrides, grace limits and enforcement checks.' },
+  { href: '/billing/licenses', icon: KeyRound, title: 'Licenses', description: 'License status, activations, expiry and feature entitlements.' },
 ];
 
 export default function BillingDashboardPage() {
@@ -65,7 +65,7 @@ export default function BillingDashboardPage() {
               <Field label="Auto-renew" value={sub.autoRenew ? 'Enabled' : 'Disabled'} />
               <Field label="Grace period" value={sub.gracePeriodDays ? `${sub.gracePeriodDays} days` : '—'} />
             </div>
-            <Link href="/dashboard/billing/subscription" className="flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+            <Link href="/billing/subscription" className="flex items-center gap-1 text-sm font-medium text-primary hover:underline">
               Manage subscription
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
@@ -105,7 +105,7 @@ export default function BillingDashboardPage() {
         <CardContent className="pt-6">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm font-semibold text-foreground">Usage snapshot</p>
-            <Link href="/dashboard/billing/usage" className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+            <Link href="/billing/usage" className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
               View full usage dashboard
               <ChevronRight className="h-3 w-3" />
             </Link>

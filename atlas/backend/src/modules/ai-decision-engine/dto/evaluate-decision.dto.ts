@@ -13,22 +13,22 @@ import { AiDecisionType, AiDecisionMethod } from '../interfaces';
 export class EvaluateDecisionDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiDecisionType)
   @IsNotEmpty()
-  decisionType: AiDecisionType;
+  decisionType!: AiDecisionType;
 
   @IsEnum(AiDecisionMethod)
   @IsNotEmpty()
-  decisionMethod: AiDecisionMethod;
+  decisionMethod!: AiDecisionMethod;
 
   @IsNotEmpty()
   inputSnapshot: unknown;
 
   @IsArray()
   @IsNotEmpty()
-  candidates: unknown[];
+  candidates!: unknown[];
 
   @IsObject()
   @IsOptional()

@@ -1,16 +1,16 @@
 import { Logger } from '@nestjs/common';
-import { ProviderErrorNormalizer } from '../../../errors/provider-error-normalizer';
-import { SupplierProviderCredentialService } from '../../../credentials/supplier-provider-credential.service';
-import { AdapterCapabilityValidator } from '../../adapter-capability.validator';
-import { AdapterIdempotencyService } from '../../adapter-idempotency.service';
-import { AdapterRateLimitHandler } from '../../adapter-rate-limit.handler';
-import { AdapterHealthChecker } from '../../adapter-health.checker';
-import { AdapterMetricsRecorder } from '../../adapter-metrics.recorder';
-import { AdapterAuditLogger } from '../../adapter-audit.logger';
-import { IndiaMartAdapter } from '../indiamart/indiamart.adapter';
-import { SupplierProviderCode, ProviderCapability, ProviderErrorCode } from '../../../interfaces';
-import { AdapterCapability, IntegrationStrategy } from '../../adapter.types';
-import { IndiaMartHttpClient } from '../indiamart/indiamart.http-client';
+import { ProviderErrorNormalizer } from '../errors/provider-error-normalizer';
+import { SupplierProviderCredentialService } from '../credentials/supplier-provider-credential.service';
+import { AdapterCapabilityValidator } from '../adapters/adapter-capability.validator';
+import { AdapterIdempotencyService } from '../adapters/adapter-idempotency.service';
+import { AdapterRateLimitHandler } from '../adapters/adapter-rate-limit.handler';
+import { AdapterHealthChecker } from '../adapters/adapter-health.checker';
+import { AdapterMetricsRecorder } from '../adapters/adapter-metrics.recorder';
+import { AdapterAuditLogger } from '../adapters/adapter-audit.logger';
+import { IndiaMartAdapter } from '../adapters/providers/indiamart/indiamart.adapter';
+import { SupplierProviderCode, ProviderCapability, ProviderErrorCode } from '../interfaces';
+import { AdapterCapability, IntegrationStrategy } from '../adapters/adapter.types';
+import { IndiaMartHttpClient } from '../adapters/providers/indiamart/indiamart.http-client';
 import {
   INDIAMART_ADAPTER_CAPABILITIES,
   INDIAMART_INTEGRATION_STRATEGIES,
@@ -26,8 +26,8 @@ function makeAdapter(overrides: Partial<{
   const capValidator = new AdapterCapabilityValidator();
   const idempotency = new AdapterIdempotencyService();
   const rateLimitHandler = new AdapterRateLimitHandler();
-  const healthChecker = new AdapterHealthChecker();
   const metricsRecorder = new AdapterMetricsRecorder();
+  const healthChecker = new AdapterHealthChecker(metricsRecorder);
   const auditLogger = new AdapterAuditLogger();
 
   const prisma = overrides.prisma ?? makePrismaMock();
@@ -415,7 +415,7 @@ describe('IndiaMartAdapter – error normalization', () => {
 
   it('normalizes auth error', async () => {
     const adapter = makeAdapter();
-    const { IndiaMartHttpError } = await import('../indiamart/indiamart.http-client');
+    const { IndiaMartHttpError } = await import('../adapters/providers/indiamart/indiamart.http-client');
 
     jest.spyOn(adapter as never, 'resolveHttpClient').mockReturnValue({
       request: jest.fn().mockRejectedValue(

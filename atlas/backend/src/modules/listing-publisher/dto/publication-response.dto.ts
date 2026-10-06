@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   PublicationMarketplace,
   PublicationStatus,
@@ -45,6 +46,7 @@ export class PublicationResponseDto {
   marketplace!: PublicationMarketplace;
   status!: PublicationStatus;
   publicationVersion!: number;
+  marketplaceAccountId?: string | null;
   marketplaceListingId?: string | null;
   marketplaceUrl?: string | null;
   marketplaceResponse?: unknown;
@@ -70,6 +72,7 @@ export class PublicationResponseDto {
     dto.marketplace = raw['marketplace'] as PublicationMarketplace;
     dto.status = raw['status'] as PublicationStatus;
     dto.publicationVersion = raw['publicationVersion'] as number;
+    dto.marketplaceAccountId = (raw['marketplaceAccountId'] as string | null) ?? null;
     dto.marketplaceListingId = (raw['marketplaceListingId'] as string | null) ?? null;
     dto.marketplaceUrl = (raw['marketplaceUrl'] as string | null) ?? null;
     dto.marketplaceResponse = raw['marketplaceResponse'] ?? null;
@@ -125,5 +128,15 @@ export class PublicationStatsDto {
 export class BulkPublishResultDto {
   queued!: number;
   skipped!: number;
+  @ApiProperty({
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        listingId: { type: 'string' },
+        reason: { type: 'string' },
+      },
+    },
+  })
   errors!: { listingId: string; reason: string }[];
 }

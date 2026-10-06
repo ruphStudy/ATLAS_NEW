@@ -8,5 +8,5 @@ export class BulkUpdateSettingsDto {
   @ArrayMaxSize(100)
   @ValidateNested({ each: true })
   @Type(() => CreateSettingValueDto)
-  items: CreateSettingValueDto[];
+  items!: CreateSettingValueDto[];
 }

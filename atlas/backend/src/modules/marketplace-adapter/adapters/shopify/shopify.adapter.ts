@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BaseAdapter } from '../../adapter/base.adapter';
-import { ShopifyGraphQLClient } from '../client/shopify-graphql.client';
-import { ShopifyAuthService } from '../auth/shopify-auth.service';
-import { ShopifyRequestMapper } from '../mappers/shopify-request.mapper';
-import { ShopifyResponseMapper } from '../mappers/shopify-response.mapper';
-import { ShopifyErrorMapper } from '../mappers/shopify-error.mapper';
-import { ShopifyAdapterEventQueue } from '../events/shopify-adapter-event.queue';
+import { ShopifyGraphQLClient } from './client/shopify-graphql.client';
+import { ShopifyAuthService } from './auth/shopify-auth.service';
+import { ShopifyRequestMapper } from './mappers/shopify-request.mapper';
+import { ShopifyResponseMapper } from './mappers/shopify-response.mapper';
+import { ShopifyErrorMapper } from './mappers/shopify-error.mapper';
+import { ShopifyAdapterEventQueue } from './events/shopify-adapter-event.queue';
 import { ResponseNormalizer } from '../../normalizer/response.normalizer';
 import {
   IAdapterCapabilities,
@@ -16,18 +16,18 @@ import {
   AdapterOperation,
   ApiVersion,
 } from '../../interfaces';
-import { IShopifyCredentials } from '../interfaces/shopify.interfaces';
+import { IShopifyCredentials } from './interfaces/shopify.interfaces';
 import {
   SHOPIFY_API_VERSION,
   SHOPIFY_RATE_LIMITS,
   SHOPIFY_GRAPHQL_QUERIES,
   SHOPIFY_GRAPHQL_MUTATIONS,
-} from '../constants/shopify.constants';
+} from './constants/shopify.constants';
 
 @Injectable()
 export class ShopifyAdapter extends BaseAdapter {
   private readonly logger = new Logger(ShopifyAdapter.name);
-  private shopifyCredentials: IShopifyCredentials;
+  private shopifyCredentials!: IShopifyCredentials;
 
   constructor(
     private readonly graphqlClient: ShopifyGraphQLClient,

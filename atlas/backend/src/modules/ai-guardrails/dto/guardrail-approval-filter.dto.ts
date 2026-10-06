@@ -5,7 +5,7 @@ import { GuardrailApprovalStatus } from '../interfaces';
 export class GuardrailApprovalFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(GuardrailApprovalStatus)
   @IsOptional()

@@ -1,17 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { sanitizeErrorForLog } from '@common/utils';
+import { ConfigurationService } from '@config/configuration.service';
 import { AdapterHttpClient } from '../../../client/http.client';
 import { AmazonAuthService } from '../auth/amazon-auth.service';
+import { classifyAmazonAuthFailure } from '../auth/amazon-auth-error.classifier';
 import {
   IAmazonCredentials,
   AmazonRegion,
 } from '../interfaces/amazon.interfaces';
 import {
-  AMAZON_SP_API_ENDPOINTS,
   AMAZON_MARKETPLACE_REGIONS,
   AMAZON_TIMEOUT,
   AMAZON_MAX_RETRIES,
   AMAZON_RETRY_DELAY,
+  resolveAmazonSpApiBaseUrl,
 } from '../constants/amazon.constants';
 import {
   IHttpRequest,
@@ -28,6 +29,7 @@ export class AmazonSpApiClient {
   constructor(
     private readonly httpClient: AdapterHttpClient,
     private readonly authService: AmazonAuthService,
+    private readonly configurationService: ConfigurationService,
   ) {}
 
   async request<T = any>(
@@ -41,7 +43,8 @@ export class AmazonSpApiClient {
   ): Promise<IHttpResponse<T>> {
     const accessToken = await this.authService.getAccessToken(credentials);
     const region = this.getRegion(credentials);
-    const baseUrl = AMAZON_SP_API_ENDPOINTS[region];
+    const { environment } = this.configurationService.getAmazonProviderConfig();
+    const baseUrl = resolveAmazonSpApiBaseUrl(region, environment);
 
     const request: IHttpRequest = {
       method,
@@ -71,7 +74,15 @@ export class AmazonSpApiClient {
         enableTracing,
       );
     } catch (error) {
-      this.logger.error(`Amazon SP-API request failed: ${path}`, sanitizeErrorForLog(error));
+      // classifyAmazonAuthFailure() only ever reads the HTTP status and
+      // Amazon's own response body (never `error.config`/`error.request`,
+      // which is where an access token or outgoing secret could appear),
+      // so this is safe to log in full.
+      const { classification, reason, httpStatus, amazonErrorCode } = classifyAmazonAuthFailure(error, path);
+      this.logger.error(
+        `Amazon SP-API request failed [${method} ${path}] (${classification}): ${reason}`,
+        { httpStatus, amazonErrorCode, path, method },
+      );
       throw error;
     }
   }

@@ -9,5 +9,5 @@ export class RefundBillingPeriodDto {
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }

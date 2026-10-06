@@ -13,11 +13,8 @@ import { MP_CONN_TEST_ERROR_CODES } from '../constants';
 
 // ── Helpers ───────────────────────────────────────────────────
 
-function makeAdapter(status: 'HEALTHY' | 'UNHEALTHY' = 'HEALTHY', latencyMs = 100, message = '') {
-  return {
-    metadata: { providerKey: 'AMAZON_SP' },
-    testConnection: jest.fn().mockResolvedValue({ providerKey: 'AMAZON_SP', status, latencyMs, message, checkedAt: new Date() }),
-  };
+function makeExecute(status: 'HEALTHY' | 'UNHEALTHY' = 'HEALTHY', latencyMs = 100, message = '') {
+  return jest.fn().mockResolvedValue({ providerKey: 'AMAZON_SP', status, latencyMs, message, checkedAt: new Date() });
 }
 
 // ── Validator Tests ───────────────────────────────────────────
@@ -80,82 +77,82 @@ describe('ConnectionTestRunner', () => {
   };
 
   it('returns success=true for HEALTHY adapter', async () => {
-    const result = await runner.run({ ...baseOpts, adapter: makeAdapter('HEALTHY') });
+    const result = await runner.run({ ...baseOpts, execute: makeExecute('HEALTHY') });
     expect(result.success).toBe(true);
     expect(result.connectionStatus).toBe(ConnectionStatus.CONNECTED);
     expect(result.authStatus).toBe(ConnectionAuthStatus.AUTHENTICATED);
   });
 
   it('returns success=false for UNHEALTHY adapter', async () => {
-    const result = await runner.run({ ...baseOpts, adapter: makeAdapter('UNHEALTHY', 200, 'Service error') });
+    const result = await runner.run({ ...baseOpts, execute: makeExecute('UNHEALTHY', 200, 'Service error') });
     expect(result.success).toBe(false);
   });
 
   it('classifies timeout errors correctly', async () => {
-    const adapter = { testConnection: jest.fn().mockRejectedValue(new Error('timeout after 15000ms')) };
-    const result = await runner.run({ ...baseOpts, adapter, timeoutMs: 100 });
+    const execute = jest.fn().mockRejectedValue(new Error('timeout after 15000ms'));
+    const result = await runner.run({ ...baseOpts, execute, timeoutMs: 100 });
     expect(result.errorCategory).toBe(ConnectionErrorCategory.TIMEOUT);
     expect(result.retryable).toBe(true);
   });
 
   it('classifies network errors as retryable', async () => {
-    const adapter = { testConnection: jest.fn().mockRejectedValue(new Error('econnrefused')) };
-    const result = await runner.run({ ...baseOpts, adapter, timeoutMs: 200 });
+    const execute = jest.fn().mockRejectedValue(new Error('econnrefused'));
+    const result = await runner.run({ ...baseOpts, execute, timeoutMs: 200 });
     expect(result.errorCategory).toBe(ConnectionErrorCategory.NETWORK);
     expect(result.retryable).toBe(true);
   });
 
   it('classifies auth errors as non-retryable', async () => {
-    const adapter = { testConnection: jest.fn().mockRejectedValue(new Error('401 unauthorized')) };
-    const result = await runner.run({ ...baseOpts, adapter, timeoutMs: 200 });
+    const execute = jest.fn().mockRejectedValue(new Error('401 unauthorized'));
+    const result = await runner.run({ ...baseOpts, execute, timeoutMs: 200 });
     expect(result.errorCategory).toBe(ConnectionErrorCategory.AUTHENTICATION);
     expect(result.retryable).toBe(false);
   });
 
   it('classifies rate-limit errors as retryable', async () => {
-    const adapter = { testConnection: jest.fn().mockRejectedValue(new Error('429 too many requests')) };
-    const result = await runner.run({ ...baseOpts, adapter, timeoutMs: 200 });
+    const execute = jest.fn().mockRejectedValue(new Error('429 too many requests'));
+    const result = await runner.run({ ...baseOpts, execute, timeoutMs: 200 });
     expect(result.errorCategory).toBe(ConnectionErrorCategory.RATE_LIMIT);
     expect(result.retryable).toBe(true);
   });
 
   it('classifies unsupported capability as non-retryable', async () => {
-    const adapter = { testConnection: jest.fn().mockRejectedValue(new Error('unsupported capability')) };
-    const result = await runner.run({ ...baseOpts, adapter, timeoutMs: 200 });
+    const execute = jest.fn().mockRejectedValue(new Error('unsupported capability'));
+    const result = await runner.run({ ...baseOpts, execute, timeoutMs: 200 });
     expect(result.errorCategory).toBe(ConnectionErrorCategory.UNSUPPORTED_CAPABILITY);
     expect(result.retryable).toBe(false);
   });
 
   it('never exposes secret in errorMessage', async () => {
-    const adapter = { testConnection: jest.fn().mockRejectedValue(new Error('Auth failed: token=MYSECRET123')) };
-    const result = await runner.run({ ...baseOpts, adapter, timeoutMs: 200 });
+    const execute = jest.fn().mockRejectedValue(new Error('Auth failed: token=MYSECRET123'));
+    const result = await runner.run({ ...baseOpts, execute, timeoutMs: 200 });
     expect(result.errorMessage).not.toContain('MYSECRET123');
     expect(result.errorMessage).toContain('***');
   });
 
   it('never exposes password in errorMessage', async () => {
-    const adapter = { testConnection: jest.fn().mockRejectedValue(new Error('password=supersecure network error')) };
-    const result = await runner.run({ ...baseOpts, adapter, timeoutMs: 200 });
+    const execute = jest.fn().mockRejectedValue(new Error('password=supersecure network error'));
+    const result = await runner.run({ ...baseOpts, execute, timeoutMs: 200 });
     expect(result.errorMessage).not.toContain('supersecure');
   });
 
   it('sets capabilityStatus to NOT_CHECKED when no capabilityKey', async () => {
-    const result = await runner.run({ ...baseOpts, adapter: makeAdapter() });
+    const result = await runner.run({ ...baseOpts, execute: makeExecute() });
     expect(result.capabilityStatus).toBe(ConnectionCapabilityStatus.NOT_CHECKED);
   });
 
   it('sets capabilityStatus to SUPPORTED when capabilityKey provided and test succeeds', async () => {
-    const result = await runner.run({ ...baseOpts, adapter: makeAdapter(), capabilityKey: 'PUBLISH_LISTING' });
+    const result = await runner.run({ ...baseOpts, execute: makeExecute(), capabilityKey: 'PUBLISH_LISTING' });
     expect(result.capabilityStatus).toBe(ConnectionCapabilityStatus.SUPPORTED);
   });
 
   it('sets correlationId on result', async () => {
-    const result = await runner.run({ ...baseOpts, correlationId: 'my-corr', adapter: makeAdapter() });
+    const result = await runner.run({ ...baseOpts, correlationId: 'my-corr', execute: makeExecute() });
     expect(result.correlationId).toBe('my-corr');
   });
 
   it('includes responseTimeMs', async () => {
-    const result = await runner.run({ ...baseOpts, adapter: makeAdapter() });
+    const result = await runner.run({ ...baseOpts, execute: makeExecute() });
     expect(result.responseTimeMs).toBeGreaterThanOrEqual(0);
   });
 });

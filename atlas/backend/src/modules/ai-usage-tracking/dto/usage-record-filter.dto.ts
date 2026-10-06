@@ -5,7 +5,7 @@ import { AiUsageRecordStatus, AiUsageSource } from '../interfaces';
 export class UsageRecordFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

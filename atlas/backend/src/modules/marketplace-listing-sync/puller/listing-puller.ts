@@ -10,6 +10,7 @@ import {
   ListingItemType,
   ListingSyncAdapter,
   ListingSyncEvent,
+  NormalizedListingItem,
   SyncItemOperation,
   SyncItemStatus,
   SyncJobStatus,

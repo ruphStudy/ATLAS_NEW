@@ -60,7 +60,7 @@ export class EbayAuthService {
       };
     } catch (error) {
       this.logger.error('Failed to refresh eBay access token', error);
-      throw new Error('eBay token refresh failed: ' + error.message);
+      throw new Error('eBay token refresh failed: ' + (error as Error).message);
     }
   }
 

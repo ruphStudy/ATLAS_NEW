@@ -344,48 +344,4 @@ export class InventorySyncRepository {
   async softDeleteSchedule(scheduleId: string, workspaceId: string): Promise<void> {
     await this.schedules.update({ where: { id: scheduleId }, data: { deletedAt: new Date(), enabled: false } });
   }
-    return [items, total];
-  }
-
-  // ── Schedules ──────────────────────────────────────────────────
-
-  async createSchedule(data: Record<string, unknown>): Promise<Record<string, unknown>> {
-    return this.schedules.create({ data });
-  }
-
-  async findScheduleById(scheduleId: string, workspaceId: string): Promise<Record<string, unknown> | null> {
-    return this.schedules.findFirst({ where: { id: scheduleId, workspaceId, deletedAt: null } });
-  }
-
-  async findScheduleByAccount(
-    workspaceId: string,
-    accountId: string,
-    direction: SyncDirection,
-    itemType: InventoryItemType,
-  ): Promise<Record<string, unknown> | null> {
-    return this.schedules.findFirst({
-      where: { workspaceId, accountId, direction, itemType, deletedAt: null },
-    });
-  }
-
-  async findEnabledSchedules(): Promise<Record<string, unknown>[]> {
-    return this.schedules.findMany({
-      where: { enabled: true, deletedAt: null, nextRunAt: { lte: new Date() } },
-    });
-  }
-
-  async findSchedulesByWorkspace(workspaceId: string): Promise<Record<string, unknown>[]> {
-    return this.schedules.findMany({
-      where: { workspaceId, deletedAt: null },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async updateSchedule(scheduleId: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
-    return this.schedules.update({ where: { id: scheduleId }, data });
-  }
-
-  async softDeleteSchedule(scheduleId: string, workspaceId: string): Promise<void> {
-    await this.schedules.update({ where: { id: scheduleId }, data: { deletedAt: new Date() } });
-  }
 }

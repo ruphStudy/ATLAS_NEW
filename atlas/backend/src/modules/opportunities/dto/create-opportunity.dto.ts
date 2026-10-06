@@ -31,6 +31,7 @@ export class CreateOpportunityDto {
   @IsOptional()
   @IsString()
   @MaxLength(OPPORTUNITY_CONSTANTS.COUNTRY_MAX)
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim().toUpperCase() : value))
   country?: string;
 
   @ApiPropertyOptional({ example: 'Electronics', description: 'Product category' })

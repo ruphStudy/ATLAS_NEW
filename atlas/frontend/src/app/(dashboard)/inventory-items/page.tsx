@@ -95,7 +95,7 @@ export default function InventoryItemsPage() {
           </TableHeader>
           <TableBody>
             {data.items.map((item) => (
-              <TableRow key={item.id} clickable onClick={() => router.push(`/dashboard/inventory-items/${item.id}`)}>
+              <TableRow key={item.id} clickable onClick={() => router.push(`/inventory-items/${item.id}`)}>
                 <TableCell className="text-sm font-medium text-foreground">{item.name}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{item.sku}</TableCell>
                 <TableCell className="text-sm capitalize text-muted-foreground">{item.trackingType.toLowerCase()}</TableCell>
@@ -114,7 +114,7 @@ export default function InventoryItemsPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={data.totalPages} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateInventoryItemDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(item) => router.push(`/dashboard/inventory-items/${item.id}`)} />
+      <CreateInventoryItemDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(item) => router.push(`/inventory-items/${item.id}`)} />
     </div>
   );
 }

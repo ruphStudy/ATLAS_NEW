@@ -16,8 +16,8 @@ export const PUTAWAY_CONSTANTS = {
       PutawayStatus.FAILED,
       PutawayStatus.CANCELLED,
     ],
-    [PutawayStatus.COMPLETED]: [],
-    [PutawayStatus.CANCELLED]: [],
+    [PutawayStatus.COMPLETED]: [] as PutawayStatus[],
+    [PutawayStatus.CANCELLED]: [] as PutawayStatus[],
     [PutawayStatus.FAILED]: [
       PutawayStatus.PENDING,
       PutawayStatus.ASSIGNED,

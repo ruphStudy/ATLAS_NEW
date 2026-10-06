@@ -1,0 +1,160 @@
+variable "aws_region" {
+  description = "AWS region — ap-south-1 (Mumbai) keeps latency low for an India-run team and has no price premium over us-east-1."
+  type        = string
+  default     = "ap-south-1"
+}
+
+variable "environment" {
+  description = "Deployment environment name (used in tags/resource names)."
+  type        = string
+  default     = "staging"
+}
+
+variable "project" {
+  description = "Short project prefix for resource names."
+  type        = string
+  default     = "atlas"
+}
+
+variable "vpc_cidr" {
+  type    = string
+  default = "10.20.0.0/16"
+}
+
+variable "public_subnet_cidrs" {
+  type    = list(string)
+  default = ["10.20.0.0/24", "10.20.1.0/24"]
+}
+
+variable "private_subnet_cidrs" {
+  type    = list(string)
+  default = ["10.20.10.0/24", "10.20.11.0/24"]
+}
+
+variable "single_nat_gateway" {
+  description = "Use one NAT Gateway shared across both AZs instead of one per AZ — halves NAT cost; acceptable for a small compliance/staging slice, not full multi-AZ production."
+  type        = bool
+  default     = true
+}
+
+# ── Compute sizing (kept intentionally small) ──────────────────
+
+variable "backend_image_tag" {
+  description = "Tag of the backend image already pushed to the ECR repo this stack creates."
+  type        = string
+  default     = "latest"
+}
+
+variable "backend_container_port" {
+  type    = number
+  default = 3001
+}
+
+variable "backend_cpu" {
+  description = "Fargate task vCPU units (256 = 0.25 vCPU — smallest Fargate size)."
+  type        = number
+  default     = 256
+}
+
+variable "backend_memory" {
+  description = "Fargate task memory in MB (512 = smallest paired with 256 CPU)."
+  type        = number
+  default     = 512
+}
+
+variable "backend_desired_count" {
+  type    = number
+  default = 1
+}
+
+# ── Database ────────────────────────────────────────────────────
+
+variable "db_instance_class" {
+  type    = string
+  default = "db.t4g.micro"
+}
+
+variable "db_allocated_storage_gb" {
+  type    = number
+  default = 20
+}
+
+variable "db_name" {
+  type    = string
+  default = "atlas_db"
+}
+
+variable "db_username" {
+  type    = string
+  default = "atlas_user"
+}
+
+# ── Redis ───────────────────────────────────────────────────────
+
+variable "redis_node_type" {
+  type    = string
+  default = "cache.t4g.micro"
+}
+
+# ── TLS ──────────────────────────────────────────────────────────
+
+variable "acm_certificate_arn" {
+  description = "Existing ACM certificate ARN in var.aws_region for the ALB HTTPS listener. Leave empty and set route53_zone_id instead to have Terraform create + DNS-validate one."
+  type        = string
+  default     = ""
+}
+
+variable "route53_zone_id" {
+  description = "Existing Route53 public hosted zone ID — only used when acm_certificate_arn is empty."
+  type        = string
+  default     = ""
+}
+
+variable "domain_name" {
+  description = "FQDN for the backend (e.g. api-staging.example.com) — required only when route53_zone_id is set."
+  type        = string
+  default     = ""
+}
+
+# ── Optional / cost-affecting toggles ───────────────────────────
+
+variable "enable_waf" {
+  description = "Attach AWS WAF (Core rule set) to the ALB. Security Groups already provide L3/L4 firewalling; enable this only if Amazon's reviewer specifically expects an L7 WAF. Adds ~$8-10/mo."
+  type        = bool
+  default     = false
+}
+
+variable "log_retention_days" {
+  type    = number
+  default = 30
+}
+
+variable "alarm_notification_email" {
+  description = "Optional email for the SNS topic that CloudWatch alarms publish to. Leave empty to skip alarm notifications (alarms still exist, just unsubscribed)."
+  type        = string
+  default     = ""
+}
+
+# ── Non-sensitive app config (real secrets live in Secrets Manager, see secrets.tf) ──
+
+variable "amazon_sp_api_client_id" {
+  description = "LWA client id — not sensitive on its own without the client secret."
+  type        = string
+  default     = ""
+}
+
+variable "amazon_sp_api_application_id" {
+  type    = string
+  default = ""
+}
+
+variable "amazon_sp_api_redirect_uri" {
+  type    = string
+  default = ""
+}
+
+variable "cors_origins" {
+  description = "Comma-separated frontend origin(s) allowed to call this API."
+  type        = string
+  default     = ""
+}

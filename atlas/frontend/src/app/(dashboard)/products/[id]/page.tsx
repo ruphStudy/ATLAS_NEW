@@ -92,7 +92,7 @@ export default function ProductDetailPage() {
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={product.status} />
-            <Link href={`/dashboard/ai-content-studio/${product.id}`}>
+            <Link href={`/ai-content-studio/${product.id}`}>
               <Button variant="outline">
                 <Sparkles className="h-4 w-4" />
                 AI Content Studio
@@ -297,7 +297,7 @@ function SupplierTab({ supplierId }: { supplierId?: string | null }) {
           <p className="text-foreground">{supplier.avgLeadTimeDays ? `${supplier.avgLeadTimeDays} days` : '—'}</p>
         </div>
         <div className="sm:col-span-2">
-          <Link href={`/dashboard/suppliers/${supplier.id}`} className="text-xs font-medium text-primary hover:underline">
+          <Link href={`${ROUTES.SUPPLIERS}/${supplier.id}`} className="text-xs font-medium text-primary hover:underline">
             View supplier profile →
           </Link>
         </div>

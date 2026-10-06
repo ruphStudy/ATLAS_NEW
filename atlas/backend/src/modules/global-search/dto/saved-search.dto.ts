@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsOptional, IsObject, IsBoolean } from 'class-val
 export class CreateSavedSearchDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()

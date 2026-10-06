@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { DatabaseModule } from '../../database/database.module';
+import { QUEUE_NAMES } from '@common/constants';
 import { MarketplaceProviderModule } from '../marketplace-provider/marketplace-provider.module';
 import { MarketplaceProviderFactoryModule } from '../marketplace-provider-factory/marketplace-provider-factory.module';
 
@@ -22,6 +24,10 @@ import { MarketplaceOrderSyncController } from './marketplace-order-sync.control
     DatabaseModule,
     MarketplaceProviderModule,
     MarketplaceProviderFactoryModule,
+    BullModule.registerQueue(
+      { name: QUEUE_NAMES.MARKETPLACE_ORDER_SYNC_EVENTS },
+      { name: QUEUE_NAMES.MARKETPLACE_ORDER_SYNC_JOBS },
+    ),
   ],
   controllers: [MarketplaceOrderSyncController],
   providers: [

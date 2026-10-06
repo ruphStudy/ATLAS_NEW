@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { IMarketplaceProviderCredential } from '../interfaces';
 import { MP_CREDENTIAL_CONSTANTS } from '../constants';
 
@@ -18,7 +18,7 @@ export class MarketplaceCredentialCache {
   private readonly store = new Map<string, CacheEntry>();
   private readonly maxEntries: number;
 
-  constructor(maxEntries = MP_CREDENTIAL_CONSTANTS.CACHE_MAX_ENTRIES) {
+  constructor(@Optional() maxEntries: number = MP_CREDENTIAL_CONSTANTS.CACHE_MAX_ENTRIES) {
     this.maxEntries = maxEntries;
   }
 

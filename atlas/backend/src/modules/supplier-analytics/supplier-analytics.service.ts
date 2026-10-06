@@ -22,7 +22,7 @@ import {
   SupplierAnalyticsEventType,
   SupplierPerformanceCategory,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()

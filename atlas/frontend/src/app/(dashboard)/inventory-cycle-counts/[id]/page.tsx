@@ -89,7 +89,7 @@ export default function CycleCountDetailPage() {
     <div>
       <PageHeader
         title={`Cycle count · ${cycleCount.type}`}
-        breadcrumbs={[{ label: 'Cycle Counts', href: '/dashboard/inventory-cycle-counts' }, { label: cycleCount.id }]}
+        breadcrumbs={[{ label: 'Cycle Counts', href: '/inventory-cycle-counts' }, { label: cycleCount.id }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={cycleCount.status} />

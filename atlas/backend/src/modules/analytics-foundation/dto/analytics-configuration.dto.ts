@@ -9,17 +9,17 @@ import { AnalyticsEntityType } from '../interfaces';
 
 export class CreateAnalyticsConfigurationDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  configKey: string;
+  configKey!: string;
 
   @IsOptional()
   @IsEnum(AnalyticsEntityType)
   entityType?: AnalyticsEntityType;
 
   @IsObject()
-  configData: Record<string, any>;
+  configData!: Record<string, any>;
 
   @IsOptional()
   @IsBoolean()
@@ -37,12 +37,12 @@ export class UpdateAnalyticsConfigurationDto {
 }
 
 export class AnalyticsConfigurationResponseDto {
-  id: string;
-  workspaceId: string;
-  configKey: string;
+  id!: string;
+  workspaceId!: string;
+  configKey!: string;
   entityType?: AnalyticsEntityType;
-  configData: Record<string, any>;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  configData!: Record<string, any>;
+  isActive!: boolean;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

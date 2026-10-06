@@ -1,10 +1,29 @@
+import type { AmazonSpApiEnvironment } from '@config/interfaces';
 import { AmazonMarketplace, AmazonRegion, AmazonReportType } from '../interfaces/amazon.interfaces';
 
+// Production SP-API base URLs, per region.
 export const AMAZON_SP_API_ENDPOINTS = {
   [AmazonRegion.NA]: 'https://sellingpartnerapi-na.amazon.com',
   [AmazonRegion.EU]: 'https://sellingpartnerapi-eu.amazon.com',
   [AmazonRegion.FE]: 'https://sellingpartnerapi-fe.amazon.com',
 } as const;
+
+// Sandbox SP-API base URLs, per region (Amazon's documented "sandbox."
+// subdomain variant — same paths/operations, synthetic responses).
+export const AMAZON_SP_API_SANDBOX_ENDPOINTS = {
+  [AmazonRegion.NA]: 'https://sandbox.sellingpartnerapi-na.amazon.com',
+  [AmazonRegion.EU]: 'https://sandbox.sellingpartnerapi-eu.amazon.com',
+  [AmazonRegion.FE]: 'https://sandbox.sellingpartnerapi-fe.amazon.com',
+} as const;
+
+/** Resolves the correct SP-API base URL for a region + global environment setting. */
+export function resolveAmazonSpApiBaseUrl(
+  region: AmazonRegion,
+  environment: AmazonSpApiEnvironment,
+): string {
+  const endpoints = environment === 'sandbox' ? AMAZON_SP_API_SANDBOX_ENDPOINTS : AMAZON_SP_API_ENDPOINTS;
+  return endpoints[region];
+}
 
 export const AMAZON_AUTH_ENDPOINT = 'https://api.amazon.com/auth/o2/token';
 
@@ -90,6 +109,21 @@ export const AMAZON_ERROR_CODES = {
 export const AMAZON_TOKEN_EXPIRY_BUFFER = 300000;
 
 export const AMAZON_DEFAULT_PAGE_SIZE = 100;
+
+/**
+ * `includedData` values requested on every Catalog Items call. Without this,
+ * Amazon's Catalog Items API returns only `asin`/`identifiers` — none of the
+ * fields AmazonResponseMapper.mapCatalogItem() reads (summaries/images/
+ * salesRanks/productTypes/attributes) come back unless explicitly asked for.
+ */
+export const AMAZON_CATALOG_INCLUDED_DATA = [
+  'identifiers',
+  'images',
+  'productTypes',
+  'salesRanks',
+  'summaries',
+  'attributes',
+] as const;
 
 export const AMAZON_MAX_BATCH_SIZE = {
   ORDERS: 50,

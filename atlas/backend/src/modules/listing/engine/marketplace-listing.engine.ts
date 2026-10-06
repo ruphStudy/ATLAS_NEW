@@ -5,6 +5,9 @@ import {
   UniversalListingInput,
   TransformationResult,
   TransformationStatus,
+  ValidationSeverity,
+  ICategoryMapping,
+  IAttributeMapping,
 } from '@modules/marketplace-listing-mapping/interfaces';
 import {
   ListingContent,
@@ -70,7 +73,6 @@ export class MarketplaceListingEngine {
     const categoryMappings = schema
       ? await this.mappingRepository.findAllCategoryMappingsForResolution(
           marketplaceKey,
-          country,
           workspaceId,
         )
       : [];
@@ -95,30 +97,38 @@ export class MarketplaceListingEngine {
     if (!schema) {
       result = {
         listingId: universalListingId,
+        workspaceId: workspaceId ?? '',
         marketplaceKey,
         country,
-        schemaVersion: null,
+        schemaVersion: '',
         status: TransformationStatus.FAILED,
         payload: {},
         fieldTrace: [],
         warnings: [],
-        errors: [{ code: 'SCHEMA_NOT_FOUND', message: `No active schema for ${marketplaceKey}/${country}`, section: 'GLOBAL' as never, severity: 'CRITICAL' as never }],
+        errors: [{
+          field: 'schema',
+          code: 'SCHEMA_NOT_FOUND',
+          message: `No active schema for ${marketplaceKey}/${country}`,
+          severity: ValidationSeverity.ERROR,
+          section: null,
+        }],
         isDryRun,
+        sectionsTransformed: [],
         transformedAt: new Date(),
       };
     } else if (isDryRun) {
       result = this.mappingFactory.createPreview(
         input,
         schema,
-        categoryMappings,
-        attributeMappings,
+        categoryMappings as unknown as ICategoryMapping[],
+        attributeMappings as unknown as IAttributeMapping[],
       );
     } else {
       result = this.mappingFactory.createTransformation(
         input,
         schema,
-        categoryMappings,
-        attributeMappings,
+        categoryMappings as unknown as ICategoryMapping[],
+        attributeMappings as unknown as IAttributeMapping[],
       );
     }
 

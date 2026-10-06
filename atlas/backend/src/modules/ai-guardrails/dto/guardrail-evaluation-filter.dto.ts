@@ -5,7 +5,7 @@ import { GuardrailStage, GuardrailDecision, GuardrailSeverity } from '../interfa
 export class GuardrailEvaluationFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(GuardrailStage)
   @IsOptional()

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AiOrchestratorRepository } from './ai-orchestrator.repository';
 import { AiOrchestratorEventQueue } from './jobs';
 import { AiModelManagementService } from '@modules/ai-model-management/ai-model-management.service';
+import { AiModelCapability } from '@modules/ai-model-management/interfaces';
 import { AiGuardrailsService } from '@modules/ai-guardrails/ai-guardrails.service';
 import {
   GuardrailStage,
@@ -39,8 +40,8 @@ import {
   AiOrchestratorEvent,
   IRoutingCriteria,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -162,7 +163,7 @@ export class AiOrchestratorService {
         lastError = error as Error;
 
         this.logger.warn(
-          `Execution attempt ${attemptNumber} failed for request ${request.id}: ${error.message}`,
+          `Execution attempt ${attemptNumber} failed for request ${request.id}: ${lastError.message}`,
         );
 
         if (error instanceof AiGuardrailActionBlockedException) {
@@ -214,7 +215,7 @@ export class AiOrchestratorService {
 
     const resolvedModel = await this.modelManagementService.resolveModel({
       workspaceId: request.workspaceId,
-      capability: request.capability,
+      capability: request.capability as AiModelCapability,
       useCase: request.useCase,
     });
 

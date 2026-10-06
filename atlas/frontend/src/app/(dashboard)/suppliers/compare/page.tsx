@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/ui/states';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { TierBadge } from '@/components/suppliers/tier-badge';
 import { getSupplierById } from '@/services/suppliers.service';
-import { QUERY_KEYS } from '@/constants';
+import { QUERY_KEYS, ROUTES } from '@/constants';
 import { formatDate } from '@/lib/utils';
 
 const ROWS: { label: string; render: (s: Awaited<ReturnType<typeof getSupplierById>>) => React.ReactNode }[] = [
@@ -40,7 +40,7 @@ export default function CompareSuppliersPage() {
 
   return (
     <div>
-      <PageHeader title="Compare suppliers" breadcrumbs={[{ label: 'Suppliers', href: '/dashboard/suppliers' }, { label: 'Compare' }]} />
+      <PageHeader title="Compare suppliers" breadcrumbs={[{ label: 'Suppliers', href: ROUTES.SUPPLIERS }, { label: 'Compare' }]} />
 
       {ids.length === 0 ? (
         <EmptyState title="No suppliers selected" description="Select two or more suppliers from the list to compare them." />

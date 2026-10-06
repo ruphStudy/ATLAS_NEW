@@ -100,17 +100,17 @@ export class MarketplaceProviderManager {
   async testConnection(
     providerKey: string,
     workspaceId: string,
-    accountId: string,
+    accountId: string | undefined,
     credentials: MarketplaceCredentials,
   ): Promise<MarketplaceHealthResult> {
     const adapter = this.registry.get(providerKey);
-    const context = MarketplaceRequestContextBuilder.create(
+    const contextBuilder = MarketplaceRequestContextBuilder.create(
       workspaceId,
       providerKey,
       MarketplaceKey.CUSTOM,
-    )
-      .withAccountId(accountId)
-      .build();
+    );
+    if (accountId) contextBuilder.withAccountId(accountId);
+    const context = contextBuilder.build();
 
     this.logger.log(`Testing connection for provider '${providerKey}' account '${accountId}'`);
     try {

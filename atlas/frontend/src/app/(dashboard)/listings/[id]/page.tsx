@@ -67,7 +67,7 @@ export default function ListingDetailPage() {
 
   const handleDelete = async () => {
     const ok = await confirm({ title: 'Delete this listing?', description: 'This cannot be undone.', confirmLabel: 'Delete', variant: 'danger' });
-    if (ok) deleteListing.mutate(listing.id, { onSuccess: () => router.push('/dashboard/listings') });
+    if (ok) deleteListing.mutate(listing.id, { onSuccess: () => router.push('/listings') });
   };
 
   const handleRegenerate = () => {
@@ -79,7 +79,7 @@ export default function ListingDetailPage() {
     <div>
       <PageHeader
         title={(listing.content?.['title'] as string) || listing.catalogProductId}
-        breadcrumbs={[{ label: 'Listings', href: '/dashboard/listings' }, { label: listing.catalogProductId }]}
+        breadcrumbs={[{ label: 'Listings', href: '/listings' }, { label: listing.catalogProductId }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={listing.status} />

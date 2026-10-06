@@ -302,6 +302,6 @@ describe('MarketplaceProviderCredentialsService — Integration', () => {
     // At least: create + 2 updates (pre-update snapshots)
     expect(history.length).toBeGreaterThanOrEqual(2);
     // History never exposes encryptedFields
-    expect((history[0] as Record<string, unknown>)['encryptedFields']).toBeUndefined();
+    expect((history[0] as unknown as Record<string, unknown>)['encryptedFields']).toBeUndefined();
   });
 });

@@ -103,8 +103,3 @@ export class InventoryReconciler {
     });
   }
 }
-      warehouseId: job.warehouseId, direction: job.direction, scope: job.scope, itemType: job.itemType,
-      timestamp: new Date(),
-    });
-  }
-}

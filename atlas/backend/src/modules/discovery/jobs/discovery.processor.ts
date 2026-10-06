@@ -1,10 +1,11 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Job, Worker } from 'bullmq';
 import { ConfigurationService } from '@config/configuration.service';
-import { DISCOVERY_CONSTANTS, SCORE_WEIGHTS } from '../constants';
+import { ColdStartDiscoveryService } from '@modules/product-taxonomy/services/cold-start-discovery.service';
+import { DISCOVERY_CONSTANTS } from '../constants';
 import { DiscoveryRepository } from '../discovery.repository';
 import { MarketplaceAdapterRegistry } from '../adapters/adapter.registry';
-import type { IDiscoveredProduct } from '../interfaces';
+import { DiscoveryMode } from '../interfaces';
 import type { DiscoveryJobData } from './discovery.queue';
 
 /**
@@ -16,11 +17,17 @@ import type { DiscoveryJobData } from './discovery.queue';
  *   1. Load session from DB and mark as RUNNING
  *   2. Get marketplace adapter from registry
  *   3. Stream discovered products via async generator
- *   4. For each product:
- *      a. Check for duplicate in opportunities table
- *      b. Create DiscoveryResult record
- *      c. Create Opportunity if not duplicate (with computed final score)
+ *   4. For each product with a stable external product ID:
+ *      a. Upsert a shared MarketplaceProductCandidate (DB-unique on
+ *         marketplace+country+externalProductId — never keyword)
+ *      b. Append a MarketplaceSnapshot row
+ *      c. Persist DiscoveryResult linked to the candidate
+ *      Products with no external ID still get a DiscoveryResult (raw run
+ *      output preserved) but no candidate/snapshot.
  *   5. Mark session COMPLETED or FAILED
+ *
+ * Discovery no longer creates Opportunity records automatically — that is
+ * now an explicit user action (`OpportunityService.promoteCandidate`).
  */
 @Injectable()
 export class DiscoveryProcessor implements OnModuleInit, OnModuleDestroy {
@@ -31,6 +38,7 @@ export class DiscoveryProcessor implements OnModuleInit, OnModuleDestroy {
     private readonly configService: ConfigurationService,
     private readonly discoveryRepository: DiscoveryRepository,
     private readonly adapterRegistry: MarketplaceAdapterRegistry,
+    private readonly coldStartDiscoveryService: ColdStartDiscoveryService,
   ) {}
 
   onModuleInit(): void {
@@ -82,10 +90,27 @@ export class DiscoveryProcessor implements OnModuleInit, OnModuleDestroy {
     });
 
     let totalDiscovered = 0;
-    let newOpportunities = 0;
+    // Legacy counter name (see schema.prisma comment on
+    // DiscoverySession.newOpportunities) — now counts newly discovered
+    // MarketplaceProductCandidate rows, not Opportunity rows.
+    let newCandidates = 0;
     let duplicatesSkipped = 0;
 
     try {
+      if (session.mode === DiscoveryMode.TREND_COLD_START) {
+        // Marketplace-neutral path: no adapter, no MarketplaceProductCandidate,
+        // no Opportunity — only Category/ProductConcept/TrendSignal (Prompt 6).
+        const result = await this.coldStartDiscoveryService.run();
+        await this.discoveryRepository.updateSession(sessionId, {
+          status: 'COMPLETED',
+          totalDiscovered: result.conceptsProcessed,
+          newOpportunities: result.conceptsWithNewEvidence,
+          duplicatesSkipped: result.conceptsSkippedOrUnavailable,
+          completedAt: new Date(),
+        });
+        return;
+      }
+
       const adapter = this.adapterRegistry.get(session.marketplace);
       const keywords = session.keywords as string[];
       const categories = session.categories as string[];
@@ -100,39 +125,46 @@ export class DiscoveryProcessor implements OnModuleInit, OnModuleDestroy {
         const current = await this.discoveryRepository.findSessionById(sessionId, workspaceId);
         if (current?.status === 'CANCELLED') break;
 
-        const existing = await this.discoveryRepository.findExistingOpportunity(
-          workspaceId,
-          product.keyword,
-          product.marketplace,
-        );
+        let marketplaceProductCandidateId: string | null = null;
+        let isDuplicate = false;
 
-        const isDuplicate = existing !== null;
-        let opportunityId: string | null = existing?.id ?? null;
-
-        if (!isDuplicate) {
-          const finalScore = this.computeFinalScore(product);
-          const opp = await this.discoveryRepository.createOpportunityFromProduct({
-            workspaceId,
-            keyword: product.keyword,
-            marketplace: product.marketplace,
+        if (product.externalProductId) {
+          const { candidate, created } = await this.discoveryRepository.upsertCandidate({
+            marketplaceKey: product.marketplace,
             country: product.country,
-            category: product.category,
-            demandScore: product.estimatedDemandScore,
-            competitionScore: product.estimatedCompetitionScore,
-            profitScore: product.estimatedProfitScore,
-            aiScore: product.estimatedAiScore,
-            finalScore,
-            status: 'DISCOVERED',
+            externalProductId: product.externalProductId,
+            title: product.title,
+            marketplaceCategory: product.category,
           });
-          opportunityId = opp.id;
-          newOpportunities++;
+
+          marketplaceProductCandidateId = candidate.id;
+          isDuplicate = !created;
+          if (created) newCandidates++;
+          else duplicatesSkipped++;
+
+          await this.discoveryRepository.createSnapshot({
+            candidateId: candidate.id,
+            // Amazon Catalog Items (the only live adapter today) returns
+            // no rank/price/offer data — real BSR/price wiring is future
+            // work (see Prompt 2), never fabricated here.
+            salesRank: null,
+            price: null,
+            offerCount: null,
+            source: `${product.marketplace}_discovery`,
+            capturedAt: new Date(),
+          });
         } else {
-          duplicatesSkipped++;
+          // No stable external ID — this result cannot become a durable
+          // candidate (Prompt 3 §5.B). Preserved as raw run output only.
+          this.logger.warn(
+            `Discovered product for "${product.keyword}" on ${product.marketplace} has no external product ID — skipping candidate/snapshot creation.`,
+          );
         }
 
         await this.discoveryRepository.createResult({
           sessionId,
-          opportunityId,
+          opportunityId: null,
+          marketplaceProductCandidateId,
           keyword: product.keyword,
           marketplace: product.marketplace,
           country: product.country,
@@ -151,7 +183,7 @@ export class DiscoveryProcessor implements OnModuleInit, OnModuleDestroy {
       await this.discoveryRepository.updateSession(sessionId, {
         status: 'COMPLETED',
         totalDiscovered,
-        newOpportunities,
+        newOpportunities: newCandidates,
         duplicatesSkipped,
         completedAt: new Date(),
       });
@@ -162,7 +194,7 @@ export class DiscoveryProcessor implements OnModuleInit, OnModuleDestroy {
       await this.discoveryRepository.updateSession(sessionId, {
         status: 'FAILED',
         totalDiscovered,
-        newOpportunities,
+        newOpportunities: newCandidates,
         duplicatesSkipped,
         errorMessage,
         completedAt: new Date(),
@@ -170,27 +202,5 @@ export class DiscoveryProcessor implements OnModuleInit, OnModuleDestroy {
 
       throw err;
     }
-  }
-
-  /**
-   * Computes a weighted final score from individual dimension scores.
-   *
-   * Formula:
-   *   final = (demand × 0.30) + ((100 − competition) × 0.25)
-   *         + (profit × 0.25) + (ai × 0.20)
-   *
-   * Higher final score = better opportunity.
-   */
-  private computeFinalScore(product: IDiscoveredProduct): number {
-    const { estimatedDemandScore, estimatedCompetitionScore, estimatedProfitScore, estimatedAiScore } =
-      product;
-
-    const score =
-      estimatedDemandScore * SCORE_WEIGHTS.DEMAND +
-      (100 - estimatedCompetitionScore) * SCORE_WEIGHTS.COMPETITION_INVERSE +
-      estimatedProfitScore * SCORE_WEIGHTS.PROFIT +
-      estimatedAiScore * SCORE_WEIGHTS.AI;
-
-    return Math.round(score * 100) / 100;
   }
 }

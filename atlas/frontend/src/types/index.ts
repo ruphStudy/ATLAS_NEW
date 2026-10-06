@@ -63,6 +63,8 @@ export interface User {
   lastLoginAt?: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Not returned by `GET /users/:id` today — only populated on the auth session (`AuthUser`) from login/register. */
+  isPlatformAdmin?: boolean;
 }
 
 export interface UpdateUserPayload {
@@ -352,6 +354,8 @@ export interface AuthUser {
   role: UserRole;
   workspaceId: string;
   status: UserStatus;
+  /** True ATLAS-staff cross-tenant access — distinct from the workspace-scoped `role` above. */
+  isPlatformAdmin: boolean;
 }
 
 export interface AuthResponse {
@@ -386,6 +390,8 @@ export interface EffectivePermissionsResponse {
   userId: string;
   workspaceId: string;
   permissions: EffectivePermission[];
+  /** True for legacy full-authority roles (OWNER, ADMIN) — bypasses the granular assignment-based `permissions` list for normal module access. Never applies to Platform Administration, which is gated solely by `isPlatformAdmin`. */
+  hasFullAccess: boolean;
 }
 
 // ── Notifications ──────────────────────────────────────────
@@ -4931,6 +4937,8 @@ export interface Opportunity {
   marketplace: string;
   country: string;
   category?: string | null;
+  /** Set when this Opportunity was created by promoting a MarketplaceProductCandidate; null for manual opportunities. */
+  marketplaceProductCandidateId?: string | null;
   demandScore?: number | null;
   competitionScore?: number | null;
   supplierScore?: number | null;
@@ -4989,6 +4997,9 @@ export interface DiscoverySession {
   keywords: string[];
   status: DiscoverySessionStatus;
   totalDiscovered: number;
+  /** Newly discovered marketplace product candidates — the correct field to use. */
+  newCandidates: number;
+  /** @deprecated Same value as `newCandidates`. Discovery no longer auto-creates Opportunity records — do not treat this as a count of Opportunities. */
   newOpportunities: number;
   duplicatesSkipped: number;
   errorMessage?: string | null;
@@ -5016,10 +5027,37 @@ export interface DiscoveryStats {
   totalSessions: number;
   runningSessions: number;
   totalDiscovered: number;
+  /** Newly discovered marketplace product candidates — the correct field to use. */
+  totalNewCandidates: number;
+  /** @deprecated Same value as `totalNewCandidates`. */
   totalNewOpportunities: number;
   totalDuplicatesSkipped: number;
   byMarketplace: Record<string, number>;
   byStatus: Record<string, number>;
+}
+
+// ── Product Taxonomy / Trend Discovery (`product-taxonomy` module) ──
+export type TrendSignalClassification = 'RAW_PROVIDER' | 'ATLAS_DERIVED' | 'AI_EXPLANATION';
+export type TrendConceptState = 'EMERGING_NEEDS_VALIDATION' | 'TREND_CANDIDATE';
+
+export interface TrendSignalEvidence {
+  source: string;
+  classification: TrendSignalClassification;
+  value: number | null;
+  unit: string | null;
+  capturedAt: string;
+  rawPayload: Record<string, unknown> | null;
+}
+
+export interface TrendConcept {
+  conceptId: string;
+  conceptName: string;
+  categoryId: string | null;
+  categoryName: string | null;
+  /** Evidence-driven, never a score: EMERGING_NEEDS_VALIDATION = attention only; TREND_CANDIDATE = attention corroborated by an independent search-demand signal. */
+  state: TrendConceptState;
+  attentionSignal: TrendSignalEvidence | null;
+  searchDemandSignal: TrendSignalEvidence | null;
 }
 
 // ── Product Scoring (`product-scoring` module) ────────────────

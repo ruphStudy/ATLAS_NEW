@@ -4,7 +4,7 @@ import { PlanOverageRule } from '../interfaces';
 export class PlanLimitDto {
   @IsString()
   @IsNotEmpty()
-  resourceKey: string;
+  resourceKey!: string;
 
   @IsString()
   @IsOptional()

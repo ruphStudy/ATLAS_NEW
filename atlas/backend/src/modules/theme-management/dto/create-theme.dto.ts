@@ -9,11 +9,11 @@ export class CreateThemeDto {
   @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
     message: 'key must be a lowercase, hyphen-separated identifier (e.g. "acme-branded")',
   })
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -46,5 +46,5 @@ export class CreateThemeDto {
 
   @ValidateNested()
   @Type(() => ThemeTokensDto)
-  tokens: ThemeTokensDto;
+  tokens!: ThemeTokensDto;
 }

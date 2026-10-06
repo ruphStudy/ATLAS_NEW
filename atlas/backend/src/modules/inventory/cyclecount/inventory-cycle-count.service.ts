@@ -608,8 +608,8 @@ export class InventoryCycleCountService {
     const item = await this.resolveItemForEvent(cc, workspaceId);
     await this.publishEvent(workspaceId, InventoryEvent.CYCLE_COUNT_APPROVED, { cycleCountId: id }, item);
 
-    const [lines] = await this.repository.findLines(id, workspaceId);
-    return InventoryCycleCountResponseDto.from(updated, lines);
+    const [updatedLines] = await this.repository.findLines(id, workspaceId);
+    return InventoryCycleCountResponseDto.from(updated, updatedLines);
   }
 
   async reject(

@@ -5,7 +5,7 @@ import { AiCostBudgetScope, AiCostBudgetPeriod } from '../interfaces';
 export class BudgetFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiCostBudgetScope)
   @IsOptional()

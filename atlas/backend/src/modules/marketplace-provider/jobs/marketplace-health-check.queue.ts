@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Queue } from 'bullmq';
+import { ConfigurationService } from '@config/configuration.service';
 import { QUEUE_NAMES } from '@common/constants';
 import { MarketplaceHealthCheckJobPayload } from '../interfaces';
 import { MARKETPLACE_PROVIDER_QUEUE_CONFIG } from '../constants';
@@ -9,14 +10,12 @@ export class MarketplaceHealthCheckQueue implements OnModuleDestroy {
   private readonly logger = new Logger(MarketplaceHealthCheckQueue.name);
   private readonly queue: Queue<MarketplaceHealthCheckJobPayload>;
 
-  constructor() {
+  constructor(configService: ConfigurationService) {
+    const redis = configService.getRedisConfig();
     this.queue = new Queue<MarketplaceHealthCheckJobPayload>(
       QUEUE_NAMES.MARKETPLACE_PROVIDER_HEALTH_CHECK,
       {
-        connection: {
-          host: process.env['REDIS_HOST'] ?? 'localhost',
-          port: Number(process.env['REDIS_PORT'] ?? 6379),
-        },
+        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
       },
     );
   }

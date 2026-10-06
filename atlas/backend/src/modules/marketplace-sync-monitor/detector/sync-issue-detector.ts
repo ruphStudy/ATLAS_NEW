@@ -45,7 +45,7 @@ export class SyncIssueDetector {
       if (module && job.module !== module) continue;
 
       const issue = this.createStuckIssue(job);
-      const alert = this.createAlert(issue, job.id);
+      const alert = this.createAlert(issue, job.id as string);
 
       issues.push(issue);
       alerts.push(alert);
@@ -55,7 +55,7 @@ export class SyncIssueDetector {
       if (module && job.module !== module) continue;
 
       const issue = this.createRepeatedlyFailingIssue(job);
-      const alert = this.createAlert(issue, job.id);
+      const alert = this.createAlert(issue, job.id as string);
 
       issues.push(issue);
       alerts.push(alert);

@@ -117,7 +117,7 @@ export default function AiContentWorkspacePage() {
       <PageHeader
         title={product.productName}
         description="AI content generation workspace"
-        breadcrumbs={[{ label: 'AI Content Studio', href: '/dashboard/ai-content-studio' }, { label: product.productName }]}
+        breadcrumbs={[{ label: 'AI Content Studio', href: '/ai-content-studio' }, { label: product.productName }]}
         actions={<StatusBadge status={product.status} />}
       />
 

@@ -5,10 +5,10 @@ import { RuleConditionOperator, RuleLogicOperator } from '../interfaces';
 export class RuleConditionDto {
   @IsString()
   @IsNotEmpty()
-  field: string;
+  field!: string;
 
   @IsEnum(RuleConditionOperator)
-  operator: RuleConditionOperator;
+  operator!: RuleConditionOperator;
 
   @IsOptional()
   value?: unknown;
@@ -16,7 +16,7 @@ export class RuleConditionDto {
 
 export class RuleConditionGroupDto {
   @IsEnum(RuleLogicOperator)
-  logic: RuleLogicOperator;
+  logic!: RuleLogicOperator;
 
   @IsArray()
   @ValidateNested({ each: true })

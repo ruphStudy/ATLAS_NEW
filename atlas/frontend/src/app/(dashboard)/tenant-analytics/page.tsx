@@ -27,6 +27,7 @@ import {
 } from '@/hooks';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { ExportTenantAnalyticsParams, TenantRiskLevel } from '@/types';
+import { PlatformAdminGuard } from '@/components/auth/platform-admin-guard';
 
 function isoDaysAgo(days: number) {
   const d = new Date();
@@ -55,6 +56,14 @@ const EXPORT_REPORT_OPTIONS: { value: ExportTenantAnalyticsParams['report']; lab
 ];
 
 export default function TenantAnalyticsPage() {
+  return (
+    <PlatformAdminGuard>
+      <TenantAnalyticsPageContent />
+    </PlatformAdminGuard>
+  );
+}
+
+function TenantAnalyticsPageContent() {
   const [start, setStart] = useState(isoDaysAgo(30));
   const [end, setEnd] = useState(isoDaysAgo(0));
   const dateParams = { start, end };

@@ -3,7 +3,7 @@ import { LicenseScopeType } from '../interfaces';
 
 export class TransferLicenseDto {
   @IsEnum(LicenseScopeType)
-  scopeType: LicenseScopeType;
+  scopeType!: LicenseScopeType;
 
   /** Target workspace — may differ from the acting admin's own workspace for a genuine cross-tenant transfer. Required for WORKSPACE/USER/ENVIRONMENT/DEPLOYMENT scope. */
   @IsString()
@@ -28,5 +28,5 @@ export class TransferLicenseDto {
 
   @IsString()
   @IsNotEmpty()
-  reason: string;
+  reason!: string;
 }

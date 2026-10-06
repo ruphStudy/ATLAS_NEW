@@ -6,19 +6,19 @@ export class RegisterSearchEntityDto {
   @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
     message: 'key must be a lowercase, hyphen-separated identifier (e.g. "procurement-purchase-order")',
   })
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  module: string;
+  module!: string;
 
   @IsString()
   @IsNotEmpty()
-  entityType: string;
+  entityType!: string;
 
   @IsString()
   @IsNotEmpty()
-  displayName: string;
+  displayName!: string;
 
   @IsString()
   @IsOptional()

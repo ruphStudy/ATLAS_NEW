@@ -26,5 +26,5 @@ export class EvaluateManyFeatureFlagsDto extends EvaluateFeatureFlagContextDto {
   @IsArray()
   @IsString({ each: true })
   @ArrayMinSize(1)
-  keys: string[];
+  keys!: string[];
 }

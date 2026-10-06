@@ -4,7 +4,7 @@ import { AiHealthCheckType, AiHealthStatus } from '../interfaces';
 export class HealthCheckFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiHealthCheckType)
   @IsOptional()

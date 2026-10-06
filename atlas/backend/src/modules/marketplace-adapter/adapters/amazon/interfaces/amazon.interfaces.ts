@@ -208,6 +208,21 @@ export interface IAmazonInventoryItem {
   lastUpdatedTime?: string;
 }
 
+/**
+ * Catalog Items v2022-04-01 `searchCatalogItems` supports two mutually
+ * exclusive search modes: free-text `keywords`, or `identifiers` (with
+ * `identifiersType`, e.g. ASIN/UPC/EAN/GTIN/ISBN/JAN/MINSKU/SKU). ATLAS
+ * Discovery's production flow only ever sets `keywords`; `identifiers` is
+ * used by sandbox verification, since Amazon's static sandbox only
+ * pattern-matches a small fixed set of pre-registered identifier-based
+ * requests and does not support arbitrary keyword text.
+ */
+export interface IAmazonCatalogSearchParams {
+  keywords?: string[];
+  identifiers?: string[];
+  identifiersType?: string;
+}
+
 export interface IAmazonCatalogItem {
   asin: string;
   identifiers?: any[];

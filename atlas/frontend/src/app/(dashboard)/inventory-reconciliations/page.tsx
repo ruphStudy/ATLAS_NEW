@@ -72,7 +72,7 @@ export default function ReconciliationsPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((run) => (
-              <TableRow key={run.id} clickable onClick={() => router.push(`/dashboard/inventory-reconciliations/${run.id}`)}>
+              <TableRow key={run.id} clickable onClick={() => router.push(`/inventory-reconciliations/${run.id}`)}>
                 <TableCell className="text-sm capitalize text-foreground">{run.sourceType.toLowerCase().replace(/_/g, ' ')}</TableCell>
                 <TableCell>
                   <StatusBadge status={run.status} />

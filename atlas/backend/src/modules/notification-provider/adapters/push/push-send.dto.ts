@@ -16,11 +16,11 @@ import { IPushAction } from './push-provider-adapter.interfaces';
 class PushActionDto implements IPushAction {
   @IsString()
   @IsNotEmpty()
-  id: string;
+  id!: string;
 
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsOptional()
@@ -30,15 +30,15 @@ class PushActionDto implements IPushAction {
 export class SendPushNotificationDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(PushTargetType)
-  targetType: PushTargetType;
+  targetType!: PushTargetType;
 
   /** Device token (DEVICE), userId (USER), topic/segment name (TOPIC/SEGMENT), or platform name (PLATFORM). */
   @IsString()
   @IsNotEmpty()
-  targetValue: string;
+  targetValue!: string;
 
   /** Additional platform filter for USER/TOPIC/SEGMENT targeting. */
   @IsEnum(PushPlatform)

@@ -3,7 +3,7 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class ValidateLicenseDto {
   @IsString()
   @IsNotEmpty()
-  licenseKeyId: string;
+  licenseKeyId!: string;
 
   @IsString()
   @IsOptional()
@@ -17,9 +17,9 @@ export class ValidateLicenseDto {
 export class VerifyLicenseTokenOfflineDto {
   @IsString()
   @IsNotEmpty()
-  token: string;
+  token!: string;
 
   @IsString()
   @IsNotEmpty()
-  publicKey: string;
+  publicKey!: string;
 }

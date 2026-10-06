@@ -27,11 +27,11 @@ import {
 export class KpiFormulaDto implements IKpiFormula {
   @IsString()
   @IsNotEmpty()
-  expression: string;
+  expression!: string;
 
   @IsObject()
   @IsNotEmpty()
-  variables: Record<string, string>;
+  variables!: Record<string, string>;
 
   @IsString()
   @IsOptional()
@@ -41,11 +41,11 @@ export class KpiFormulaDto implements IKpiFormula {
 export class KpiTargetDto implements IKpiTarget {
   @IsNumber()
   @IsNotEmpty()
-  value: number;
+  value!: number;
 
   @IsString()
   @IsNotEmpty()
-  period: string;
+  period!: string;
 
   @IsDate()
   @Type(() => Date)
@@ -61,15 +61,15 @@ export class KpiTargetDto implements IKpiTarget {
 export class KpiThresholdDto implements IKpiThreshold {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(KpiThresholdOperator)
   @IsNotEmpty()
-  operator: KpiThresholdOperator;
+  operator!: KpiThresholdOperator;
 
   @IsNumber()
   @IsNotEmpty()
-  value: number;
+  value!: number;
 
   @IsNumber()
   @IsOptional()
@@ -77,11 +77,11 @@ export class KpiThresholdDto implements IKpiThreshold {
 
   @IsEnum(KpiHealthStatus)
   @IsNotEmpty()
-  healthStatus: KpiHealthStatus;
+  healthStatus!: KpiHealthStatus;
 
   @IsBoolean()
   @IsNotEmpty()
-  alertEnabled: boolean;
+  alertEnabled!: boolean;
 
   @IsString()
   @IsOptional()
@@ -91,7 +91,7 @@ export class KpiThresholdDto implements IKpiThreshold {
 export class KpiDimensionDto implements IKpiDimension {
   @IsString()
   @IsNotEmpty()
-  dimensionKey: string;
+  dimensionKey!: string;
 
   @IsArray()
   @IsString({ each: true })
@@ -100,13 +100,13 @@ export class KpiDimensionDto implements IKpiDimension {
 
   @IsBoolean()
   @IsNotEmpty()
-  isRequired: boolean;
+  isRequired!: boolean;
 }
 
 export class KpiMetricDto implements IKpiMetric {
   @IsString()
   @IsNotEmpty()
-  metricKey: string;
+  metricKey!: string;
 
   @IsEnum(KpiAggregationType)
   @IsOptional()
@@ -124,11 +124,11 @@ export class CreateKpiDefinitionDto {
 
   @IsString()
   @IsNotEmpty()
-  kpiKey: string;
+  kpiKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -136,11 +136,11 @@ export class CreateKpiDefinitionDto {
 
   @IsEnum(KpiScope)
   @IsNotEmpty()
-  scope: KpiScope;
+  scope!: KpiScope;
 
   @IsEnum(KpiCategory)
   @IsNotEmpty()
-  category: KpiCategory;
+  category!: KpiCategory;
 
   @ValidateNested()
   @Type(() => KpiFormulaDto)
@@ -176,7 +176,7 @@ export class CreateKpiDefinitionDto {
 
   @IsEnum(KpiAggregationType)
   @IsNotEmpty()
-  aggregation: KpiAggregationType;
+  aggregation!: KpiAggregationType;
 
   @IsEnum(KpiComparisonPeriod)
   @IsOptional()
@@ -208,7 +208,7 @@ export class CreateKpiDefinitionDto {
 
   @IsString()
   @IsNotEmpty()
-  createdBy: string;
+  createdBy!: string;
 }
 
 export class UpdateKpiDefinitionDto {
@@ -286,25 +286,25 @@ export class UpdateKpiDefinitionDto {
 
   @IsString()
   @IsNotEmpty()
-  updatedBy: string;
+  updatedBy!: string;
 }
 
 export class CalculateKpiDto {
   @IsString()
   @IsNotEmpty()
-  kpiDefinitionId: string;
+  kpiDefinitionId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsDate()
   @Type(() => Date)
-  periodStart: Date;
+  periodStart!: Date;
 
   @IsDate()
   @Type(() => Date)
-  periodEnd: Date;
+  periodEnd!: Date;
 
   @IsObject()
   @IsOptional()
@@ -318,23 +318,23 @@ export class CalculateKpiDto {
 export class CreateKpiSnapshotDto {
   @IsString()
   @IsNotEmpty()
-  kpiDefinitionId: string;
+  kpiDefinitionId!: string;
 
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  snapshotKey: string;
+  snapshotKey!: string;
 
   @IsDate()
   @Type(() => Date)
-  periodStart: Date;
+  periodStart!: Date;
 
   @IsDate()
   @Type(() => Date)
-  periodEnd: Date;
+  periodEnd!: Date;
 
   @IsObject()
   @IsOptional()
@@ -348,11 +348,11 @@ export class CreateKpiGroupDto {
 
   @IsString()
   @IsNotEmpty()
-  groupKey: string;
+  groupKey!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -380,150 +380,150 @@ export class UpdateKpiGroupDto {
 export class AcknowledgeKpiAlertDto {
   @IsString()
   @IsNotEmpty()
-  acknowledgedBy: string;
+  acknowledgedBy!: string;
 }
 
 export class KpiDefinitionResponseDto implements IKpiDefinition {
-  id: string;
+  id!: string;
   workspaceId?: string;
-  kpiKey: string;
-  name: string;
+  kpiKey!: string;
+  name!: string;
   description?: string;
-  scope: KpiScope;
-  category: KpiCategory;
-  status: KpiStatus;
-  version: number;
+  scope!: KpiScope;
+  category!: KpiCategory;
+  status!: KpiStatus;
+  version!: number;
   formula?: IKpiFormula;
   dimensions?: IKpiDimension[];
   metrics?: IKpiMetric[];
   target?: IKpiTarget;
   thresholds?: IKpiThreshold[];
   unit?: string;
-  aggregation: KpiAggregationType;
+  aggregation!: KpiAggregationType;
   comparisonPeriod?: KpiComparisonPeriod;
-  drillDownEnabled: boolean;
-  cacheEnabled: boolean;
+  drillDownEnabled!: boolean;
+  cacheEnabled!: boolean;
   cacheTtlMinutes?: number;
   groupKey?: string;
   ownerId?: string;
   metadata?: Record<string, any>;
-  isSystem: boolean;
-  createdBy: string;
+  isSystem!: boolean;
+  createdBy!: string;
   updatedBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
   archivedAt?: Date;
 }
 
 export class KpiValueResponseDto implements IKpiValue {
-  id: string;
-  kpiDefinitionId: string;
-  workspaceId: string;
-  kpiKey: string;
-  value: number;
+  id!: string;
+  kpiDefinitionId!: string;
+  workspaceId!: string;
+  kpiKey!: string;
+  value!: number;
   targetValue?: number;
   variance?: number;
   variancePercent?: number;
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
-  healthStatus: KpiHealthStatus;
-  trendDirection: KpiTrendDirection;
+  healthStatus!: KpiHealthStatus;
+  trendDirection!: KpiTrendDirection;
   dimensions?: Record<string, any>;
-  calculatedAt: Date;
-  periodStart: Date;
-  periodEnd: Date;
+  calculatedAt!: Date;
+  periodStart!: Date;
+  periodEnd!: Date;
   metadata?: Record<string, any>;
 }
 
 export class KpiSnapshotResponseDto implements IKpiSnapshot {
-  id: string;
-  kpiDefinitionId: string;
-  workspaceId: string;
-  kpiKey: string;
-  snapshotKey: string;
-  values: IKpiValue[];
-  aggregatedValue: number;
+  id!: string;
+  kpiDefinitionId!: string;
+  workspaceId!: string;
+  kpiKey!: string;
+  snapshotKey!: string;
+  values!: IKpiValue[];
+  aggregatedValue!: number;
   targetValue?: number;
   variance?: number;
   variancePercent?: number;
-  healthStatus: KpiHealthStatus;
-  trendDirection: KpiTrendDirection;
-  periodStart: Date;
-  periodEnd: Date;
-  createdAt: Date;
+  healthStatus!: KpiHealthStatus;
+  trendDirection!: KpiTrendDirection;
+  periodStart!: Date;
+  periodEnd!: Date;
+  createdAt!: Date;
   metadata?: Record<string, any>;
 }
 
 export class KpiVersionResponseDto implements IKpiVersion {
-  id: string;
-  kpiDefinitionId: string;
-  version: number;
-  definition: Partial<IKpiDefinition>;
+  id!: string;
+  kpiDefinitionId!: string;
+  version!: number;
+  definition!: Partial<IKpiDefinition>;
   changeDescription?: string;
-  createdBy: string;
-  createdAt: Date;
+  createdBy!: string;
+  createdAt!: Date;
 }
 
 export class KpiHistoryResponseDto implements IKpiHistory {
-  id: string;
-  kpiDefinitionId: string;
-  workspaceId: string;
-  kpiKey: string;
-  value: number;
+  id!: string;
+  kpiDefinitionId!: string;
+  workspaceId!: string;
+  kpiKey!: string;
+  value!: number;
   targetValue?: number;
   variance?: number;
   variancePercent?: number;
-  healthStatus: KpiHealthStatus;
-  trendDirection: KpiTrendDirection;
+  healthStatus!: KpiHealthStatus;
+  trendDirection!: KpiTrendDirection;
   dimensions?: Record<string, any>;
-  recordedAt: Date;
-  periodStart: Date;
-  periodEnd: Date;
+  recordedAt!: Date;
+  periodStart!: Date;
+  periodEnd!: Date;
 }
 
 export class KpiGroupResponseDto implements IKpiGroup {
-  id: string;
+  id!: string;
   workspaceId?: string;
-  groupKey: string;
-  name: string;
+  groupKey!: string;
+  name!: string;
   description?: string;
   category?: KpiCategory;
-  isSystem: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  isSystem!: boolean;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class KpiAlertResponseDto implements IKpiAlert {
-  id: string;
-  kpiDefinitionId: string;
-  workspaceId: string;
-  kpiKey: string;
-  thresholdName: string;
-  severity: string;
-  value: number;
-  thresholdValue: number;
-  message: string;
-  acknowledged: boolean;
+  id!: string;
+  kpiDefinitionId!: string;
+  workspaceId!: string;
+  kpiKey!: string;
+  thresholdName!: string;
+  severity!: string;
+  value!: number;
+  thresholdValue!: number;
+  message!: string;
+  acknowledged!: boolean;
   acknowledgedBy?: string;
   acknowledgedAt?: Date;
-  createdAt: Date;
+  createdAt!: Date;
   metadata?: Record<string, any>;
 }
 
 export class KpiCalculationResultResponseDto implements IKpiCalculationResult {
-  kpiDefinitionId: string;
-  kpiKey: string;
-  value: number;
+  kpiDefinitionId!: string;
+  kpiKey!: string;
+  value!: number;
   targetValue?: number;
   variance?: number;
   variancePercent?: number;
   previousValue?: number;
   changeAmount?: number;
   changePercent?: number;
-  healthStatus: KpiHealthStatus;
-  trendDirection: KpiTrendDirection;
-  calculatedAt: Date;
+  healthStatus!: KpiHealthStatus;
+  trendDirection!: KpiTrendDirection;
+  calculatedAt!: Date;
   metadata?: Record<string, any>;
 }
 

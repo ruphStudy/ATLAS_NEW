@@ -8,10 +8,31 @@ import {
   ErrorSearchCriteria,
 } from '../interfaces';
 
+interface IErrorHistoryRecord {
+  occurrenceCount: number;
+  errorCategory?: string;
+  errorSeverity?: string;
+}
+
 @Injectable()
 export class ErrorNormalizerRepository extends BaseRepository {
   constructor(prisma: PrismaService) {
     super(prisma);
+  }
+
+  private model(name: string) {
+    return (this.prisma as unknown as Record<string, unknown>)[name] as Record<string, unknown>;
+  }
+
+  private call<T>(model: string, method: string, args: unknown): Promise<T> {
+    const m = this.model(model);
+    return (m[method] as (a: unknown) => Promise<T>)(args);
+  }
+
+  async findErrorHistoryById(id: string, workspaceId: string) {
+    return this.call<Record<string, unknown> | null>('marketplaceErrorHistory', 'findFirst', {
+      where: { id, workspaceId },
+    });
   }
 
   async findErrorHistory(
@@ -30,7 +51,8 @@ export class ErrorNormalizerRepository extends BaseRepository {
       where.providerCode = providerCode;
     }
 
-    const records = await this.findMany('MarketplaceErrorHistory', where, {
+    const records = await this.call<Record<string, unknown>[]>('marketplaceErrorHistory', 'findMany', {
+      where,
       orderBy: { lastOccurredAt: 'desc' },
       take: 1,
     });
@@ -55,31 +77,34 @@ export class ErrorNormalizerRepository extends BaseRepository {
     resourceId?: string;
     metadata?: Record<string, any>;
   }) {
-    return this.create('MarketplaceErrorHistory', {
-      ...data,
-      occurrenceCount: 1,
-      firstOccurredAt: new Date(),
-      lastOccurredAt: new Date(),
-      isResolved: false,
+    return this.call<Record<string, unknown>>('marketplaceErrorHistory', 'create', {
+      data: {
+        ...data,
+        occurrenceCount: 1,
+        firstOccurredAt: new Date(),
+        lastOccurredAt: new Date(),
+        isResolved: false,
+      },
     });
   }
 
   async incrementErrorOccurrence(historyId: string, workspaceId: string) {
-    const history = await this.findUnique('MarketplaceErrorHistory', {
-      id: historyId,
-      workspaceId,
+    const history = await this.call<IErrorHistoryRecord | null>('marketplaceErrorHistory', 'findFirst', {
+      where: {
+        id: historyId,
+        workspaceId,
+      },
     });
 
     if (!history) return null;
 
-    return this.update(
-      'MarketplaceErrorHistory',
-      { id: historyId, workspaceId },
-      {
+    return this.call<Record<string, unknown>>('marketplaceErrorHistory', 'update', {
+      where: { id: historyId, workspaceId },
+      data: {
         occurrenceCount: history.occurrenceCount + 1,
         lastOccurredAt: new Date(),
       },
-    );
+    });
   }
 
   async createErrorOccurrence(data: {
@@ -88,9 +113,11 @@ export class ErrorNormalizerRepository extends BaseRepository {
     errorCode: UniversalErrorCode;
     context?: Record<string, any>;
   }) {
-    return this.create('MarketplaceErrorOccurrence', {
-      ...data,
-      timestamp: new Date(),
+    return this.call<Record<string, unknown>>('marketplaceErrorOccurrence', 'create', {
+      data: {
+        ...data,
+        timestamp: new Date(),
+      },
     });
   }
 
@@ -149,7 +176,10 @@ export class ErrorNormalizerRepository extends BaseRepository {
       options.skip = criteria.offset;
     }
 
-    return this.findMany('MarketplaceErrorHistory', where, options);
+    return this.call<Record<string, unknown>[]>('marketplaceErrorHistory', 'findMany', {
+      where,
+      ...options,
+    });
   }
 
   async countErrors(criteria: ErrorSearchCriteria) {
@@ -173,7 +203,7 @@ export class ErrorNormalizerRepository extends BaseRepository {
       where.isResolved = criteria.isResolved;
     }
 
-    return this.count('MarketplaceErrorHistory', where);
+    return this.call<number>('marketplaceErrorHistory', 'count', { where });
   }
 
   async findTopErrors(
@@ -197,21 +227,21 @@ export class ErrorNormalizerRepository extends BaseRepository {
       }
     }
 
-    return this.findMany('MarketplaceErrorHistory', where, {
+    return this.call<Record<string, unknown>[]>('marketplaceErrorHistory', 'findMany', {
+      where,
       orderBy: { occurrenceCount: 'desc' },
       take: limit,
     });
   }
 
   async resolveError(workspaceId: string, historyId: string) {
-    return this.update(
-      'MarketplaceErrorHistory',
-      { id: historyId, workspaceId },
-      {
+    return this.call<Record<string, unknown>>('marketplaceErrorHistory', 'update', {
+      where: { id: historyId, workspaceId },
+      data: {
         isResolved: true,
         resolvedAt: new Date(),
       },
-    );
+    });
   }
 
   async findErrorOccurrences(
@@ -219,17 +249,14 @@ export class ErrorNormalizerRepository extends BaseRepository {
     historyId: string,
     limit: number = 100,
   ) {
-    return this.findMany(
-      'MarketplaceErrorOccurrence',
-      {
+    return this.call<Record<string, unknown>[]>('marketplaceErrorOccurrence', 'findMany', {
+      where: {
         workspaceId,
         historyId,
       },
-      {
-        orderBy: { timestamp: 'desc' },
-        take: limit,
-      },
-    );
+      orderBy: { timestamp: 'desc' },
+      take: limit,
+    });
   }
 
   async aggregateErrorsByCategory(
@@ -237,11 +264,13 @@ export class ErrorNormalizerRepository extends BaseRepository {
     startDate: Date,
     endDate: Date,
   ) {
-    const errors = await this.findMany('MarketplaceErrorHistory', {
-      workspaceId,
-      lastOccurredAt: {
-        gte: startDate,
-        lte: endDate,
+    const errors = await this.call<IErrorHistoryRecord[]>('marketplaceErrorHistory', 'findMany', {
+      where: {
+        workspaceId,
+        lastOccurredAt: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
     });
 
@@ -277,11 +306,13 @@ export class ErrorNormalizerRepository extends BaseRepository {
     startDate: Date,
     endDate: Date,
   ) {
-    const errors = await this.findMany('MarketplaceErrorHistory', {
-      workspaceId,
-      lastOccurredAt: {
-        gte: startDate,
-        lte: endDate,
+    const errors = await this.call<IErrorHistoryRecord[]>('marketplaceErrorHistory', 'findMany', {
+      where: {
+        workspaceId,
+        lastOccurredAt: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
     });
 

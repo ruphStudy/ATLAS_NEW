@@ -91,7 +91,7 @@ export default function CycleCountsPage() {
           </TableHeader>
           <TableBody>
             {data.data.map((c) => (
-              <TableRow key={c.id} clickable onClick={() => router.push(`/dashboard/inventory-cycle-counts/${c.id}`)}>
+              <TableRow key={c.id} clickable onClick={() => router.push(`/inventory-cycle-counts/${c.id}`)}>
                 <TableCell className="text-sm capitalize text-foreground">{c.type.toLowerCase()}</TableCell>
                 <TableCell>
                   <StatusBadge status={c.status} />
@@ -109,7 +109,7 @@ export default function CycleCountsPage() {
         <Pagination page={page} limit={limit} total={data.total} totalPages={data.totalPages} onPageChange={setPage} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
       )}
 
-      <CreateCycleCountDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(c) => router.push(`/dashboard/inventory-cycle-counts/${c.id}`)} />
+      <CreateCycleCountDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={(c) => router.push(`/inventory-cycle-counts/${c.id}`)} />
     </div>
   );
 }

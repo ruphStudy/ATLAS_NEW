@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ListingContent,
   ListingMarketplace,
@@ -13,6 +14,7 @@ export class ListingHistoryResponseDto {
   fromStatus!: ListingStatus;
   toStatus!: ListingStatus;
   version!: number;
+  @ApiPropertyOptional({ enum: ListingSection, isArray: true, nullable: true })
   sectionsUpdated?: ListingSection[] | null;
   reason?: string | null;
   changedBy?: string | null;

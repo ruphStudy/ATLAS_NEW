@@ -6,14 +6,14 @@ import {
 } from '../interfaces';
 
 export class ComplianceRuleResponseDto {
-  id: string;
+  id!: string;
   workspaceId?: string | null;
   organizationId?: string | null;
-  key: string;
-  name: string;
+  key!: string;
+  name!: string;
   description?: string | null;
-  requirementType: ComplianceRequirementType | string;
-  actions: (ComplianceAction | string)[];
+  requirementType!: ComplianceRequirementType | string;
+  actions!: (ComplianceAction | string)[];
   countryCode?: string | null;
   region?: string | null;
   marketplaceKey?: string | null;
@@ -21,79 +21,79 @@ export class ComplianceRuleResponseDto {
   supplierId?: string | null;
   warehouseId?: string | null;
   businessType?: string | null;
-  mandatory: boolean;
-  thresholds: Record<string, unknown>;
-  exemptionCodes: string[];
+  mandatory!: boolean;
+  thresholds!: Record<string, unknown>;
+  exemptionCodes!: string[];
   renewalPeriodDays?: number | null;
   reminderDaysBeforeExpiry?: number | null;
-  priority: number;
-  status: ComplianceRuleStatus;
-  version: number;
+  priority!: number;
+  status!: ComplianceRuleStatus;
+  version!: number;
   supersedesId?: string | null;
-  effectiveFrom: Date;
+  effectiveFrom!: Date;
   effectiveTo?: Date | null;
-  metadata: Record<string, unknown>;
-  createdAt: Date;
-  updatedAt: Date;
+  metadata!: Record<string, unknown>;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedComplianceRuleResponseDto {
-  data: ComplianceRuleResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: ComplianceRuleResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class ComplianceRuleHistoryResponseDto {
-  id: string;
-  ruleId: string;
-  status: ComplianceRuleStatus | string;
-  version: number;
+  id!: string;
+  ruleId!: string;
+  status!: ComplianceRuleStatus | string;
+  version!: number;
   changeReason?: string | null;
   changedBy?: string | null;
-  createdAt: Date;
+  createdAt!: Date;
 }
 
 export class ComplianceRecordResponseDto {
-  id: string;
-  workspaceId: string;
+  id!: string;
+  workspaceId!: string;
   organizationId?: string | null;
-  ruleId: string;
-  ruleKey: string;
-  ruleVersion: number;
-  subjectType: string;
-  subjectId: string;
-  status: ComplianceRecordStatus;
+  ruleId!: string;
+  ruleKey!: string;
+  ruleVersion!: number;
+  subjectType!: string;
+  subjectId!: string;
+  status!: ComplianceRecordStatus;
   referenceNumber?: string | null;
   issuedAt?: Date | null;
   expiresAt?: Date | null;
   evidenceDocumentId?: string | null;
-  evaluationSnapshot: Record<string, unknown>;
+  evaluationSnapshot!: Record<string, unknown>;
   lastCheckedAt?: Date | null;
   reviewedBy?: string | null;
   reviewedAt?: Date | null;
   decisionReason?: string | null;
-  isOverride: boolean;
-  metadata: Record<string, unknown>;
-  createdAt: Date;
-  updatedAt: Date;
+  isOverride!: boolean;
+  metadata!: Record<string, unknown>;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class PaginatedComplianceRecordResponseDto {
-  data: ComplianceRecordResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data!: ComplianceRecordResponseDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+  totalPages!: number;
 }
 
 export class ComplianceRecordHistoryResponseDto {
-  id: string;
-  recordId: string;
+  id!: string;
+  recordId!: string;
   fromStatus?: string | null;
-  toStatus: string;
+  toStatus!: string;
   reason?: string | null;
   changedBy?: string | null;
-  createdAt: Date;
+  createdAt!: Date;
 }

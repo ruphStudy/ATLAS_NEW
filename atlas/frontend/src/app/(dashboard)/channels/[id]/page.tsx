@@ -76,7 +76,7 @@ export default function ChannelDetailPage() {
     <div>
       <PageHeader
         title={channel.name}
-        breadcrumbs={[{ label: 'Channels', href: '/dashboard/channels' }, { label: channel.name }]}
+        breadcrumbs={[{ label: 'Channels', href: '/channels' }, { label: channel.name }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={channel.status} />

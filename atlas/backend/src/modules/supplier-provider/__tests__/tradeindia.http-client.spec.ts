@@ -1,5 +1,5 @@
-import { TradeIndiaHttpClient, TradeIndiaHttpError } from '../tradeindia/tradeindia.http-client';
-import { ProviderErrorCode } from '../../../interfaces';
+import { TradeIndiaHttpClient, TradeIndiaHttpError } from '../adapters/providers/tradeindia/tradeindia.http-client';
+import { ProviderErrorCode } from '../interfaces';
 
 const BASE_URL = 'https://www.tradeindia.com';
 const API_KEY = 'TI_TEST_API_KEY';
@@ -8,7 +8,7 @@ const USER_ID = 'TI_USER_123';
 // ── Helpers ───────────────────────────────────────────────────
 
 function makeClient(apiKey = API_KEY, userId?: string): TradeIndiaHttpClient {
-  return new TradeIndiaHttpClient(BASE_URL, apiKey, userId);
+  return new TradeIndiaHttpClient(BASE_URL, apiKey, userId ?? null);
 }
 
 function mockFetch(
@@ -237,7 +237,7 @@ describe('TradeIndiaHttpClient – parse error', () => {
 describe('TradeIndiaHttpError', () => {
   it('exposes code and httpStatus', () => {
     const err = new TradeIndiaHttpError(ProviderErrorCode.NOT_FOUND, 'Not found', 404);
-    expect(err.code).toBe(ProviderErrorCode.NOT_FOUND);
+    expect(err.errorCode).toBe(ProviderErrorCode.NOT_FOUND);
     expect(err.httpStatus).toBe(404);
     expect(err.message).toContain('Not found');
     expect(err).toBeInstanceOf(Error);

@@ -5,7 +5,7 @@ import { NotificationProviderRegistryStatus } from '../interfaces';
 export class RegistryEntryFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsOptional()

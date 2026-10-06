@@ -4,14 +4,14 @@ import { WebhookScopeType } from '../interfaces';
 export class CreateWebhookDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
   @IsEnum(WebhookScopeType)
-  scopeType: WebhookScopeType;
+  scopeType!: WebhookScopeType;
 
   /** Required for ORGANIZATION scope. */
   @IsString()
@@ -20,12 +20,12 @@ export class CreateWebhookDto {
 
   @IsString()
   @IsNotEmpty()
-  url: string;
+  url!: string;
 
   @IsArray()
   @IsString({ each: true })
   @ArrayMinSize(1)
-  eventTypes: string[];
+  eventTypes!: string[];
 
   @IsObject()
   @IsOptional()

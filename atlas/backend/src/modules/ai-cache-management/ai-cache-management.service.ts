@@ -26,9 +26,9 @@ import {
   AiCacheStatus,
   AiCacheEventType,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -162,9 +162,10 @@ export class AiCacheManagementService {
       };
     }
 
-    const shouldRevalidate = 
-      policy?.enableStaleRevalidate && 
-      (isStale || entry.status === AiCacheStatus.STALE);
+    const shouldRevalidate = Boolean(
+      policy?.enableStaleRevalidate &&
+      (isStale || entry.status === AiCacheStatus.STALE),
+    );
 
     await this.repository.incrementHitCount(entry.id);
 

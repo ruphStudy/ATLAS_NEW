@@ -4,6 +4,8 @@ import { ComparisonRecommendation, ComparisonStatus, ComparisonWeights, Supplier
 export class SupplierScoreBreakdownDto implements SupplierScoreBreakdown {
   @ApiProperty() supplierId!: string;
   @ApiProperty() rfqSupplierId!: string;
+  @ApiPropertyOptional() providerCode!: string | null;
+  @ApiPropertyOptional() providerQuotationRef!: string | null;
   @ApiPropertyOptional() quotedUnitPrice!: number | null;
   @ApiPropertyOptional() quotedTotalCost!: number | null;
   @ApiPropertyOptional() quotedMoq!: number | null;

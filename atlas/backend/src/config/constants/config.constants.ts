@@ -16,6 +16,7 @@ export const CONFIG_NAMESPACES = {
   AI_PROVIDER: 'aiProvider',
   AI_CREDENTIAL: 'aiCredential',
   STORAGE: 'storage',
+  AMAZON_PROVIDER: 'amazonProvider',
 } as const;
 
 export type ConfigNamespace = (typeof CONFIG_NAMESPACES)[keyof typeof CONFIG_NAMESPACES];
@@ -41,6 +42,7 @@ export const ENV_KEYS = {
   REDIS_HOST: 'REDIS_HOST',
   REDIS_PORT: 'REDIS_PORT',
   REDIS_PASSWORD: 'REDIS_PASSWORD',
+  REDIS_DB: 'REDIS_DB',
 
   // JWT
   JWT_SECRET: 'JWT_SECRET',
@@ -80,6 +82,21 @@ export const ENV_KEYS = {
   STORAGE_MAX_FILE_SIZE_BYTES: 'STORAGE_MAX_FILE_SIZE_BYTES',
   STORAGE_DEFAULT_WORKSPACE_QUOTA_BYTES: 'STORAGE_DEFAULT_WORKSPACE_QUOTA_BYTES',
   STORAGE_ACCESS_TOKEN_DEFAULT_TTL_MS: 'STORAGE_ACCESS_TOKEN_DEFAULT_TTL_MS',
+
+  // Amazon SP-API — global app-level credentials (shared across every
+  // workspace/seller account; per-seller refreshToken/sellerId live in
+  // marketplace-provider-credentials / marketplace-account instead)
+  AMAZON_SP_API_CLIENT_ID: 'AMAZON_SP_API_CLIENT_ID',
+  AMAZON_SP_API_CLIENT_SECRET: 'AMAZON_SP_API_CLIENT_SECRET',
+  AMAZON_SP_API_ENVIRONMENT: 'AMAZON_SP_API_ENVIRONMENT',
+  // Seller Central "Application ID" (Solution ID) — distinct from the LWA
+  // clientId above; required to build the seller-consent authorization URL.
+  AMAZON_SP_API_APPLICATION_ID: 'AMAZON_SP_API_APPLICATION_ID',
+  // Exact callback URL registered with Amazon for this app.
+  AMAZON_SP_API_REDIRECT_URI: 'AMAZON_SP_API_REDIRECT_URI',
+  // Sandbox-only global refresh token — verifies ATLAS's own sandbox
+  // configuration without any real seller/workspace connection.
+  AMAZON_SP_API_SANDBOX_REFRESH_TOKEN: 'AMAZON_SP_API_SANDBOX_REFRESH_TOKEN',
 } as const;
 
 export type EnvKey = (typeof ENV_KEYS)[keyof typeof ENV_KEYS];
@@ -95,6 +112,7 @@ export const CONFIG_DEFAULTS = {
   API_VERSION: '1',
   REDIS_HOST: 'localhost',
   REDIS_PORT: 6379,
+  REDIS_DB: 0,
   JWT_EXPIRES_IN: '7d',
   JWT_REFRESH_EXPIRES_IN: '30d',
   LOG_LEVEL: 'info',
@@ -115,4 +133,5 @@ export const CONFIG_DEFAULTS = {
   STORAGE_MAX_FILE_SIZE_BYTES: 104_857_600, // 100 MB
   STORAGE_DEFAULT_WORKSPACE_QUOTA_BYTES: 5_368_709_120, // 5 GB
   STORAGE_ACCESS_TOKEN_DEFAULT_TTL_MS: 900_000, // 15 minutes
+  AMAZON_SP_API_ENVIRONMENT: 'sandbox',
 } as const;

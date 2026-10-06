@@ -19,10 +19,10 @@ const RISK_TONE: Record<AuditRiskLevel, 'success' | 'warning' | 'danger'> = {
 };
 
 const SECURITY_REFERENCES = [
-  { label: 'API keys', description: 'Keys used for programmatic and service-account access.', href: '/dashboard/api-keys', icon: KeyRound, slug: 'api-key-management' },
-  { label: 'SSO connections', description: 'Organization single sign-on identity providers.', href: '/dashboard/sso-connections', icon: ShieldCheck, slug: 'sso-framework' },
-  { label: 'OAuth connections', description: 'Authorized OAuth clients and third-party connections.', href: '/dashboard/oauth-connections', icon: Link2, slug: 'oauth-management' },
-  { label: 'Full audit log', description: 'Complete workspace security and activity ledger.', href: '/dashboard/audit-logs', icon: ScrollText, slug: 'audit-logs' },
+  { label: 'API keys', description: 'Keys used for programmatic and service-account access.', href: '/api-keys', icon: KeyRound, slug: 'api-key-management' },
+  { label: 'SSO connections', description: 'Organization single sign-on identity providers.', href: '/sso-connections', icon: ShieldCheck, slug: 'sso-framework' },
+  { label: 'OAuth connections', description: 'Authorized OAuth clients and third-party connections.', href: '/oauth-connections', icon: Link2, slug: 'oauth-management' },
+  { label: 'Full audit log', description: 'Complete workspace security and activity ledger.', href: '/audit-logs', icon: ScrollText, slug: 'audit-logs' },
 ];
 
 export default function SecurityPage() {

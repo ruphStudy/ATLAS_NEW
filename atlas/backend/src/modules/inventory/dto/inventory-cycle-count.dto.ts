@@ -11,6 +11,7 @@ import {
   IsUrl,
   ValidateNested,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '@common/dto/pagination.dto';
 import {
   InventoryCycleCountLineStatus,
@@ -398,6 +399,7 @@ export class InventoryCycleCountHistoryResponseDto {
   id!: string;
   cycleCountId!: string;
   workspaceId!: string;
+  @ApiPropertyOptional({ enum: InventoryCycleCountStatus, nullable: true })
   fromStatus?: InventoryCycleCountStatus | null;
   toStatus!: InventoryCycleCountStatus;
   reason?: string | null;

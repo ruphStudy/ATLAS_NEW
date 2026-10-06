@@ -56,7 +56,7 @@ export default function InventoryMovementDetailPage() {
     <div>
       <PageHeader
         title={`Movement · ${movement.fromStatus} → ${movement.toStatus}`}
-        breadcrumbs={[{ label: 'Movements', href: '/dashboard/inventory-movements' }, { label: movement.id }]}
+        breadcrumbs={[{ label: 'Movements', href: '/inventory-movements' }, { label: movement.id }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={movement.status} />

@@ -60,7 +60,7 @@ export default function ReconciliationRunDetailPage() {
     <div>
       <PageHeader
         title={`Reconciliation · ${run.sourceType.replace(/_/g, ' ')}`}
-        breadcrumbs={[{ label: 'Reconciliations', href: '/dashboard/inventory-reconciliations' }, { label: run.id }]}
+        breadcrumbs={[{ label: 'Reconciliations', href: '/inventory-reconciliations' }, { label: run.id }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={run.status} />

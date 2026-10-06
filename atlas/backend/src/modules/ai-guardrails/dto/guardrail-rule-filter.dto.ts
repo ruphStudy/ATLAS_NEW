@@ -18,7 +18,7 @@ import {
 export class GuardrailRuleFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(GuardrailStage)
   @IsOptional()

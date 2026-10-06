@@ -13,7 +13,7 @@ import { AiDecisionStatus, AiDecisionType } from '../interfaces';
 export class DecisionFilterDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AiDecisionStatus)
   @IsOptional()

@@ -119,7 +119,7 @@ function RequestsTab({ assignedToMe }: { assignedToMe: boolean }) {
             </TableHeader>
             <TableBody>
               {rows.map((r: ApprovalRequest) => (
-                <TableRow key={r.id} className="cursor-pointer" onClick={() => router.push(`/dashboard/approval-workflow/${r.id}`)}>
+                <TableRow key={r.id} className="cursor-pointer" onClick={() => router.push(`/approval-workflow/${r.id}`)}>
                   <TableCell>
                     <p className="text-sm font-medium text-foreground">{r.title}</p>
                     <p className="text-xs text-muted-foreground">{r.module}</p>

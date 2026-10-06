@@ -3,10 +3,26 @@ import { BaseRepository } from '../../../database/base.repository';
 import { PrismaService } from '../../../database/prisma.service';
 import { SyncModule, SyncStatus } from '../interfaces';
 
+interface ISyncItemFailureRecord {
+  itemId: string;
+  errorCode: string | null;
+  errorMessage: string;
+  failedAt: Date;
+}
+
 @Injectable()
 export class SyncMonitorRepository extends BaseRepository {
   constructor(prisma: PrismaService) {
     super(prisma);
+  }
+
+  private model(name: string) {
+    return (this.prisma as unknown as Record<string, unknown>)[name] as Record<string, unknown>;
+  }
+
+  private call<T>(model: string, method: string, args: unknown): Promise<T> {
+    const m = this.model(model);
+    return (m[method] as (a: unknown) => Promise<T>)(args);
   }
 
   async findActiveJobs(workspaceId: string, module?: SyncModule) {
@@ -19,7 +35,7 @@ export class SyncMonitorRepository extends BaseRepository {
       where.module = module;
     }
 
-    return this.findMany('MarketplaceSyncJob', where);
+    return this.call<Record<string, unknown>[]>('marketplaceSyncJob', 'findMany', { where });
   }
 
   async findJobsByStatus(
@@ -36,7 +52,7 @@ export class SyncMonitorRepository extends BaseRepository {
       where.module = module;
     }
 
-    return this.findMany('MarketplaceSyncJob', where);
+    return this.call<Record<string, unknown>[]>('marketplaceSyncJob', 'findMany', { where });
   }
 
   async findJobsByProvider(
@@ -53,7 +69,7 @@ export class SyncMonitorRepository extends BaseRepository {
       where.accountId = accountId;
     }
 
-    return this.findMany('MarketplaceSyncJob', where);
+    return this.call<Record<string, unknown>[]>('marketplaceSyncJob', 'findMany', { where });
   }
 
   async findJobsByDateRange(
@@ -74,15 +90,25 @@ export class SyncMonitorRepository extends BaseRepository {
       where.module = module;
     }
 
-    return this.findMany('MarketplaceSyncJob', where, {
+    return this.call<Record<string, unknown>[]>('marketplaceSyncJob', 'findMany', {
+      where,
       orderBy: { startedAt: 'desc' },
     });
   }
 
   async findJob(workspaceId: string, jobId: string) {
-    return this.findUnique('MarketplaceSyncJob', {
-      id: jobId,
-      workspaceId,
+    return this.call<Record<string, unknown> | null>('marketplaceSyncJob', 'findFirst', {
+      where: {
+        id: jobId,
+        workspaceId,
+      },
+    });
+  }
+
+  async updateJob(jobId: string, workspaceId: string, data: Record<string, unknown>) {
+    return this.call<Record<string, unknown>>('marketplaceSyncJob', 'update', {
+      where: { id: jobId, workspaceId },
+      data,
     });
   }
 
@@ -103,7 +129,8 @@ export class SyncMonitorRepository extends BaseRepository {
       where.accountId = accountId;
     }
 
-    const jobs = await this.findMany('MarketplaceSyncJob', where, {
+    const jobs = await this.call<Record<string, unknown>[]>('marketplaceSyncJob', 'findMany', {
+      where,
       orderBy: { completedAt: 'desc' },
       take: 1,
     });
@@ -129,7 +156,8 @@ export class SyncMonitorRepository extends BaseRepository {
       where.accountId = accountId;
     }
 
-    return this.findMany('MarketplaceSyncJob', where, {
+    return this.call<Record<string, unknown>[]>('marketplaceSyncJob', 'findMany', {
+      where,
       orderBy: { startedAt: 'desc' },
       take: limit,
     });
@@ -138,10 +166,12 @@ export class SyncMonitorRepository extends BaseRepository {
   async findStuckJobs(workspaceId: string, thresholdMinutes: number = 60) {
     const thresholdDate = new Date(Date.now() - thresholdMinutes * 60 * 1000);
 
-    return this.findMany('MarketplaceSyncJob', {
-      workspaceId,
-      status: 'RUNNING',
-      startedAt: { lte: thresholdDate },
+    return this.call<Record<string, unknown>[]>('marketplaceSyncJob', 'findMany', {
+      where: {
+        workspaceId,
+        status: 'RUNNING',
+        startedAt: { lte: thresholdDate },
+      },
     });
   }
 
@@ -149,9 +179,11 @@ export class SyncMonitorRepository extends BaseRepository {
     workspaceId: string,
     minConsecutiveFailures: number = 3,
   ) {
-    return this.findMany('MarketplaceSyncJob', {
-      workspaceId,
-      consecutiveFailures: { gte: minConsecutiveFailures },
+    return this.call<Record<string, unknown>[]>('marketplaceSyncJob', 'findMany', {
+      where: {
+        workspaceId,
+        consecutiveFailures: { gte: minConsecutiveFailures },
+      },
     });
   }
 
@@ -169,21 +201,25 @@ export class SyncMonitorRepository extends BaseRepository {
       where.module = module;
     }
 
-    return this.count('MarketplaceSyncJob', where);
+    return this.call<number>('marketplaceSyncJob', 'count', { where });
   }
 
   async findItemFailures(workspaceId: string, jobId: string) {
-    return this.findMany('MarketplaceSyncItemFailure', {
-      workspaceId,
-      jobId,
+    return this.call<ISyncItemFailureRecord[]>('marketplaceSyncItemFailure', 'findMany', {
+      where: {
+        workspaceId,
+        jobId,
+      },
     });
   }
 
   async findUnresolvedItemFailures(workspaceId: string, module: SyncModule) {
-    return this.findMany('MarketplaceSyncItemFailure', {
-      workspaceId,
-      module,
-      isResolved: false,
+    return this.call<Record<string, unknown>[]>('marketplaceSyncItemFailure', 'findMany', {
+      where: {
+        workspaceId,
+        module,
+        isResolved: false,
+      },
     });
   }
 
@@ -197,18 +233,19 @@ export class SyncMonitorRepository extends BaseRepository {
     message: string;
     metadata?: Record<string, any>;
   }) {
-    return this.create('MarketplaceSyncIssue', {
-      ...data,
-      detectedAt: new Date(),
+    return this.call<Record<string, unknown>>('marketplaceSyncIssue', 'create', {
+      data: {
+        ...data,
+        detectedAt: new Date(),
+      },
     });
   }
 
   async resolveIssue(workspaceId: string, issueId: string) {
-    return this.update(
-      'MarketplaceSyncIssue',
-      { id: issueId, workspaceId },
-      { resolvedAt: new Date() },
-    );
+    return this.call<Record<string, unknown>>('marketplaceSyncIssue', 'update', {
+      where: { id: issueId, workspaceId },
+      data: { resolvedAt: new Date() },
+    });
   }
 
   async findActiveIssues(workspaceId: string, module?: SyncModule) {
@@ -221,15 +258,18 @@ export class SyncMonitorRepository extends BaseRepository {
       where.module = module;
     }
 
-    return this.findMany('MarketplaceSyncIssue', where, {
+    return this.call<Record<string, unknown>[]>('marketplaceSyncIssue', 'findMany', {
+      where,
       orderBy: { detectedAt: 'desc' },
     });
   }
 
   async findScheduledSyncs(workspaceId: string) {
-    return this.findMany('MarketplaceSyncSchedule', {
-      workspaceId,
-      isActive: true,
+    return this.call<Record<string, unknown>[]>('marketplaceSyncSchedule', 'findMany', {
+      where: {
+        workspaceId,
+        isActive: true,
+      },
     });
   }
 
@@ -250,12 +290,24 @@ export class SyncMonitorRepository extends BaseRepository {
       where.accountId = accountId;
     }
 
-    const schedules = await this.findMany('MarketplaceSyncSchedule', where, {
+    const schedules = await this.call<Record<string, unknown>[]>('marketplaceSyncSchedule', 'findMany', {
+      where,
       orderBy: { nextRunAt: 'asc' },
       take: 1,
     });
 
     return schedules[0] || null;
+  }
+
+  async findRateLimitRecord(
+    workspaceId: string,
+    module: SyncModule,
+    provider: string,
+    accountId: string,
+  ) {
+    return this.call<Record<string, unknown> | null>('marketplaceRateLimit', 'findFirst', {
+      where: { workspaceId, module, provider, accountId },
+    });
   }
 
   async aggregateErrorsByCode(workspaceId: string, jobId: string) {

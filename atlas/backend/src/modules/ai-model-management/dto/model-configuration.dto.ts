@@ -11,13 +11,13 @@ import {
 
 export class CreateModelConfigurationDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
-  modelId: string;
+  modelId!: string;
 
   @IsString()
-  capability: string;
+  capability!: string;
 
   @IsOptional()
   @IsString()

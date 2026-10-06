@@ -21,21 +21,21 @@ import {
 
 export class AnthropicExecuteDto {
   @IsString()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsEnum(AnthropicModel)
-  model: string;
+  model!: string;
 
   @IsEnum(AnthropicCapability)
-  capability: string;
+  capability!: string;
 
   @IsArray()
-  messages: IAnthropicMessage[];
+  messages!: IAnthropicMessage[];
 
   @IsNumber()
   @Min(1)
   @Max(200000)
-  maxTokens: number;
+  maxTokens!: number;
 
   @IsOptional()
   @IsString()

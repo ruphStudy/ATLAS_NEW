@@ -23,7 +23,7 @@ export class NotifyActionHandler implements IRuleActionHandler {
       targetUserIds: config.targetUserIds as string[] | undefined,
       type: config.type as NotificationType | undefined,
       category: (config.category as string) ?? rule.module,
-      priority: (config.priority as NotificationPriority) ?? NotificationPriority.MEDIUM,
+      priority: (config.priority as NotificationPriority) ?? NotificationPriority.NORMAL,
       title: config.title as string,
       message: config.message as string,
       sourceModule: BUSINESS_RULES_ENGINE_MODULE,

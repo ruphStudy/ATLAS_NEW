@@ -5,7 +5,7 @@ import { MAX_RECENT_LIMIT } from '../constants';
 export class SuggestionsQueryDto {
   @IsString()
   @IsNotEmpty()
-  q: string;
+  q!: string;
 
   @Type(() => Number)
   @IsInt()

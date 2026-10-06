@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SyncMonitorRepository } from '../repository/sync-monitor.repository';
 import { SyncModule, SyncStatus } from '../interfaces';
 
-export interface SyncMonitorMetrics {
+export interface ISyncMonitorMetrics {
   workspaceId: string;
   module?: SyncModule;
   totalJobs: number;
@@ -22,6 +22,14 @@ export interface SyncMonitorMetrics {
   consecutiveFailuresCount: number;
 }
 
+interface ISyncJobMetricsRecord {
+  module?: string;
+  itemsProcessed?: number;
+  itemsFailed?: number;
+  startedAt?: Date;
+  completedAt?: Date;
+}
+
 @Injectable()
 export class SyncMonitorMetrics {
   constructor(private readonly repository: SyncMonitorRepository) {}
@@ -29,7 +37,7 @@ export class SyncMonitorMetrics {
   async getMetrics(
     workspaceId: string,
     module?: SyncModule,
-  ): Promise<SyncMonitorMetrics> {
+  ): Promise<ISyncMonitorMetrics> {
     const [
       activeJobs,
       completedJobs,
@@ -42,7 +50,7 @@ export class SyncMonitorMetrics {
     ] = await Promise.all([
       this.repository.findJobsByStatus(
         workspaceId,
-        ['QUEUED', 'RUNNING', 'PAUSED'],
+        [SyncStatus.QUEUED, SyncStatus.RUNNING, SyncStatus.PAUSED],
         module,
       ),
       this.repository.findJobsByStatus(workspaceId, SyncStatus.COMPLETED, module),
@@ -61,7 +69,7 @@ export class SyncMonitorMetrics {
       ...completedJobs,
       ...failedJobs,
       ...cancelledJobs,
-    ];
+    ] as unknown as ISyncJobMetricsRecord[];
 
     const totalItemsProcessed = allJobs.reduce(
       (sum, job) => sum + (job.itemsProcessed || 0),

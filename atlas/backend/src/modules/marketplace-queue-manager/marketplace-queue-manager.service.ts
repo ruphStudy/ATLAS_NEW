@@ -154,7 +154,7 @@ export class MarketplaceQueueManagerService {
         queueName: '',
         queueType: criteria.queueType,
         workspaceId: criteria.workspaceId,
-        message: `Recovered ${result.metadata.recoveredCount} stale jobs`,
+        message: `Recovered ${result.metadata?.recoveredCount} stale jobs`,
         metadata: result.metadata,
         timestamp: new Date(),
       });
@@ -167,7 +167,8 @@ export class MarketplaceQueueManagerService {
     workspaceId: string,
     jobId: string,
   ): Promise<IJobHistory[]> {
-    return this.jobManager.getJobHistory(workspaceId, jobId);
+    const history = await this.jobManager.getJobHistory(workspaceId, jobId);
+    return history as unknown as IJobHistory[];
   }
 
   async pauseQueue(queueType: QueueType): Promise<QueueOperationResult> {
@@ -271,7 +272,8 @@ export class MarketplaceQueueManagerService {
     workspaceId: string,
     queueType?: QueueType,
   ): Promise<IDeadLetterJob[]> {
-    return this.repository.findDeadLetterJobs(workspaceId, queueType);
+    const jobs = await this.repository.findDeadLetterJobs(workspaceId, queueType);
+    return jobs as unknown as IDeadLetterJob[];
   }
 
   async reprocessDeadLetterJob(
@@ -279,20 +281,19 @@ export class MarketplaceQueueManagerService {
     deadLetterJobId: string,
     options?: IJobOptions,
   ): Promise<QueueOperationResult> {
-    const deadLetterJob = await this.repository.findUnique(
-      'MarketplaceDeadLetterJob',
-      {
-        id: deadLetterJobId,
-        workspaceId,
-      },
+    const deadLetterJobRaw = await this.repository.findDeadLetterJobById(
+      deadLetterJobId,
+      workspaceId,
     );
 
-    if (!deadLetterJob) {
+    if (!deadLetterJobRaw) {
       return {
         success: false,
         message: 'Dead letter job not found',
       };
     }
+
+    const deadLetterJob = deadLetterJobRaw as unknown as IDeadLetterJob;
 
     const payload: IJobPayload = deadLetterJob.payload;
     const result = await this.addJob(
@@ -317,18 +318,20 @@ export class MarketplaceQueueManagerService {
     accountId: string | undefined,
     queueType: QueueType,
   ): Promise<IRateLimitConfig | null> {
-    return this.repository.findRateLimitConfig(
+    const config = await this.repository.findRateLimitConfig(
       workspaceId,
       provider,
       accountId,
       queueType,
     );
+    return config as unknown as IRateLimitConfig | null;
   }
 
   async createRateLimitConfig(
     config: IRateLimitConfig,
   ): Promise<IRateLimitConfig> {
-    return this.repository.createRateLimitConfig(config);
+    const created = await this.repository.createRateLimitConfig(config);
+    return created as unknown as IRateLimitConfig;
   }
 
   async updateRateLimitConfig(
@@ -338,12 +341,13 @@ export class MarketplaceQueueManagerService {
     queueType: QueueType,
     config: Partial<IRateLimitConfig>,
   ): Promise<IRateLimitConfig> {
-    return this.repository.updateRateLimitConfig(
+    const updated = await this.repository.updateRateLimitConfig(
       workspaceId,
       provider,
       accountId,
       queueType,
       config,
     );
+    return updated as unknown as IRateLimitConfig;
   }
 }

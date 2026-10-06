@@ -14,25 +14,25 @@ import { AiJobType, AiJobTaskType, AiJobPriority } from '../interfaces';
 export class CreateAiJobDto {
   @IsString()
   @IsNotEmpty()
-  workspaceId: string;
+  workspaceId!: string;
 
   @IsString()
   @IsNotEmpty()
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
   @IsEnum(AiJobType)
-  type: AiJobType;
+  type!: AiJobType;
 
   @IsEnum(AiJobTaskType)
-  taskType: AiJobTaskType;
+  taskType!: AiJobTaskType;
 
   @IsEnum(AiJobPriority)
   @IsOptional()

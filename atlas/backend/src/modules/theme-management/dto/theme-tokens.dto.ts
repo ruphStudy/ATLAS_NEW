@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 export class ThemeModeTokensDto {
   @IsObject()
   @IsNotEmpty()
-  colors: Record<string, string>;
+  colors!: Record<string, string>;
 
   @IsObject()
   @IsOptional()
@@ -30,9 +30,9 @@ export class ThemeModeTokensDto {
 export class ThemeTokensDto {
   @ValidateNested()
   @Type(() => ThemeModeTokensDto)
-  light: ThemeModeTokensDto;
+  light!: ThemeModeTokensDto;
 
   @ValidateNested()
   @Type(() => ThemeModeTokensDto)
-  dark: ThemeModeTokensDto;
+  dark!: ThemeModeTokensDto;
 }

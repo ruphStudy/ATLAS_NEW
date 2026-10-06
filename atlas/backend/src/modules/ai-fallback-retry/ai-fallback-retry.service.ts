@@ -26,9 +26,9 @@ import {
   IRetryError,
   IFallbackCandidate,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -64,7 +64,7 @@ export class AiFallbackRetryService {
 
     let policy: IAiRetryPolicy | undefined;
     if (dto.policyId) {
-      policy = await this.repository.findRetryPolicyById(dto.policyId);
+      policy = (await this.repository.findRetryPolicyById(dto.policyId)) ?? undefined;
     } else if (policies.length > 0) {
       policy = policies[0];
     }
@@ -539,7 +539,7 @@ export class AiFallbackRetryService {
       return false;
     }
 
-    if (policy?.retryableFailures.length > 0) {
+    if (policy && policy.retryableFailures && policy.retryableFailures.length > 0) {
       return policy.retryableFailures.includes(failureType);
     }
 

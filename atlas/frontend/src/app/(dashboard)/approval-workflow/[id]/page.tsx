@@ -67,7 +67,7 @@ export default function ApprovalRequestDetailPage() {
     <div>
       <PageHeader
         title={request.title}
-        breadcrumbs={[{ label: 'Approval Inbox', href: '/dashboard/approval-workflow' }, { label: request.title }]}
+        breadcrumbs={[{ label: 'Approval Inbox', href: '/approval-workflow' }, { label: request.title }]}
         actions={
           <>
             <StatusBadge status={request.status} />
@@ -184,7 +184,7 @@ export default function ApprovalRequestDetailPage() {
       </Dialog>
 
       <div className="mt-6">
-        <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/approval-workflow')}>
+        <Button variant="ghost" size="sm" onClick={() => router.push('/approval-workflow')}>
           Back to inbox
         </Button>
       </div>

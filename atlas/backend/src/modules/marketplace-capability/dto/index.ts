@@ -2,6 +2,7 @@ import {
   CapabilityCategory,
   CapabilityDependency,
   CapabilityOverrideType,
+  CapabilityStatus,
   CapabilitySupportLevel,
   IMarketplaceCapabilityDefinition,
   IMarketplaceProviderCapabilityDeclaration,
@@ -113,7 +114,7 @@ export class CapabilityFilterDto {
   providerKey?: string;
   capabilityKey?: string;
   category?: CapabilityCategory;
-  status?: string;
+  status?: CapabilityStatus;
   marketplaceKey?: string;
   accountId?: string;
   country?: string;

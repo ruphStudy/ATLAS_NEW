@@ -159,7 +159,7 @@ function TaskListTab({ base }: { base: Partial<TaskFilterParams> }) {
             </TableHeader>
             <TableBody>
               {rows.map((t: Task) => (
-                <TableRow key={t.id} className="cursor-pointer" onClick={() => router.push(`/dashboard/tasks/${t.id}`)}>
+                <TableRow key={t.id} className="cursor-pointer" onClick={() => router.push(`/tasks/${t.id}`)}>
                   <TableCell>
                     <p className="text-sm font-medium text-foreground">{t.title}</p>
                     <p className="text-xs text-muted-foreground">{t.module ?? t.category ?? '—'}</p>
@@ -225,7 +225,7 @@ function TeamTasksTab() {
       </TableHeader>
       <TableBody>
         {rows.map((t) => (
-          <TableRow key={t.id} className="cursor-pointer" onClick={() => router.push(`/dashboard/tasks/${t.id}`)}>
+          <TableRow key={t.id} className="cursor-pointer" onClick={() => router.push(`/tasks/${t.id}`)}>
             <TableCell>
               <p className="text-sm font-medium text-foreground">{t.title}</p>
               <p className="text-xs text-muted-foreground">{t.module ?? '—'}</p>

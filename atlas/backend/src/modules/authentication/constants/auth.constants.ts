@@ -14,6 +14,18 @@ export const AUTH_CONSTANTS = {
   // ── Failed-login lockout ────────────────────────────────────────
   LOGIN_LOCKOUT_THRESHOLD: 5,
   LOGIN_LOCKOUT_WINDOW_MS: 15 * 60 * 1000,
+
+  // ── Password lifecycle (Amazon SP-API Developer Profile compliance) ──
+  MAX_PASSWORD_AGE_DAYS: 365,
+
+  // ── MFA ───────────────────────────────────────────────────────
+  /** How long a login MFA challenge stays valid — short by design; contains no secrets either way. */
+  MFA_CHALLENGE_EXPIRES_IN: '5m',
+  MFA_CHALLENGE_TYPE: 'mfa_challenge',
+  MFA_CHALLENGE_THROTTLE_LIMIT: 5,
+  MFA_CHALLENGE_THROTTLE_TTL_MS: 60_000,
+  CHANGE_PASSWORD_THROTTLE_LIMIT: 5,
+  CHANGE_PASSWORD_THROTTLE_TTL_MS: 60_000,
 } as const;
 
 export const IS_PUBLIC_KEY = 'isPublic' as const;

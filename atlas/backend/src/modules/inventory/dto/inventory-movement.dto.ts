@@ -1,4 +1,5 @@
 import { IsEnum, IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '@common/dto/pagination.dto';
 import { InventoryMovementStatus, InventoryStockStatus } from '../interfaces';
 
@@ -203,6 +204,7 @@ export class InventoryMovementHistoryResponseDto {
   id!: string;
   movementId!: string;
   workspaceId!: string;
+  @ApiPropertyOptional({ enum: InventoryMovementStatus, nullable: true })
   fromStatus?: InventoryMovementStatus | null;
   toStatus!: InventoryMovementStatus;
   reason?: string | null;

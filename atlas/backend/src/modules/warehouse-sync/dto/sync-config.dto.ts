@@ -15,17 +15,17 @@ import {
 
 export class CreateWarehouseSyncConfigurationDto {
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
   description?: string;
 
   @IsString()
-  sourceWarehouseId: string;
+  sourceWarehouseId!: string;
 
   @IsString()
-  targetWarehouseId: string;
+  targetWarehouseId!: string;
 
   @IsEnum(WarehouseSyncType)
   @IsOptional()

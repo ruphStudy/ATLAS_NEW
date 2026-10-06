@@ -21,11 +21,11 @@ export class CreateWorkflowDefinitionDto {
   @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
     message: 'key must be a lowercase, hyphen-separated identifier (e.g. "purchase-order-approval")',
   })
-  key: string;
+  key!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -33,20 +33,20 @@ export class CreateWorkflowDefinitionDto {
 
   @IsString()
   @IsNotEmpty()
-  module: string;
+  module!: string;
 
   @IsString()
   @IsOptional()
   entityType?: string;
 
   @IsEnum(ApprovalWorkflowMode)
-  mode: ApprovalWorkflowMode;
+  mode!: ApprovalWorkflowMode;
 
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => ApprovalStepConfigDto)
-  steps: ApprovalStepConfigDto[];
+  steps!: ApprovalStepConfigDto[];
 
   @ValidateNested()
   @Type(() => ApprovalMatchCriteriaDto)
@@ -86,7 +86,7 @@ export class CreateFromTemplateDto {
   @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
     message: 'key must be a lowercase, hyphen-separated identifier (e.g. "purchase-order-approval")',
   })
-  key: string;
+  key!: string;
 
   @IsString()
   @IsOptional()

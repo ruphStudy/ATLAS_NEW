@@ -8,3 +8,4 @@ export type { ILoggerConfig } from './logger-config.interface';
 export type { IAiProviderFoundationConfig } from './ai-provider-config.interface';
 export type { IAiCredentialConfig } from './ai-credential-config.interface';
 export type { IStorageFoundationConfig } from './storage-config.interface';
+export type { IAmazonProviderConfig, AmazonSpApiEnvironment } from './amazon-provider-config.interface';

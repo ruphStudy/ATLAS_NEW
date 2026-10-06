@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 export class DelegateApprovalDto {
   @IsString()
   @IsNotEmpty()
-  toUserId: string;
+  toUserId!: string;
 
   @IsString()
   @IsOptional()
@@ -13,7 +13,7 @@ export class DelegateApprovalDto {
 export class ReassignApprovalDto {
   @IsString()
   @IsNotEmpty()
-  toUserId: string;
+  toUserId!: string;
 
   @IsString()
   @IsOptional()

@@ -83,7 +83,7 @@ export default function InventoryTransferDetailPage() {
     <div>
       <PageHeader
         title={transfer.transferNumber}
-        breadcrumbs={[{ label: 'Transfers', href: '/dashboard/inventory-transfers' }, { label: transfer.transferNumber }]}
+        breadcrumbs={[{ label: 'Transfers', href: '/inventory-transfers' }, { label: transfer.transferNumber }]}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={transfer.status} />

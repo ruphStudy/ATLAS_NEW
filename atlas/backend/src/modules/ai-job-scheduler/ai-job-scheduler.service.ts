@@ -23,14 +23,15 @@ import {
   AiJobStatus,
   AiJobType,
   AiJobTaskType,
+  AiJobPriority,
   AiJobEvent,
   IJobExecutionResult,
   ITaskConfig,
   IRetryBackoff,
 } from './interfaces';
-import { ResourceNotFoundException } from '@common/exceptions/resource-not-found.exception';
-import { BusinessRuleException } from '@common/exceptions/business-rule.exception';
-import { DuplicateResourceException } from '@common/exceptions/duplicate-resource.exception';
+import { ResourceNotFoundException } from '@common/exceptions';
+import { BusinessRuleException } from '@common/exceptions';
+import { DuplicateResourceException } from '@common/exceptions';
 import { ErrorCode } from '@common/exceptions/error-codes.enum';
 
 @Injectable()
@@ -75,7 +76,7 @@ export class AiJobSchedulerService {
       description: dto.description,
       type: dto.type,
       taskType: dto.taskType,
-      priority: dto.priority || 'NORMAL',
+      priority: dto.priority || AiJobPriority.NORMAL,
       status: AiJobStatus.PENDING,
       taskConfig: dto.taskConfig,
       scheduleConfig: dto.scheduleConfig || null,
@@ -115,7 +116,10 @@ export class AiJobSchedulerService {
   ): Promise<IAiJob> {
     await this.findJobById(id, workspaceId);
 
-    const updated = (await this.repository.updateJob(id, dto)) as IAiJob;
+    const updated = (await this.repository.updateJob(
+      id,
+      dto as unknown as Partial<IAiJob>,
+    )) as IAiJob;
 
     await this.eventQueue.publish({
       event: AiJobEvent.JOB_UPDATED,
@@ -350,15 +354,15 @@ export class AiJobSchedulerService {
         const agentResult = await this.agentService.executeAgent({
           workspaceId: job.workspaceId,
           agentId: taskConfig.agentId!,
-          input: taskConfig.input || execution.input || '',
-          context: taskConfig.context,
+          input: (taskConfig.input as string) || (execution.input as string) || '',
+          context: taskConfig.context as Record<string, unknown> | undefined,
         });
         output = agentResult.output;
         cost = agentResult.totalCost;
         tokens = agentResult.totalTokens;
 
         await this.repository.updateExecution(execution.id, {
-          agentExecutionId: agentResult.id,
+          agentExecutionId: agentResult.executionId,
         });
         break;
 
@@ -504,6 +508,7 @@ export class AiJobSchedulerService {
     await this.eventQueue.publish({
       event: AiJobEvent.JOB_CANCELLED,
       workspaceId,
+      jobId: execution.jobId,
       executionId: id,
     });
 

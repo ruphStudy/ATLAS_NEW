@@ -124,28 +124,3 @@ export class InventoryMapper {
     return clean;
   }
 }
-    if (t === 'INCOMING') return InventoryItemType.INCOMING;
-    if (t === 'SAFETY_STOCK') return InventoryItemType.SAFETY_STOCK;
-    if (t === 'ADJUSTMENT') return InventoryItemType.ADJUSTMENT;
-    if (t === 'RESERVATION') return InventoryItemType.RESERVATION;
-    return InventoryItemType.ALL;
-  }
-
-  private resolveAdjustmentType(d: Record<string, unknown>): InventoryAdjustmentType {
-    const t = String(d['adjustmentType'] ?? d['type'] ?? d['reason'] ?? '').toUpperCase();
-    if (t.includes('RECEIV') || t.includes('INBOUND')) return InventoryAdjustmentType.RECEIVED;
-    if (t.includes('SOLD') || t.includes('SALE')) return InventoryAdjustmentType.SOLD;
-    if (t.includes('RETURN')) return InventoryAdjustmentType.RETURNED;
-    if (t.includes('DAMAGE')) return InventoryAdjustmentType.DAMAGED;
-    if (t.includes('LOST')) return InventoryAdjustmentType.LOST;
-    if (t.includes('TRANSFER')) return InventoryAdjustmentType.TRANSFER;
-    if (t.includes('RESERV') && t.includes('CANCEL')) return InventoryAdjustmentType.RESERVATION_CANCEL;
-    if (t.includes('RESERV')) return InventoryAdjustmentType.RESERVATION;
-    return InventoryAdjustmentType.CORRECTION;
-  }
-
-  private sanitize(d: Record<string, unknown>): Record<string, unknown> {
-    const unsafe = /secret|token|password|credential|key|auth/i;
-    return Object.fromEntries(Object.entries(d).map(([k, v]) => [k, unsafe.test(k) ? '***' : v]));
-  }
-}

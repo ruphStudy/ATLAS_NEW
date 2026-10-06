@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Queue } from 'bullmq';
+import { ConfigurationService } from '@config/configuration.service';
 import { QUEUE_NAMES } from '@common/constants';
 import { GstVatEventPayload } from '../interfaces';
 import { GST_VAT_EVENT_QUEUE_CONFIG } from '../constants';
@@ -7,10 +8,12 @@ import { GST_VAT_EVENT_QUEUE_CONFIG } from '../constants';
 @Injectable()
 export class GstVatEventQueue implements OnModuleDestroy {
   private readonly logger = new Logger(GstVatEventQueue.name);
-  private readonly queue: Queue<GstVatEventPayload>;
+  private readonly queue: Queue;
 
-  constructor() {
-    this.queue = new Queue<GstVatEventPayload>(QUEUE_NAMES.GST_VAT_EVENTS, {
+  constructor(configService: ConfigurationService) {
+    const redis = configService.getRedisConfig();
+    this.queue = new Queue(QUEUE_NAMES.GST_VAT_EVENTS, {
+      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
       defaultJobOptions: {
         attempts: GST_VAT_EVENT_QUEUE_CONFIG.ATTEMPTS,
         backoff: { type: 'exponential', delay: GST_VAT_EVENT_QUEUE_CONFIG.BACKOFF_MS },
