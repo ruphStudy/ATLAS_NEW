@@ -8,6 +8,7 @@ import type { Response } from 'express';
 import { HealthService } from './health.service';
 import { HealthStatus } from './constants';
 import { HealthResponseDto, LivenessResponseDto, ReadinessResponseDto } from './dto';
+import { Public } from '@modules/authentication/decorators/public.decorator';
 
 /**
  * HealthController
@@ -24,6 +25,7 @@ import { HealthResponseDto, LivenessResponseDto, ReadinessResponseDto } from './
  *   GET /api/v1/health/ready  – readiness probe
  */
 @ApiTags('Health')
+@Public()
 @Controller({ path: 'health', version: '1' })
 export class HealthController {
   private readonly logger = new Logger(HealthController.name);
