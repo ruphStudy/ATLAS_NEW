@@ -158,3 +158,9 @@ variable "cors_origins" {
   type        = string
   default     = ""
 }
+
+variable "redis_tls" {
+  description = "Enable TLS for Redis connections"
+  type        = bool
+  default     = false
+}

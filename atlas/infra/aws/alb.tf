@@ -69,7 +69,7 @@ resource "aws_lb_target_group" "backend" {
   target_type = "ip" # required for awsvpc-networked Fargate tasks
 
   health_check {
-    path                = "/health/liveness"
+    path                = "/api/v1/health/live"
     healthy_threshold   = 2
     unhealthy_threshold = 3
     interval            = 30

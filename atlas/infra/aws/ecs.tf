@@ -35,6 +35,7 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "PORT", value = tostring(var.backend_container_port) },
         { name = "REDIS_HOST", value = aws_elasticache_replication_group.main.primary_endpoint_address },
         { name = "REDIS_PORT", value = "6379" },
+        { name = "REDIS_TLS", value = tostring(var.redis_tls) },
         { name = "AMAZON_SP_API_ENVIRONMENT", value = "sandbox" },
         { name = "AMAZON_SP_API_CLIENT_ID", value = var.amazon_sp_api_client_id },
         { name = "AMAZON_SP_API_APPLICATION_ID", value = var.amazon_sp_api_application_id },

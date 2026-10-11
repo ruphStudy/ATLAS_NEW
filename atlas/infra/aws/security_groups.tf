@@ -36,7 +36,7 @@ resource "aws_security_group" "alb" {
 
 resource "aws_security_group" "ecs" {
   name        = "${var.project}-${var.environment}-ecs-sg"
-  description = "Backend Fargate tasks — inbound only from the ALB"
+  description = "Backend Fargate tasks - inbound only from the ALB"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -60,7 +60,7 @@ resource "aws_security_group" "ecs" {
 
 resource "aws_security_group" "rds" {
   name        = "${var.project}-${var.environment}-rds-sg"
-  description = "PostgreSQL — inbound only from the ECS tasks, never public"
+  description = "PostgreSQL - inbound only from the ECS tasks, never public"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -83,7 +83,7 @@ resource "aws_security_group" "rds" {
 
 resource "aws_security_group" "redis" {
   name        = "${var.project}-${var.environment}-redis-sg"
-  description = "Redis — inbound only from the ECS tasks, never public"
+  description = "Redis - inbound only from the ECS tasks, never public"
   vpc_id      = aws_vpc.main.id
 
   ingress {
