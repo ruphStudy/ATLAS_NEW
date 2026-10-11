@@ -72,3 +72,4 @@ docker-data/
 # Husky
 # ──────────────────────────────────────────────
 .husky/_/
+backend/.env.development
