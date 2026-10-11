@@ -22,6 +22,7 @@ export class MarketplaceListingTransformQueue implements OnModuleDestroy {
           host: redisConfig.host,
           port: redisConfig.port,
           password: redisConfig.password,
+          tls: redisConfig.tls ? {} : undefined,
           db: redisConfig.db,
         },
         defaultJobOptions: {

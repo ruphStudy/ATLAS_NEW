@@ -17,10 +17,10 @@ export class VerificationQueue implements OnModuleInit, OnModuleDestroy {
   constructor(private readonly configService: ConfigurationService) {}
 
   onModuleInit(): void {
-    const { host, port, password } = this.configService.getRedisConfig();
+    const { host, port, password, tls } = this.configService.getRedisConfig();
     try {
       this.queue = new Queue<VerificationJobData>(VERIFICATION_CONSTANTS.QUEUE_NAME, {
-        connection: { host, port, password, maxRetriesPerRequest: null },
+        connection: { host, port, password, maxRetriesPerRequest: null, tls: tls ? {} : undefined },
         defaultJobOptions: {
           attempts: 3,
           backoff: { type: 'exponential', delay: 5_000 },

@@ -15,7 +15,7 @@ export class MarketplaceHealthCheckQueue implements OnModuleDestroy {
     this.queue = new Queue<MarketplaceHealthCheckJobPayload>(
       QUEUE_NAMES.MARKETPLACE_PROVIDER_HEALTH_CHECK,
       {
-        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
+        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db, tls: redis.tls ? {} : undefined },
       },
     );
   }

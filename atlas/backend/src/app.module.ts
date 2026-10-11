@@ -232,6 +232,7 @@ import { SaasHealthModule } from '@modules/saas-health/saas-health.module';
             port: redis.port,
             password: redis.password,
             db: redis.db,
+            ...(redis.tls === true ? { tls: {} } : {}),
           },
         };
       },

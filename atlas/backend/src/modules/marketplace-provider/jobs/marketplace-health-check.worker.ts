@@ -31,7 +31,7 @@ export class MarketplaceHealthCheckWorker implements OnModuleInit {
       },
       {
         concurrency: 5,
-        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
+        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db, tls: redis.tls ? {} : undefined },
       },
     );
 

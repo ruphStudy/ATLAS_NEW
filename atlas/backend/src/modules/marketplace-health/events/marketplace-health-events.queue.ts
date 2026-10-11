@@ -13,7 +13,7 @@ export class MarketplaceHealthEventQueue implements OnModuleDestroy {
   constructor(configService: ConfigurationService) {
     const redis = configService.getRedisConfig();
     this.queue = new Queue<HealthEventPayload>(QUEUE_NAMES.MARKETPLACE_HEALTH_EVENTS, {
-      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
+      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db, tls: redis.tls ? {} : undefined },
       defaultJobOptions: {
         attempts: MP_HEALTH_QUEUE_CONFIG.ATTEMPTS,
         backoff: { type: 'exponential', delay: MP_HEALTH_QUEUE_CONFIG.BACKOFF_MS },

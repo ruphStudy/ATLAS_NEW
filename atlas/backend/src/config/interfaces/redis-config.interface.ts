@@ -3,4 +3,5 @@ export interface IRedisConfig {
   readonly port: number;
   readonly password: string | undefined;
   readonly db: number;
+  readonly tls?: boolean;
 }

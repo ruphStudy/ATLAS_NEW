@@ -30,7 +30,7 @@ export class ListingSyncQueue implements OnModuleDestroy {
   constructor(configService: ConfigurationService) {
     const redis = configService.getRedisConfig();
     this.queue = new Queue(QUEUE_NAMES.MARKETPLACE_LISTING_SYNC_JOB, {
-      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
+      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db, tls: redis.tls ? {} : undefined },
       defaultJobOptions: {
         attempts: MP_LISTING_SYNC_QUEUE_CONFIG.ATTEMPTS,
         backoff: { type: 'exponential', delay: MP_LISTING_SYNC_QUEUE_CONFIG.BACKOFF_MS },

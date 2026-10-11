@@ -89,6 +89,11 @@ export class EnvironmentVariables {
   @IsOptional()
   REDIS_PASSWORD?: string;
 
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  @IsOptional()
+  REDIS_TLS: boolean = false;
+
   // ── JWT ──────────────────────────────────────────────────────
   @IsString()
   @MinLength(32, { message: 'JWT_SECRET must be at least 32 characters' })

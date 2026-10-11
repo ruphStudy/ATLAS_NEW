@@ -18,13 +18,13 @@ export class SupplierDiscoveryProcessor implements OnModuleInit, OnModuleDestroy
   ) {}
 
   onModuleInit(): void {
-    const { host, port, password } = this.configService.getRedisConfig();
+    const { host, port, password, tls } = this.configService.getRedisConfig();
     try {
       this.worker = new Worker<SupplierDiscoveryJobData>(
         SUPPLIER_DISCOVERY_CONSTANTS.QUEUE_NAME,
         (job) => this.process(job),
         {
-          connection: { host, port, password, maxRetriesPerRequest: null },
+          connection: { host, port, password, maxRetriesPerRequest: null, tls: tls ? {} : undefined },
           concurrency: SUPPLIER_DISCOVERY_CONSTANTS.WORKER_CONCURRENCY,
         },
       );

@@ -13,7 +13,7 @@ export class MultiChannelEventQueue implements OnModuleDestroy {
   constructor(configService: ConfigurationService) {
     const redis = configService.getRedisConfig();
     this.queue = new Queue(QUEUE_NAMES.MULTI_CHANNEL_EVENTS, {
-      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
+      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db, tls: redis.tls ? {} : undefined },
       defaultJobOptions: {
         attempts: MULTI_CHANNEL_EVENT_QUEUE_CONFIG.ATTEMPTS,
         backoff: { type: 'exponential', delay: MULTI_CHANNEL_EVENT_QUEUE_CONFIG.BACKOFF_MS },

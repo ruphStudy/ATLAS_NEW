@@ -192,12 +192,13 @@ export class HealthService implements OnModuleInit, OnModuleDestroy {
   // ── Private Helpers ──────────────────────────────────────────
 
   private initRedisClient(): void {
-    const { host, port, password } = this.configService.getRedisConfig();
+    const { host, port, password, tls } = this.configService.getRedisConfig();
 
     this.redisClient = new Redis({
       host,
       port,
       password,
+      tls: tls ? {} : undefined,
       connectTimeout: HEALTH_CONSTANTS.CHECK_TIMEOUT_MS,
       commandTimeout: HEALTH_CONSTANTS.CHECK_TIMEOUT_MS,
       maxRetriesPerRequest: 0,

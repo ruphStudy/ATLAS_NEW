@@ -15,7 +15,7 @@ export class MarketplaceCredentialEventQueue implements OnModuleDestroy {
     this.queue = new Queue<CredentialEventPayload>(
       QUEUE_NAMES.MARKETPLACE_PROVIDER_CREDENTIAL_EVENTS,
       {
-        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
+        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db, tls: redis.tls ? {} : undefined },
       },
     );
   }

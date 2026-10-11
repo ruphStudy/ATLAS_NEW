@@ -28,6 +28,7 @@ export class QuotationComparisonWorker implements OnModuleInit, OnModuleDestroy 
             host: redisConfig.host,
             port: redisConfig.port,
             password: redisConfig.password,
+            tls: redisConfig.tls ? {} : undefined,
             db: redisConfig.db,
           },
           concurrency: QUOTATION_COMPARISON_QUEUE_CONFIG.CONCURRENCY,

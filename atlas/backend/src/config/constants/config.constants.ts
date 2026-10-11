@@ -43,6 +43,7 @@ export const ENV_KEYS = {
   REDIS_PORT: 'REDIS_PORT',
   REDIS_PASSWORD: 'REDIS_PASSWORD',
   REDIS_DB: 'REDIS_DB',
+  REDIS_TLS: 'REDIS_TLS',
 
   // JWT
   JWT_SECRET: 'JWT_SECRET',
@@ -113,6 +114,7 @@ export const CONFIG_DEFAULTS = {
   REDIS_HOST: 'localhost',
   REDIS_PORT: 6379,
   REDIS_DB: 0,
+  REDIS_TLS: false,
   JWT_EXPIRES_IN: '7d',
   JWT_REFRESH_EXPIRES_IN: '30d',
   LOG_LEVEL: 'info',

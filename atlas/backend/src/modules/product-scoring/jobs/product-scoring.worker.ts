@@ -32,6 +32,7 @@ export class ProductScoringWorker implements OnModuleInit, OnModuleDestroy {
             host: redisConfig.host,
             port: redisConfig.port,
             password: redisConfig.password,
+            tls: redisConfig.tls ? {} : undefined,
             db: redisConfig.db,
           },
           concurrency: SCORING_QUEUE_CONFIG.CONCURRENCY,

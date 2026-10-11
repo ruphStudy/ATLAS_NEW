@@ -15,5 +15,6 @@ export const redisConfig = registerAs(
       process.env[ENV_KEYS.REDIS_DB] ?? String(CONFIG_DEFAULTS.REDIS_DB),
       10,
     ),
+    tls: process.env[ENV_KEYS.REDIS_TLS] === 'true',
   }),
 );

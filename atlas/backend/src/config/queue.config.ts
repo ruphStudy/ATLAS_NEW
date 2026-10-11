@@ -25,6 +25,7 @@ export const queueConfig = registerAs(
         process.env[ENV_KEYS.BULLMQ_REDIS_PASSWORD] ??
         process.env[ENV_KEYS.REDIS_PASSWORD] ??
         undefined,
+      tls: process.env[ENV_KEYS.REDIS_TLS] === 'true',
     },
   }),
 );

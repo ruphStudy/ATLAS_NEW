@@ -14,7 +14,7 @@ export class MarketplaceFrameworkEventQueue implements OnModuleDestroy {
     this.queue = new Queue<MarketplaceFrameworkEventPayload>(
       QUEUE_NAMES.MARKETPLACE_FRAMEWORK_EVENTS,
       {
-        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
+        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db, tls: redis.tls ? {} : undefined },
       },
     );
   }

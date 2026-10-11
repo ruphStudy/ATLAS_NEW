@@ -15,7 +15,7 @@ export class ConnectionTestEventQueue implements OnModuleDestroy {
     this.queue = new Queue<ConnectionTestEventPayload>(
       QUEUE_NAMES.MARKETPLACE_CONNECTION_TEST_EVENTS,
       {
-        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
+        connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db, tls: redis.tls ? {} : undefined },
         defaultJobOptions: {
           attempts: MP_CONN_TEST_QUEUE_CONFIG.ATTEMPTS,
           backoff: { type: 'exponential', delay: MP_CONN_TEST_QUEUE_CONFIG.BACKOFF_MS },

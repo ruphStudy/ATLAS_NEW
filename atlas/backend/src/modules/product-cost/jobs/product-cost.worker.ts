@@ -27,6 +27,7 @@ export class ProductCostWorker implements OnModuleInit, OnModuleDestroy {
             host: redisConfig.host,
             port: redisConfig.port,
             password: redisConfig.password,
+            tls: redisConfig.tls ? {} : undefined,
             db: redisConfig.db,
           },
           concurrency: PRODUCT_COST_QUEUE_CONFIG.CONCURRENCY,

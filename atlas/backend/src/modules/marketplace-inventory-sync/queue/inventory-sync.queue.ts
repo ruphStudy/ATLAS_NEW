@@ -31,7 +31,7 @@ export class InventorySyncQueue implements OnModuleDestroy {
   constructor(configService: ConfigurationService) {
     const redis = configService.getRedisConfig();
     this.queue = new Queue(QUEUE_NAMES.MARKETPLACE_INVENTORY_SYNC_JOB, {
-      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db },
+      connection: { host: redis.host, port: redis.port, password: redis.password, db: redis.db, tls: redis.tls ? {} : undefined },
       defaultJobOptions: {
         attempts: MP_INVENTORY_SYNC_QUEUE_CONFIG.ATTEMPTS,
         backoff: { type: 'exponential', delay: MP_INVENTORY_SYNC_QUEUE_CONFIG.BACKOFF_MS },
