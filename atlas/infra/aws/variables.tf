@@ -164,3 +164,48 @@ variable "redis_tls" {
   type        = bool
   default     = false
 }
+
+# ── Frontend (Amplify Hosting, see amplify.tf) ──────────────────
+
+variable "frontend_repository_url" {
+  description = "GitHub repository Amplify builds the frontend from."
+  type        = string
+  default     = "https://github.com/ruphStudy/ATLAS_NEW"
+}
+
+variable "frontend_branch" {
+  description = "Git branch Amplify builds and serves on the staging domain."
+  type        = string
+  default     = "ATLAS-11"
+}
+
+variable "frontend_app_root" {
+  description = "Path of the Next.js app inside the repository (monorepo app root)."
+  type        = string
+  default     = "atlas/frontend"
+}
+
+variable "frontend_root_domain" {
+  description = "Route53 public hosted zone (in this account) that holds the frontend domain."
+  type        = string
+  default     = "codeexpoglobal.com"
+}
+
+variable "frontend_subdomain" {
+  description = "Sub-domain prefix for the frontend (staging → staging.codeexpoglobal.com)."
+  type        = string
+  default     = "staging"
+}
+
+variable "frontend_api_url" {
+  description = "NEXT_PUBLIC_API_URL baked into the frontend build."
+  type        = string
+  default     = "https://api-staging.codeexpoglobal.com/api/v1"
+}
+
+variable "amplify_github_access_token" {
+  description = "GitHub token used ONCE when the Amplify app is created to install the AWS Amplify GitHub App. Never commit it — pass via TF_VAR_amplify_github_access_token at apply time and revoke afterwards. Ignored after creation."
+  type        = string
+  default     = null
+  sensitive   = true
+}

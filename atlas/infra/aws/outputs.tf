@@ -30,3 +30,25 @@ output "cloudwatch_log_group_backend" {
 output "guardduty_detector_id" {
   value = aws_guardduty_detector.main.id
 }
+
+output "frontend_amplify_app_id" {
+  value = aws_amplify_app.frontend.id
+}
+
+output "frontend_amplify_default_domain" {
+  value       = "https://${aws_amplify_branch.frontend.branch_name}.${aws_amplify_app.frontend.default_domain}"
+  description = "Amplify-provided URL for the branch — usable before the custom domain finishes verifying."
+}
+
+output "frontend_url" {
+  value       = local.frontend_origin
+  description = "Public staging frontend origin. Amazon SP-API Login URI = <frontend_url>/amazon/oauth/login."
+}
+
+output "frontend_amazon_login_uri" {
+  value = "${local.frontend_origin}/amazon/oauth/login"
+}
+
+output "frontend_route53_zone_id" {
+  value = data.aws_route53_zone.frontend.zone_id
+}
