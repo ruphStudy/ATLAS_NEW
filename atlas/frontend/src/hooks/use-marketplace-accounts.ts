@@ -172,8 +172,34 @@ export function useConnectAmazon() {
   return useMutation({
     mutationFn: (params: { country: string; accountId?: string }) => accountsService.startAmazonAuthorization(params),
     onSuccess: (result) => {
+      // Remember this tab's signed state so the Login URI step (if Amazon routes
+      // through it) can keep the chosen country/accountId. Not a secret: the
+      // backend re-verifies it against the session before using it.
+      try {
+        const state = new URL(result.authorizationUrl).searchParams.get('state');
+        if (state) sessionStorage.setItem(AMAZON_PENDING_STATE_KEY, state);
+      } catch {
+        // Storage unavailable — the Login URI page falls back to asking for the country.
+      }
       window.location.href = result.authorizationUrl;
     },
     onError: () => toast.error('Could not start Amazon authorization', 'Please try again.'),
+  });
+}
+
+export const AMAZON_PENDING_STATE_KEY = 'atlas.amazonOAuth.pendingState';
+
+/** Amazon Login URI step: asks the backend for the URL back to Amazon, then navigates there. */
+export function useContinueAmazonLoginUri() {
+  return useMutation({
+    mutationFn: accountsService.continueAmazonLoginUri,
+    onSuccess: (result) => {
+      try {
+        sessionStorage.removeItem(AMAZON_PENDING_STATE_KEY);
+      } catch {
+        // ignore
+      }
+      window.location.href = result.redirectUrl;
+    },
   });
 }

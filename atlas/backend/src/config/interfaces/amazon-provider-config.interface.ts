@@ -28,6 +28,8 @@ export interface IAmazonProviderConfig {
   clientSecret?: string;
   applicationId?: string;
   redirectUri?: string;
+  /** Draft-app testing: append `version=beta` to Seller Central authorization URLs. */
+  useBetaAuthVersion: boolean;
   sandboxRefreshToken?: string;
   environment: AmazonSpApiEnvironment;
 }

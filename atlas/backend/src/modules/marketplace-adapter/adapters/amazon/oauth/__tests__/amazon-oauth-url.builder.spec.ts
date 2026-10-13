@@ -1,8 +1,8 @@
-import { buildAmazonAuthorizationUrl } from '../amazon-oauth-url.builder';
+import { buildAmazonAuthorizationUrl, buildAmazonLoginUriRedirectUrl, parseAmazonCallbackUri } from '../amazon-oauth-url.builder';
 import { AmazonMarketplace, AmazonRegion } from '../../interfaces/amazon.interfaces';
 import { AMAZON_MARKETPLACE_REGIONS } from '../../constants/amazon.constants';
 
-const GLOBAL = { applicationId: 'amzn1.sp.solution.test-app-id', redirectUri: 'https://atlas.example.com/callback' };
+const GLOBAL = { applicationId: 'amzn1.sp.solution.test-app-id', redirectUri: 'https://atlas.example.com/callback', useBetaAuthVersion: true };
 
 describe('buildAmazonAuthorizationUrl', () => {
   it('builds a Seller Central consent URL with the required params', () => {
@@ -50,15 +50,65 @@ describe('buildAmazonAuthorizationUrl', () => {
     expect(url.pathname).toBe('/apps/authorize/consent');
   });
 
+  it('omits version=beta for a published app (useBetaAuthVersion false)', () => {
+    const url = new URL(buildAmazonAuthorizationUrl({ ...GLOBAL, useBetaAuthVersion: false }, AmazonMarketplace.US, 's'));
+
+    expect(url.searchParams.has('version')).toBe(false);
+  });
+
   it('throws a clear error when applicationId is not configured, instead of building a broken URL', () => {
-    expect(() => buildAmazonAuthorizationUrl({ redirectUri: GLOBAL.redirectUri }, AmazonMarketplace.US, 's')).toThrow(
+    expect(() => buildAmazonAuthorizationUrl({ redirectUri: GLOBAL.redirectUri, useBetaAuthVersion: true }, AmazonMarketplace.US, 's')).toThrow(
       /AMAZON_SP_API_APPLICATION_ID/,
     );
   });
 
   it('throws a clear error when redirectUri is not configured', () => {
-    expect(() => buildAmazonAuthorizationUrl({ applicationId: GLOBAL.applicationId }, AmazonMarketplace.US, 's')).toThrow(
+    expect(() => buildAmazonAuthorizationUrl({ applicationId: GLOBAL.applicationId, useBetaAuthVersion: true }, AmazonMarketplace.US, 's')).toThrow(
       /AMAZON_SP_API_REDIRECT_URI/,
     );
+  });
+});
+
+describe('parseAmazonCallbackUri', () => {
+  it('accepts an https Seller Central consent-confirm URL on a known domain', () => {
+    expect(parseAmazonCallbackUri('https://sellercentral.amazon.in/apps/authorize/confirm/amzn1.sp.solution.x')?.origin).toBe(
+      'https://sellercentral.amazon.in',
+    );
+  });
+
+  it.each([
+    'not a url',
+    'http://sellercentral.amazon.com/apps/authorize/confirm/x',
+    'https://sellercentral.amazon.com:8443/apps/authorize/confirm/x',
+    'https://user:pass@sellercentral.amazon.com/apps/authorize/confirm/x',
+    'https://attacker.example.com/apps/authorize/confirm/x',
+    'https://sellercentral.amazon.com/logout',
+  ])('rejects %s', (value) => {
+    expect(parseAmazonCallbackUri(value)).toBeNull();
+  });
+});
+
+describe('buildAmazonLoginUriRedirectUrl', () => {
+  const callback = new URL('https://sellercentral.amazon.com/apps/authorize/confirm/amzn1.sp.solution.x');
+
+  it('appends amazon_state, state and redirect_uri, and omits version for a published app', () => {
+    const url = new URL(buildAmazonLoginUriRedirectUrl({ ...GLOBAL, useBetaAuthVersion: false }, callback, 'amz', 'atlas-state'));
+
+    expect(url.searchParams.get('amazon_state')).toBe('amz');
+    expect(url.searchParams.get('state')).toBe('atlas-state');
+    expect(url.searchParams.get('redirect_uri')).toBe(GLOBAL.redirectUri);
+    expect(url.searchParams.has('version')).toBe(false);
+  });
+
+  it('adds version=beta when Amazon sent it or the app is configured as Draft', () => {
+    const fromAmazon = new URL(buildAmazonLoginUriRedirectUrl({ ...GLOBAL, useBetaAuthVersion: false }, callback, 'amz', 's', 'beta'));
+    const fromConfig = new URL(buildAmazonLoginUriRedirectUrl(GLOBAL, callback, 'amz', 's'));
+
+    expect(fromAmazon.searchParams.get('version')).toBe('beta');
+    expect(fromConfig.searchParams.get('version')).toBe('beta');
+  });
+
+  it('throws when redirectUri is not configured', () => {
+    expect(() => buildAmazonLoginUriRedirectUrl({ useBetaAuthVersion: false }, callback, 'amz', 's')).toThrow(/AMAZON_SP_API_REDIRECT_URI/);
   });
 });

@@ -120,7 +120,114 @@ describe('AmazonOAuthService', () => {
     });
   });
 
+  describe('continueLoginUri', () => {
+    const CALLBACK = 'https://sellercentral.amazon.com/apps/authorize/confirm/amzn1.sp.solution.app-id';
+    const BASE = { workspaceId: 'ws-1', userId: 'user-1', amazonCallbackUri: CALLBACK, amazonState: 'amz-state', sellingPartnerId: 'A1SELLER' };
+
+    it('returns the Amazon callback URL with amazon_state, a session-bound state, and redirect_uri', async () => {
+      const deps = makeDeps();
+      const service = makeService(deps);
+
+      const result = await service.continueLoginUri({ ...BASE, country: 'us' });
+      const url = new URL(result.redirectUrl);
+
+      expect(url.origin + url.pathname).toBe(CALLBACK);
+      expect(url.searchParams.get('amazon_state')).toBe('amz-state');
+      expect(url.searchParams.get('state')).toBe('signed-state');
+      expect(url.searchParams.get('redirect_uri')).toBe('https://atlas.example.com/callback');
+      expect(url.searchParams.get('version')).toBeNull();
+      expect(deps.stateSigner.sign).toHaveBeenCalledWith({
+        workspaceId: 'ws-1',
+        userId: 'user-1',
+        country: 'US',
+        accountId: undefined,
+        sellingPartnerId: 'A1SELLER',
+      });
+    });
+
+    it('echoes version=beta when Amazon sent it (Draft-app test)', async () => {
+      const service = makeService(makeDeps());
+
+      const result = await service.continueLoginUri({ ...BASE, country: 'US', version: 'beta' });
+
+      expect(new URL(result.redirectUrl).searchParams.get('version')).toBe('beta');
+    });
+
+    it.each([
+      'https://evil.example.com/apps/authorize/confirm/x',
+      'http://sellercentral.amazon.com/apps/authorize/confirm/x',
+      'https://sellercentral.amazon.com/somewhere-else',
+      'https://sellercentral.amazon.com.evil.com/apps/authorize/confirm/x',
+      'javascript:alert(1)',
+    ])('rejects a non-Amazon / unexpected amazon_callback_uri (%s) — no open redirect', async (amazonCallbackUri) => {
+      const deps = makeDeps();
+      const service = makeService(deps);
+
+      await expect(service.continueLoginUri({ ...BASE, amazonCallbackUri, country: 'US' })).rejects.toThrow('Invalid amazon_callback_uri');
+      expect(deps.stateSigner.sign).not.toHaveBeenCalled();
+    });
+
+    it('preserves country/accountId from the same user\'s pending Connect Amazon state', async () => {
+      const deps = makeDeps();
+      deps.stateSigner.verify.mockReturnValue({
+        valid: true,
+        payload: { workspaceId: 'ws-1', userId: 'user-1', country: 'IN', accountId: 'acct-1', nonce: 'n', iat: 0, exp: 0 },
+      });
+      deps.accountService.findById.mockResolvedValue({ ...DRAFT_ACCOUNT });
+      const service = makeService(deps);
+
+      await service.continueLoginUri({ ...BASE, pendingState: 'pending', country: 'US' });
+
+      expect(deps.accountService.findById).toHaveBeenCalledWith('acct-1', 'ws-1');
+      expect(deps.stateSigner.sign).toHaveBeenCalledWith(expect.objectContaining({ country: 'IN', accountId: 'acct-1' }));
+    });
+
+    it('ignores a pending state issued to a different workspace/user', async () => {
+      const deps = makeDeps();
+      deps.stateSigner.verify.mockReturnValue({
+        valid: true,
+        payload: { workspaceId: 'ws-other', userId: 'user-other', country: 'IN', accountId: 'acct-victim', nonce: 'n', iat: 0, exp: 0 },
+      });
+      const service = makeService(deps);
+
+      await service.continueLoginUri({ ...BASE, pendingState: 'foreign', country: 'US' });
+
+      expect(deps.accountService.findById).not.toHaveBeenCalled();
+      expect(deps.stateSigner.sign).toHaveBeenCalledWith(expect.objectContaining({ workspaceId: 'ws-1', country: 'US', accountId: undefined }));
+    });
+
+    it('requires a country when there is no usable pending state', async () => {
+      const service = makeService(makeDeps());
+
+      await expect(service.continueLoginUri({ ...BASE })).rejects.toThrow('country is required');
+    });
+
+    it('tenant isolation: an explicit reconnect accountId is resolved only within the session workspace', async () => {
+      const deps = makeDeps();
+      deps.accountService.findById.mockRejectedValue(new Error('not found in this workspace'));
+      const service = makeService(deps);
+
+      await expect(service.continueLoginUri({ ...BASE, country: 'US', accountId: 'acct-victim' })).rejects.toThrow();
+      expect(deps.accountService.findById).toHaveBeenCalledWith('acct-victim', 'ws-1');
+      expect(deps.stateSigner.sign).not.toHaveBeenCalled();
+    });
+  });
+
   describe('handleCallback', () => {
+    it('rejects a callback whose selling_partner_id differs from the one bound at the Login URI step', async () => {
+      const deps = makeDeps();
+      deps.stateSigner.verify.mockReturnValue({
+        valid: true,
+        payload: { workspaceId: 'ws-1', userId: 'user-1', country: 'US', sellingPartnerId: 'A1SELLER', nonce: 'n', iat: 0, exp: Date.now() + 1000 },
+      });
+      const service = makeService(deps);
+
+      const result = await service.handleCallback({ state: 's', code: 'code', sellingPartnerId: 'A2OTHER' });
+
+      expect(result).toEqual({ success: false, reason: 'seller_mismatch' });
+      expect(deps.authService.exchangeAuthorizationCode).not.toHaveBeenCalled();
+    });
+
     it('rejects an invalid/tampered state without touching any account', async () => {
       const deps = makeDeps();
       deps.stateSigner.verify.mockReturnValue({ valid: false, reason: 'TAMPERED' });

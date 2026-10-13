@@ -1,10 +1,16 @@
-import { Body, Controller, Get, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { WorkspaceId, UserId, Public } from '@common/decorators';
 import { TenantIsolationGuard } from '@modules/tenant-isolation/guards/tenant-isolation.guard';
 import { ConfigurationService } from '@config/configuration.service';
 import { AmazonOAuthService } from './amazon-oauth.service';
-import { AmazonAuthorizeResponseDto, AmazonOAuthCallbackQueryDto, StartAmazonAuthorizationDto } from './amazon-oauth.dto';
+import {
+  AmazonAuthorizeResponseDto,
+  AmazonOAuthCallbackQueryDto,
+  ContinueAmazonLoginUriDto,
+  ContinueAmazonLoginUriResponseDto,
+  StartAmazonAuthorizationDto,
+} from './amazon-oauth.dto';
 
 @Controller({ path: 'marketplace-adapter/amazon/oauth', version: '1' })
 export class AmazonOAuthController {
@@ -33,6 +39,24 @@ export class AmazonOAuthController {
     return { authorizationUrl: result.authorizationUrl, expiresAt: result.expiresAt };
   }
 
+  // ── Login URI continuation ────────────────────────────────────
+  // Called by the frontend /amazon/oauth/login page (Amazon's registered
+  // Login URI) once the seller is signed in to ATLAS. Tenant context comes
+  // only from the session; the response carries the URL back to Amazon.
+
+  @UseGuards(TenantIsolationGuard)
+  @Post('login-continue')
+  @HttpCode(HttpStatus.OK)
+  async continueLoginUri(
+    @WorkspaceId() workspaceId: string,
+    @UserId() userId: string,
+    @Body() dto: ContinueAmazonLoginUriDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<ContinueAmazonLoginUriResponseDto> {
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    return this.oauthService.continueLoginUri({ workspaceId, userId, ...dto });
+  }
+
   // ── Callback ──────────────────────────────────────────────────
   // Public: Amazon redirects the seller's browser here directly, with no
   // ATLAS session. All tenant context comes from the validated `state`
@@ -48,6 +72,7 @@ export class AmazonOAuthController {
       error: query.error,
     });
 
+    res.setHeader('Referrer-Policy', 'no-referrer');
     res.redirect(this.buildRedirectUrl(result.success, result.reason));
   }
 

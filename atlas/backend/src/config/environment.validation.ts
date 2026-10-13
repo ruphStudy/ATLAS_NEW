@@ -204,6 +204,11 @@ export class EnvironmentVariables {
   @IsOptional()
   AMAZON_SP_API_REDIRECT_URI?: string;
 
+  @Transform(({ value }) => (value === undefined ? undefined : value === true || value === 'true'))
+  @IsBoolean()
+  @IsOptional()
+  AMAZON_SP_API_AUTH_VERSION_BETA?: boolean;
+
   @IsString()
   @IsOptional()
   AMAZON_SP_API_SANDBOX_REFRESH_TOKEN?: string;

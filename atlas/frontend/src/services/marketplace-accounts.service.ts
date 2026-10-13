@@ -87,3 +87,23 @@ export async function startAmazonAuthorization(params: { country: string; accoun
   );
   return data;
 }
+
+/**
+ * Amazon Login URI continuation: forwards Amazon's Login URI params; the
+ * backend derives workspace/user from the session and returns the URL to
+ * send the browser back to Amazon.
+ */
+export async function continueAmazonLoginUri(params: {
+  amazonCallbackUri: string;
+  amazonState: string;
+  sellingPartnerId?: string;
+  version?: string;
+  pendingState?: string;
+  country?: string;
+}): Promise<{ redirectUrl: string; expiresAt: string }> {
+  const { data } = await apiClient.post<{ redirectUrl: string; expiresAt: string }>(
+    '/marketplace-adapter/amazon/oauth/login-continue',
+    params,
+  );
+  return data;
+}

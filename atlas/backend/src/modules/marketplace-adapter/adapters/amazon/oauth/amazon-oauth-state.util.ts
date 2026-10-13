@@ -13,6 +13,8 @@ export interface AmazonOAuthStatePayload {
   country: string;
   /** Present only for a reconnect — the existing MarketplaceAccount to update rather than create anew. */
   accountId?: string;
+  /** Login URI flow only: the selling_partner_id Amazon reported, which the final callback must match. */
+  sellingPartnerId?: string;
   nonce: string;
   iat: number;
   exp: number;

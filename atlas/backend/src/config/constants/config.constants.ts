@@ -95,6 +95,9 @@ export const ENV_KEYS = {
   AMAZON_SP_API_APPLICATION_ID: 'AMAZON_SP_API_APPLICATION_ID',
   // Exact callback URL registered with Amazon for this app.
   AMAZON_SP_API_REDIRECT_URI: 'AMAZON_SP_API_REDIRECT_URI',
+  // Whether Seller Central authorization URLs carry `version=beta` (Draft-app
+  // testing only). Must be false once the app is published.
+  AMAZON_SP_API_AUTH_VERSION_BETA: 'AMAZON_SP_API_AUTH_VERSION_BETA',
   // Sandbox-only global refresh token — verifies ATLAS's own sandbox
   // configuration without any real seller/workspace connection.
   AMAZON_SP_API_SANDBOX_REFRESH_TOKEN: 'AMAZON_SP_API_SANDBOX_REFRESH_TOKEN',
@@ -136,4 +139,5 @@ export const CONFIG_DEFAULTS = {
   STORAGE_DEFAULT_WORKSPACE_QUOTA_BYTES: 5_368_709_120, // 5 GB
   STORAGE_ACCESS_TOKEN_DEFAULT_TTL_MS: 900_000, // 15 minutes
   AMAZON_SP_API_ENVIRONMENT: 'sandbox',
+  AMAZON_SP_API_AUTH_VERSION_BETA: true,
 } as const;

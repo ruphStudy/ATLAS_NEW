@@ -22,6 +22,9 @@ export const amazonProviderConfig = registerAs(
     const applicationId = process.env[ENV_KEYS.AMAZON_SP_API_APPLICATION_ID];
     const redirectUri = process.env[ENV_KEYS.AMAZON_SP_API_REDIRECT_URI];
     const sandboxRefreshToken = process.env[ENV_KEYS.AMAZON_SP_API_SANDBOX_REFRESH_TOKEN];
+    // Unset → default (true: current Draft-app behavior). Set to 'false' once the app is published.
+    const betaEnv = process.env[ENV_KEYS.AMAZON_SP_API_AUTH_VERSION_BETA];
+    const useBetaAuthVersion = betaEnv ? betaEnv === 'true' : CONFIG_DEFAULTS.AMAZON_SP_API_AUTH_VERSION_BETA;
     const environment =
       (process.env[ENV_KEYS.AMAZON_SP_API_ENVIRONMENT] as AmazonSpApiEnvironment | undefined) ??
       (CONFIG_DEFAULTS.AMAZON_SP_API_ENVIRONMENT as AmazonSpApiEnvironment);
@@ -50,6 +53,7 @@ export const amazonProviderConfig = registerAs(
       clientSecret: clientSecret || undefined,
       applicationId: applicationId || undefined,
       redirectUri: redirectUri || undefined,
+      useBetaAuthVersion,
       sandboxRefreshToken: sandboxRefreshToken || undefined,
       environment,
     };

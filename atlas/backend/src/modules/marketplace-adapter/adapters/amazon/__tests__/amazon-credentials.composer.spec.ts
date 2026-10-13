@@ -5,6 +5,7 @@ import type { IAmazonProviderConfig } from '@config/interfaces';
 const GLOBAL: IAmazonProviderConfig = {
   clientId: 'global-client-id',
   clientSecret: 'global-client-secret',
+  useBetaAuthVersion: false,
   environment: 'sandbox',
 };
 
@@ -62,7 +63,7 @@ describe('composeAmazonCredentials', () => {
   it('throws a clear error when global clientId/clientSecret are not configured', () => {
     expect(() =>
       composeAmazonCredentials(
-        { environment: 'sandbox' },
+        { environment: 'sandbox', useBetaAuthVersion: false },
         { refreshToken: 'seller-refresh-token', sellerId: 'A1SELLERID', marketplace: AmazonMarketplace.US },
       ),
     ).toThrow(/AMAZON_SP_API_CLIENT_ID/);

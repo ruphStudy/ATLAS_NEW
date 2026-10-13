@@ -14,7 +14,7 @@ import { AMAZON_API_PATHS, AMAZON_MARKETPLACE_REGIONS, AMAZON_RATE_LIMITS } from
 import { AmazonMarketplace } from '../interfaces/amazon.interfaces';
 import { composeAmazonCredentials } from '../amazon-credentials.composer';
 import { AmazonOAuthStateSigner } from './amazon-oauth-state.util';
-import { buildAmazonAuthorizationUrl } from './amazon-oauth-url.builder';
+import { buildAmazonAuthorizationUrl, buildAmazonLoginUriRedirectUrl, parseAmazonCallbackUri } from './amazon-oauth-url.builder';
 
 const AMAZON_PROVIDER_KEY = 'AMAZON';
 
@@ -27,6 +27,25 @@ export interface StartAuthorizationParams {
 
 export interface StartAuthorizationResult {
   authorizationUrl: string;
+  expiresAt: Date;
+}
+
+export interface ContinueLoginUriParams {
+  workspaceId: string;
+  userId: string;
+  amazonCallbackUri: string;
+  amazonState: string;
+  sellingPartnerId?: string;
+  version?: string;
+  /** The state ATLAS issued when this user clicked Connect Amazon (if any) — source of country/accountId. */
+  pendingState?: string;
+  /** Fallback when no valid pendingState exists (seller started from Amazon's side). */
+  country?: string;
+  accountId?: string;
+}
+
+export interface ContinueLoginUriResult {
+  redirectUrl: string;
   expiresAt: Date;
 }
 
@@ -159,13 +178,7 @@ export class AmazonOAuthService {
     const marketplace = this.resolveMarketplace(params.country);
 
     if (params.accountId) {
-      // Reconnect: verify the account exists, belongs to this workspace, and is Amazon.
-      // findById is itself workspace-scoped, so this can never resolve an account
-      // belonging to a different workspace.
-      const account = await this.accountService.findById(params.accountId, params.workspaceId);
-      if (account.providerKey !== AMAZON_PROVIDER_KEY) {
-        throw new BadRequestException(`Account '${params.accountId}' is not an Amazon account`);
-      }
+      await this.assertReconnectAccount(params.accountId, params.workspaceId);
     }
 
     const global = this.configurationService.getAmazonProviderConfig();
@@ -180,6 +193,62 @@ export class AmazonOAuthService {
     return { authorizationUrl, expiresAt };
   }
 
+  // ── Login URI (website authorization workflow) ────────────────
+
+  /**
+   * Continues Amazon's Login URI step for an authenticated ATLAS user:
+   * validates `amazon_callback_uri`, resolves country/accountId (from the
+   * still-valid state ATLAS issued when this same user clicked Connect
+   * Amazon, else from the user's explicit choice), signs a fresh state bound
+   * to the session's workspace/user and the reported selling_partner_id, and
+   * returns the URL to send the browser back to Amazon.
+   */
+  async continueLoginUri(params: ContinueLoginUriParams): Promise<ContinueLoginUriResult> {
+    const callbackUri = parseAmazonCallbackUri(params.amazonCallbackUri);
+    if (!callbackUri) {
+      throw new BadRequestException('Invalid amazon_callback_uri');
+    }
+
+    let country = params.country;
+    let accountId = params.accountId;
+    if (params.pendingState) {
+      const pending = this.stateSigner.verify(params.pendingState);
+      // Only reuse context the same user started in the same workspace.
+      if (pending.valid && pending.payload.workspaceId === params.workspaceId && pending.payload.userId === params.userId) {
+        country = pending.payload.country;
+        accountId = pending.payload.accountId;
+      }
+    }
+    if (!country) {
+      throw new BadRequestException('country is required');
+    }
+
+    this.resolveMarketplace(country);
+    if (accountId) {
+      await this.assertReconnectAccount(accountId, params.workspaceId);
+    }
+
+    const global = this.configurationService.getAmazonProviderConfig();
+    const { state, expiresAt } = this.stateSigner.sign({
+      workspaceId: params.workspaceId,
+      userId: params.userId,
+      country: country.toUpperCase(),
+      accountId,
+      sellingPartnerId: params.sellingPartnerId,
+    });
+
+    const redirectUrl = buildAmazonLoginUriRedirectUrl(global, callbackUri, params.amazonState, state, params.version);
+    return { redirectUrl, expiresAt };
+  }
+
+  /** Reconnect: the account must exist in this workspace (findById is workspace-scoped) and be Amazon. */
+  private async assertReconnectAccount(accountId: string, workspaceId: string): Promise<void> {
+    const account = await this.accountService.findById(accountId, workspaceId);
+    if (account.providerKey !== AMAZON_PROVIDER_KEY) {
+      throw new BadRequestException(`Account '${accountId}' is not an Amazon account`);
+    }
+  }
+
   // ── Callback ──────────────────────────────────────────────────
 
   async handleCallback(params: AmazonCallbackParams): Promise<AmazonCallbackResult> {
@@ -188,7 +257,12 @@ export class AmazonOAuthService {
       this.logger.warn(`Amazon OAuth callback rejected: invalid state (${validation.reason})`);
       return { success: false, reason: validation.reason.toLowerCase() };
     }
-    const { workspaceId, userId, country, accountId: reconnectAccountId } = validation.payload;
+    const { workspaceId, userId, country, accountId: reconnectAccountId, sellingPartnerId: expectedSellerId } = validation.payload;
+
+    if (expectedSellerId && params.sellingPartnerId && expectedSellerId !== params.sellingPartnerId) {
+      this.logger.warn(`Amazon OAuth callback rejected: selling_partner_id does not match the Login URI request (workspace ${workspaceId})`);
+      return { success: false, reason: 'seller_mismatch' };
+    }
 
     if (params.error) {
       this.logger.warn(`Amazon OAuth callback: seller denied/errored authorization (workspace ${workspaceId}): ${params.error}`);

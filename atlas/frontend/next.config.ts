@@ -20,6 +20,16 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  // Amazon SP-API Login URI must not leak amazon_state/selling_partner_id via Referer.
+  async headers() {
+    return [
+      {
+        source: '/amazon/oauth/:path*',
+        headers: [{ key: 'Referrer-Policy', value: 'no-referrer' }],
+      },
+    ];
+  },
+
   // Image optimization domains
   images: {
     remotePatterns: [

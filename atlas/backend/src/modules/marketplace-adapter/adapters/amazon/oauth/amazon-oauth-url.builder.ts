@@ -52,12 +52,12 @@ const SELLER_CENTRAL_DOMAINS: Record<AmazonMarketplace, string> = {
  * the seller still consents via the same real Seller Central flow using a
  * developer/test account.
  *
- * `version=beta` is kept unconditionally, matching the current Draft-app
- * test flow this app is in — this is not (yet) determined from any stored
- * application-status flag.
+ * `version=beta` is appended only when `useBetaAuthVersion` is set
+ * (AMAZON_SP_API_AUTH_VERSION_BETA) — required for Draft-app testing, and
+ * must be off for a published app or Amazon authorizes against the wrong version.
  */
 export function buildAmazonAuthorizationUrl(
-  global: Pick<IAmazonProviderConfig, 'applicationId' | 'redirectUri'>,
+  global: Pick<IAmazonProviderConfig, 'applicationId' | 'redirectUri' | 'useBetaAuthVersion'>,
   marketplace: AmazonMarketplace,
   state: string,
 ): string {
@@ -78,6 +78,63 @@ export function buildAmazonAuthorizationUrl(
   url.searchParams.set('application_id', global.applicationId);
   url.searchParams.set('state', state);
   url.searchParams.set('redirect_uri', global.redirectUri);
-  url.searchParams.set('version', 'beta');
+  if (global.useBetaAuthVersion) {
+    url.searchParams.set('version', 'beta');
+  }
+  return url.toString();
+}
+
+const ALLOWED_CALLBACK_ORIGINS = new Set(Object.values(SELLER_CENTRAL_DOMAINS));
+const CALLBACK_PATH_PREFIX = '/apps/authorize/confirm/';
+
+/**
+ * Validates the `amazon_callback_uri` Amazon passes to ATLAS's Login URI.
+ * Only https Seller Central consent-confirm URLs on a known domain are
+ * accepted, so the Login URI can never be used as an open redirect.
+ * Returns the parsed URL, or null when the value is not acceptable.
+ */
+export function parseAmazonCallbackUri(value: string): URL | null {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== 'https:' || url.username || url.password || url.port) {
+    return null;
+  }
+  if (!ALLOWED_CALLBACK_ORIGINS.has(url.origin) || !url.pathname.startsWith(CALLBACK_PATH_PREFIX)) {
+    return null;
+  }
+  return url;
+}
+
+/**
+ * Builds the redirect back to Amazon for the Login URI ("website
+ * authorization") workflow: the validated `amazon_callback_uri` plus
+ * `amazon_state` (echoed), ATLAS's signed `state`, and the registered
+ * `redirect_uri`. `version=beta` is added when Amazon itself sent it
+ * (Draft-app test) or when the app is configured as Draft.
+ */
+export function buildAmazonLoginUriRedirectUrl(
+  global: Pick<IAmazonProviderConfig, 'redirectUri' | 'useBetaAuthVersion'>,
+  callbackUri: URL,
+  amazonState: string,
+  state: string,
+  amazonVersion?: string,
+): string {
+  if (!global.redirectUri) {
+    throw new Error(
+      'Amazon SP-API is not configured for authorization: AMAZON_SP_API_REDIRECT_URI must be set.',
+    );
+  }
+
+  const url = new URL(callbackUri.toString());
+  url.searchParams.set('amazon_state', amazonState);
+  url.searchParams.set('state', state);
+  url.searchParams.set('redirect_uri', global.redirectUri);
+  if (amazonVersion === 'beta' || global.useBetaAuthVersion) {
+    url.searchParams.set('version', 'beta');
+  }
   return url.toString();
 }
