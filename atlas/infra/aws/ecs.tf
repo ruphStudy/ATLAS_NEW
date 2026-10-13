@@ -36,10 +36,13 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "REDIS_HOST", value = aws_elasticache_replication_group.main.primary_endpoint_address },
         { name = "REDIS_PORT", value = "6379" },
         { name = "REDIS_TLS", value = tostring(var.redis_tls) },
-        { name = "AMAZON_SP_API_ENVIRONMENT", value = "sandbox" },
-        { name = "AMAZON_SP_API_CLIENT_ID", value = var.amazon_sp_api_client_id },
+        # Production/default app: seller OAuth, token exchange/refresh, connected-seller calls.
+        { name = "AMAZON_SP_API_ENVIRONMENT", value = "production" },
         { name = "AMAZON_SP_API_APPLICATION_ID", value = var.amazon_sp_api_application_id },
         { name = "AMAZON_SP_API_REDIRECT_URI", value = var.amazon_sp_api_redirect_uri },
+        { name = "AMAZON_SP_API_AUTH_VERSION_BETA", value = tostring(var.amazon_sp_api_auth_version_beta) },
+        # Sandbox app: only the sandbox-health check uses it.
+        { name = "AMAZON_SP_API_SANDBOX_CLIENT_ID", value = var.amazon_sp_api_sandbox_client_id },
         { name = "CORS_ORIGINS", value = var.cors_origins },
       ]
       secrets = [
@@ -48,7 +51,9 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "JWT_SECRET", valueFrom = aws_secretsmanager_secret.manual["jwt-access-secret"].arn },
         { name = "JWT_REFRESH_SECRET", valueFrom = aws_secretsmanager_secret.manual["jwt-refresh-secret"].arn },
         { name = "ATLAS_CREDENTIAL_KEY", valueFrom = aws_secretsmanager_secret.manual["atlas-credential-key"].arn },
-        { name = "AMAZON_SP_API_CLIENT_SECRET", valueFrom = aws_secretsmanager_secret.manual["amazon-sp-api-client-secret"].arn },
+        { name = "AMAZON_SP_API_CLIENT_ID", valueFrom = data.aws_secretsmanager_secret.amazon_production["amazon-sp-api-production-client-id"].arn },
+        { name = "AMAZON_SP_API_CLIENT_SECRET", valueFrom = data.aws_secretsmanager_secret.amazon_production["amazon-sp-api-production-client-secret"].arn },
+        { name = "AMAZON_SP_API_SANDBOX_CLIENT_SECRET", valueFrom = aws_secretsmanager_secret.manual["amazon-sp-api-client-secret"].arn },
         { name = "AMAZON_SP_API_SANDBOX_REFRESH_TOKEN", valueFrom = aws_secretsmanager_secret.manual["amazon-sp-api-sandbox-refresh-token"].arn },
       ]
       logConfiguration = {

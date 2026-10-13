@@ -101,6 +101,10 @@ export const ENV_KEYS = {
   // Sandbox-only global refresh token — verifies ATLAS's own sandbox
   // configuration without any real seller/workspace connection.
   AMAZON_SP_API_SANDBOX_REFRESH_TOKEN: 'AMAZON_SP_API_SANDBOX_REFRESH_TOKEN',
+  // Dedicated sandbox LWA app for sandbox-health checks only (production/default
+  // credentials above are used for all seller OAuth and runtime calls).
+  AMAZON_SP_API_SANDBOX_CLIENT_ID: 'AMAZON_SP_API_SANDBOX_CLIENT_ID',
+  AMAZON_SP_API_SANDBOX_CLIENT_SECRET: 'AMAZON_SP_API_SANDBOX_CLIENT_SECRET',
 } as const;
 
 export type EnvKey = (typeof ENV_KEYS)[keyof typeof ENV_KEYS];

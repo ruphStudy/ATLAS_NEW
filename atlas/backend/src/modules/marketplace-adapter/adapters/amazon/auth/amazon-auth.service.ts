@@ -49,12 +49,8 @@ export class AmazonAuthService {
     // clientId/clientSecret come ONLY from global ConfigurationService —
     // never from the per-seller `credentials` object, regardless of what
     // it contains, so a stale/wrong per-account value can never reach Amazon.
-    const { clientId, clientSecret } = this.configurationService.getAmazonProviderConfig();
-    if (!clientId || !clientSecret) {
-      throw new Error(
-        'Amazon SP-API is not configured: AMAZON_SP_API_CLIENT_ID and AMAZON_SP_API_CLIENT_SECRET must both be set.',
-      );
-    }
+    // `credentials.app` only selects WHICH global app (default vs sandbox).
+    const { clientId, clientSecret } = this.resolveLwaClient(credentials);
 
     try {
       const response = await axios.post(
@@ -145,7 +141,28 @@ export class AmazonAuthService {
   }
 
   private getCacheKey(credentials: IAmazonCredentials): string {
-    return `${credentials.sellerId}:${credentials.marketplace}`;
+    // App prefix keeps a sandbox token from ever being served to a seller
+    // (both can have an empty sellerId on the same marketplace).
+    return `${credentials.app ?? 'default'}:${credentials.sellerId}:${credentials.marketplace}`;
+  }
+
+  /** Production/default LWA app, or the dedicated sandbox app for sandbox-health credentials. */
+  private resolveLwaClient(credentials: IAmazonCredentials): { clientId: string; clientSecret: string } {
+    const global = this.configurationService.getAmazonProviderConfig();
+    if (credentials.app === 'sandbox') {
+      if (!global.sandboxClientId || !global.sandboxClientSecret) {
+        throw new Error(
+          'Amazon SP-API sandbox app is not configured: AMAZON_SP_API_SANDBOX_CLIENT_ID and AMAZON_SP_API_SANDBOX_CLIENT_SECRET must both be set.',
+        );
+      }
+      return { clientId: global.sandboxClientId, clientSecret: global.sandboxClientSecret };
+    }
+    if (!global.clientId || !global.clientSecret) {
+      throw new Error(
+        'Amazon SP-API is not configured: AMAZON_SP_API_CLIENT_ID and AMAZON_SP_API_CLIENT_SECRET must both be set.',
+      );
+    }
+    return { clientId: global.clientId, clientSecret: global.clientSecret };
   }
 
   clearCache(credentials: IAmazonCredentials): void {

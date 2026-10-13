@@ -1,14 +1,19 @@
 import { AmazonAdapter } from '../amazon.adapter';
-import { AmazonAuthError } from '@modules/marketplace-adapter/adapters/amazon/auth/amazon-auth.service';
+import { AmazonAuthError, type AmazonAuthService } from '@modules/marketplace-adapter/adapters/amazon/auth/amazon-auth.service';
 import { AmazonMarketplace, AmazonRegion } from '@modules/marketplace-adapter/adapters/amazon/interfaces/amazon.interfaces';
 import type { ConfigurationService } from '@config/configuration.service';
 import type { AmazonAdapter as RealAmazonAdapter } from '@modules/marketplace-adapter/adapters/amazon/amazon.adapter';
+import { AmazonSpApiClient } from '@modules/marketplace-adapter/adapters/amazon/client/amazon-sp-api.client';
+import type { AdapterHttpClient } from '@modules/marketplace-adapter/client/http.client';
 
+// Staging shape: the main app is PRODUCTION, discovery must still run on the sandbox app.
 const SANDBOX_GLOBAL_CONFIG = {
-  clientId: 'global-client-id',
-  clientSecret: 'global-client-secret',
+  clientId: 'prod-client-id',
+  clientSecret: 'prod-client-secret',
+  sandboxClientId: 'sandbox-client-id',
+  sandboxClientSecret: 'sandbox-client-secret',
   sandboxRefreshToken: 'global-sandbox-refresh-token',
-  environment: 'sandbox' as const,
+  environment: 'production' as 'sandbox' | 'production',
 };
 
 function makeConfigurationServiceStub(overrides: Partial<typeof SANDBOX_GLOBAL_CONFIG> = {}) {
@@ -61,7 +66,7 @@ describe('Discovery AmazonAdapter — real Amazon Catalog Items integration', ()
     expect(credentials.region).toBe(AmazonRegion.EU);
   });
 
-  it('sandbox discovery uses the GLOBAL sandbox refresh token + global clientId/clientSecret', async () => {
+  it('discovery uses ONLY the sandbox app credentials + global sandbox refresh token, never the production app', async () => {
     const searchCatalogItems = jest.fn().mockResolvedValue({ items: [], status: 200 });
     const configurationService = makeConfigurationServiceStub();
     const adapter = new AmazonAdapter(configurationService, makeRealAdapterStub(searchCatalogItems));
@@ -70,10 +75,30 @@ describe('Discovery AmazonAdapter — real Amazon Catalog Items integration', ()
 
     const [credentials] = searchCatalogItems.mock.calls[0]!;
     expect(credentials).toMatchObject({
-      clientId: 'global-client-id',
-      clientSecret: 'global-client-secret',
+      clientId: 'sandbox-client-id',
+      clientSecret: 'sandbox-client-secret',
       refreshToken: 'global-sandbox-refresh-token',
+      app: 'sandbox',
     });
+    expect(JSON.stringify(credentials)).not.toContain('prod-client');
+  });
+
+  it('discovery calls the SANDBOX SP-API host even when AMAZON_SP_API_ENVIRONMENT=production', async () => {
+    const configurationService = makeConfigurationServiceStub({ environment: 'production' });
+    const httpClient = { request: jest.fn().mockResolvedValue({ status: 200, data: { items: [] } }) } as unknown as AdapterHttpClient;
+    const authService = { getAccessToken: jest.fn().mockResolvedValue('atza-token') } as unknown as AmazonAuthService;
+    const spApiClient = new AmazonSpApiClient(httpClient, authService, configurationService);
+    // Real SP-API client underneath; the stub only forwards discovery's credentials to it.
+    const searchCatalogItems = jest.fn(async (credentials) => {
+      await spApiClient.get(credentials, '/catalog/2022-04-01/items');
+      return { items: [], status: 200 };
+    });
+    const adapter = new AmazonAdapter(configurationService, makeRealAdapterStub(searchCatalogItems));
+
+    await collect(adapter.discover({ ...BASE_PARAMS, country: 'US' }));
+
+    const requestArg = (httpClient.request as jest.Mock).mock.calls[0][0];
+    expect(requestArg.url).toBe('https://sandbox.sellingpartnerapi-na.amazon.com/catalog/2022-04-01/items');
   });
 
   it('sandbox discovery requires no MarketplaceAccount — constructor takes only ConfigurationService + the real adapter', async () => {
@@ -87,12 +112,15 @@ describe('Discovery AmazonAdapter — real Amazon Catalog Items integration', ()
     expect(results).toHaveLength(1);
   });
 
-  it('production (AMAZON_SP_API_ENVIRONMENT=production) never uses the sandbox refresh token, and fails clearly instead', async () => {
+  it('fails clearly without calling Amazon or exposing secrets when the sandbox app is not configured — never falls back to production', async () => {
     const searchCatalogItems = jest.fn();
-    const configurationService = makeConfigurationServiceStub({ environment: 'production' as any });
+    const configurationService = makeConfigurationServiceStub({ sandboxClientId: undefined, sandboxClientSecret: undefined } as any);
     const adapter = new AmazonAdapter(configurationService, makeRealAdapterStub(searchCatalogItems));
 
-    await expect(collect(adapter.discover(BASE_PARAMS))).rejects.toThrow(/production/i);
+    const error = await collect(adapter.discover(BASE_PARAMS)).catch((e: Error) => e);
+
+    expect((error as Error).message).toMatch(/AMAZON_SP_API_SANDBOX_CLIENT_ID/);
+    expect((error as Error).message).not.toContain('prod-client');
     expect(searchCatalogItems).not.toHaveBeenCalled();
   });
 

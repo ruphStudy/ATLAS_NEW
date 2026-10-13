@@ -35,6 +35,7 @@ resource "aws_iam_role_policy" "ecs_execution_secrets" {
         [for s in aws_secretsmanager_secret.manual : s.arn],
         [aws_secretsmanager_secret.redis_auth_token.arn],
         [aws_secretsmanager_secret.database_url.arn],
+        [for s in data.aws_secretsmanager_secret.amazon_production : s.arn],
       )
     }]
   })

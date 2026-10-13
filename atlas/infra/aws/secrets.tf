@@ -58,3 +58,16 @@ resource "aws_secretsmanager_secret_version" "database_url" {
   secret_id     = aws_secretsmanager_secret.database_url.id
   secret_string = "postgresql://${var.db_username}:${random_password.db_password.result}@${aws_db_instance.main.address}:5432/${var.db_name}?schema=public&sslmode=require"
 }
+
+# Production Amazon SP-API app credentials. These two secrets were created
+# (and populated) outside Terraform, so they are only LOOKED UP here — never
+# created/managed — to avoid a name conflict with the existing secrets. The
+# sandbox app keeps using the manual secrets above
+# (amazon-sp-api-client-secret / amazon-sp-api-sandbox-refresh-token).
+data "aws_secretsmanager_secret" "amazon_production" {
+  for_each = toset([
+    "amazon-sp-api-production-client-id",
+    "amazon-sp-api-production-client-secret",
+  ])
+  name = "${var.project}/${var.environment}/${each.value}"
+}

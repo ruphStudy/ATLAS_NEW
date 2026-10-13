@@ -137,15 +137,22 @@ variable "alarm_notification_email" {
 
 # ── Non-sensitive app config (real secrets live in Secrets Manager, see secrets.tf) ──
 
-variable "amazon_sp_api_client_id" {
-  description = "LWA client id — not sensitive on its own without the client secret."
+variable "amazon_sp_api_sandbox_client_id" {
+  description = "SANDBOX app LWA client id (sandbox-health check only) — not sensitive on its own without the client secret. The production client id comes from Secrets Manager."
   type        = string
   default     = ""
 }
 
 variable "amazon_sp_api_application_id" {
-  type    = string
-  default = ""
+  description = "PRODUCTION Amazon SP-API app Application ID (Solution ID) — builds the seller-consent URL."
+  type        = string
+  default     = ""
+}
+
+variable "amazon_sp_api_auth_version_beta" {
+  description = "Append version=beta to Amazon authorization URLs. Keep true while the production app is Draft; set false only once Amazon shows it as Published."
+  type        = bool
+  default     = true
 }
 
 variable "amazon_sp_api_redirect_uri" {

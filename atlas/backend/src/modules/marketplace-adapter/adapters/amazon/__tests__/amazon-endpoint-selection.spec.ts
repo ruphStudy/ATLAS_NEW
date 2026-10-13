@@ -79,4 +79,12 @@ describe('AmazonSpApiClient environment-driven base URL selection', () => {
     const requestArg = (httpClient.request as jest.Mock).mock.calls[0][0];
     expect(requestArg.url).toBe('https://sellingpartnerapi-na.amazon.com/catalog/2022-04-01/items');
   });
+
+  it('always calls the sandbox host for sandbox-health credentials (app=sandbox), even when global environment=production', async () => {
+    const { client, httpClient } = makeClient('production');
+    await client.get({ ...credentials, app: 'sandbox' as const }, '/sellers/v1/marketplaceParticipations');
+
+    const requestArg = (httpClient.request as jest.Mock).mock.calls[0][0];
+    expect(requestArg.url).toBe('https://sandbox.sellingpartnerapi-na.amazon.com/sellers/v1/marketplaceParticipations');
+  });
 });

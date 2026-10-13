@@ -74,4 +74,90 @@ describe('AmazonAuthService', () => {
 
     expect(mockedAxios.post).not.toHaveBeenCalled();
   });
+
+  describe('production vs sandbox LWA app', () => {
+    const SELLER = {
+      clientId: '',
+      clientSecret: '',
+      refreshToken: 'seller-refresh-token',
+      sellerId: 'SELLER-1',
+      marketplace: AmazonMarketplace.US,
+      region: AmazonRegion.NA,
+    };
+
+    beforeEach(() => {
+      (configurationService.getAmazonProviderConfig as jest.Mock).mockReturnValue({
+        clientId: 'prod-client-id',
+        clientSecret: 'prod-client-secret',
+        sandboxClientId: 'sandbox-client-id',
+        sandboxClientSecret: 'sandbox-client-secret',
+        environment: 'production',
+      });
+    });
+
+    it('seller runtime refresh uses the production/default app', async () => {
+      await service.refreshAccessToken(SELLER);
+
+      const [, body] = mockedAxios.post.mock.calls[0] as [string, URLSearchParams];
+      expect(body.get('client_id')).toBe('prod-client-id');
+      expect(body.get('client_secret')).toBe('prod-client-secret');
+    });
+
+    it('authorization-code exchange (OAuth callback) uses the production/default app', async () => {
+      mockedAxios.post.mockResolvedValue({
+        data: { access_token: 'atza', refresh_token: 'new-refresh', token_type: 'bearer', expires_in: 3600 },
+      });
+
+      await service.exchangeAuthorizationCode('spapi-code');
+
+      const [, body] = mockedAxios.post.mock.calls[0] as [string, URLSearchParams];
+      expect(body.get('client_id')).toBe('prod-client-id');
+      expect(body.get('client_secret')).toBe('prod-client-secret');
+    });
+
+    it('sandbox-health credentials (app=sandbox) use only the sandbox app', async () => {
+      await service.refreshAccessToken({ ...SELLER, sellerId: '', app: 'sandbox' });
+
+      const [, body] = mockedAxios.post.mock.calls[0] as [string, URLSearchParams];
+      expect(body.get('client_id')).toBe('sandbox-client-id');
+      expect(body.get('client_secret')).toBe('sandbox-client-secret');
+    });
+
+    it('never serves a cached sandbox token to a seller with the same (empty) sellerId/marketplace', async () => {
+      mockedAxios.post
+        .mockResolvedValueOnce({ data: { access_token: 'sandbox-token', token_type: 'bearer', expires_in: 3600 } })
+        .mockResolvedValueOnce({ data: { access_token: 'seller-token', token_type: 'bearer', expires_in: 3600 } });
+
+      await expect(service.getAccessToken({ ...SELLER, sellerId: '', app: 'sandbox' })).resolves.toBe('sandbox-token');
+      await expect(service.getAccessToken({ ...SELLER, sellerId: '' })).resolves.toBe('seller-token');
+    });
+
+    it('fails without calling Amazon or exposing any secret when the sandbox app is missing', async () => {
+      (configurationService.getAmazonProviderConfig as jest.Mock).mockReturnValue({
+        clientId: 'prod-client-id',
+        clientSecret: 'prod-client-secret',
+        environment: 'production',
+      });
+
+      const error = await service.refreshAccessToken({ ...SELLER, app: 'sandbox' }).catch((e: Error) => e);
+
+      expect((error as Error).message).toMatch(/AMAZON_SP_API_SANDBOX_CLIENT_ID/);
+      expect((error as Error).message).not.toContain('prod-client');
+      expect(mockedAxios.post).not.toHaveBeenCalled();
+    });
+
+    it('does not log client secrets or refresh tokens when Amazon rejects the refresh', async () => {
+      const errorSpy = jest.spyOn((service as unknown as { logger: { error: () => void } }).logger, 'error').mockImplementation(() => undefined);
+      mockedAxios.post.mockRejectedValue(Object.assign(new Error('Request failed'), { response: { status: 400, data: { error: 'invalid_grant' } } }));
+
+      const error = await service.refreshAccessToken(SELLER).catch((e: Error) => e);
+
+      const logged = JSON.stringify(errorSpy.mock.calls);
+      for (const secret of ['prod-client-secret', 'seller-refresh-token']) {
+        expect(logged).not.toContain(secret);
+        expect((error as Error).message).not.toContain(secret);
+      }
+      errorSpy.mockRestore();
+    });
+  });
 });

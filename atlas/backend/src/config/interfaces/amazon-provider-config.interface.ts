@@ -31,5 +31,8 @@ export interface IAmazonProviderConfig {
   /** Draft-app testing: append `version=beta` to Seller Central authorization URLs. */
   useBetaAuthVersion: boolean;
   sandboxRefreshToken?: string;
+  /** Dedicated sandbox LWA app — used only by sandbox-health checks, never by seller OAuth/runtime. */
+  sandboxClientId?: string;
+  sandboxClientSecret?: string;
   environment: AmazonSpApiEnvironment;
 }

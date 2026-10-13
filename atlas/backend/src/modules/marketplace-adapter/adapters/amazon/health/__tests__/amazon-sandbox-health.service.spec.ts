@@ -2,13 +2,20 @@ import { AmazonSandboxHealthService } from '../amazon-sandbox-health.service';
 import { AmazonAuthError } from '../../auth/amazon-auth.service';
 import { AMAZON_API_PATHS } from '../../constants/amazon.constants';
 
-function makeDeps(overrides: { config?: Partial<{ clientId: string; clientSecret: string; sandboxRefreshToken: string; environment: string }> } = {}) {
+function makeDeps(
+  overrides: {
+    config?: Partial<{ clientId: string; clientSecret: string; sandboxClientId: string; sandboxClientSecret: string; sandboxRefreshToken: string; environment: string }>;
+  } = {},
+) {
   const configurationService = {
     getAmazonProviderConfig: jest.fn().mockReturnValue({
-      clientId: 'global-client-id',
-      clientSecret: 'global-client-secret',
+      // Production/default app — must never be used by the sandbox check.
+      clientId: 'prod-client-id',
+      clientSecret: 'prod-client-secret',
+      sandboxClientId: 'sandbox-client-id',
+      sandboxClientSecret: 'sandbox-client-secret',
       sandboxRefreshToken: 'sandbox-refresh-token',
-      environment: 'sandbox',
+      environment: 'production',
       ...overrides.config,
     }),
   };
@@ -41,15 +48,24 @@ describe('AmazonSandboxHealthService', () => {
     );
   });
 
-  it('exchanges the sandbox refresh token for an access token before calling the API', async () => {
+  it('uses ONLY the sandbox app credentials (marked app=sandbox), even when the default app is production', async () => {
     const deps = makeDeps();
     const service = makeService(deps);
 
     await service.checkSandboxConnectivity();
+    await service.checkCatalogSearchSandbox();
 
-    expect(deps.authService.getAccessToken).toHaveBeenCalledWith(
-      expect.objectContaining({ clientId: 'global-client-id', clientSecret: 'global-client-secret', refreshToken: 'sandbox-refresh-token' }),
-    );
+    for (const call of [...deps.authService.getAccessToken.mock.calls, ...deps.spApiClient.get.mock.calls]) {
+      expect(call[0]).toEqual(
+        expect.objectContaining({
+          clientId: 'sandbox-client-id',
+          clientSecret: 'sandbox-client-secret',
+          refreshToken: 'sandbox-refresh-token',
+          app: 'sandbox',
+        }),
+      );
+      expect(JSON.stringify(call[0])).not.toContain('prod-client');
+    }
   });
 
   it('never includes clientSecret/refreshToken/accessToken in the returned result', async () => {
@@ -59,32 +75,33 @@ describe('AmazonSandboxHealthService', () => {
     const result = await service.checkSandboxConnectivity();
     const serialized = JSON.stringify(result);
 
-    expect(serialized).not.toContain('global-client-secret');
+    expect(serialized).not.toContain('sandbox-client-secret');
+    expect(serialized).not.toContain('prod-client-secret');
     expect(serialized).not.toContain('sandbox-refresh-token');
     expect(serialized).not.toContain('atza-token');
   });
 
-  it('fails fast with CONFIG_MISSING when environment is not sandbox, without calling Amazon', async () => {
+  it('runs regardless of AMAZON_SP_API_ENVIRONMENT (production default app does not block the sandbox check)', async () => {
     const deps = makeDeps({ config: { environment: 'production' } });
     const service = makeService(deps);
 
     const result = await service.checkSandboxConnectivity();
 
-    expect(result.status).toBe('failed');
-    expect(result.errorClass).toBe('CONFIG_MISSING');
-    expect(deps.authService.getAccessToken).not.toHaveBeenCalled();
-    expect(deps.spApiClient.get).not.toHaveBeenCalled();
+    expect(result.status).toBe('healthy');
   });
 
-  it('fails fast with CONFIG_MISSING when clientId/clientSecret are missing', async () => {
-    const deps = makeDeps({ config: { clientId: undefined, clientSecret: undefined } as any });
+  it('fails fast with CONFIG_MISSING when the sandbox app is missing — never falls back to production credentials', async () => {
+    const deps = makeDeps({ config: { sandboxClientId: undefined, sandboxClientSecret: undefined } as any });
     const service = makeService(deps);
 
     const result = await service.checkSandboxConnectivity();
 
     expect(result.status).toBe('failed');
     expect(result.errorClass).toBe('CONFIG_MISSING');
+    expect(result.message).toContain('AMAZON_SP_API_SANDBOX_CLIENT_ID');
+    expect(JSON.stringify(result)).not.toContain('prod-client');
     expect(deps.authService.getAccessToken).not.toHaveBeenCalled();
+    expect(deps.spApiClient.get).not.toHaveBeenCalled();
   });
 
   it('fails fast with CONFIG_MISSING when the sandbox refresh token is missing', async () => {

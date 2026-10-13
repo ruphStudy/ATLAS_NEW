@@ -4,7 +4,7 @@ import { ConfigurationService } from '@config/configuration.service';
 import { AmazonAuthService, AmazonAuthError } from '../auth/amazon-auth.service';
 import { AmazonSpApiClient } from '../client/amazon-sp-api.client';
 import { classifyAmazonAuthFailure, AmazonAuthFailureClass } from '../auth/amazon-auth-error.classifier';
-import { composeAmazonCredentials } from '../amazon-credentials.composer';
+import { composeAmazonSandboxCredentials } from '../amazon-credentials.composer';
 import { AMAZON_API_PATHS, AMAZON_RATE_LIMITS } from '../constants/amazon.constants';
 import { AmazonMarketplace } from '../interfaces/amazon.interfaces';
 
@@ -61,9 +61,11 @@ export interface AmazonCatalogSandboxCheckResult {
 }
 
 /**
- * Verifies ATLAS's GLOBAL Amazon SP-API *sandbox* configuration only:
- * AMAZON_SP_API_CLIENT_ID/SECRET/ENVIRONMENT + a dedicated global sandbox
- * refresh token. No MarketplaceAccount, no per-workspace seller credential,
+ * Verifies ATLAS's GLOBAL Amazon SP-API *sandbox* configuration only: the
+ * dedicated sandbox LWA app (AMAZON_SP_API_SANDBOX_CLIENT_ID/SECRET) + the
+ * global sandbox refresh token, always against the sandbox SP-API host —
+ * independent of the production/default app and AMAZON_SP_API_ENVIRONMENT.
+ * No MarketplaceAccount, no per-workspace seller credential,
  * no seller OAuth — this never touches marketplace-provider-credentials or
  * marketplace-account. Never called at app startup; only on explicit
  * request via the platform-admin endpoint.
@@ -82,41 +84,9 @@ export class AmazonSandboxHealthService {
     const checkedAt = new Date().toISOString();
     const global = this.configurationService.getAmazonProviderConfig();
 
-    if (global.environment !== 'sandbox') {
-      return {
-        status: 'failed',
-        endpoint: AMAZON_API_PATHS.SELLER_INFO,
-        errorClass: 'CONFIG_MISSING',
-        message: `AMAZON_SP_API_ENVIRONMENT is '${global.environment}', not 'sandbox' — refusing to run the sandbox check against it`,
-        checkedAt,
-      };
-    }
-    if (!global.clientId || !global.clientSecret) {
-      return {
-        status: 'failed',
-        endpoint: AMAZON_API_PATHS.SELLER_INFO,
-        errorClass: 'CONFIG_MISSING',
-        message: 'AMAZON_SP_API_CLIENT_ID / AMAZON_SP_API_CLIENT_SECRET are not configured',
-        checkedAt,
-      };
-    }
-    if (!global.sandboxRefreshToken) {
-      return {
-        status: 'failed',
-        endpoint: AMAZON_API_PATHS.SELLER_INFO,
-        errorClass: 'CONFIG_MISSING',
-        message: 'AMAZON_SP_API_SANDBOX_REFRESH_TOKEN is not configured',
-        checkedAt,
-      };
-    }
-
     let credentials;
     try {
-      credentials = composeAmazonCredentials(global, {
-        refreshToken: global.sandboxRefreshToken,
-        sellerId: null,
-        marketplace: AmazonMarketplace.US,
-      });
+      credentials = composeAmazonSandboxCredentials(global, AmazonMarketplace.US);
     } catch (err) {
       return {
         status: 'failed',
@@ -195,41 +165,9 @@ export class AmazonSandboxHealthService {
     };
     const global = this.configurationService.getAmazonProviderConfig();
 
-    if (global.environment !== 'sandbox') {
-      return {
-        status: 'failed',
-        request,
-        errorClass: 'CONFIG_MISSING',
-        message: `AMAZON_SP_API_ENVIRONMENT is '${global.environment}', not 'sandbox' — refusing to run the sandbox check against it`,
-        checkedAt,
-      };
-    }
-    if (!global.clientId || !global.clientSecret) {
-      return {
-        status: 'failed',
-        request,
-        errorClass: 'CONFIG_MISSING',
-        message: 'AMAZON_SP_API_CLIENT_ID / AMAZON_SP_API_CLIENT_SECRET are not configured',
-        checkedAt,
-      };
-    }
-    if (!global.sandboxRefreshToken) {
-      return {
-        status: 'failed',
-        request,
-        errorClass: 'CONFIG_MISSING',
-        message: 'AMAZON_SP_API_SANDBOX_REFRESH_TOKEN is not configured',
-        checkedAt,
-      };
-    }
-
     let credentials;
     try {
-      credentials = composeAmazonCredentials(global, {
-        refreshToken: global.sandboxRefreshToken,
-        sellerId: null,
-        marketplace: AMAZON_STATIC_SANDBOX_CATALOG_MARKETPLACE,
-      });
+      credentials = composeAmazonSandboxCredentials(global, AMAZON_STATIC_SANDBOX_CATALOG_MARKETPLACE);
     } catch (err) {
       return {
         status: 'failed',

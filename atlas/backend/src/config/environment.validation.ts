@@ -212,6 +212,14 @@ export class EnvironmentVariables {
   @IsString()
   @IsOptional()
   AMAZON_SP_API_SANDBOX_REFRESH_TOKEN?: string;
+
+  @IsString()
+  @IsOptional()
+  AMAZON_SP_API_SANDBOX_CLIENT_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  AMAZON_SP_API_SANDBOX_CLIENT_SECRET?: string;
 }
 
 /**

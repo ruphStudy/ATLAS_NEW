@@ -13,8 +13,9 @@ environment = "staging"
 # domain_name     = "api-staging.example.com"
 
 # ── Non-sensitive app config ──
-amazon_sp_api_client_id      = ""
-amazon_sp_api_application_id = ""
+amazon_sp_api_sandbox_client_id = "" # sandbox app (sandbox-health only)
+amazon_sp_api_application_id    = "" # PRODUCTION app Application ID
+amazon_sp_api_auth_version_beta = true # set false once the production app is Published
 amazon_sp_api_redirect_uri   = ""
 cors_origins                 = "https://staging.example.com"
 

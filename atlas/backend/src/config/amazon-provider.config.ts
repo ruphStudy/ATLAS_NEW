@@ -48,6 +48,15 @@ export const amazonProviderConfig = registerAs(
       );
     }
 
+    // Sandbox-health LWA app. Falls back to the default app ONLY when the
+    // default app itself is the sandbox app (AMAZON_SP_API_ENVIRONMENT=sandbox,
+    // e.g. local dev) — never to production credentials.
+    const sandboxFallback = environment === 'sandbox';
+    const sandboxClientId =
+      process.env[ENV_KEYS.AMAZON_SP_API_SANDBOX_CLIENT_ID] || (sandboxFallback ? clientId : undefined);
+    const sandboxClientSecret =
+      process.env[ENV_KEYS.AMAZON_SP_API_SANDBOX_CLIENT_SECRET] || (sandboxFallback ? clientSecret : undefined);
+
     return {
       clientId: clientId || undefined,
       clientSecret: clientSecret || undefined,
@@ -55,6 +64,8 @@ export const amazonProviderConfig = registerAs(
       redirectUri: redirectUri || undefined,
       useBetaAuthVersion,
       sandboxRefreshToken: sandboxRefreshToken || undefined,
+      sandboxClientId: sandboxClientId || undefined,
+      sandboxClientSecret: sandboxClientSecret || undefined,
       environment,
     };
   },

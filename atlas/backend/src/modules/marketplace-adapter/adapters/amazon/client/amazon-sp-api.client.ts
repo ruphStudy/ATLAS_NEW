@@ -43,7 +43,10 @@ export class AmazonSpApiClient {
   ): Promise<IHttpResponse<T>> {
     const accessToken = await this.authService.getAccessToken(credentials);
     const region = this.getRegion(credentials);
-    const { environment } = this.configurationService.getAmazonProviderConfig();
+    // Sandbox-health credentials always target the sandbox host; everything
+    // else follows AMAZON_SP_API_ENVIRONMENT.
+    const environment =
+      credentials.app === 'sandbox' ? 'sandbox' : this.configurationService.getAmazonProviderConfig().environment;
     const baseUrl = resolveAmazonSpApiBaseUrl(region, environment);
 
     const request: IHttpRequest = {

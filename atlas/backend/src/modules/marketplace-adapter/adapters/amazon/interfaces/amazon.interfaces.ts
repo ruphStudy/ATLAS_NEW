@@ -102,6 +102,12 @@ export interface IAmazonCredentials {
   sellerId: string;
   marketplace: AmazonMarketplace;
   region: AmazonRegion;
+  /**
+   * Set ONLY by composeAmazonSandboxCredentials(): selects the dedicated
+   * sandbox LWA app (AMAZON_SP_API_SANDBOX_CLIENT_*) and the sandbox SP-API
+   * host. The LWA client values themselves are always read from global config.
+   */
+  app?: 'sandbox';
 }
 
 export interface IAmazonTokenResponse {

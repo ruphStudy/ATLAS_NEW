@@ -3,7 +3,7 @@ import { ConfigurationService } from '@config/configuration.service';
 import { AmazonAdapter as RealAmazonAdapter } from '@modules/marketplace-adapter/adapters/amazon/amazon.adapter';
 import { AmazonAuthError } from '@modules/marketplace-adapter/adapters/amazon/auth/amazon-auth.service';
 import { classifyAmazonAuthFailure } from '@modules/marketplace-adapter/adapters/amazon/auth/amazon-auth-error.classifier';
-import { composeAmazonCredentials } from '@modules/marketplace-adapter/adapters/amazon/amazon-credentials.composer';
+import { composeAmazonSandboxCredentials } from '@modules/marketplace-adapter/adapters/amazon/amazon-credentials.composer';
 import { AmazonMarketplace } from '@modules/marketplace-adapter/adapters/amazon/interfaces/amazon.interfaces';
 import { MARKETPLACE_CODES, SUPPORTED_COUNTRIES } from '../../constants';
 import type {
@@ -22,16 +22,16 @@ import type {
  * classification) via `RealAmazonAdapter.searchCatalogItems()`; this file
  * adds no HTTP client, no auth logic, and no Amazon endpoint of its own.
  *
- * Sandbox only (AMAZON_SP_API_ENVIRONMENT=sandbox): uses the global
- * AMAZON_SP_API_SANDBOX_REFRESH_TOKEN — no MarketplaceAccount, no seller
- * OAuth, no DB credential record. This is ATLAS's own sandbox integration
- * test path and is never used when AMAZON_SP_API_ENVIRONMENT=production.
+ * Always runs on the dedicated SANDBOX app (AMAZON_SP_API_SANDBOX_CLIENT_ID/
+ * SECRET + AMAZON_SP_API_SANDBOX_REFRESH_TOKEN) against the sandbox SP-API
+ * host, via composeAmazonSandboxCredentials() — no MarketplaceAccount, no
+ * seller OAuth, no DB credential record — regardless of
+ * AMAZON_SP_API_ENVIRONMENT.
  *
- * Production: Discovery has no per-seller credential resolution path yet
- * (no MarketplaceAccount/workspace is associated with a discovery session
- * today). Rather than invent a workaround, production discovery calls fail
- * clearly via the error thrown below — this is a known, reported gap, not
- * a silent limitation.
+ * Discovery has no per-seller authorization yet, so it never uses the
+ * production/default app: that would mean calling production SP-API without
+ * a seller's consent. If the sandbox app is not configured, discovery fails
+ * clearly instead of falling back.
  */
 @Injectable()
 export class AmazonAdapter implements IMarketplaceAdapter {
@@ -57,33 +57,12 @@ export class AmazonAdapter implements IMarketplaceAdapter {
     const global = this.configurationService.getAmazonProviderConfig();
 
     this.logger.debug(
-      `Amazon discovery: ${keywords.length} keywords on ${marketplaceCode} [ws: ${workspaceId}, env: ${global.environment}]`,
+      `Amazon discovery: ${keywords.length} keywords on ${marketplaceCode} [ws: ${workspaceId}, app: sandbox]`,
     );
 
-    if (global.environment !== 'sandbox') {
-      // Production seller-authorization resolution for Discovery is not
-      // wired yet (no MarketplaceAccount/credential is associated with a
-      // discovery session). Fail clearly rather than falling back to the
-      // sandbox token or to synthetic data — this is a reported gap, see
-      // the task report, not something to work around here.
-      throw new Error(
-        'Amazon Discovery requires per-seller authorization in production, which Discovery does not yet resolve ' +
-          '(no MarketplaceAccount/credential is associated with a discovery session). ' +
-          'Set AMAZON_SP_API_ENVIRONMENT=sandbox to use the verified ATLAS sandbox integration test path.',
-      );
-    }
-    if (!global.sandboxRefreshToken) {
-      throw new Error(
-        'AMAZON_SP_API_SANDBOX_REFRESH_TOKEN is not configured — cannot run Amazon sandbox discovery.',
-      );
-    }
-
     const amazonMarketplace = this.resolveAmazonMarketplace(country);
-    const credentials = composeAmazonCredentials(global, {
-      refreshToken: global.sandboxRefreshToken,
-      sellerId: null,
-      marketplace: amazonMarketplace,
-    });
+    // Throws a config-only message (no values) if the sandbox app/token is missing.
+    const credentials = composeAmazonSandboxCredentials(global, amazonMarketplace);
 
     for (let i = 0; i < keywords.length; i++) {
       const keyword = keywords[i] as string;

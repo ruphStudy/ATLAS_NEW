@@ -45,3 +45,34 @@ export function composeAmazonCredentials(
     region: AMAZON_MARKETPLACE_REGIONS[seller.marketplace] ?? AmazonRegion.NA,
   };
 }
+
+/**
+ * Builds credentials for ATLAS's own sandbox-health checks ONLY: the
+ * dedicated sandbox LWA app + the global sandbox refresh token, marked
+ * `app: 'sandbox'` so token refresh and SP-API calls use the sandbox app and
+ * sandbox host regardless of AMAZON_SP_API_ENVIRONMENT. Never used for
+ * seller OAuth or connected-seller runtime calls.
+ */
+export function composeAmazonSandboxCredentials(
+  global: IAmazonProviderConfig,
+  marketplace: AmazonMarketplace,
+): IAmazonCredentials {
+  if (!global.sandboxClientId || !global.sandboxClientSecret) {
+    throw new Error(
+      'Amazon SP-API sandbox app is not configured: AMAZON_SP_API_SANDBOX_CLIENT_ID and AMAZON_SP_API_SANDBOX_CLIENT_SECRET must both be set.',
+    );
+  }
+  if (!global.sandboxRefreshToken) {
+    throw new Error('AMAZON_SP_API_SANDBOX_REFRESH_TOKEN is not configured');
+  }
+
+  return {
+    clientId: global.sandboxClientId,
+    clientSecret: global.sandboxClientSecret,
+    refreshToken: global.sandboxRefreshToken,
+    sellerId: '',
+    marketplace,
+    region: AMAZON_MARKETPLACE_REGIONS[marketplace] ?? AmazonRegion.NA,
+    app: 'sandbox',
+  };
+}
