@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQueries } from '@tanstack/react-query';
 import { PageHeader } from '@/components/ui/page-header';
@@ -27,7 +28,7 @@ const ROWS: { label: string; render: (s: Awaited<ReturnType<typeof getSupplierBy
   { label: 'Added', render: (s) => formatDate(s.createdAt) },
 ];
 
-export default function CompareSuppliersPage() {
+function CompareSuppliersPageContent() {
   const searchParams = useSearchParams();
   const ids = (searchParams.get('ids') ?? '').split(',').filter(Boolean);
 
@@ -75,5 +76,13 @@ export default function CompareSuppliersPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CompareSuppliersPage() {
+  return (
+    <Suspense fallback={null}>
+      <CompareSuppliersPageContent />
+    </Suspense>
   );
 }

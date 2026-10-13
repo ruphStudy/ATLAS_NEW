@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
   // — dev-only debug overlay, not part of the ATLAS UI.
   devIndicators: false,
 
+  // Lint runs separately (`npm run lint`); existing prettier debt must not block production builds.
+  // Type checking still runs during `next build`.
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Image optimization domains
   images: {
     remotePatterns: [

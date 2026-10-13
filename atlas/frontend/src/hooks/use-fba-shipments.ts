@@ -2,14 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as fbaService from '@/services/fba-shipments.service';
 import { QUERY_KEYS } from '@/constants';
 import { useAuthStore } from '@/stores';
-import type { CreateFBAShipmentPayload } from '@/types';
+import type { CreateFBAShipmentPayload, FBAShipmentFilterParams } from '@/types';
 import { useToast } from './use-toast';
 
 function useWorkspaceId() {
   return useAuthStore((s) => s.user?.workspaceId);
 }
 
-export function useFBAShipments(params: { status?: string[]; marketplaceAccountId?: string; warehouseId?: string; page?: number; limit?: number } = {}) {
+export function useFBAShipments(params: Omit<FBAShipmentFilterParams, 'workspaceId'> = {}) {
   const workspaceId = useWorkspaceId();
   return useQuery({
     queryKey: [QUERY_KEYS.FBA_SHIPMENTS, workspaceId, params],

@@ -359,8 +359,8 @@ function LanguagesTab() {
   const [enabledSel, setEnabledSel] = useState<string[]>([]);
   const [preferredSel, setPreferredSel] = useState<string[]>([]);
 
-  const enabledCodes = enabledSel.length > 0 ? enabledSel : enabled?.localeCodes ?? [];
-  const preferredCodes = preferredSel.length > 0 ? preferredSel : preferred?.localeCodes ?? [];
+  const enabledCodes = enabledSel.length > 0 ? enabledSel : enabled ?? [];
+  const preferredCodes = preferredSel.length > 0 ? preferredSel : preferred ?? [];
 
   if (enabledLoading || preferredLoading) return <Skeleton className="h-48 w-full" />;
   if (!allLocales || allLocales.length === 0) return <EmptyState title="No locales available" description="Create a locale first." />;

@@ -5830,6 +5830,7 @@ export interface CreateChannelProductMappingPayload {
 
 // ── Listing Approval (`listing-approval` module) ─────────────
 export type ApprovalStatus =
+  | 'PENDING_APPROVAL'
   | 'PENDING_REVIEW'
   | 'UNDER_REVIEW'
   | 'APPROVED'
@@ -7350,6 +7351,7 @@ export interface PackingTask {
   cancelReason?: string | null;
   createdAt: string;
   updatedAt: string;
+  lines?: PackingTaskLine[];
 }
 
 export interface CreatePackingPayload {

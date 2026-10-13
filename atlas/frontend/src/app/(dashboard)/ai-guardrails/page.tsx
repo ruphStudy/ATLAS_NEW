@@ -236,7 +236,7 @@ function ValidationDetailDialog({ id, workspaceId, onClose }: { id: string | nul
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">History</p>
               <ul className="space-y-1.5">
-                {history.map((h: Record<string, unknown>, i: number) => (
+                {history.map((h: unknown, i: number) => (
                   <li key={i} className="text-xs text-muted-foreground">{JSON.stringify(h)}</li>
                 ))}
               </ul>

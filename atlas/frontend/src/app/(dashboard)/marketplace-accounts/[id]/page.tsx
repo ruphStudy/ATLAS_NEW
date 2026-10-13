@@ -37,7 +37,7 @@ export default function MarketplaceAccountDetailPage() {
   const { data: account, isLoading, isError, error, refetch } = useMarketplaceAccount(id);
   const { data: provider } = useMarketplaceProvider(account?.providerKey);
   const historyRaw = useMarketplaceAccountHistory(id).data;
-  const history = Array.isArray(historyRaw) ? historyRaw : (historyRaw as { items?: typeof historyRaw } | undefined)?.items;
+  const history = Array.isArray(historyRaw) ? historyRaw : historyRaw?.items;
   const enable = useEnableMarketplaceAccount(id);
   const disable = useDisableMarketplaceAccount(id);
   const archive = useArchiveMarketplaceAccount(id);

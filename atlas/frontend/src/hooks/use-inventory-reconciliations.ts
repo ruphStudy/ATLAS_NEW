@@ -83,7 +83,7 @@ export function useApproveReconciliationLine(runId: string) {
 }
 
 export function useRejectReconciliationLine(runId: string) {
-  return useLineAction(runId, reconciliationsService.rejectReconciliationLine, 'Line rejected');
+  return useLineAction(runId, (lineId, reason) => reconciliationsService.rejectReconciliationLine(lineId, reason as string), 'Line rejected');
 }
 
 export function useIgnoreReconciliationLine(runId: string) {

@@ -243,7 +243,7 @@ function WebhookDetailDialog({ id, onClose }: { id: string | null; onClose: () =
 
   const actions: ActionMenuItem[] = [];
   if (webhook) {
-    actions.push({ label: 'Send test event', onSelect: () => testWebhook.mutate(undefined) });
+    actions.push({ label: 'Send test event', onSelect: () => testWebhook.mutate({}) });
     actions.push({ label: 'Rotate secret', onSelect: () => rotateSecret.mutate(undefined, { onSuccess: (r) => setRotatedSecret(r.plaintextSecret) }) });
     if (webhook.status === 'ACTIVE') {
       actions.push({ label: 'Disable', onSelect: () => disable.mutate() });

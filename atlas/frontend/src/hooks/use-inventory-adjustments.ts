@@ -62,7 +62,7 @@ export function useApproveAdjustment(id: string) {
 }
 
 export function useRejectAdjustment(id: string) {
-  return useAdjustmentAction(id, adjustmentsService.rejectAdjustment, 'Adjustment rejected');
+  return useAdjustmentAction(id, (adjId, reason) => adjustmentsService.rejectAdjustment(adjId, reason as string), 'Adjustment rejected');
 }
 
 export function usePostAdjustment(id: string) {
@@ -74,5 +74,5 @@ export function useCancelAdjustment(id: string) {
 }
 
 export function useReverseAdjustment(id: string) {
-  return useAdjustmentAction(id, adjustmentsService.reverseAdjustment, 'Adjustment reversed');
+  return useAdjustmentAction(id, (adjId, reason) => adjustmentsService.reverseAdjustment(adjId, reason as string), 'Adjustment reversed');
 }

@@ -70,5 +70,5 @@ export function useCancelMovement(id: string) {
 }
 
 export function useReverseMovement(id: string) {
-  return useMovementAction(id, movementsService.reverseMovement, 'Movement reversed');
+  return useMovementAction(id, (movementId, reason) => movementsService.reverseMovement(movementId, reason as string), 'Movement reversed');
 }

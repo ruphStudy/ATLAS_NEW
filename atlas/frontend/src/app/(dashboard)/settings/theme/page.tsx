@@ -188,7 +188,7 @@ function ColorFieldGroup({ label, tokens, onChange }: { label: string; tokens: T
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
       <div className="grid grid-cols-4 gap-2">
         {fields.map((f) => (
-          <FormField key={f} label={f} htmlFor={`${label}-${f}`}>
+          <FormField key={f} label={String(f)} htmlFor={`${label}-${f}`}>
             <Input
               id={`${label}-${f}`}
               type="color"

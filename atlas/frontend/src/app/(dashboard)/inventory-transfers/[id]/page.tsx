@@ -67,7 +67,7 @@ export default function InventoryTransferDetailPage() {
     actions.push({ label: 'Approve', icon: CheckCircle2, onSelect: () => approve.mutate(undefined) });
   }
   if (transfer.status === 'APPROVED') {
-    actions.push({ label: 'Dispatch', icon: Send, onSelect: () => dispatch.mutate(undefined) });
+    actions.push({ label: 'Dispatch', icon: Send, onSelect: () => dispatch.mutate({}) });
   }
   if (transfer.status === 'DISPATCHED' || transfer.status === 'IN_TRANSIT' || transfer.status === 'PARTIALLY_RECEIVED') {
     actions.push({ label: 'Receive', icon: PackageCheck, onSelect: () => setReceiveOpen(true) });

@@ -85,7 +85,6 @@ export const QUERY_KEYS = {
   WAREHOUSE_RECEIVING: 'warehouse-receiving',
   MARKETPLACE_ACCOUNTS: 'marketplace-accounts',
   MARKETPLACE_PROVIDERS: 'marketplace-providers',
-  CHANNELS: 'channels',
   UNIVERSAL_LISTINGS: 'universal-listings-list',
   MARKETPLACE_LISTINGS_LIST: 'marketplace-listings-list',
   LISTING_APPROVALS: 'listing-approvals',

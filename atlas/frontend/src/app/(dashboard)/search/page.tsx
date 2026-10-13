@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Search as SearchIcon,
@@ -93,7 +93,7 @@ function resultKey(item: GlobalSearchResultItem) {
   return `${item.entityType}:${item.entityId}`;
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -907,5 +907,13 @@ function SearchHistoryTab() {
         ))}
       </TableBody>
     </Table>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={null}>
+      <SearchPageContent />
+    </Suspense>
   );
 }

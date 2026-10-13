@@ -416,7 +416,7 @@ function RecordsTab() {
         <>
           <div className="space-y-2">
             {data.data.map((r) => (
-              <RecordRow key={r.id} record={r} />
+              <RecordRow key={r.id} record={{ ...r, status: r.status as BackupRecordStatus, integrityStatus: r.integrityStatus as BackupIntegrityStatus }} />
             ))}
           </div>
           {data.total > 0 && <Pagination page={page} limit={20} total={data.total} totalPages={Math.ceil(data.total / 20)} onPageChange={setPage} onLimitChange={() => {}} />}

@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQueries } from '@tanstack/react-query';
 import { PageHeader } from '@/components/ui/page-header';
@@ -18,7 +19,7 @@ const ROWS: { label: string; key: 'finalScore' | 'demandScore' | 'competitionSco
   { label: 'AI', key: 'aiScore' },
 ];
 
-export default function CompareOpportunitiesPage() {
+function CompareOpportunitiesPageContent() {
   const searchParams = useSearchParams();
   const ids = (searchParams.get('ids') ?? '').split(',').filter(Boolean);
 
@@ -85,5 +86,13 @@ export default function CompareOpportunitiesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CompareOpportunitiesPage() {
+  return (
+    <Suspense fallback={null}>
+      <CompareOpportunitiesPageContent />
+    </Suspense>
   );
 }

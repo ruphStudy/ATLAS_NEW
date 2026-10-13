@@ -92,9 +92,9 @@ export default function InventoryMovementDetailPage() {
             ) : (
               <ul className="space-y-2">
                 {history.map((h) => (
-                  <li key={h.id} className="text-xs">
-                    <span className="text-foreground">{h.fromStatus ?? 'Created'} → {h.toStatus}</span>
-                    <span className="ml-2 text-muted-foreground">{formatDate(h.createdAt)}</span>
+                  <li key={String(h.id)} className="text-xs">
+                    <span className="text-foreground">{String(h.fromStatus ?? "Created")} → {String(h.toStatus)}</span>
+                    <span className="ml-2 text-muted-foreground">{formatDate(h.createdAt as string)}</span>
                   </li>
                 ))}
               </ul>

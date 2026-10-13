@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { isAxiosError } from 'axios';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useAcceptInvitation } from '@/hooks';
 import { ROUTES } from '@/constants';
 
-export default function AcceptInvitationPage() {
+function AcceptInvitationPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get('token');
@@ -60,5 +60,13 @@ export default function AcceptInvitationPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function AcceptInvitationPage() {
+  return (
+    <Suspense fallback={null}>
+      <AcceptInvitationPageContent />
+    </Suspense>
   );
 }

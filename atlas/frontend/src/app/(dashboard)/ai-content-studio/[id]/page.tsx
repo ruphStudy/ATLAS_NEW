@@ -305,7 +305,7 @@ function DescriptionDetail({
               Regenerate sections
             </Button>
             {canApprove && (
-              <Button size="sm" onClick={() => approve.mutate()} disabled={approve.isPending}>
+              <Button size="sm" onClick={() => approve.mutate({})} disabled={approve.isPending}>
                 {approve.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                 Approve
               </Button>
@@ -662,7 +662,7 @@ function SeoDetail({ seo, currentTitle, currentDescription }: { seo: NonNullable
               Regenerate sections
             </Button>
             {canApprove && (
-              <Button size="sm" onClick={() => approve.mutate()} disabled={approve.isPending}>
+              <Button size="sm" onClick={() => approve.mutate({})} disabled={approve.isPending}>
                 {approve.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                 Approve
               </Button>
@@ -1275,7 +1275,7 @@ function ListingDetail({
               {latestApproval.approvalComment && <p className="text-sm text-muted-foreground">{latestApproval.approvalComment}</p>}
               {latestApproval.rejectionReason && <p className="text-sm text-danger">{latestApproval.rejectionReason}</p>}
               <div className="flex flex-wrap gap-2">
-                {latestApproval.status === 'PENDING' && (
+                {latestApproval.status === 'PENDING_APPROVAL' && (
                   <>
                     <Button size="sm" onClick={() => approveListing.mutate({})} disabled={approveListing.isPending}>Approve</Button>
                     <Button variant="outline" size="sm" onClick={() => setRejectOpen(true)}>Reject</Button>

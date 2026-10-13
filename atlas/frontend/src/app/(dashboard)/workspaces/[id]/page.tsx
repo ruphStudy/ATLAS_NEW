@@ -175,7 +175,7 @@ export default function WorkspaceDetailPage() {
         </TabsContent>
 
         <TabsContent value="settings">
-          <SettingsTab isActiveWorkspace={isActiveWorkspace} />
+          <SettingsTab workspaceId={workspace.id} isActiveWorkspace={isActiveWorkspace} />
         </TabsContent>
 
         <TabsContent value="activity">

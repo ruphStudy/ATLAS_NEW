@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { isAxiosError } from 'axios';
 import { Plus } from 'lucide-react';
@@ -40,7 +40,7 @@ const AMAZON_CALLBACK_REASONS: Record<string, string> = {
   persist_failed: 'The connection succeeded but ATLAS could not save it. Please try again or contact support.',
 };
 
-export default function MarketplaceAccountsPage() {
+function MarketplaceAccountsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
@@ -154,5 +154,13 @@ export default function MarketplaceAccountsPage() {
 
       <ConnectMarketplaceAccountDialog open={connectOpen} onOpenChange={setConnectOpen} onCreated={(a) => router.push(`/marketplace-accounts/${a.id}`)} />
     </div>
+  );
+}
+
+export default function MarketplaceAccountsPage() {
+  return (
+    <Suspense fallback={null}>
+      <MarketplaceAccountsPageContent />
+    </Suspense>
   );
 }

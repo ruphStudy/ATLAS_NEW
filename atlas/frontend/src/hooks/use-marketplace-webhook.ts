@@ -37,8 +37,10 @@ function invalidateWebhookConfigs(queryClient: ReturnType<typeof useQueryClient>
 export function useRegisterMarketplaceWebhook() {
   const queryClient = useQueryClient();
   const toast = useToast();
+  const workspaceId = useWorkspaceId();
   return useMutation({
-    mutationFn: (payload: RegisterMarketplaceWebhookPayload) => webhookService.registerMarketplaceWebhook(payload),
+    mutationFn: (payload: Omit<RegisterMarketplaceWebhookPayload, 'workspaceId'>) =>
+      webhookService.registerMarketplaceWebhook({ ...payload, workspaceId: workspaceId as string }),
     onSuccess: () => {
       invalidateWebhookConfigs(queryClient);
       toast.success('Webhook subscription registered');
