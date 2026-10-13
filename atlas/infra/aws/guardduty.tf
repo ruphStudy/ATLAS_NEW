@@ -8,7 +8,7 @@
 # S3 Malware Protection is enabled on the ALB access-log bucket.
 
 resource "aws_guardduty_detector" "main" {
-  enable                        = true
+  enable                       = true
   finding_publishing_frequency = "FIFTEEN_MINUTES"
 }
 
@@ -18,8 +18,18 @@ resource "aws_guardduty_detector_feature" "runtime_monitoring" {
   status      = "ENABLED"
 
   additional_configuration {
+    name   = "EKS_ADDON_MANAGEMENT"
+    status = "DISABLED"
+  }
+
+  additional_configuration {
     name   = "ECS_FARGATE_AGENT_MANAGEMENT"
     status = "ENABLED"
+  }
+
+  additional_configuration {
+    name   = "EC2_AGENT_MANAGEMENT"
+    status = "DISABLED"
   }
 }
 
