@@ -180,17 +180,3 @@ resource "aws_amplify_branch" "frontend" {
 # sub-domain records in it; wait_for_verification = false keeps apply from
 # blocking on DNS/cert propagation.
 
-resource "aws_amplify_domain_association" "frontend" {
-  app_id                = aws_amplify_app.frontend.id
-  domain_name           = var.frontend_root_domain
-  wait_for_verification = false
-
-  certificate_settings {
-    type = "AMPLIFY_MANAGED"
-  }
-
-  sub_domain {
-    branch_name = aws_amplify_branch.frontend.branch_name
-    prefix      = var.frontend_subdomain
-  }
-}
