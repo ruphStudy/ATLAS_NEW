@@ -67,6 +67,34 @@ variable "backend_desired_count" {
   default = 1
 }
 
+variable "frontend_image_tag" {
+  description = "Tag of the frontend image already pushed to the frontend ECR repository."
+  type        = string
+  default     = "staging-001"
+}
+
+variable "frontend_container_port" {
+  type    = number
+  default = 3000
+}
+
+variable "frontend_cpu" {
+  description = "Fargate task vCPU units for the frontend."
+  type        = number
+  default     = 256
+}
+
+variable "frontend_memory" {
+  description = "Fargate task memory in MB for the frontend."
+  type        = number
+  default     = 512
+}
+
+variable "frontend_desired_count" {
+  type    = number
+  default = 1
+}
+
 # ── Database ────────────────────────────────────────────────────
 
 variable "db_instance_class" {
