@@ -4,11 +4,11 @@
 # https://<frontend_subdomain>.<frontend_root_domain> with an Amplify-managed
 # TLS certificate.
 #
-# GitHub connection: Amplify connects to GitHub through the "AWS Amplify"
-# GitHub App. `access_token` is used ONLY when the app is created, to install/
-# authorize that GitHub App and its webhook — Amplify does not keep using it.
+# GitHub connection: this Amplify app currently uses token-based repository
+# access (repositoryCloneMethod = TOKEN). `access_token` is used when the app
+# is created to authorize repository access and configure the connection.
 # It is never committed: pass it at apply time via
-# TF_VAR_amplify_github_access_token, then revoke it. Later plans ignore it
+# TF_VAR_amplify_github_access_token. Later plans ignore it
 # (see lifecycle below).
 
 locals {
@@ -79,33 +79,36 @@ resource "aws_amplify_app" "frontend" {
 
   iam_service_role_arn = aws_iam_role.amplify_service.arn
 
-  # atlas/ is an npm-workspaces root (backend, frontend, shared) inside the
-  # repo, so install from there and build the frontend workspace only.
+  # atlas/ is the npm-workspaces root containing frontend, backend and shared.
+  #
+  # Amplify builds from the repository root so npm installs the complete
+  # workspace dependency tree. This ensures Next.js remains available in
+  # node_modules when Amplify packages the SSR runtime.
   #
   # --ignore-scripts prevents the root workspace prepare script from running
-  # Husky during Amplify CI, where root dev dependencies are intentionally
-  # not installed.
+  # Husky during Amplify CI.
   build_spec = <<-EOT
     version: 1
     applications:
       - appRoot: ${var.frontend_app_root}
         frontend:
+          buildPath: /
           phases:
             preBuild:
               commands:
                 - nvm use 20
-                - cd .. && npm ci --workspace=@atlas/frontend --include-workspace-root=false --ignore-scripts && cd frontend
+                - cd atlas && npm ci --ignore-scripts
             build:
               commands:
-                - npm run build
+                - cd atlas && npm run build --workspace=@atlas/frontend
           artifacts:
-            baseDirectory: .next
+            baseDirectory: atlas/frontend/.next
             files:
               - '**/*'
           cache:
             paths:
-              - .next/cache/**/*
-              - ../node_modules/**/*
+              - atlas/node_modules/**/*
+              - atlas/frontend/.next/cache/**/*
   EOT
 
   environment_variables = {
@@ -115,7 +118,8 @@ resource "aws_amplify_app" "frontend" {
   }
 
   lifecycle {
-    # Only needed once, at creation (installs the GitHub App) — never re-sent.
+    # Repository token is required during initial connection setup and should
+    # not be continually re-sent or cause Terraform drift afterward.
     ignore_changes = [access_token]
   }
 
