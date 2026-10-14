@@ -92,8 +92,14 @@ resource "aws_amplify_app" "frontend" {
   # Amplify therefore uses /atlas as the build path. npm install and the
   # frontend workspace build both run directly from the npm workspace root.
   #
-  # This also ensures the Next.js runtime dependency is available from the
-  # workspace node_modules directory when Amplify packages the SSR app.
+  # The frontend uses Next.js standalone output. Amplify currently has a
+  # packaging issue with some nested monorepo layouts where Next.js exists
+  # in the workspace node_modules directory but is not detected inside
+  # .next/standalone/node_modules during deployment validation.
+  #
+  # The postBuild phase explicitly places Next.js and its @next runtime
+  # packages into the standalone node_modules directory before Amplify
+  # packages the SSR runtime.
   #
   # --ignore-scripts prevents the root workspace prepare script from running
   # Husky during Amplify CI.
@@ -108,17 +114,33 @@ resource "aws_amplify_app" "frontend" {
               commands:
                 - nvm use 20
                 - npm ci --ignore-scripts
+
             build:
               commands:
                 - npm run build --workspace=@atlas/frontend
+
+            postBuild:
+              commands:
+                - echo "Preparing Next.js standalone runtime for Amplify"
+                - test -f node_modules/next/package.json
+                - test -d frontend/.next/standalone
+                - mkdir -p frontend/.next/standalone/node_modules
+                - rm -rf frontend/.next/standalone/node_modules/next
+                - cp -R node_modules/next frontend/.next/standalone/node_modules/next
+                - if [ -d node_modules/@next ]; then rm -rf frontend/.next/standalone/node_modules/@next && cp -R node_modules/@next frontend/.next/standalone/node_modules/@next; fi
+                - test -f frontend/.next/standalone/node_modules/next/package.json
+                - echo "Next.js standalone runtime dependency verified"
+
           artifacts:
             baseDirectory: frontend/.next
             files:
               - '**/*'
+
           cache:
             paths:
               - node_modules/**/*
               - frontend/.next/cache/**/*
+
   EOT
 
   environment_variables = {
