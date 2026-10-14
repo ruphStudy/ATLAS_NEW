@@ -1,6 +1,17 @@
+import path from 'node:path';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // Produce a self-contained production runtime.
+  // This helps Amplify package the required Next.js runtime dependencies
+  // correctly when the frontend lives inside the atlas npm monorepo.
+  output: 'standalone',
+
+  // The frontend is atlas/frontend while npm workspaces and shared
+  // dependencies live under atlas/. Allow Next.js output tracing to include
+  // dependencies from the complete atlas workspace.
+  outputFileTracingRoot: path.join(process.cwd(), '..'),
+
   // Enable React strict mode for development warnings
   reactStrictMode: true,
 
