@@ -81,6 +81,10 @@ resource "aws_amplify_app" "frontend" {
 
   # atlas/ is an npm-workspaces root (backend, frontend, shared) inside the
   # repo, so install from there and build the frontend workspace only.
+  #
+  # --ignore-scripts prevents the root workspace prepare script from running
+  # Husky during Amplify CI, where root dev dependencies are intentionally
+  # not installed.
   build_spec = <<-EOT
     version: 1
     applications:
@@ -90,7 +94,7 @@ resource "aws_amplify_app" "frontend" {
             preBuild:
               commands:
                 - nvm use 20
-                - cd .. && npm ci --workspace=@atlas/frontend --include-workspace-root=false && cd frontend
+                - cd .. && npm ci --workspace=@atlas/frontend --include-workspace-root=false --ignore-scripts && cd frontend
             build:
               commands:
                 - npm run build
