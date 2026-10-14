@@ -24,7 +24,7 @@ resource "aws_ecr_lifecycle_policy" "backend" {
   policy = jsonencode({
     rules = [{
       rulePriority = 1
-      description  = "Keep only the last 10 backend images"
+      description  = "Keep only the last 10 images"
 
       selection = {
         tagStatus   = "any"
