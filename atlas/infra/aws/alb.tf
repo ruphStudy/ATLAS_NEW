@@ -134,6 +134,11 @@ resource "aws_lb_listener" "https" {
   }
 }
 
+resource "aws_lb_listener_certificate" "frontend" {
+  listener_arn    = aws_lb_listener.https.arn
+  certificate_arn = aws_acm_certificate_validation.frontend.certificate_arn
+}
+
 # Route the staging frontend hostname to the frontend ECS target group.
 resource "aws_lb_listener_rule" "frontend_host" {
   listener_arn = aws_lb_listener.https.arn
