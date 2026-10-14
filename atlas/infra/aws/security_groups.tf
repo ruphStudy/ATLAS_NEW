@@ -31,7 +31,9 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "${var.project}-${var.environment}-alb-sg" }
+  tags = {
+    Name = "${var.project}-${var.environment}-alb-sg"
+  }
 }
 
 resource "aws_security_group" "ecs" {
@@ -55,7 +57,39 @@ resource "aws_security_group" "ecs" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "${var.project}-${var.environment}-ecs-sg" }
+  tags = {
+    Name = "${var.project}-${var.environment}-ecs-sg"
+  }
+}
+
+# Dedicated frontend Fargate security group.
+# The frontend only needs inbound traffic from the ALB on port 3000.
+# Keeping this separate from the backend SG prevents the frontend service
+# from inheriting network access to RDS and Redis.
+resource "aws_security_group" "frontend_ecs" {
+  name        = "${var.project}-${var.environment}-frontend-ecs-sg"
+  description = "Frontend Fargate tasks - inbound only from the ALB"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "Frontend port from ALB only"
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
+  egress {
+    description = "Outbound HTTPS and runtime traffic via NAT/VPC"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.project}-${var.environment}-frontend-ecs-sg"
+  }
 }
 
 resource "aws_security_group" "rds" {
@@ -78,7 +112,9 @@ resource "aws_security_group" "rds" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "${var.project}-${var.environment}-rds-sg" }
+  tags = {
+    Name = "${var.project}-${var.environment}-rds-sg"
+  }
 }
 
 resource "aws_security_group" "redis" {
@@ -101,5 +137,7 @@ resource "aws_security_group" "redis" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "${var.project}-${var.environment}-redis-sg" }
+  tags = {
+    Name = "${var.project}-${var.environment}-redis-sg"
+  }
 }
