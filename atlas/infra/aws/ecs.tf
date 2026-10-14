@@ -7,10 +7,19 @@ resource "aws_ecs_cluster" "main" {
   }
 }
 
+# ── CloudWatch logs ─────────────────────────────────────────────
+
 resource "aws_cloudwatch_log_group" "backend" {
   name              = "/${var.project}/${var.environment}/backend"
   retention_in_days = var.log_retention_days
 }
+
+resource "aws_cloudwatch_log_group" "frontend" {
+  name              = "/${var.project}/${var.environment}/frontend"
+  retention_in_days = var.log_retention_days
+}
+
+# ── Backend task definition ─────────────────────────────────────
 
 resource "aws_ecs_task_definition" "backend" {
   family                   = "${var.project}-${var.environment}-backend"
@@ -81,6 +90,49 @@ resource "aws_ecs_task_definition" "backend" {
   ])
 }
 
+# ── Frontend task definition ────────────────────────────────────
+
+resource "aws_ecs_task_definition" "frontend" {
+  family                   = "${var.project}-${var.environment}-frontend"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = var.frontend_cpu
+  memory                   = var.frontend_memory
+  execution_role_arn       = aws_iam_role.ecs_execution.arn
+  task_role_arn            = aws_iam_role.ecs_task.arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "frontend"
+      image     = "${aws_ecr_repository.frontend.repository_url}:${var.frontend_image_tag}"
+      essential = true
+
+      portMappings = [{
+        containerPort = var.frontend_container_port
+        protocol      = "tcp"
+      }]
+
+      environment = [
+        { name = "NODE_ENV", value = "production" },
+        { name = "PORT", value = tostring(var.frontend_container_port) },
+        { name = "HOSTNAME", value = "0.0.0.0" },
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.frontend.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "frontend"
+        }
+      }
+    }
+  ])
+}
+
+# ── Backend ECS service ─────────────────────────────────────────
+
 resource "aws_ecs_service" "backend" {
   name            = "${var.project}-${var.environment}-backend"
   cluster         = aws_ecs_cluster.main.id
@@ -88,9 +140,6 @@ resource "aws_ecs_service" "backend" {
   desired_count   = var.backend_desired_count
   launch_type     = "FARGATE"
 
-  # The ATLAS backend currently takes around 1.5-2 minutes to complete
-  # startup. Give the new task enough time to become ready before the
-  # ALB health check can cause ECS to stop it.
   health_check_grace_period_seconds = 180
 
   network_configuration {
@@ -106,4 +155,32 @@ resource "aws_ecs_service" "backend" {
   }
 
   depends_on = [aws_lb_listener.https]
+}
+
+# ── Frontend ECS service ────────────────────────────────────────
+
+resource "aws_ecs_service" "frontend" {
+  name            = "${var.project}-${var.environment}-frontend"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.frontend.arn
+  desired_count   = var.frontend_desired_count
+  launch_type     = "FARGATE"
+
+  health_check_grace_period_seconds = 60
+
+  network_configuration {
+    subnets          = aws_subnet.private[*].id
+    security_groups  = [aws_security_group.frontend_ecs.id]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.frontend.arn
+    container_name   = "frontend"
+    container_port   = var.frontend_container_port
+  }
+
+  depends_on = [
+    aws_lb_listener_rule.frontend_host
+  ]
 }
