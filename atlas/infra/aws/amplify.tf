@@ -166,7 +166,7 @@ resource "aws_amplify_branch" "frontend" {
 
   framework         = "Next.js - SSR"
   stage             = "BETA"
-  enable_auto_build = true
+  enable_auto_build = false
 
   tags = {
     Name = "${var.project}-${var.environment}-frontend-${var.frontend_branch}"
