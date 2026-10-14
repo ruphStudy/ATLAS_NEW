@@ -25,6 +25,7 @@ data "aws_route53_zone" "frontend" {
 data "aws_iam_policy_document" "amplify_assume" {
   statement {
     actions = ["sts:AssumeRole"]
+
     principals {
       type        = "Service"
       identifiers = ["amplify.amazonaws.com"]
@@ -38,13 +39,23 @@ resource "aws_iam_role" "amplify_service" {
 }
 
 data "aws_iam_policy_document" "amplify_logs" {
+  # DescribeLogGroups does not support resource-level restriction.
+  statement {
+    actions = [
+      "logs:DescribeLogGroups",
+    ]
+
+    resources = ["*"]
+  }
+
+  # Keep log creation/write permissions restricted to Amplify log groups.
   statement {
     actions = [
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
-      "logs:DescribeLogGroups",
     ]
+
     resources = [
       "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/amplify/*",
       "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/amplify/*:log-stream:*",
