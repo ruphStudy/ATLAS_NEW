@@ -79,11 +79,21 @@ resource "aws_amplify_app" "frontend" {
 
   iam_service_role_arn = aws_iam_role.amplify_service.arn
 
-  # atlas/ is the npm-workspaces root containing frontend, backend and shared.
+  # Repository layout:
   #
-  # Amplify builds from the repository root so npm installs the complete
-  # workspace dependency tree. This ensures Next.js remains available in
-  # node_modules when Amplify packages the SSR runtime.
+  #   repo root/
+  #   └── atlas/                <- npm workspace root
+  #       ├── package.json
+  #       ├── node_modules/
+  #       ├── frontend/         <- Next.js application
+  #       ├── backend/
+  #       └── shared/
+  #
+  # Amplify therefore uses /atlas as the build path. npm install and the
+  # frontend workspace build both run directly from the npm workspace root.
+  #
+  # This also ensures the Next.js runtime dependency is available from the
+  # workspace node_modules directory when Amplify packages the SSR app.
   #
   # --ignore-scripts prevents the root workspace prepare script from running
   # Husky during Amplify CI.
@@ -92,23 +102,23 @@ resource "aws_amplify_app" "frontend" {
     applications:
       - appRoot: ${var.frontend_app_root}
         frontend:
-          buildPath: /
+          buildPath: /atlas
           phases:
             preBuild:
               commands:
                 - nvm use 20
-                - cd atlas && npm ci --ignore-scripts
+                - npm ci --ignore-scripts
             build:
               commands:
-                - cd atlas && npm run build --workspace=@atlas/frontend
+                - npm run build --workspace=@atlas/frontend
           artifacts:
-            baseDirectory: atlas/frontend/.next
+            baseDirectory: frontend/.next
             files:
               - '**/*'
           cache:
             paths:
-              - atlas/node_modules/**/*
-              - atlas/frontend/.next/cache/**/*
+              - node_modules/**/*
+              - frontend/.next/cache/**/*
   EOT
 
   environment_variables = {
