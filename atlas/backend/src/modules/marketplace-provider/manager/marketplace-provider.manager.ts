@@ -102,6 +102,7 @@ export class MarketplaceProviderManager {
     workspaceId: string,
     accountId: string | undefined,
     credentials: MarketplaceCredentials,
+    country?: string,
   ): Promise<MarketplaceHealthResult> {
     const adapter = this.registry.get(providerKey);
     const contextBuilder = MarketplaceRequestContextBuilder.create(
@@ -110,6 +111,7 @@ export class MarketplaceProviderManager {
       MarketplaceKey.CUSTOM,
     );
     if (accountId) contextBuilder.withAccountId(accountId);
+    if (country) contextBuilder.withCountry(country.toUpperCase());
     const context = contextBuilder.build();
 
     this.logger.log(`Testing connection for provider '${providerKey}' account '${accountId}'`);

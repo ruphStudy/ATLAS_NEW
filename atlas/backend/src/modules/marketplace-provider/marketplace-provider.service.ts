@@ -25,6 +25,7 @@ import { MarketplaceVersionManager } from './version/marketplace-version.manager
 import { MarketplaceMetricsRecorder } from './metrics/marketplace-metrics.recorder';
 import { MarketplaceProviderRepository } from './marketplace-provider.repository';
 import { MarketplaceProviderEventQueue } from './jobs/marketplace-provider-events.queue';
+import { MarketplaceProviderCredentialsManager } from '../marketplace-provider-credentials/marketplace-provider-credentials.manager';
 import {
   CreateMarketplaceAccountDto,
   MarketplaceAccountResponseDto,
@@ -52,6 +53,7 @@ export class MarketplaceProviderService {
     private readonly repository: MarketplaceProviderRepository,
     private readonly eventQueue: MarketplaceProviderEventQueue,
     private readonly auditLogsService: AuditLogsService,
+    private readonly providerCredentialsManager: MarketplaceProviderCredentialsManager,
   ) {}
 
   // ── Provider Metadata ─────────────────────────────────────────
@@ -309,7 +311,7 @@ export class MarketplaceProviderService {
   ): Promise<MarketplaceCredentials | null> {
     const config = await this.repository.findActiveConfig(workspaceId, providerKey, accountId);
     if (!config?.encryptedCredentials) {
-      return null;
+      return this.resolveProviderCredentialsFallback(workspaceId, providerKey, accountId);
     }
 
     const decryptedPacked = this.credentialService.decrypt(
@@ -339,6 +341,40 @@ export class MarketplaceProviderService {
     };
   }
 
+  /**
+   * Fallback for accounts whose credentials live in the newer
+   * marketplace-provider-credentials store (e.g. Amazon OAuth, which stores
+   * the seller refreshToken there, not in the legacy provider config).
+   * Fields are returned as decrypted by that module; values are never logged.
+   */
+  private async resolveProviderCredentialsFallback(
+    workspaceId: string,
+    providerKey: string,
+    accountId?: string,
+  ): Promise<MarketplaceCredentials | null> {
+    const bag = await this.providerCredentialsManager.resolveDecrypted(
+      providerKey,
+      workspaceId,
+      accountId ?? null,
+      providerKey,
+    );
+    if (!bag) {
+      return null;
+    }
+
+    return {
+      workspaceId,
+      providerKey,
+      accountId,
+      // The newer store only holds OAuth-issued credentials for these
+      // accounts and its bag carries no type of its own.
+      credentialType: MarketplaceCredentialType.OAUTH_TOKEN,
+      encryptionAlgorithm: MarketplaceCredentialEncryption.NONE,
+      fields: bag.fields,
+      expiresAt: null,
+    };
+  }
+
   // ── Connection Test ───────────────────────────────────────────
 
   async testConnection(
@@ -351,7 +387,13 @@ export class MarketplaceProviderService {
       throw new BadRequestException('No credentials configured for this provider account');
     }
 
-    return this.manager.testConnection(providerKey, workspaceId, accountId, credentials);
+    // Region-specific providers (e.g. Amazon IN vs US) need the account's own
+    // marketplace country; accounts without one keep the adapter's default.
+    const country = accountId
+      ? await this.repository.findMarketplaceAccountCountry(workspaceId, accountId)
+      : null;
+
+    return this.manager.testConnection(providerKey, workspaceId, accountId, credentials, country ?? undefined);
   }
 
   // ── Capability Queries ────────────────────────────────────────

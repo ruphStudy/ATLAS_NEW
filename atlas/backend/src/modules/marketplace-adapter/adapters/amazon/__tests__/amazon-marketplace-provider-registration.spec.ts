@@ -7,6 +7,7 @@ import { MarketplaceProviderFactoryMetrics } from '../../../../marketplace-provi
 import { MP_FACTORY_ERROR_CODES } from '../../../../marketplace-provider-factory/constants';
 import { AmazonMarketplaceProviderAdapter } from '../amazon-marketplace-provider.adapter';
 import { AmazonSpApiClient } from '../client/amazon-sp-api.client';
+import { AmazonMarketplace, AmazonRegion } from '../interfaces/amazon.interfaces';
 import { ConfigurationService } from '@config/configuration.service';
 
 function makeConfigurationServiceStub(overrides: Partial<{ clientId: string; clientSecret: string; environment: string }> = {}): ConfigurationService {
@@ -108,5 +109,53 @@ describe('Amazon -> MarketplaceProviderRegistry bridge', () => {
       dependencyResolver.resolve('NOT_A_PROVIDER', { workspaceId: 'ws-1' } as any),
     ).rejects.toMatchObject({ code: MP_FACTORY_ERROR_CODES.PROVIDER_NOT_FOUND });
     expect(credentialsManager.resolve).not.toHaveBeenCalled();
+  });
+});
+
+describe('AmazonMarketplaceProviderAdapter.testConnection marketplace selection', () => {
+  const credentials = {
+    workspaceId: 'ws-1',
+    providerKey: 'AMAZON',
+    credentialType: 'OAUTH_TOKEN' as any,
+    encryptionAlgorithm: 'NONE' as any,
+    fields: { refreshToken: 'seller-refresh-token' },
+  };
+  const context = (country?: string) => ({
+    correlationId: 'c',
+    workspaceId: 'ws-1',
+    providerKey: 'AMAZON',
+    accountId: 'acct-1',
+    marketplaceKey: 'CUSTOM' as any,
+    ...(country ? { country } : {}),
+  });
+
+  function makeAdapter() {
+    const get = jest.fn().mockResolvedValue({ status: 200, data: {} });
+    const adapter = new AmazonMarketplaceProviderAdapter({ get } as unknown as AmazonSpApiClient, makeConfigurationServiceStub());
+    return { adapter, get };
+  }
+
+  it('an India account (country=IN) is tested against the India marketplace / EU region, not US', async () => {
+    const { adapter, get } = makeAdapter();
+
+    await adapter.testConnection(context('IN'), credentials);
+
+    expect(get.mock.calls[0][0]).toMatchObject({ marketplace: AmazonMarketplace.IN, region: AmazonRegion.EU });
+  });
+
+  it('a US account is tested against the US marketplace / NA region', async () => {
+    const { adapter, get } = makeAdapter();
+
+    await adapter.testConnection(context('US'), credentials);
+
+    expect(get.mock.calls[0][0]).toMatchObject({ marketplace: AmazonMarketplace.US, region: AmazonRegion.NA });
+  });
+
+  it('keeps the existing US default when no country is supplied', async () => {
+    const { adapter, get } = makeAdapter();
+
+    await adapter.testConnection(context(), credentials);
+
+    expect(get.mock.calls[0][0]).toMatchObject({ marketplace: AmazonMarketplace.US });
   });
 });

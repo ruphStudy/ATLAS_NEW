@@ -225,4 +225,28 @@ describe('MarketplaceProviderManager', () => {
       );
     });
   });
+
+  describe('testConnection() context country', () => {
+    const creds = { workspaceId: 'ws1', providerKey: 'AMZ', credentialType: 'OAUTH_TOKEN' as any, encryptionAlgorithm: 'NONE' as any, fields: {} };
+
+    it('adds the account country to the request context', async () => {
+      const adapter = makeAdapter('AMZ');
+      registry.register(adapter);
+
+      await manager.testConnection('AMZ', 'ws1', 'acct-1', creds, 'in');
+
+      const [context] = (adapter.testConnection as jest.Mock).mock.calls[0];
+      expect(context).toMatchObject({ workspaceId: 'ws1', accountId: 'acct-1', country: 'IN' });
+    });
+
+    it('leaves country unset when none is supplied (legacy providers)', async () => {
+      const adapter = makeAdapter('AMZ');
+      registry.register(adapter);
+
+      await manager.testConnection('AMZ', 'ws1', 'acct-1', creds);
+
+      const [context] = (adapter.testConnection as jest.Mock).mock.calls[0];
+      expect(context.country).toBeUndefined();
+    });
+  });
 });

@@ -123,6 +123,20 @@ export class MarketplaceProviderRepository extends BaseRepository {
     }) as Promise<WorkspaceMarketplaceProviderConfig | null>;
   }
 
+  /**
+   * Country of the connected MarketplaceAccount (the account the OAuth flow /
+   * marketplace-account module manages), for request context only. Always
+   * workspace-scoped: an accountId from another workspace resolves to null.
+   */
+  async findMarketplaceAccountCountry(workspaceId: string, accountId: string): Promise<string | null> {
+    const model = (this.prisma as unknown as Record<string, unknown>)['marketplaceAccount'] as PrismaModel;
+    const account = (await model.findFirst({
+      where: { id: accountId, workspaceId, deletedAt: null },
+      select: { country: true },
+    })) as { country?: string | null } | null;
+    return account?.country ?? null;
+  }
+
   async updateConfig(
     id: string,
     workspaceId: string,
