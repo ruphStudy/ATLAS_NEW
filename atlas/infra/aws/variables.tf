@@ -42,7 +42,7 @@ variable "single_nat_gateway" {
 variable "backend_image_tag" {
   description = "Tag of the backend image already pushed to the ECR repo this stack creates."
   type        = string
-  default     = "latest"
+  default     = "spapi-fix-001"
 }
 
 variable "backend_container_port" {
